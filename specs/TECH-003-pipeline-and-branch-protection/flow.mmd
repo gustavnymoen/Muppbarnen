@@ -1,0 +1,13 @@
+%% TECH-003 Pipeline and branch protection
+%% From a pull request to the live site, with main protected.
+flowchart TD
+    A[Branch protection on main] -->|R1, R2| B[Pull request from the branch]
+    B --> C[CI: check, security]
+    B --> D[Vercel builds the preview on muppbarnen-preview]
+    D -->|R4| E[Preview tests: preview]
+    C --> F{All four checks green and branch up to date?}
+    E --> F
+    D --> F
+    F -->|yes| G[Merge to main]
+    G --> H[Vercel deploys production]
+    H -->|R3| I[Live tests against production]

@@ -28,7 +28,8 @@ In scope: the pages and flows in the board's features below. Out of scope: payme
 | ID | What | Area | Status |
 |---|---|---|---|
 | TECH-001 | Project setup | Shared | Ongoing |
-| TECH-002 | Repository and hosting | Shared | Ongoing |
+| TECH-002 | Repository and hosting | Shared | Done |
+| TECH-003 | Pipeline and branch protection | Shared | Ongoing |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3>.
 
