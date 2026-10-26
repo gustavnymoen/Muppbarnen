@@ -2,8 +2,6 @@
 
 # Working on Muppbarnen
 
-> **New project:** until the setup in `PLAYBOOK.md` ("Setting up a new project") is done, follow it first. Then fill in the placeholders `<…>` below and remove this note.
-
 This project is built with **specification-driven development** (SDD; "How we work" in `specs/overview.md`). The requirements decide what gets built, and code, tests and documentation follow from them. Read `README.md` for the project layout and conventions, `specs/overview.md` for the product, its terms and the rules that apply across features, and `wiki/system/testing.md` for how everything is tested.
 
 - **What is built and why** is in a card on the GitHub board ["Muppbarnen"](https://github.com/users/gustavnymoen/projects/3): a short explanation, then the requirements and a test plan, worked out together with the user. Read a card with `gh issue view <number>`.
