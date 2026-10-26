@@ -1,0 +1,13 @@
+%% TECH-002 Repository and hosting
+%% From the first push to a live site.
+flowchart TD
+    A[Search history for secrets and personal data] -->|R1| B[Push TECH-001 branch as main]
+    B --> C[Vercel imports the repository]
+    C -->|R2, R3| D[deployment_status on, bypass secret in GitHub]
+    C --> E[Turso: production and preview databases]
+    E -->|R5, R6| F[Variables in Vercel]
+    C --> G[Vercel Blob store]
+    G -->|R7| F
+    F --> H[Vercel builds main and runs migrations]
+    H -->|R2| I[muppbarnen.vercel.app answers]
+    I -->|R4| J[URL in playwright.config.ts, live-tests.yml, pipeline.md]
