@@ -12,7 +12,9 @@ export default async function globalTeardown(config: FullConfig) {
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ baseURL, extraHTTPHeaders });
-    await page.goto("/admin/login");
+    const login = await page.goto("/admin/login");
+    // Admin-sidan kommer med MUPP-003; tills dess finns inget att städa
+    if (login?.status() === 404) return;
     await page.getByLabel("Lösenord").fill(process.env.ADMIN_PASSWORD);
     await page.getByRole("button", { name: "Logga in" }).click();
     await page.waitForURL(/\/admin$/);
