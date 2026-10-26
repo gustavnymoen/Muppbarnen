@@ -1,0 +1,25 @@
+# Dependabot föreslår säkerhetsuppdateringar som pull requests, som
+# går igenom CI och Preview tests som alla andra. För npm bara säkerhet: vanliga
+# versionsuppdateringar är avstängda (open-pull-requests-limit: 0), så att
+# Next.js och de andra paketen uppdateras när vi själva väljer det.
+# GitHub Actions är låsta till en commit, så Dependabot föreslår nya
+# versioner av dem (commit och versionskommentar) en gång i månaden, samlat.
+# Därför har de ingen open-pull-requests-limit: 0, som skulle stänga av det.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+
+  # Arbetsflödena och den gemensamma förberedelsen i .github/actions/
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/setup-tests
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]

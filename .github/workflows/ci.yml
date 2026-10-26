@@ -1,0 +1,95 @@
+# Kontroller för varje pull request till main.
+# Inte igen efter merge. Branch protection kräver att grenen är
+# uppdaterad mot main, så det CI testade är precis det som mergas.
+# Säkerhetsjobbet bredvid: sårbara paket, osäker kod och läckta hemligheter.
+# Lint, typkontroll, bygge och alla tester mot ett lokalt produktionsbygge
+# med egen testdatabas. Använder varken Turso eller några riktiga lösenord.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# GITHUB_TOKEN får bara läsa
+permissions:
+  contents: read
+
+# En ny push på samma gren avbryter den förra körningen
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Playwrights image, samma version som @playwright/test
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/setup-tests
+
+      # Påhittat lösenord och nyckel för testservern, bara för den här körningen
+      - name: Engångslösenord för testerna
+        run: |
+          echo "ADMIN_PASSWORD=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+          echo "ADMIN_SESSION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - run: npm run lint
+      - run: npm run typecheck
+      # Enhetstesterna före bygget, så att en trasig regel stoppar tidigt
+      - run: npm run test:unit
+      - run: npm run build
+      - run: npm run test:local
+
+      - name: Spara testrapporten
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  # Sårbara paket (npm audit), osäkra mönster i vår kod (Semgrep) och
+  # hemligheter i hela git-historiken (Gitleaks). Gratisverktyg; Semgrep och
+  # Gitleaks körs från sina officiella images med fast version.
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      # Hela historiken, så att Gitleaks ser varje commit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # Bara paketen sajten använder i produktion, och bara allvarliga fynd
+      - name: Sårbara paket
+        run: npm audit --omit=dev --audit-level=high
+
+      # Semgreps fria regler för JavaScript, TypeScript, React, Next.js och SQL.
+      # Ett fel som inte är ett fel markeras i koden med nosemgrep och varför.
+      # Varje skanning körs även om en tidigare föll, så att alla fynd syns.
+      # Plus vår egen regel i .semgrep/ för SQL med vår databashjälp. .claude/ är
+      # verktyg för utvecklingen, inte sajten, och skannas inte.
+      - name: Osäker kod
+        if: ${{ !cancelled() }}
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.182.0 \
+            semgrep scan --error --metrics=off --exclude .claude \
+              --config p/javascript --config p/typescript --config p/react \
+              --config p/nextjs --config p/sql-injection --config .semgrep/
+
+      # Hela historiken bakom den här ändringen (HEAD, inte andra brancher) varje
+      # gång: den är liten, och en hemlighet som kommit in tidigare ska också
+      # hittas. Värdena skrivs aldrig ut (--redact).
+      - name: Läckta hemligheter
+        if: ${{ !cancelled() }}
+        run: |
+          docker run --rm -v "$PWD:/repo" --entrypoint sh ghcr.io/gitleaks/gitleaks:v8.30.1 -c \
+            'git config --global --add safe.directory /repo && gitleaks git /repo --log-opts=HEAD --redact --verbose'

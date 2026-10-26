@@ -1,0 +1,7 @@
+%% MUPP-000 Short name of the feature
+%% The main flow and its error paths. Label steps with requirement IDs where it helps.
+flowchart TD
+    A[User opens the page] --> B{Valid input?}
+    B -- yes --> C[Show the result]
+    B -- no --> D[Show error message]
+    D --> A

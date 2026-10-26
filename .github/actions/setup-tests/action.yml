@@ -1,0 +1,20 @@
+# Gemensam förberedelse för arbetsflödena som kör Playwright
+# (CI, Live tests, Preview tests). Kräver att repot redan är utcheckat.
+# Jobben körs i Playwrights image, där Node, Chromium och dess
+# systembibliotek redan finns, så här installeras bara paketen.
+name: Förbered testerna
+description: Paketen, och en kontroll av att imagen har rätt Playwright-version.
+
+runs:
+  using: composite
+  steps:
+    # Imagens Node, men npm-cachen från setup-node
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        cache: npm
+
+    - run: npm ci
+      shell: bash
+
+    - run: node scripts/check-playwright-image.mjs
+      shell: bash

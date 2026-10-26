@@ -1,0 +1,1 @@
+-- Testdata för en ny databas. Körs efter schema.sql av scripts/db-setup.mjs.

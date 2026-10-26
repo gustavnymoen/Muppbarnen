@@ -1,0 +1,11 @@
+%% TECH-001 Project setup
+%% Ingen användarflöde i det här kortet; flödet är hur utvecklingsservern startar.
+flowchart TD
+    A[npm run dev] --> B[predev: scripts/db-setup.mjs --backup]
+    B --> C{Finns den lokala databasen?}
+    C -- ja --> D[Säkerhetskopia i db/backups/]
+    C -- nej --> E[Skapa från schema.sql och seed.sql]
+    D --> F[Kör nya migreringar]
+    E --> F
+    F --> G[next dev]
+    G --> H[Besökaren öppnar / och ser rubriken Muppbarnen]

@@ -1,0 +1,2 @@
+-- Databasens struktur för en ny databas. Körs av scripts/db-setup.mjs.
+-- Ändringar efter första versionen görs som migreringar i db/migrations/.

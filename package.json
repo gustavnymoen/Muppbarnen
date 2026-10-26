@@ -1,0 +1,46 @@
+{
+  "name": "muppbarnen",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "predev": "node scripts/db-setup.mjs --backup",
+    "dev": "next dev",
+    "prebuild": "node scripts/db-setup.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "db:reset": "node scripts/db-setup.mjs --reset",
+    "db:turso": "node --env-file=.env.turso scripts/db-setup.mjs",
+    "db:backup": "node scripts/db-setup.mjs --backup",
+    "postinstall": "node scripts/postinstall.mjs",
+    "test": "playwright test",
+    "test:local": "BASE_URL=http://localhost:3100 playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:unit": "vitest run",
+    "test:time": "node scripts/test-time.mjs"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.3",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  }
+}
