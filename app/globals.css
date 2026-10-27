@@ -1,3 +1,80 @@
 @import "tailwindcss";
 
-/* Designens tokens kommer med MUPP-001 */
+/* Designens tokens. Värden och användning: DESIGN.md */
+@theme static {
+  --color-page: #0c1015;
+  --color-card: #141920;
+  --color-edge: #272e39;
+  --color-shadow: #05080d;
+  --color-text: #c8d0dc;
+  --color-muted: #8591a4;
+  --color-brand: #9aa9e0;
+  --color-on-brand: #0c1015;
+
+  --color-child-coral: #d4958b;
+  --color-child-sun: #d4b873;
+  --color-child-mint: #82bd9f;
+  --color-child-sky: #82aad0;
+  --color-child-lilac: #a698d0;
+  --color-child-pink: #cd96b8;
+
+  --font-heading: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-nunito), system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+  --radius-control: 0.875rem;
+  /* Lager av skugga: en kort hård kant, en nära och en mjuk långt ut, och en ljus kant överst */
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.05), 2px 3px 0 0 var(--color-shadow), 0 6px 12px -2px rgb(0 0 0 / 0.35), 0 18px 32px -12px rgb(0 0 0 / 0.55);
+  --shadow-card-pressed: inset 0 1px 0 rgb(255 255 255 / 0.03), 0 1px 0 0 var(--color-shadow), 0 2px 4px rgb(0 0 0 / 0.3);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgb(130 145 170 / 0.10), transparent 60%),
+    var(--color-page);
+  background-attachment: fixed;
+  color: var(--color-text);
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 3px;
+}
+
+/* Kort som tonar in: bara transform och opacity, högst 300 ms */
+@keyframes enter {
+  from { opacity: 0; transform: translateY(8px); }
+}
+.enter { animation: enter 250ms var(--ease-out-soft) both; }
+
+/* Markerat kort: barnets färg (--child) på kant och skugga, dämpad så att den inte skriker */
+.card-highlight {
+  border: 2px solid color-mix(in srgb, var(--child) 60%, var(--color-card));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 2px 3px 0 0 color-mix(in srgb, var(--child) 45%, var(--color-shadow)), 0 6px 12px -2px rgb(0 0 0 / 0.35), 0 18px 32px -12px rgb(0 0 0 / 0.55);
+}
+
+/* Länk- och knappkort och knappar flyttar sig in i sin skugga när de trycks */
+.press { transition: transform 120ms var(--ease-out-soft), box-shadow 120ms var(--ease-out-soft); }
+.press:active:not(:disabled) { transform: translate(2px, 3px); box-shadow: var(--shadow-card-pressed); }
+
+@media (prefers-reduced-motion: reduce) {
+  .enter { animation: none; }
+  .press { transition: background-color 120ms, border-color 120ms; }
+  .press:active:not(:disabled) { transform: none; filter: brightness(0.85); }
+}
+
+/* Barnets färg i små detaljer, dämpad mot kortet: etikett (ljus text på en svag ton) och ring */
+.chip-child {
+  color: var(--child);
+  background: color-mix(in srgb, var(--child) 16%, var(--color-card));
+  border: 1px solid color-mix(in srgb, var(--child) 35%, var(--color-card));
+}
+.ring-child { border-color: color-mix(in srgb, var(--child) 65%, var(--color-card)); }

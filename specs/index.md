@@ -16,6 +16,7 @@ okf_version: "0.2"
 * [TECH-001 Project setup](TECH-001-project-setup/solution.md) - The Next.js project running locally.
 * [TECH-002 Repository and hosting](TECH-002-repository-and-hosting/solution.md) - The code on GitHub and the site on Vercel and Turso.
 * [TECH-003 Pipeline and branch protection](TECH-003-pipeline-and-branch-protection/solution.md) - Protected main and the whole pipeline run once.
+* [MUPP-001 Design](MUPP-001-design/solution.md) - The look of the site: tokens, shared components and a style guide page.
 * [TECH-004 OKF documentation](TECH-004-okf-documentation/solution.md) - The specs and the wiki as OKF bundles with an automatic check.
 
 ## Related

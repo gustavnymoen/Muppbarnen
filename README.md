@@ -19,6 +19,7 @@ npm run dev                  # creates the local database on first start
 | Command | What |
 |---|---|
 | `npm run dev` | Development server; backs up and migrates the local database first |
+| `npm run dev:https` | The same on `https://localhost:3000` (needs mkcert; [Testing on a phone](wiki/system/phone-testing.md)) |
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint`, `npm run typecheck`, `npm run lint:docs` | Lint, type check, and the check of the documentation structure |
 | `npm run test:unit` | Unit tests (Vitest) |
@@ -33,7 +34,7 @@ Never run `npm run build` while `npm run dev` is running in the same folder.
 
 | Path | What |
 |---|---|
-| `app/` | Pages and components (Next.js App Router) |
+| `app/` | Pages and components (Next.js App Router); the look is in `DESIGN.md` and [Design system](wiki/system/design.md) |
 | `lib/` | Server code, database access |
 | `db/` | Schema, seed, migrations, test helper |
 | `scripts/` | Database setup, test server, timing |

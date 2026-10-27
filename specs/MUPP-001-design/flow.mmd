@@ -1,0 +1,12 @@
+%% MUPP-001 Design
+%% How a page gets its look, and what a visitor can do on /design.
+flowchart TD
+    A[Tokens in globals.css R1] --> B[Shared components R3 R4 R5]
+    C[Fonts from our own server R2] --> B
+    D[childColor R6] --> B
+    B --> E[/design shows every token and component R8]
+    E --> F{Reduced motion?}
+    F -- yes --> G[Nothing moves, colours only R7]
+    F -- no --> H[Press and short entrance, 300 ms or less R7]
+    E --> I[Phone: one column, only the content scrolls R5]
+    E --> J[Desktop: wide centred frame in columns R5]
