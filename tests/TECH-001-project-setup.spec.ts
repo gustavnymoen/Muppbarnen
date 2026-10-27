@@ -3,9 +3,9 @@ import { expectNoA11yViolations } from "./helpers";
 
 test("TECH-001-R4 the start page has its heading, language and title, and no a11y violations", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Muppbarnen", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Muppbarnens önskelistor", level: 1 })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "sv");
-  await expect(page).toHaveTitle("Muppbarnen");
+  await expect(page).toHaveTitle("Muppbarnens önskelistor");
   await expectNoA11yViolations(page);
 });
 

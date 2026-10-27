@@ -17,7 +17,7 @@ A dark, muted, mobile-first look (about 90 % of visits come from phones), wide o
 |---|---|---|
 | Tokens | `app/globals.css` (`@theme`) | Colours, fonts, radii and shadows, used as Tailwind classes (`bg-card`, `text-muted`, `shadow-card`). No colour value is written anywhere else. |
 | Fonts | `app/layout.tsx` | Fredoka (headings, names, buttons) and Nunito (text) through `next/font/google`: downloaded at build time and served from our own server, so no request goes to a font host. `font-display: swap` shows the fallback font right away. |
-| Page shell | `app/components/Page.tsx` | `Page` fills the screen (`h-dvh`, safe areas), is at most 72 rem wide and centred, and does not scroll; `PageContent` is the one region that scrolls. `Heading` sets the type scale. |
+| Page shell | `app/components/Page.tsx` | `Page` fills the screen (`h-dvh`, safe areas), is at most 72 rem wide and centred, and does not scroll; `PageContent` is the one region that scrolls. `Heading` sets the type scale. `Page` also holds the site header and menu ([Start page and menu](start-page.md)). |
 | Card | `Card.tsx` | 1 px edge and a layered shadow. `highlight` gives a child's colour (toned down) on a 2 px edge and shadow; `pressable` makes it move into its shadow when pressed. |
 | Buttons | `Button.tsx` | `Button` (primary in the brand colour, secondary), `IconButton` (needs a `label`, which is its accessible name). At least 44 × 44 px. |
 | Chip, avatar | `Chip.tsx`, `Avatar.tsx` | Child colour toned down; the avatar shows a picture or the initial and always has the child's name as its accessible name. |

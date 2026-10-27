@@ -8,7 +8,7 @@ import { childBg } from "@/app/components/colors";
 import { childColor } from "@/lib/child-colors";
 import { childSwatches, hexOf, swatches } from "./tokens";
 
-export const metadata: Metadata = { title: "Stilguide – Muppbarnen" };
+export const metadata: Metadata = { title: "Stilguide – Muppbarnens önskelistor" };
 
 // Påhittade barn; bilden är en enkel SVG, ingen riktig bild
 const sky = "#82AAD0"; // barnfärgen Himmel, som i app/globals.css (kontrolleras i enhetstestet)

@@ -144,3 +144,22 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
   await expect(pressable).toHaveCSS("transform", "none");
   await page.mouse.up();
 });
+
+test("MUPP-002-R1 R3 the start page: a header without border, a carousel that glides or, with reduced motion, jumps", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  // R1: sidhuvudet har ingen kant eller skiljelinje
+  const header = page.getByRole("banner");
+  for (const side of ["top", "right", "bottom", "left"]) await expect(header).toHaveCSS(`border-${side}-width`, "0px");
+  await expect(header).toHaveCSS("box-shadow", "none");
+
+  // R3: raden snäpper kort för kort och glider
+  const row = page.getByRole("group", { name: "Barnens kort, exempel" });
+  await expect(row).toHaveCSS("scroll-snap-type", "x mandatory");
+  await expect(row).toHaveCSS("scroll-behavior", "smooth");
+
+  // R3: med minskad rörelse hoppar den
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(row).toHaveCSS("scroll-behavior", "auto");
+});

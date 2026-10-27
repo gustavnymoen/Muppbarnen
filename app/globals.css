@@ -78,3 +78,10 @@ body {
   border: 1px solid color-mix(in srgb, var(--child) 35%, var(--color-card));
 }
 .ring-child { border-color: color-mix(in srgb, var(--child) 65%, var(--color-card)); }
+
+/* Karusellen är ren CSS: raden snäpper kort för kort, och med minskad rörelse hoppar den */
+.carousel { scroll-snap-type: x mandatory; scroll-behavior: smooth; overscroll-behavior-x: contain; }
+.carousel > * { scroll-snap-align: start; }
+@media (prefers-reduced-motion: reduce) {
+  .carousel { scroll-behavior: auto; }
+}
