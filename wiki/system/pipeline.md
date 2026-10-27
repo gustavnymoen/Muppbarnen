@@ -1,11 +1,10 @@
 ---
 type: Guide
 title: Pipeline
-description: How a change goes from a branch to the live site: the GitHub workflows, Vercel's deploys, which checks run where, and the branch protection on main.
+description: "How a change goes from a branch to the live site: the GitHub workflows, Vercel's deploys, which checks run where, and the branch protection on main."
 resource: .github/workflows/
-feature: setup
+feature: TECH-003
 tags: [workflow, pipeline, ci, deploy, testing]
-timestamp: 2026-10-23
 ---
 
 # Pipeline
@@ -56,5 +55,7 @@ The diagram can be exported as a picture, for example with the Mermaid Live Edit
 - No approving review is required, since the project has one developer who merges their own pull requests; the code review is done by the reviewer agent and posted on the pull request.
 
 The time budgets for the jobs and the tests are in [Testing](testing.md#time-budgets).
+
+Branch protection and the first run through the pipeline: [TECH-003](../../specs/TECH-003-pipeline-and-branch-protection/solution.md).
 
 [System documentation](index.md)

@@ -1,8 +1,10 @@
 ---
-id: MUPP-000
-title: Short name of the feature
-card: "#0"             # the card on the board
-depends_on: []         # other feature IDs this builds on
+type: Solution
+title: "MUPP-000 Short name of the feature: solution"
+description: "How Short name of the feature is built: data, interface and decisions and why."
+feature: MUPP-000
+card: "#0"
+depends_on: []
 ---
 
 # MUPP-000 Short name of the feature: solution
@@ -20,3 +22,10 @@ Pages, components and API routes that are added or changed. Texts shown to visit
 ## Decisions
 
 Choices made while building, and why: patterns, trade-offs, what was tried and dropped. "None" if there were none worth recording.
+
+## Related
+
+- The card's checks and review: [Verification](verification.md), [Review](review.md); the flow: [flow.mmd](flow.mmd).
+- Documentation: link the wiki pages this feature created or changed (and let each of them link back here).
+
+[Specifications](../index.md)

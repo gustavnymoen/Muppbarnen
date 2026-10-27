@@ -1,6 +1,8 @@
 ---
-id: TECH-001
-title: Project setup
+type: Review
+title: "TECH-001 Project setup: review"
+description: "The code review of Project setup: findings, decisions and result."
+feature: TECH-001
 ---
 
 # Code review of TECH-001
@@ -33,3 +35,7 @@ None.
 ## Outside the change
 
 - `PLAYBOOK.md` names Gurras Flyg as its source. Intentional provenance, not a leftover. Not added to the backlog.
+
+See also: [Solution](solution.md), [Verification](verification.md).
+
+[Specifications](../index.md)

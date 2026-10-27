@@ -59,7 +59,7 @@ How the requirements will be checked (see `wiki/system/testing.md`). Write "none
 
 ## Non-functional requirements
 
-Performance, accessibility, security, mobile. "None beyond `specs/overview.md`" if nothing special.
+Performance, accessibility, security, mobile. "None beyond `specs/rules.md`" if nothing special.
 
 ## Open questions
 

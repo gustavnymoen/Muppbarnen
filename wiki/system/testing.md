@@ -1,15 +1,15 @@
 ---
 type: Guide
 title: Testing
-description: How Muppbarnen is tested: which kind of check verifies what, when it is written, where it runs, and the rules and time budgets for the tests.
-feature: setup
+description: "How Muppbarnen is tested: which kind of check verifies what, when it is written, where it runs, and the rules and time budgets for the tests."
+resource: tests/
+feature: TECH-001
 tags: [workflow, testing, quality, sdd]
-timestamp: 2026-10-24
 ---
 
 # Testing
 
-The project follows specification-driven development (see "How we work" in `specs/overview.md`): every requirement in a card is checked, and the check is named after the requirement. This page is the one place that says how. Each card's **test plan** says which of the checks below its requirements get, and the feature's `verification.md` records how each was done.
+The project follows specification-driven development (see [Way of working](way-of-working.md)): every requirement in a card is checked, and the check is named after the requirement. This page is the one place that says how. Each card's **test plan** says which of the checks below its requirements get, and the feature's `verification.md` records how each was done.
 
 ## The kinds of checks
 

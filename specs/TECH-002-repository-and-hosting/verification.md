@@ -1,6 +1,8 @@
 ---
-id: TECH-002
-title: Repository and hosting
+type: Verification
+title: "TECH-002 Repository and hosting: verification"
+description: How each requirement of Repository and hosting was checked, the test suite before and after, and the requirements as built.
+feature: TECH-002
 ---
 
 # Verification of TECH-002
@@ -107,3 +109,7 @@ A Vercel Blob store exists for the kids' pictures; its token is a variable in Ve
 R4 as built: `live-tests.yml` needs no copy of the URL; it uses the default in `playwright.config.ts`. The first build failed with `STATIC_BUILD_NO_OUT_DIR` because the Vercel project had Framework Preset "Other"; setting it to Next.js fixed it (noted in `wiki/system/architecture.md`). Whether a preview uses the preview database is shown by the first pull request in TECH-003.
 
 CI's `check` failed on the first push: `tests/global-teardown.ts` (from TECH-001) tried to sign in on `/admin/login`, which does not exist until MUPP-003, and CI sets `ADMIN_PASSWORD`. Fixed by skipping the clean-up when the login page answers 404; verified locally with `ADMIN_PASSWORD` set (3 passed, no teardown error).
+
+See also: [Solution](solution.md), [Review](review.md).
+
+[Specifications](../index.md)

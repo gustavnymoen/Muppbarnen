@@ -3,9 +3,8 @@ type: Guide
 title: Code review
 description: Why and how every feature and technical task is reviewed before it is done, what the reviewer looks for and how strict the review is.
 resource: .claude/agents/code-reviewer.md
-feature: setup
+feature: TECH-001
 tags: [workflow, code-review, quality]
-timestamp: 2026-10-23
 ---
 
 # Code review

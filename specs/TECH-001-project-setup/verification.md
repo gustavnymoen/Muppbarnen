@@ -1,6 +1,8 @@
 ---
-id: TECH-001
-title: Project setup
+type: Verification
+title: "TECH-001 Project setup: verification"
+description: How each requirement of Project setup was checked, the test suite before and after, and the requirements as built.
+feature: TECH-001
 ---
 
 # Verification of TECH-001
@@ -81,3 +83,7 @@ The project has `README.md`, `specs/overview.md`, `wiki/index.md`, `wiki/system/
 
 - Playwright's image in the workflows is v1.64.1, the same as the installed `@playwright/test`.
 - npm warns that `unrs-resolver` has an install script that is not approved (`allowScripts`). It is a dependency of the lint setup; lint passes without it, so it was left unapproved.
+
+See also: [Solution](solution.md), [Review](review.md).
+
+[Specifications](../index.md)

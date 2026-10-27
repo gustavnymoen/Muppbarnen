@@ -40,6 +40,7 @@ jobs:
           echo "ADMIN_SESSION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
 
       - run: npm run lint
+      - run: npm run lint:docs
       - run: npm run typecheck
       # Enhetstesterna före bygget, så att en trasig regel stoppar tidigt
       - run: npm run test:unit

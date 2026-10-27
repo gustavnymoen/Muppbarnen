@@ -1,6 +1,8 @@
 ---
-id: MUPP-000
-title: Short name of the feature
+type: Review
+title: "MUPP-000 Short name of the feature: review"
+description: "The code review of Short name of the feature: findings, decisions and result."
+feature: MUPP-000
 ---
 
 # Code review of MUPP-000
@@ -27,3 +29,7 @@ How the review works: `wiki/system/code-review.md`. A later run is added at the 
 ## Outside the change
 
 - Candidate for the backlog, and whether it was added.
+
+See also: [Solution](solution.md), [Verification](verification.md).
+
+[Specifications](../index.md)

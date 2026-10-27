@@ -1,6 +1,8 @@
 ---
-id: TECH-002
-title: Repository and hosting
+type: Review
+title: "TECH-002 Repository and hosting: review"
+description: "The code review of Repository and hosting: findings, decisions and result."
+feature: TECH-002
 ---
 
 # Code review of TECH-002
@@ -30,3 +32,7 @@ None.
 ## Outside the change
 
 - None.
+
+See also: [Solution](solution.md), [Verification](verification.md).
+
+[Specifications](../index.md)

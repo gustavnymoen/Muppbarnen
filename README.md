@@ -20,7 +20,7 @@ npm run dev                  # creates the local database on first start
 |---|---|
 | `npm run dev` | Development server; backs up and migrates the local database first |
 | `npm run build` / `npm start` | Production build and server |
-| `npm run lint`, `npm run typecheck` | Lint and type check |
+| `npm run lint`, `npm run typecheck`, `npm run lint:docs` | Lint, type check, and the check of the documentation structure |
 | `npm run test:unit` | Unit tests (Vitest) |
 | `npm run test:local` | Browser tests against a local production build with its own database |
 | `npm run test:smoke` | Read-only smoke tests (against the live site, or `BASE_URL`) |
@@ -38,11 +38,11 @@ Never run `npm run build` while `npm run dev` is running in the same folder.
 | `db/` | Schema, seed, migrations, test helper |
 | `scripts/` | Database setup, test server, timing |
 | `tests/` | Browser tests (Playwright) |
-| `specs/` | `overview.md`, and one folder per card with its solution, flow, verification and review |
-| `wiki/` | `system/` (how it works, English) and `manual/` (how to use it, Swedish) |
+| `specs/` | The product, its terms, rules and feature list, and one folder per card with its solution, flow, verification and review ([index](specs/index.md)) |
+| `wiki/` | `system/` (how it works, English) and `manual/` (how to use it, Swedish) ([index](wiki/index.md)) |
 | `.github/` | Workflows, card template, Dependabot |
 | `.claude/` | Reviewer agent and design skills |
 
 ## Conventions
 
-How we work is in `CLAUDE.md` and `PLAYBOOK.md`; the product and its rules in `specs/overview.md`; tests in `wiki/system/testing.md`. Specifications and system documentation are in English, the manual and everything visitors see in Swedish, and code comments in Swedish. The repository is public: no real personal data is committed.
+How we work is in [CLAUDE.md](CLAUDE.md) and [Way of working](wiki/system/way-of-working.md) (the kit as a whole: [PLAYBOOK.md](PLAYBOOK.md)); the product and its rules in [specs/](specs/index.md); tests in [Testing](wiki/system/testing.md); how the documentation is organised in [Documentation structure](wiki/system/documentation.md). Specifications and system documentation are in English, the manual and everything visitors see in Swedish, and code comments in Swedish. The repository is public: no real personal data is committed.
