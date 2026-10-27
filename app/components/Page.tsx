@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
+import { SiteHeader } from "./SiteHeader";
 
 // Sidans skal: fyller skärmen (dvh, med skydd för skärmbrunn och hemfält),
-// sidan själv scrollar inte, bara innehållsytan gör det.
-export function Page({ children }: { children: ReactNode }) {
+// sidan själv scrollar inte, bara innehållsytan gör det. Sidhuvudet ligger
+// utanför innehållsytan och står därför kvar när innehållet scrollas.
+export function Page({ home, children }: { home?: boolean; children: ReactNode }) {
   return (
     <div className="mx-auto flex h-dvh w-full max-w-6xl flex-col overflow-hidden px-4 sm:px-8 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <SiteHeader home={home} />
       {children}
     </div>
   );

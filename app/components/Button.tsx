@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, Ref } from "react";
 
 const base =
   "press inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-control font-heading font-medium disabled:opacity-60 disabled:cursor-not-allowed";
@@ -12,7 +12,7 @@ export function Button({ variant = "primary", className = "", ...props }: Compon
 }
 
 // Knapp med bara en ikon: label är det skärmläsaren hör
-export function IconButton({ label, children, className = "", ...props }: ComponentProps<"button"> & { label: string }) {
+export function IconButton({ label, children, className = "", ...props }: ComponentProps<"button"> & { label: string; ref?: Ref<HTMLButtonElement> }) {
   return (
     <button
       type="button"

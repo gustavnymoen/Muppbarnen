@@ -7,7 +7,7 @@ const fredoka = Fredoka({ subsets: ["latin"], weight: ["500", "600"], variable: 
 const nunito = Nunito({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-nunito", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Muppbarnen",
+  title: "Muppbarnens önskelistor",
   description: "Önskelistor till familjens barn, till födelsedagar och jul.",
 };
 

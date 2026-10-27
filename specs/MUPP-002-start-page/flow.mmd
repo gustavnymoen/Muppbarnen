@@ -1,0 +1,13 @@
+%% MUPP-002 Start page
+%% What a visitor can do on the start page and in the menu.
+flowchart TD
+    A[Visitor opens the start page] --> B[Header with the name and the menu button R1]
+    A --> C[Row of three example cards R3]
+    C --> D[Swipe, scroll or arrow keys: one card at a time snaps into place R3]
+    B --> E[Menu button opens the menu R2]
+    E --> F{What is chosen?}
+    F -- Start --> G[The start page is shown, the menu closes R2]
+    F -- Admin --> H[Nothing happens, the menu closes R2]
+    F -- Escape --> I[The menu closes, focus returns to the button R2]
+    F -- Click outside --> J[The menu closes R2]
+    B --> K[The name is a link to the start page R1]

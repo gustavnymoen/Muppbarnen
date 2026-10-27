@@ -7,7 +7,7 @@ type Props = Omit<ComponentProps<"button">, "ref"> & {
   // Kort som är länkar eller knappar flyttar sig in i skuggan när de trycks
   pressable?: boolean;
   // Ett tryckbart kort är en riktig knapp, så att tangentbord och skärmläsare fungerar
-  as?: "div" | "button";
+  as?: "div" | "article" | "button";
 };
 
 export function Card({ highlight, pressable, as = "div", className = "", style, ...props }: Props) {
