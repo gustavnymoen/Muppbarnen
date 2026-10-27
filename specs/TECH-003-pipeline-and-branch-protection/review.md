@@ -1,6 +1,8 @@
 ---
-id: TECH-003
-title: Pipeline and branch protection
+type: Review
+title: "TECH-003 Pipeline and branch protection: review"
+description: "The code review of Pipeline and branch protection: findings, decisions and result."
+feature: TECH-003
 ---
 
 # Code review of TECH-003
@@ -27,3 +29,7 @@ title: Pipeline and branch protection
 ### Suggestions
 
 - `specs/overview.md` lists TECH-001 as Ongoing; its status is outside this change.
+
+See also: [Solution](solution.md), [Verification](verification.md).
+
+[Specifications](../index.md)

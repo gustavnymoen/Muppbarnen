@@ -1,6 +1,8 @@
 ---
-id: MUPP-000
-title: Short name of the feature
+type: Verification
+title: "MUPP-000 Short name of the feature: verification"
+description: How each requirement of Short name of the feature was checked, the test suite before and after, and the requirements as built.
+feature: MUPP-000
 ---
 
 # Verification of MUPP-000
@@ -58,3 +60,7 @@ Copied from the card when the feature is done, with their acceptance criteria, s
 ## Notes
 
 Deviations from the requirements, and anything found during verification.
+
+See also: [Solution](solution.md), [Review](review.md).
+
+[Specifications](../index.md)

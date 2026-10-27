@@ -13,6 +13,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
+    "lint:docs": "node scripts/lint-docs.mjs",
     "db:reset": "node scripts/db-setup.mjs --reset",
     "db:turso": "node --env-file=.env.turso scripts/db-setup.mjs",
     "db:backup": "node scripts/db-setup.mjs --backup",

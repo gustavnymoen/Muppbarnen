@@ -1,0 +1,14 @@
+%% TECH-004 OKF documentation
+%% What npm run lint:docs checks, in the order it checks it.
+flowchart TD
+    A[npm run lint:docs, also in CI job check] --> B[Read every .md file in wiki/ and specs/]
+    B --> C{index.md, log.md or concept?}
+    C -- index.md --> D[R2: no frontmatter except okf_version in a bundle root; entries as * Title - description]
+    C -- log.md --> E[R2: title, ## YYYY-MM-DD headings, newest first]
+    C -- concept --> F[R2: type, title, description and a feature ID; known type]
+    D & E & F --> G[R3: every link resolves]
+    G --> H[R3: every page reachable from README.md]
+    H --> I[R3: every folder in specs/ linked from the wiki]
+    I --> J{Any problem?}
+    J -- yes --> K[Print them, exit 1: check fails in CI, R4]
+    J -- no --> L[Documentation OK]

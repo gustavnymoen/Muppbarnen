@@ -1,15 +1,15 @@
 ---
 type: Guide
 title: Accessibility
-description: How the site is kept at WCAG 2.2 level AA: the axe check in the tests, the manual checklist, and when a feature must go through it.
-feature: setup
+description: "How the site is kept at WCAG 2.2 level AA: the axe check in the tests, the manual checklist, and when a feature must go through it."
+resource: tests/helpers.ts
+feature: TECH-001
 tags: [workflow, accessibility, wcag, quality]
-timestamp: 2026-10-23
 ---
 
 # Accessibility
 
-The site meets [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA (`specs/overview.md`). It is checked in two ways, because tools find only part of the problems (roughly a third):
+The site meets [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA ([rules for all features](../../specs/rules.md)). It is checked in two ways, because tools find only part of the problems (roughly a third):
 
 1. **Automatically, in the tests,** with axe.
 2. **By hand,** with the checklist below, for what a tool can't judge: whether the keyboard order makes sense, whether a screen reader says the right thing, whether a message helps.

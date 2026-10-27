@@ -1,8 +1,10 @@
 ---
-id: TECH-001
-title: Project setup
+type: Solution
+title: "TECH-001 Project setup: solution"
+description: "How Project setup is built: data, interface and decisions and why."
+feature: TECH-001
 card: "#7"
-depends_on: []         # other feature IDs this builds on
+depends_on: []
 ---
 
 # TECH-001 Project setup: solution
@@ -26,3 +28,10 @@ None. The empty `db/schema.sql`, `db/seed.sql` and `db/migrations/` from the kit
 - **Playwright 1.64.1** is what npm installed, the same as the version in the three workflows' image, so `scripts/check-playwright-image.mjs` will pass in CI.
 - **Git:** the folder was connected to `gustavnymoen/Muppbarnen` with `git reset origin/main`, which keeps the files and adopts the history (a README from "Initial commit"). `pictures/` is ignored, since the repository is public.
 - **Small related cleanups:** an unused `connection` import in `lib/db.ts` (left from the old project) and a leftover price rule in the docs, removed.
+
+## Related
+
+- The card's checks and review: [Verification](verification.md), [Review](review.md); the flow: [flow.mmd](flow.mmd).
+- Documentation: [Architecture](../../wiki/system/architecture.md).
+
+[Specifications](../index.md)
