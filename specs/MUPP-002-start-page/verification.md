@@ -7,7 +7,7 @@ feature: MUPP-002
 
 # Verification of MUPP-002
 
-Tests: `tests/MUPP-002-start-page.spec.ts`; the look (header without border, reduced motion) in `tests/design.spec.ts`. Everything below was checked locally on 2026-10-27; nothing is checked on the live site yet (the branch is not pushed).
+Tests: `tests/MUPP-002-start-page.spec.ts`; the look (header without border, reduced motion) in `tests/design.spec.ts`. Everything below was checked locally on 2026-10-27. After the merge the smoke tests (Live tests) passed against the live site; the manual accessibility checklist on the live site was not done.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -22,8 +22,8 @@ Tests: `tests/MUPP-002-start-page.spec.ts`; the look (header without border, red
 |---|---|---|---|---|
 | Unit tests | Not applicable: no logic beyond the components. The existing 24 pass. | local | Pass | 2026-10-27 |
 | Browser tests | The three tests and the look test above | local | Pass | 2026-10-27 |
-| Smoke test | `TECH-001-R4 @smoke` updated to the new heading | local | Pass | 2026-10-27 |
-| Accessibility | axe in the tests; the manual checklist (keyboard, VoiceOver, 200 % zoom, text spacing, reduced motion) on the live site | local; live: not checked | axe: Pass; checklist: not checked | 2026-10-27 |
+| Smoke test | `TECH-001-R4 @smoke` updated to the new heading | local, preview, live | Pass | 2026-10-27 |
+| Accessibility | axe in the tests; the manual checklist (keyboard, VoiceOver, 200 % zoom, text spacing, reduced motion) on the live site | local; live checklist: not done | axe: Pass; checklist: not checked, left out on purpose (see Notes) | 2026-10-27 |
 | Security | Not needed: no sign-in, admin, API, database or personal data | | Not applicable | 2026-10-27 |
 | Code review | [review.md](review.md) | local | See review.md | 2026-10-27 |
 
@@ -40,10 +40,10 @@ The time grew by more than 25 % because the suite is still tiny (three new brows
 
 ## Definition of Done
 
-- [x] Tests: every check in the card's test plan is done (the checklist on the live site is not); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
+- [x] Tests: every check in the card's test plan is done (the accessibility checklist on the live site is not, see Notes); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; the 25 % growth is explained above; the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, the branch is not pushed
-- [ ] Accessibility: axe passes in every changed state; the checklist items on the live site are not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Accessibility: axe passes in every changed state; the manual checklist items on the live site were not checked, by choice of the owner (see Notes)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`) and `wiki/log.md` updated
 - [x] No leftovers: the old placeholder page is replaced; no commented-out code or debug output
@@ -62,6 +62,7 @@ As on the card (`gh issue view 8`), with these details of how they were met:
 
 ## Notes
 
+- **The manual accessibility checklist on the live site was left out on purpose** (decided by the owner, 2026-10-27). Not checked: VoiceOver, real touch swiping on a phone, Safari, 200 % zoom and text spacing by hand. What axe and the Chromium tests cover (keyboard, focus, 320 px, reduced motion, target sizes) is recorded above.
 - `specs/features.md` listed MUPP-001 as Ongoing although it is merged; it was set to Done here.
 - The row has `tabIndex={0}`, which axe requires for a scrollable region; the focus ring shows on the whole row.
 
