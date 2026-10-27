@@ -1,7 +1,7 @@
 ---
 type: Guide
 title: Security
-description: "How security is handled: review points, /security-review, the CI scans, Dependabot, and the planned admin sign-in design."
+description: "How security is handled: review points, /security-review, the CI scans, Dependabot, the site password, and the planned admin sign-in design."
 resource: .semgrep/
 feature: TECH-004
 tags: [security, workflow]
@@ -16,12 +16,21 @@ tags: [security, workflow]
 - **A leaked secret is rotated first;** removing it from Git doesn't make it secret again.
 - **Headers:** the security headers are in [Architecture](architecture.md).
 
-## Admin and sign-in (when the site has an admin)
+## Site password (built, MUPP-009)
 
-Planned for MUPP-003 and MUPP-009; the design carried over from Gurras Flyg:
+The whole site is behind one shared password ([Site password](site-password.md)):
 
-- One shared password, `ADMIN_PASSWORD`; the server sets a cookie with an expiry and an HMAC-SHA256 signature made with `ADMIN_SESSION_SECRET`: `HttpOnly`, `Secure` in production, `SameSite`, lasting until the browser closes and rejected after 8 hours.
+- One shared password, `SITE_PASSWORD`; the server sets the cookie `site_session` with an expiry and an HMAC-SHA256 signature made with `SITE_SESSION_SECRET`: `HttpOnly`, `Secure` in production, `SameSite=Lax`, valid 180 days.
 - Passwords compared as SHA-256 hashes with `timingSafeEqual`; a wrong password answered after a second; at most 5 attempts per IP address in 15 minutes, counted in a database table before the password is checked (on Vercel each request may run in a new function).
+- `proxy.ts` refuses everything without the cookie (pages are sent to `/losenord`, API routes, actions and pictures get 401), and what reads data checks the cookie again on the server. With the password or the secret missing the site is closed, and the build on Vercel stops.
+- The children's pictures live in a private Blob store and are served by the site after the check.
+
+## Admin sign-in (planned for MUPP-003)
+
+The design carried over from Gurras Flyg, built the same way as the site password:
+
+- One shared password, `ADMIN_PASSWORD`; a cookie with an expiry and an HMAC-SHA256 signature made with `ADMIN_SESSION_SECRET`: `HttpOnly`, `Secure` in production, `SameSite`, lasting until the browser closes and rejected after 8 hours.
+- The same hashed comparison, one-second delay and attempt limit.
 - `proxy.ts` checks the cookie before admin pages, and every server action checks it again; server actions check their input at run time (ids integers, texts strings of limited length, lists arrays).
 
 [System documentation](index.md)

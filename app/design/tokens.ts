@@ -10,6 +10,7 @@ export const swatches = [
   { name: "Text", token: "text", hex: "#C8D0DC", className: "bg-text" },
   { name: "Dämpad text", token: "muted", hex: "#8591A4", className: "bg-muted" },
   { name: "Märkesfärg", token: "brand", hex: "#9AA9E0", className: "bg-brand" },
+  { name: "Fel", token: "danger", hex: "#E8938F", className: "bg-danger" },
 ] as const;
 
 export const childSwatches = CHILD_COLORS.map((color, i) => ({ color, name: ["Korall", "Sol", "Mynta", "Himmel", "Lila", "Rosa"][i] }));

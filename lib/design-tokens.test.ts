@@ -29,8 +29,8 @@ const color = (name: string) => rgb(tokens[name]);
 const children = CHILD_COLORS.map((name) => [name, color(`child-${name}`)] as const);
 
 describe("MUPP-001-R1 colour tokens", () => {
-  test("MUPP-001-R1 text and muted text have at least 4.5:1 on the page and the card", () => {
-    for (const fg of ["text", "muted"]) {
+  test("MUPP-001-R1 text, muted text and error text have at least 4.5:1 on the page and the card", () => {
+    for (const fg of ["text", "muted", "danger"]) {
       for (const bg of ["page", "card"]) expect(ratio(color(fg), color(bg)), `${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5);
     }
   });
@@ -56,7 +56,7 @@ describe("MUPP-001-R1 colour tokens", () => {
   });
 
   test("MUPP-001-R1 DESIGN.md lists every token with the value in the code", () => {
-    expect(Object.keys(tokens).length).toBeGreaterThanOrEqual(14);
+    expect(Object.keys(tokens).length).toBeGreaterThanOrEqual(15);
     for (const [name, value] of Object.entries(tokens)) {
       expect(designDoc, `--color-${name}`).toMatch(new RegExp(`\`--color-${name}\`\\s*\\|\\s*\`${value}\``, "i"));
     }

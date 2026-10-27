@@ -122,3 +122,4 @@ export const CARD = "rgb(20, 25, 32)";
 export const EDGE = "rgb(39, 46, 57)";
 export const SHADOW = "rgb(5, 8, 13)";
 export const BRAND = "rgb(154, 169, 224)";
+export const DANGER = "rgb(232, 147, 143)";

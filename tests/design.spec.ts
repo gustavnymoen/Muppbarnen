@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { BRAND, CARD, contrast, css, EDGE, expectNoA11yViolations, PAGE, SHADOW } from "./helpers";
+import { animationsDone, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, SHADOW } from "./helpers";
+import { newVisitor } from "./site-session";
 
 // Utseendet: ett test per sida och läge, så att sidan laddas en gång för många kontroller.
 // Reglerna som inte behöver en webbläsare (kontrast ur tokens, barnfärger) är enhetstester.
@@ -162,4 +163,38 @@ test("MUPP-002-R1 R3 the start page: a header without border, a carousel that gl
   // R3: med minskad rörelse hoppar den
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(row).toHaveCSS("scroll-behavior", "auto");
+});
+
+test("MUPP-009-R1 the password page: a card with the name, a labelled field, a button and an error as coloured text", async ({ browser, baseURL }) => {
+  // Utan inloggning (sidan syns bara då), på en telefon, med ett eget "IP-nummer" för försöksgränsen
+  const context = await newVisitor(browser, baseURL, { width: 390, height: 844 });
+  const page = await context.newPage();
+  await page.goto("/losenord");
+
+  // Namnet i Fredoka, ett kort med kant, och fältet och knappen minst 44 px höga
+  await page.evaluate(() => document.fonts.ready);
+  expect(await css(page.getByRole("heading", { level: 1 }), "font-family")).toMatch(/Fredoka/);
+  const card = page.locator("form").locator("..");
+  await expect(card).toHaveCSS("border-top-color", EDGE);
+  await expect(card).toHaveCSS("background-color", CARD);
+  // Kortet tonar in: mät först när rörelsen är klar, annars ger bråkdelar av pixlar 43,99 i stället för 44
+  await animationsDone(card);
+  const field = page.getByLabel("Lösenord");
+  await expect(field).toHaveCSS("background-color", PAGE);
+  expect((await field.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  const button = page.getByRole("button", { name: "Öppna" });
+  await expect(button).toHaveCSS("background-color", BRAND);
+  expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+
+  // Fokus syns på fältet
+  await field.focus();
+  await expect(field).toHaveCSS("outline-width", "3px");
+
+  // Felet är rödtonad text utan bakgrund och kant, med god kontrast mot kortet
+  await field.fill("fel");
+  await button.click();
+  const error = page.locator("#losenord-fel");
+  await expectTextMessage(error, DANGER);
+  expect(contrast(DANGER, CARD)).toBeGreaterThanOrEqual(4.5);
+  await context.close();
 });

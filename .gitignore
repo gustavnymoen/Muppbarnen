@@ -61,3 +61,6 @@ next-env.d.ts
 
 # personliga Claude Code-inställningar
 /.claude/settings.local.json
+
+# sparad inloggning med sajtlösenordet för testerna
+/playwright/.auth/
