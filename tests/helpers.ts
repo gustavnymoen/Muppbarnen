@@ -75,10 +75,6 @@ export function backgroundOf(locator: Locator) {
   });
 }
 
-// The design tokens from app/globals.css, as the browser reports them, go here,
-// for the design checks in tests/design.spec.ts, for example:
-// export const ACCENT = "rgb(139, 30, 63)";
-
 // A computed CSS value of an element (or of its ::before/::after)
 export const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps).getPropertyValue(p), [property, pseudo] as const);
@@ -120,3 +116,9 @@ export async function expectNoA11yViolations(page: Page) {
   expect(violations).toEqual([]);
 }
 
+// Designens tokens från app/globals.css, som webbläsaren anger dem
+export const PAGE = "rgb(12, 16, 21)";
+export const CARD = "rgb(20, 25, 32)";
+export const EDGE = "rgb(39, 46, 57)";
+export const SHADOW = "rgb(5, 8, 13)";
+export const BRAND = "rgb(154, 169, 224)";

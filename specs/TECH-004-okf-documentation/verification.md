@@ -14,7 +14,7 @@ How each requirement was checked. Anything not checked is written as not checked
 | TECH-004-R1 | Manual: [Documentation structure](../../wiki/system/documentation.md) read; `README.md` links to it, and `PLAYBOOK.md`, `CLAUDE.md` and `README.md` point to it instead of repeating it. `npm run lint:docs` shows the page is reachable from `README.md` | local | Pass | 2026-10-27 |
 | TECH-004-R2 | Unit tests `TECH-004-R2 …` in `scripts/lint-docs.test.ts` (missing `type`, bad `feature` and `type`, invalid YAML, quoted values, `index.md` frontmatter, `okf_version` and entries, `log.md` dates); `npm run lint:docs` on the real docs reports nothing | local, CI | Pass | 2026-10-27 |
 | TECH-004-R3 | Unit tests `TECH-004-R3 …` (broken link, unreachable page, spec folder without a wiki link, folder links, links in code ignored); `npm run lint:docs` on the real docs reports nothing; `PLAYBOOK.md` read: only links | local, CI | Pass | 2026-10-27 |
-| TECH-004-R4 | `npm run lint:docs` added to `.github/workflows/ci.yml` after `npm run lint`; locally a page without `type` made it print the problem and exit 1. The failing `check` on a pull request was **not checked** (to be seen on this card's pull request) | local | Pass locally; CI not checked | 2026-10-27 |
+| TECH-004-R4 | `npm run lint:docs` added to `.github/workflows/ci.yml` after `npm run lint`; locally a page without `type` made it print the problem and exit 1. `check` passed in CI on pull request #22 (the failing case is still not shown) | local, CI | Pass (failing case not shown) | 2026-10-27 |
 | TECH-004-R5 | TECH-001 is Done on the board and its issue closed; `specs/features.md` lists it as Done; TECH-003's `verification.md` has "Requirements as built" | local, board | Pass | 2026-10-27 |
 
 ## The test plan
@@ -43,7 +43,7 @@ The lint check itself takes well under a second (budget in the card: 2 s).
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, and the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): Live tests succeeded on `main` after the merge
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; [solution.md](solution.md) describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated (no manual page: no change for visitors)

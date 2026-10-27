@@ -12,7 +12,7 @@ tags: [architecture, database, hosting]
 | Part | Choice |
 |---|---|
 | Framework | Next.js 16 (App Router, TypeScript, React 19), with `cacheComponents` on. Read `node_modules/next/dist/docs/` before writing code (`AGENTS.md`). |
-| Styling | Tailwind CSS 4 with the design's tokens in `app/globals.css` and shared components in `app/components/` (the design tokens come with MUPP-001). |
+| Styling | Tailwind CSS 4 with the design's tokens in `app/globals.css` and shared components in `app/components/` ([Design system](design.md)). |
 | Data in pages | Server components read data. With `cacheComponents` on, data that depends on the request (database, clock, cookies) is read after `await connection()` or inside `<Suspense>`. |
 | Changes | Server actions, which check sign-in and input on the server ([Security](security.md)), call `lib/`, and refresh the page. Errors meant for the user are thrown as their own error class and shown as messages. |
 | Server code | `lib/`, with `import "server-only"` in files that touch the database or secrets. Pure rules (dates, validation) live in files without it, so the browser and the server share them and unit tests can import them. |

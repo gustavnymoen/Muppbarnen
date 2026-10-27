@@ -8,6 +8,8 @@
   "scripts": {
     "predev": "node scripts/db-setup.mjs --backup",
     "dev": "next dev",
+    "predev:https": "node scripts/db-setup.mjs --backup",
+    "dev:https": "next dev --experimental-https",
     "prebuild": "node scripts/db-setup.mjs",
     "build": "next build",
     "start": "next start",

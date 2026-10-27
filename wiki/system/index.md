@@ -11,6 +11,8 @@
 ## How the site is built and run
 
 * [Architecture](architecture.md) - The parts of Muppbarnen and how they fit: framework, data, hosting and the databases per environment.
+* [Design system](design.md) - How Muppbarnen looks and how the look is built: the tokens, the shared components, the style guide page /design and the rules for adding to them.
+* [Testing on a phone](phone-testing.md) - How to look at the site on a real phone over HTTPS: the Vercel preview of a pull request, and npm run dev:https locally.
 * [Pipeline](pipeline.md) - How a change goes from a branch to the live site: the GitHub workflows, Vercel's deploys, which checks run where, and the branch protection on main.
 * [Security](security.md) - How security is handled: review points, /security-review, the CI scans, Dependabot, and the planned admin sign-in design.
 
