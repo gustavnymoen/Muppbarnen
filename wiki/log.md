@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-28
+
+* **Creation** [TECH-005 Security hardening](../specs/TECH-005-security-hardening/solution.md): a test that every route and server action checks the sign-in, a request limit for writes, a 20-minute block after repeated wrong passwords, a Content-Security-Policy and `__Host-` cookies, and the rules written into the specs and the code review.
+
 ## 2026-10-27
 
 * **Creation** [MUPP-009 Site password](../specs/MUPP-009-site-password/solution.md): the whole site is behind one shared password with a signed cookie, a password page, `proxy.ts`, a limit of 5 attempts per 15 minutes, and tests that sign in once.

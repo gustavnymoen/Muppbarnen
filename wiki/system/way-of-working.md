@@ -28,7 +28,7 @@ Taken from the project Gurras Flyg (October 2026) and made general. The steps an
 
 In short (full text in [CLAUDE.md](../../CLAUDE.md)):
 
-1. **Specify** the top card in Backlog with the user: goal, scope, requirements with acceptance criteria, test plan, open questions answered. Move it to **Specified**.
+1. **Specify** the top card in Backlog with the user: goal, scope, requirements with acceptance criteria, test plan (a card that adds an API route, a server action or a form lists the security rules of [`specs/rules.md`](../../specs/rules.md) under Security), open questions answered. Move it to **Specified**.
 2. **Start:** branch `<ID>-<name>`, folder `specs/<ID>-<name>/` from `specs/_template/`, card to **Ongoing**.
 3. **Build** exactly what the requirements say, with the unit tests next to the code. Keep `solution.md` current.
 4. **Test:** the browser tests and, for a new main page or flow, a smoke test. Every requirement has a test named after it, or a recorded manual check with the reason.

@@ -87,7 +87,7 @@ test("MUPP-009-R1 R2 R5 the password page, a wrong and the right password, the c
   const cookies = await context.cookies();
   expect(cookies).toHaveLength(1);
   const [cookie] = cookies;
-  expect(cookie).toMatchObject({ name: "site_session", httpOnly: true, sameSite: "Lax", secure: true });
+  expect(cookie).toMatchObject({ name: "__Host-site_session", httpOnly: true, sameSite: "Lax", secure: true });
   expect(cookie.value).toMatch(/^\d+\.[0-9a-f]{64}$/);
   expect(cookie.value).not.toContain(password);
   const days = (cookie.expires - Date.now() / 1000) / 86400;
@@ -112,8 +112,7 @@ test("MUPP-009-R2 a changed or foreign cookie is rejected, one signed with the s
   test.skip(!runsLocally, "needs the test server's secret");
   const context = await newVisitor(browser, baseURL);
   const page = await context.newPage();
-  const url = new URL(baseURL!);
-  const set = (value: string) => context.addCookies([{ name: "site_session", value, domain: url.hostname, path: "/" }]);
+  const set = (value: string) => context.addCookies([{ name: "__Host-site_session", value, domain: new URL(baseURL!).hostname, path: "/", secure: true }]);
   const signed = createSession(process.env.SITE_SESSION_SECRET!);
 
   for (const value of [createSession("en annan nyckel"), signed.replace(/.$/, signed.endsWith("0") ? "1" : "0"), "bara-skräp"]) {
@@ -126,24 +125,5 @@ test("MUPP-009-R2 a changed or foreign cookie is rejected, one signed with the s
   await page.goto("/design");
   await expect(page).toHaveURL(/\/design$/);
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
-  await context.close();
-});
-
-test("MUPP-009-R5 the sixth attempt in 15 minutes is refused without checking the password", async ({ browser, baseURL }) => {
-  test.skip(!runsLocally, "would lock this computer out of a deployed site, and x-real-ip is set by the platform there");
-  const context = await newVisitor(browser, baseURL);
-  // Fem försök samtidigt, så att väntan på en sekund per fel bara tas en gång
-  const pages = await Promise.all(Array.from({ length: 5 }, () => context.newPage()));
-  for (const page of pages) await page.goto("/losenord");
-  for (const page of pages) await signInWith(page, "fel lösenord");
-  for (const page of pages) await expect(page.locator("#losenord-fel")).toHaveText("Fel lösenord.");
-
-  // Det sjätte får inte in, inte ens med rätt lösenord
-  const sixth = await context.newPage();
-  await sixth.goto("/losenord");
-  await signInWith(sixth, password);
-  await expect(sixth.locator("#losenord-fel")).toHaveText("För många försök. Försök igen om en stund.");
-  await expect(sixth).toHaveURL(/\/losenord/);
-  expect(await context.cookies()).toEqual([]);
   await context.close();
 });

@@ -54,7 +54,7 @@ How the requirements will be checked (see `wiki/system/testing.md`). Write "none
 - **Browser tests:** which flows and states, with axe on each. Checks of the look (colours, sizes, contrast, focus) go into the matching test in `tests/design.spec.ts`, one test per page and state; say which.
 - **Smoke test:** what a quick read-only check against the preview and production shows, if the card adds or changes a main page or flow.
 - **Accessibility:** which pages go through the checklist on the live site.
-- **Security:** whether `/security-review` is needed (sign-in, admin, API routes, server actions, database queries, personal data).
+- **Security:** whether `/security-review` is needed (sign-in, admin, API routes, server actions, database queries, personal data). A card that adds an API route, a server action or a form lists here how the security rules of `specs/rules.md` are met and tested: sign-in first, `guardWrite()` for writes, input checked on the server, no internals in errors, pictures only through the site, `__Host-` cookies, nothing the Content-Security-Policy blocks.
 - **Code review:** always; anything the reviewer should look at in particular.
 
 ## Non-functional requirements
