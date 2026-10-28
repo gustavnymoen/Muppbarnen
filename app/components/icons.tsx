@@ -31,9 +31,18 @@ export const ImageIcon = () => (
   </Icon>
 );
 
-export const ListIcon = () => (
+// Checklista: önskelistan
+export const ChecklistIcon = () => (
   <Icon>
-    <path d="M9 6h12M9 12h12M9 18h12" />
-    <path d="M4 6h.01M4 12h.01M4 18h.01" />
+    <path d="m3.5 6 1.5 1.5L8 4.5M3.5 13l1.5 1.5L8 11.5" />
+    <path d="M12 6h9M12 13h9M4 19.5h.01M12 19.5h9" />
+  </Icon>
+);
+
+// Måttband: storlekar
+export const MeasureIcon = () => (
+  <Icon>
+    <rect x="2" y="8" width="20" height="8" rx="1.5" />
+    <path d="M6 8v3M10 8v4M14 8v3M18 8v4" />
   </Icon>
 );

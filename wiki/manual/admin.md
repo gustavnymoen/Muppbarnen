@@ -31,14 +31,15 @@ Allt i admin är smala kort som är hopfällda när sidan öppnas. Knapparna är
 | Penna | **Ändra …** | Fäller ut kortet med information och formulär. Tryck igen, eller **Esc**, för att fälla ihop det. |
 | Papperskorg | **Ta bort …** | Frågar först och nämner vad som tas bort. |
 | Bild | **Bild för …** | Öppnar bilden (bara huvudadministratören). |
-| Lista | **Önskelistor för …** | Går till barnets sida. |
+| Måttband | **Storlekar för …** | Går till barnets sida med storlekskortet öppet. |
+| Checklista | **Önskelistor för …** | Går till barnets sida med önskelistorna. |
 
 Bara ett kort är utfällt åt gången: öppnar du ett annat fälls det första ihop. När du sparat fälls kortet ihop av sig självt. Blir det fel stannar kortet öppet med felet vid fältet.
 
 ## Storlekar
 
-1. På din sida finns ett smalt kort per barn. Tryck listikonen **Önskelistor för …**.
-2. På barnets sida är **Storlekar** ett eget kort. Tryck pennan **Ändra storlekar**, skriv storlek för kläder, skor, huvud och handskar (högst 40 tecken vardera, tomt tar bort storleken) och tryck **Spara**. Det står "Sparat." när det gick bra.
+1. På din sida finns ett smalt kort per barn. Tryck måttbandet **Storlekar för …**: barnets sida öppnas med storlekskortet utfällt.
+2. Skriv storlek för kläder, skor, huvud och handskar (högst 40 tecken vardera, tomt tar bort storleken) och tryck **Spara**. Det står "Sparat." när det gick bra.
 
 ## Önskelistor
 

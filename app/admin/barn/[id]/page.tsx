@@ -15,15 +15,15 @@ import { requireSiteSession } from "@/lib/site-auth";
 import { saveSizes } from "../../actions";
 import { WishlistSection } from "./WishlistSection";
 
-export default function ChildPage({ params }: PageProps<"/admin/barn/[id]">) {
+export default function ChildPage({ params, searchParams }: PageProps<"/admin/barn/[id]">) {
   return (
     <Suspense fallback={null}>
-      <ChildContent params={params} />
+      <ChildContent params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function ChildContent({ params }: { params: PageProps<"/admin/barn/[id]">["params"] }) {
+async function ChildContent({ params, searchParams }: Pick<PageProps<"/admin/barn/[id]">, "params" | "searchParams">) {
   await requireSiteSession();
   const { parent } = await requireAdminSession();
   const id = parseId((await params).id);
@@ -35,7 +35,7 @@ async function ChildContent({ params }: { params: PageProps<"/admin/barn/[id]">[
   return (
     <Page>
       <PageContent>
-        <FoldGroup>
+        <FoldGroup initialOpen={(await searchParams).oppna === "storlekar" ? "storlekar" : undefined}>
           <div className="space-y-4">
             <LinkButton href="/admin">Till barnen</LinkButton>
             <div className="flex items-center gap-3">

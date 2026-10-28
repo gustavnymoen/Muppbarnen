@@ -55,7 +55,7 @@ The browser time grew about 12 %, inside the 25 % rule and the budgets. One new 
 
 ## Requirements as built
 
-Copied from the card (`gh issue view 30`). As built, with two clarifications: "one open at a time" holds for the whole page (one `FoldGroup` per page, so a list, a picture panel and a "new" form all fold each other), and the parent's own page shows each kid as a slim card with the list icon only (the sizes are on the kid's page, in their own card).
+Copied from the card (`gh issue view 30`). As built, with two clarifications: "one open at a time" holds for the whole page (one `FoldGroup` per page, so a list, a picture panel and a "new" form all fold each other), and the parent's own page shows each kid as a slim card with two icon links, a measuring tape for the sizes (opens the sizes card) and a checklist for the wish lists (the sizes are on the kid's page, in their own card).
 
 ### MUPP-010-R1 Slim cards, folded
 

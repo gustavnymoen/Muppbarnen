@@ -5,7 +5,7 @@ import { IconLink, LinkButton } from "@/app/components/Button";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { FoldButton, FoldGroup, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Field, Form } from "@/app/components/Form";
-import { ImageIcon, ListIcon, PencilIcon } from "@/app/components/icons";
+import { ImageIcon, ChecklistIcon, PencilIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -133,7 +133,7 @@ function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
       actions={
         <>
           <IconLink compact href={`/admin/barn/${child.id}`} label={`Önskelistor för ${child.name}`}>
-            <ListIcon />
+            <ChecklistIcon />
           </IconLink>
           <FoldToggle id={edit} label={`Ändra ${child.name}`}>
             <PencilIcon />

@@ -283,3 +283,21 @@ test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc fo
   await page.keyboard.press("Escape");
   await expect(dialog(page)).toBeHidden();
 });
+
+test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape for the sizes, which opens the sizes card, and a checklist for the wish lists", async ({ page }) => {
+  const mia = "Mia";
+  await addChild(await addParent(mia), "Otis");
+  await adminSignIn(page, mia);
+  for (const name of ["Storlekar för Otis", "Önskelistor för Otis"]) {
+    const link = page.getByRole("link", { name });
+    await expect(link).toHaveAttribute("title", name);
+    expect((await link.boundingBox())!.width).toBeGreaterThanOrEqual(32);
+  }
+  await expectNoA11yViolations(page);
+  await page.getByRole("link", { name: "Storlekar för Otis" }).click();
+  await expect(page.getByLabel("Kläder")).toBeVisible();
+  await page.goto("/admin");
+  await page.getByRole("link", { name: "Önskelistor för Otis" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Otis" })).toBeVisible();
+  await expect(page.getByLabel("Kläder")).toHaveCount(0);
+});
