@@ -46,3 +46,15 @@ export const MeasureIcon = () => (
     <path d="M6 8v3M10 8v4M14 8v3M18 8v4" />
   </Icon>
 );
+
+export const ChevronLeftIcon = () => (
+  <Icon>
+    <path d="m15 6-6 6 6 6" />
+  </Icon>
+);
+
+export const ChevronRightIcon = () => (
+  <Icon>
+    <path d="m9 6 6 6-6 6" />
+  </Icon>
+);

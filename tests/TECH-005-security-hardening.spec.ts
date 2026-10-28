@@ -59,7 +59,7 @@ test("TECH-005-R4 the Content-Security-Policy limits everything to the site itse
   // Skripten kör (formuläret skickas utan att sidan laddas om) och inget blockeras
   await signInWith(page, password);
   await expect(page).toHaveURL((url) => url.pathname === "/");
-  await expect(page.getByRole("group", { name: /Barnens kort/ })).toBeVisible();
+  await expect(page.getByRole("main")).toBeVisible();
   await page.goto("/design");
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   expect(violations).toEqual([]);

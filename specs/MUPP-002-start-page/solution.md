@@ -9,6 +9,8 @@ depends_on: [MUPP-001]
 
 # MUPP-002 Start page: solution
 
+> **Changed by [MUPP-004](../MUPP-004-birthday-card/solution.md):** the example cards and the carousel row below (R3) are gone; the start page now shows the birthday carousel. The header, the menu and the page shell are unchanged.
+
 How it is built. What is built and why (goal, scope, requirements) is in the card: `gh issue view 8`.
 
 ## Data

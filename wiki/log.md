@@ -2,6 +2,8 @@
 
 ## 2026-10-28
 
+* **Creation** [MUPP-004 Birthday card](../specs/MUPP-004-birthday-card/solution.md): the start page shows a deck of birthday cards (and Christmas Eve), nearest first, browsed by swipe, buttons and arrow keys, with a compact wish list that locks the deck while open; the example cards are gone and the day of birth never reaches the browser.
+
 * **Creation** [MUPP-010 Compact admin](../specs/MUPP-010-compact-admin/solution.md): the admin pages are slim cards that fold open one at a time, with icon buttons (pencil, trash can, picture, list) instead of large buttons, the sizes as a card of their own, and removal of a kid's picture.
 
 * **Creation** [MUPP-003 Admin page](../specs/MUPP-003-admin-page/solution.md): the admin page behind a second password, where parents fill in sizes and wish lists and the master admin manages kids, parents and private pictures; the first tables (parent, child, wishlist, wishlist item) and `/bilder/<child id>`.

@@ -21,6 +21,13 @@ export const addChild = (parentId: number, name: string, birthdate = "2020-05-17
     Number((await db.execute({ sql: "INSERT INTO child (parent_id, name, birthdate) VALUES (?, ?, ?)", args: [parentId, name, birthdate] })).lastInsertRowid),
   );
 
+export const addWish = (childId: number, occasion: "birthday" | "christmas", title: string) =>
+  withDb(async (db) => {
+    await db.execute({ sql: "INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", args: [childId, occasion] });
+    const list = await db.execute({ sql: "SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", args: [childId, occasion] });
+    await db.execute({ sql: "INSERT INTO wishlist_item (wishlist_id, title) VALUES (?, ?)", args: [list.rows[0].id, title] });
+  });
+
 export const setMasterFlag = (parentId: number, master: boolean) =>
   withDb((db) => db.execute({ sql: "UPDATE parent SET is_master_admin = ? WHERE id = ?", args: [master ? 1 : 0, parentId] }));
 

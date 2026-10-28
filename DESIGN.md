@@ -24,6 +24,8 @@ A dark, muted, mobile-first look: blue-grey near-black surfaces, thin edges, lay
 | `--color-brand` | `#9AA9E0` | The main button and the focus ring (never red: red means cancel or error) |
 | `--color-on-brand` | `#0C1015` | Text on the brand colour |
 | `--color-danger` | `#E8938F` | Error messages, as text only (never a fill; with the words that say what is wrong) |
+| `--color-christmas-green` | `#5F9A73` | The Christmas Eve card: its green night background drawn as shapes behind the content |
+| `--color-christmas-red` | `#D8766F` | Lights and berries in the Christmas background (decoration only) |
 | `--color-child-coral` | `#D4958B` | Child colour 1 |
 | `--color-child-sun` | `#D4B873` | Child colour 2 |
 | `--color-child-mint` | `#82BD9F` | Child colour 3 |
