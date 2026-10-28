@@ -35,7 +35,10 @@ export const pictureOf = (childId: number) =>
 // Everything the tests made. The test database is only theirs, so it is all removed.
 export const clearFamily = () =>
   withDb(async (db) => {
-    for (const table of ["wishlist_item", "wishlist", "child", "parent"]) await db.execute(`DELETE FROM ${table}`);
+    await db.execute("DELETE FROM wishlist_item");
+    await db.execute("DELETE FROM wishlist");
+    await db.execute("DELETE FROM child");
+    await db.execute("DELETE FROM parent");
   });
 
 export const childIdOf = (name: string) =>

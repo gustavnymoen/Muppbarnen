@@ -8,7 +8,10 @@ const family = await import("./family");
 type Parent = import("./family").Parent;
 
 const clear = async () => {
-  for (const table of ["wishlist_item", "wishlist", "child", "parent"]) await run(`DELETE FROM ${table}`);
+  await run("DELETE FROM wishlist_item");
+  await run("DELETE FROM wishlist");
+  await run("DELETE FROM child");
+  await run("DELETE FROM parent");
 };
 beforeEach(clear);
 afterAll(clear);
