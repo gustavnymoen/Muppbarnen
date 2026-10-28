@@ -1,0 +1,35 @@
+%% MUPP-003 Admin page
+%% From the menu's Admin link to a saved change. The rights are read from the database on every request.
+flowchart TD
+    A[Menu: Admin R8] --> P{Site cookie?}
+    P -- no --> SP[Site password page]
+    P -- yes --> B{Valid admin cookie?<br/>R1}
+    B -- no --> C[Sign-in: Adminlösenord]
+    C --> D{Blocked?}
+    D -- yes --> E[För många försök...]
+    E --> C
+    D -- no --> F{Password matches?}
+    F -- no --> G[Wait 1 s, then: Fel lösenord.]
+    G --> C
+    F -- yes --> H[Set signed session cookie]
+    H --> B
+    B -- yes --> I{Any parents?}
+    I -- no --> J[Skapa huvudadministratör<br/>name Gustav R2]
+    J --> K[Master admin created and chosen]
+    I -- yes --> L{Parent chosen<br/>and still there?}
+    L -- no --> M[Vem är du? R2]
+    M --> N[Parent chosen, kept in the cookie]
+    L -- yes --> O[Parent page: own kids R3]
+    K --> O
+    N --> O
+    O --> Q[Kid page: sizes and the two lists R3 R4]
+    O --> R{Master admin in the database?}
+    R -- yes --> S[Hantera: parents, kids, pictures R5 R6]
+    R -- no --> T[No Hantera, 404 for its address]
+    Q --> U[Form or confirmation]
+    S --> U
+    U --> V{Site and admin cookie,<br/>write limit, Origin?}
+    V -- no --> W[Refused]
+    V -- yes --> X{Allowed for this kid or master only,<br/>input valid?}
+    X -- no --> Y[Message next to the field]
+    X -- yes --> Z[Saved: Sparat.]

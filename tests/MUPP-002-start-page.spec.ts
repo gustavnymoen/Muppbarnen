@@ -30,10 +30,11 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await menu.click();
   await expect(menu).toHaveAttribute("aria-expanded", "true");
   const nav = page.getByRole("navigation", { name: "Huvudmeny" });
-  await expect(nav.getByRole("link")).toHaveText(["Start"]);
-  await expect(nav.getByRole("button")).toHaveText(["Admin"]);
+  // R2 (changed by MUPP-003-R8): "Admin" is a real link and the last item
+  await expect(nav.getByRole("link")).toHaveText(["Start", "Admin"]);
+  await expect(nav.getByRole("button")).toHaveCount(0);
   // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar förutom namnet
-  await expect(page.getByRole("link")).toHaveCount(2);
+  await expect(page.getByRole("link")).toHaveCount(3);
   await expectNoA11yViolations(page);
 
   // R2: Escape stänger och fokus går tillbaka till knappen
@@ -50,7 +51,7 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await expect(start).toBeFocused();
   await expect(start).toHaveCSS("outline-width", "3px");
   await page.keyboard.press("Tab");
-  await expect(nav.getByRole("button", { name: "Admin" })).toBeFocused();
+  await expect(nav.getByRole("link", { name: "Admin" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(nav).toHaveCount(0);
   await expect(menu).toBeFocused();
@@ -61,14 +62,11 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await page.getByRole("heading", { level: 2, name: "Alma" }).click();
   await expect(nav).toHaveCount(0);
 
-  // R2: "Admin" gör ingenting: ingen sida öppnas och inget meddelande visas; menyn stängs och fokus går till knappen
+  // R2 (changed by MUPP-003-R8): "Admin" leads to /admin, which asks for the admin password
   await menu.click();
-  await nav.getByRole("button", { name: "Admin" }).click();
-  await expect(nav).toHaveCount(0);
-  await expect(menu).toBeFocused();
-  await expect(page).toHaveURL(/\/$/);
-  // (Nexts tomma rutt-meddelande har också rollen alert, därför bara ett alert med text)
-  await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0);
+  await nav.getByRole("link", { name: "Admin" }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByLabel("Adminlösenord")).toBeVisible();
 
   // R2: "Start" visar startsidan (här från en annan sida, så att valet syns)
   await page.goto("/design");

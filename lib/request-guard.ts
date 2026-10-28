@@ -29,3 +29,7 @@ export async function guardWrite(): Promise<WriteGuard> {
   if (!originMatches(h.get("origin"), h.get("x-forwarded-host") ?? h.get("host"))) return "origin";
   return (await registerWrite(clientIp(h))) ? "ok" : "limit";
 }
+
+// Texten som en åtgärd visar när guardWrite() sa nej
+export const guardMessage = (guard: Exclude<WriteGuard, "ok">) =>
+  guard === "origin" ? "Något gick fel. Ladda om sidan och försök igen." : "För många förfrågningar. Försök igen om en stund.";

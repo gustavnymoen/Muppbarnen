@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ComponentProps, Ref } from "react";
 
 const base =
@@ -7,8 +8,18 @@ const variants = {
   secondary: "border border-muted/75 bg-card px-5 text-text shadow-card hover:bg-edge",
 };
 
-export function Button({ variant = "primary", className = "", ...props }: ComponentProps<"button"> & { variant?: keyof typeof variants }) {
-  return <button type="button" className={`${base} ${variants[variant]} ${className}`} {...props} />;
+type Variant = keyof typeof variants;
+
+// Knappens utseende, för det som ser ut som en knapp men inte är en <button> (länkar, <summary>)
+export const buttonClass = (variant: Variant = "primary") => `${base} ${variants[variant]}`;
+
+export function Button({ variant = "primary", className = "", ...props }: ComponentProps<"button"> & { variant?: Variant }) {
+  return <button type="button" className={`${buttonClass(variant)} ${className}`} {...props} />;
+}
+
+// En länk som ser ut som en knapp
+export function LinkButton({ variant = "secondary", className = "", ...props }: ComponentProps<typeof Link> & { variant?: Variant }) {
+  return <Link className={`${buttonClass(variant)} ${className}`} {...props} />;
 }
 
 // Knapp med bara en ikon: label är det skärmläsaren hör

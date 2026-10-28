@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { animationsDone, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, SHADOW } from "./helpers";
+import { adminSignIn, animationsDone, backgroundOf, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, uniqueName } from "./helpers";
+import { addChild, addParent, clearFamily } from "./family-db";
 import { newVisitor } from "./site-session";
 
 // Utseendet: ett test per sida och läge, så att sidan laddas en gång för många kontroller.
@@ -197,4 +198,74 @@ test("MUPP-009-R1 the password page: a card with the name, a labelled field, a b
   await expectTextMessage(error, DANGER);
   expect(contrast(DANGER, CARD)).toBeGreaterThanOrEqual(4.5);
   await context.close();
+});
+
+const MUTED = "rgb(133, 145, 164)";
+const TEXT = "rgb(200, 208, 220)";
+
+test("MUPP-003-R8 the admin link is quiet, and the admin pages look like the rest: headings, cards, field, summary button, dialog", async ({ page }) => {
+  test.skip(!runsLocally, "needs the admin password of the local test server");
+  await clearFamily();
+  const mia = uniqueName("Mia");
+  const kid = uniqueName("Barn");
+  await addChild(await addParent(mia), kid);
+  try {
+    // The menu: "Admin" in the muted text colour, still readable, "Start" in the normal one
+    await page.goto("/");
+    await page.getByRole("button", { name: "Meny" }).click();
+    const admin = page.getByRole("link", { name: "Admin" });
+    await animationsDone(page.getByRole("navigation", { name: "Huvudmeny" }));
+    await expect(admin).toHaveCSS("color", MUTED);
+    await expect(page.getByRole("link", { name: "Start" })).toHaveCSS("color", TEXT);
+    expect(contrast(MUTED, await backgroundOf(admin))).toBeGreaterThanOrEqual(4.5);
+
+    // Sign-in: the name of the page in Fredoka, a card, a field and a button as on the password page
+    await page.goto("/admin");
+    await page.evaluate(() => document.fonts.ready);
+    expect(await css(page.getByRole("heading", { level: 1, name: "Admin" }), "font-family")).toMatch(/Fredoka/);
+    const field = page.getByLabel("Adminlösenord");
+    await expect(field).toHaveCSS("background-color", PAGE);
+    expect((await field.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await expect(page.getByRole("button", { name: "Logga in" })).toHaveCSS("background-color", BRAND);
+    await field.fill("fel");
+    await page.getByRole("button", { name: "Logga in" }).click();
+    const wrong = page.getByRole("alert").filter({ hasText: "Fel lösenord." });
+    await expectTextMessage(wrong, DANGER);
+
+    // A kid's page: cards with an edge, a "Ändra" summary that looks like the secondary button, an item in a bordered box
+    await adminSignIn(page, mia);
+    await page.getByRole("link", { name: `Önskelistor och storlekar, ${kid}` }).click();
+    await page.evaluate(() => document.fonts.ready);
+    const sizes = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Storlekar" }) });
+    await animationsDone(sizes);
+    await expect(sizes).toHaveCSS("border-top-color", EDGE);
+    await expect(sizes).toHaveCSS("background-color", CARD);
+    const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
+    const summary = birthday.locator("summary", { hasText: "Ny önskning" });
+    await expect(summary).toHaveCSS("background-color", CARD);
+    await expect(summary).toHaveCSS("border-top-width", "1px");
+    await expect(summary).toHaveCSS("list-style-type", "none");
+    expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await summary.focus();
+    await expect(summary).toHaveCSS("outline-width", "3px");
+
+    // The confirmation: a card-coloured dialog in the middle with a dark backdrop, the question in Fredoka
+    await summary.click();
+    await birthday.getByLabel("Namn").fill("Pussel");
+    await birthday.getByRole("button", { name: "Lägg till" }).click();
+    await birthday.getByRole("button", { name: "Ta bort Pussel" }).click();
+    const dialog = page.getByRole("alertdialog");
+    await animationsDone(dialog);
+    await expect(dialog).toHaveCSS("background-color", CARD);
+    await expect(dialog).toHaveCSS("border-top-color", EDGE);
+    expect(await css(dialog.getByRole("heading"), "font-family")).toMatch(/Fredoka/);
+    expect(await css(dialog, "background-color", "::backdrop")).toMatch(/^(rgba\(0, 0, 0, 0\.7\)|color\(srgb 0 0 0 \/ 0\.7\)|oklab\(0 0 0 \/ 0\.7\))$/);
+    const box = (await dialog.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(2);
+    expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThan(2);
+    await expect(dialog.getByRole("button", { name: "Ta bort" })).toHaveCSS("background-color", BRAND);
+  } finally {
+    await clearFamily();
+  }
 });

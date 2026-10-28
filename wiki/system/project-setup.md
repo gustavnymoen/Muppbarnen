@@ -29,7 +29,7 @@ Two names to choose at the start: the product's name (here **Muppbarnen**) and t
 | `wiki/system/` | The rules for tests, the pipeline, the review, accessibility and the way of working |
 | `scripts/` | Database setup and migrations with backups; the local test server; the timed test run; Playwright install; the image version check; the documentation check |
 | `lib/db.ts`, `lib/local-db.mjs`, `db/` | Database access, where the local databases are, an empty schema, seed and migration folder, and the unit tests' database helper |
-| `playwright.config.ts`, `vitest.config.mts`, `vitest.global-setup.mjs`, `tests/helpers.ts`, `tests/global-teardown.ts` | Test configuration and shared test helpers |
+| `playwright.config.ts`, `vitest.config.mts`, `vitest.global-setup.mjs`, `tests/helpers.ts` | Test configuration and shared test helpers |
 | `next.config.ts`, `eslint.config.mjs`, `.gitignore`, `.env.example` | Next.js settings with security headers, lint, ignores, the environment variables |
 
 The scripts and dependencies are in `package.json`; Node.js 24.

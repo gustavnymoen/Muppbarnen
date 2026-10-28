@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 // True when the tests run against the local test server (npm run test:local),
 // false against the live site. Tests that change shared data in a way that
@@ -12,30 +12,14 @@ export function uniqueName(prefix: string) {
   return `E2E ${prefix} ${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
 }
 
-// Admin tests need the password. Locally it comes from .env.local; against the
-// live site, set ADMIN_PASSWORD to the production password.
-export function requireAdminPassword() {
-  test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
-}
-
-export async function signIn(page: Page) {
-  await page.goto("/admin/login");
-  await page.getByLabel("Lösenord").fill(process.env.ADMIN_PASSWORD ?? "");
+// Signs in on /admin with the admin password and, when a parent is named, chooses
+// who you are. The password is the made-up one playwright.config.ts gives the local test server.
+export async function adminSignIn(page: Page, parentName?: string) {
+  await page.goto("/admin");
+  await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
   await page.getByRole("button", { name: "Logga in" }).click();
-  await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.getByRole("heading", { name: "Admin", exact: true })).toBeVisible();
-}
-
-// Clicks the trash can for a row and answers "Ja" in the "Är du säker?" dialog
-export async function deleteWithConfirmation(page: Page, label: string) {
-  await page.getByRole("button", { name: label, exact: true }).click();
-  const dialog = page.getByRole("alertdialog");
-  await expect(dialog.getByRole("heading", { name: "Är du säker?" })).toBeVisible();
-  await dialog.getByRole("button", { name: "Ja" }).click();
-  await expect(dialog).toBeHidden();
-  // Wait until the page shows the row is gone. Until then the page's data is
-  // old, and for example a deleted item can still look like it is there.
-  await expect(page.getByRole("button", { name: label, exact: true })).toHaveCount(0);
+  if (parentName) await page.getByRole("button", { name: parentName, exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Admin" })).toBeVisible();
 }
 
 // A translucent colour, "rgba(…)" or "color(srgb …)", laid over an opaque
@@ -101,6 +85,9 @@ export async function expectNoA11yViolations(page: Page) {
   // Elements that fade in are partly see-through while they move, which axe
   // reads as low contrast: wait for running animations first
   await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+  // The title is streamed in with the page, so it can be missing for a
+  // moment (axe rule document-title)
+  await expect(page).toHaveTitle(/.+/);
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     // Something faded on purpose and hidden from screen readers (decoration,
