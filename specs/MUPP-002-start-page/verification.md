@@ -62,6 +62,8 @@ As on the card (`gh issue view 8`), with these details of how they were met:
 
 ## Notes
 
+- **MUPP-004** replaced the example cards: the R3 tests of the carousel row (`Barnens kort, exempel`) were removed from `tests/MUPP-002-start-page.spec.ts` and `tests/design.spec.ts`; the header, menu and 320 px checks remain.
+
 - **The manual accessibility checklist on the live site was left out on purpose** (decided by the owner, 2026-10-27). Not checked: VoiceOver, real touch swiping on a phone, Safari, 200 % zoom and text spacing by hand. What axe and the Chromium tests cover (keyboard, focus, 320 px, reduced motion, target sizes) is recorded above.
 - `specs/features.md` listed MUPP-001 as Ongoing although it is merged; it was set to Done here.
 - The row has `tabIndex={0}`, which axe requires for a scrollable region; the focus ring shows on the whole row.

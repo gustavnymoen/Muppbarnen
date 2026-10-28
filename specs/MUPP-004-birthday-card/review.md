@@ -7,6 +7,35 @@ feature: MUPP-004
 
 # Code review of MUPP-004
 
+## Review run 2
+
+**Result:** Passed (1 must fix, fixed)
+**Date:** 2026-10-28, review run 2, of the layout that changed after run 1 (carousel, Christmas background, miniatures, narrow rows, wish list button)
+**Summary:** Focus, `inert`/`aria-hidden`, unique ids and the data sent to the browser are sound. One browser test depended on today's date and was fixed.
+**Security:** Passed by reading. The change since run 1 adds no route, action, input or write; the browser still gets only month, age, order and wish headlines. `/security-review` was run on the first version (no findings); the later changes are layout only and add nothing for it to look at.
+
+### Must fix
+
+- `tests/design.spec.ts` The deck look test looked for the Christmas card with three clicks, but its place in the deck depends on the date, and fixed birthdays could merge with today's. **Done:** the kids' birthdays are counted from today (distinct dates), and the test pages until "Julafton" shows.
+
+### Should fix
+
+- The Christmas heading's contrast was measured against the card colour, not the green background. **Done:** measured against the lightest part of the gradient (green 42 % over the card).
+- R8 "the others are not drawn" was untested. **Done:** the design test checks that exactly three `.deck-card` elements are in the page with seven cards in the deck.
+- A misindented comment and a double blank line. **Done.**
+
+### Suggestions
+
+- If MUPP-005 adds inputs inside a card, the arrow keys of the carousel must not take over text editing; filter on `event.target` then. **Done:** noted here for MUPP-005.
+- A comment that the dimming of the side cards is deliberate. **Done** in `app/globals.css`.
+- The SVG ids of `ChristmasBackdrop` are unique only while there is one Christmas card. **Done:** left as it is.
+
+### Outside the change
+
+- MUPP-002's solution and verification still described the example carousel. **Done:** a note in both says MUPP-004 replaced it.
+
+## Review run 1
+
 **Result:** Passed for run 1 (it stopped on 1 must fix, fixed). The layout was changed afterwards (carousel, Christmas background, miniatures, wish list button); a second review run of that code is still to be done.
 **Date:** 2026-10-28, review run 1
 **Summary:** The privacy rule (R6), the `inert`/`aria-hidden` handling and the lock are sound. One focus bug was found and fixed: the DOM ids of the same kid were repeated across the cards drawn at once.

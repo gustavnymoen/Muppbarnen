@@ -2,7 +2,6 @@ import type { ComponentProps, CSSProperties } from "react";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
 
-
 // Knappen som öppnar en önskelista: önskelistan är det viktigaste på sajten, så den är en tydlig knapp
 // med "Önskelista" på första raden och "Visa mer" (eller "Dölj") på den andra. forKid hänger på
 // barnets namn för skärmläsaren när flera barn står på samma kort.

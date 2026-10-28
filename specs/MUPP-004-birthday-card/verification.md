@@ -31,7 +31,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | Smoke test | None new, see the card: the site is behind the password, so smoke tests cannot see the deck; the existing smoke tests still pass | local | Pass | 2026-10-28 |
 | Accessibility | axe in every state; the checklist of `wiki/system/accessibility.md` on the live site including a screen reader pass on a phone | local; live | Pass (axe); not checked (checklist) | 2026-10-28 |
 | Security | Security points in the review, and `/security-review`: no findings | local | Pass | 2026-10-28 |
-| Code review | [review.md](review.md) | local | Passed (1 must fix, fixed) | 2026-10-28 |
+| Code review | [review.md](review.md), two runs | local | Passed (1 must fix each, fixed) | 2026-10-28 |
 
 ## Test suite
 
@@ -52,7 +52,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the example cards, their test and the `.carousel` styles are removed
 - [x] Clean code: reuses `Card`, `Chip`, `Avatar`, `IconButton`; `npm run lint`, `npm run lint:docs`, `npm run typecheck` and `npm run build` pass
-- [ ] Code review done, no must-fix findings left; run 1 passed, but the layout changed after it and a second run is still to be done; see [review.md](review.md)
+- [x] Code review done, no must-fix findings left (run 1 and run 2); see [review.md](review.md)
 - [x] Technical tasks for larger improvements noticed along the way added to the board (none found)
 
 ## Requirements as built
@@ -169,7 +169,7 @@ Acceptance criteria:
 ## Notes
 
 - R5: the Christmas list button is "Önskelista jul" (the card first said "Jul"; the button is now simply "Önskelista" under the kid). R8: with a single card the buttons cannot be reached (see above). Both are written into the card.
-- Not yet done: the second review run, the live accessibility checklist and the Live tests after the deploy. The follow-up design points are in TECH-006.
+- Not yet done: the live accessibility checklist and the Live tests after the deploy. The follow-up design points are in TECH-006.
 
 See also: [Solution](solution.md), [Review](review.md).
 

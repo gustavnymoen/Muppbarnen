@@ -162,20 +162,26 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
   try {
     const parent = await addParent(uniqueName("Förälder"));
     const today = swedishToday();
-    await addChild(parent, "Otto", `2020-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`);
-    await addChild(parent, "Alma", "2019-03-03");
-    for (const [name, birthdate] of [["Vera", "2018-06-21"], ["Vilda", "2018-06-21"], ["Otis", "2021-01-09"], ["Ines", "2022-09-30"]]) await addChild(parent, name, birthdate);
+    // Sex barn med olika födelsedagar som räknas från idag, så att kortens ordning och antal inte hänger på datumet
+    const birthdateIn = (days: number) => {
+      const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
+      return `2018-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+    };
+    for (const [i, name] of ["Otto", "Alma", "Vera", "Vilda", "Otis", "Ines"].entries()) await addChild(parent, name, birthdateIn(i * 40));
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
     const card = page.getByRole("article");
     await animationsDone(page.locator(".deck-card").first());
     await animationsDone(card);
 
-    // R8: korten ligger som en hög; det översta är framför de andra, som är mindre och bakom; kortet i fronten har kortets yta
+    // R8: det valda kortet är framför de på sidorna, som är mindre; kortet i mitten har kortets yta
     const behind = page.locator(".deck-card[inert]").first();
     expect(Number(await css(card.locator(".."), "z-index"))).toBeGreaterThan(Number(await css(behind, "z-index")));
     expect(await css(behind, "transform")).not.toBe("none");
     await expect(card).toHaveCSS("background-color", CARD);
+
+    // R8: bara tre kort ritas (det i mitten och de på sidorna), fast leken har sju
+    expect(await page.locator(".deck-card").count()).toBe(3);
 
     // R8: knapparna sitter vid kortet, på var sida och i höjd med dess mitt
     const firstBox = (await card.boundingBox())!;
@@ -201,8 +207,9 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(card.locator("..")).toHaveCSS("transition-duration", "0s");
 
-    // R5: julkortet har sitt eget utseende (färgad kant överst), och texten har god kontrast mot kortet
-    for (let i = 0; i < 3 && !(await page.getByRole("heading", { level: 2, name: "Julafton" }).isVisible()); i++) await nextButton.click();
+    // R5: julkortet har sitt eget utseende (grön kant och bakgrund), och rubriken har god kontrast mot bakgrundens ljusaste del
+    // (grönt, 42 % över kortets yta); julkortet ligger olika långt fram beroende på datum, så vi bläddrar tills det syns
+    for (let i = 0; i < 8 && !(await page.getByRole("heading", { level: 2, name: "Julafton" }).isVisible()); i++) await nextButton.click();
     await expect(card).toHaveClass(/christmas-card/);
     expect(await card.locator("svg[aria-hidden='true']").count()).toBe(1);
     // R5: sex barn får plats på julkortet utan scroll, som smala rader
@@ -210,8 +217,8 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
     expect(await card.locator("ul").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
     expect(await card.innerText()).not.toMatch(/\p{Extended_Pictographic}/u);
     const heading = page.getByRole("heading", { level: 2, name: "Julafton" });
-    expect(contrast(await css(heading, "color"), CARD)).toBeGreaterThanOrEqual(4.5);
-        // R5: alla kort är lika stora (julkortet har flera barn, födelsedagskortet ett) och rubriken står i mitten
+    expect(contrast(await css(heading, "color"), "rgb(52, 79, 67)")).toBeGreaterThanOrEqual(4.5);
+    // R5: alla kort är lika stora (julkortet har flera barn, födelsedagskortet ett) och rubriken står i mitten
     const christmasBox = (await card.boundingBox())!;
     expect(Math.abs(christmasBox.height - firstBox.height)).toBeLessThan(1);
     const headingBox = (await heading.boundingBox())!;

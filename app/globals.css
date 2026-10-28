@@ -85,7 +85,7 @@ body {
 
 /* Kortleken (MUPP-004): korten glider på plats; med minskad rörelse byter de utan rörelse */
 .deck-card { transition: transform 250ms var(--ease-out-soft), opacity 250ms var(--ease-out-soft); }
-/* Korten på sidorna skymtar, mörkare och mindre */
+/* Korten på sidorna skymtar, mörkare och mindre; de är inaktiva (inert, aria-hidden), så kontrasten gäller dem inte */
 .deck-card[inert] > * { filter: brightness(0.4); }
 .deck-card[data-dragging="true"] { transition: none; }
 @media (prefers-reduced-motion: reduce) {
