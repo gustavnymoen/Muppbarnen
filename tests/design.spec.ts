@@ -253,7 +253,11 @@ test("MUPP-003-R8 the admin link is quiet, and the admin pages look like the res
     await summary.click();
     await birthday.getByLabel("Namn").fill("Pussel");
     await birthday.getByRole("button", { name: "Lägg till" }).click();
-    await birthday.getByRole("button", { name: "Ta bort Pussel" }).click();
+    // Buttons side by side are equally high, also when one of them opens a form
+    const edit = birthday.locator("summary", { hasText: "Ändra" });
+    const remove = birthday.getByRole("button", { name: "Ta bort Pussel" });
+    expect((await edit.boundingBox())!.height).toBe((await remove.boundingBox())!.height);
+    await remove.click();
     const dialog = page.getByRole("alertdialog");
     await animationsDone(dialog);
     await expect(dialog).toHaveCSS("background-color", CARD);

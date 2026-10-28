@@ -5,7 +5,7 @@ import { buttonClass } from "./Button";
 // skärmläsare utan script. subject är det knappen gäller, när det inte syns i texten.
 export function Disclosure({ label, subject, children }: { label: string; subject?: string; children: ReactNode }) {
   return (
-    <details className="space-y-4 open:w-full">
+    <details className="open:w-full open:space-y-4">
       <summary
         aria-label={subject ? `${label} ${subject}` : undefined}
         className={`${buttonClass("secondary")} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
