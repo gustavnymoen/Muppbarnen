@@ -12,7 +12,7 @@
 
 * [Architecture](architecture.md) - The parts of Muppbarnen and how they fit: framework, data, hosting and the databases per environment.
 * [Design system](design.md) - How Muppbarnen looks and how the look is built: the tokens, the shared components, the style guide page /design and the rules for adding to them.
-* [Start page and menu](start-page.md) - How the start page, the shared header and the hamburger menu are built, and how the example cards in the carousel work until the real cards arrive.
+* [Start page and menu](start-page.md) - How the start page, the shared header and the hamburger menu are built, and the birthday deck of cards.
 * [Site password](site-password.md) - How the whole site is put behind one shared password: the proxy, the signed cookie, the attempt limit, the settings, the private picture store and how the tests get past it.
 * [Admin page](admin.md) - How the admin page is built: the admin sign-in and cookie, choosing who you are, the pages for parents and the master admin, the rules per kid, the tables and the private pictures.
 * [Testing on a phone](phone-testing.md) - How to look at the site on a real phone over HTTPS: the Vercel preview of a pull request, and npm run dev:https locally.

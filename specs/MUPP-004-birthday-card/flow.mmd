@@ -1,0 +1,13 @@
+%% MUPP-004 Birthday card
+%% The start page builds the deck on the server; the browser browses it and locks it while a list is open.
+flowchart TD
+    A[Visitor opens the start page] --> B[Server reads kids and wishes]
+    B --> C{Any kids?}
+    C -- no --> D[Empty card: Inga barn har lagts till än.]
+    C -- yes --> E[Build cards: R2, month and age only: R6]
+    E --> F[Deck: nearest card on top]
+    F --> G{Browse: swipe, buttons, arrows R8}
+    G --> F
+    F --> H{Press Önskelista or Öppna kid R4 R7}
+    H --> I[List unfolded, deck locked R9]
+    I -- Escape or the button --> F

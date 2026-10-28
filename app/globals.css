@@ -12,6 +12,9 @@
   --color-on-brand: #0c1015;
   --color-danger: #e8938f;
 
+  --color-christmas-green: #5f9a73;
+  --color-christmas-red: #d8766f;
+
   --color-child-coral: #d4958b;
   --color-child-sun: #d4b873;
   --color-child-mint: #82bd9f;
@@ -80,9 +83,23 @@ body {
 }
 .ring-child { border-color: color-mix(in srgb, var(--child) 65%, var(--color-card)); }
 
-/* Karusellen är ren CSS: raden snäpper kort för kort, och med minskad rörelse hoppar den */
-.carousel { scroll-snap-type: x mandatory; scroll-behavior: smooth; overscroll-behavior-x: contain; }
-.carousel > * { scroll-snap-align: start; }
+/* Kortleken (MUPP-004): korten glider på plats; med minskad rörelse byter de utan rörelse */
+.deck-card { transition: transform 250ms var(--ease-out-soft), opacity 250ms var(--ease-out-soft); }
+/* Korten på sidorna skymtar, mörkare och mindre */
+.deck-card[inert] > * { filter: brightness(0.4); }
+.deck-card[data-dragging="true"] { transition: none; }
 @media (prefers-reduced-motion: reduce) {
-  .carousel { scroll-behavior: auto; }
+  .deck-card { transition: none; }
 }
+
+/* Önskelistknappen: barnets färg som text på en ton av kortet, med en tydligare kant (som etiketten, men tryckbar) */
+.wish-button {
+  color: var(--child);
+  background: color-mix(in srgb, var(--child) 16%, var(--color-card));
+  border: 2px solid color-mix(in srgb, var(--child) 55%, var(--color-card));
+  box-shadow: var(--shadow-card);
+}
+.wish-button:hover { background: color-mix(in srgb, var(--child) 24%, var(--color-card)); }
+
+/* Julkortet: grön kant; bakgrunden ritas av ChristmasBackdrop */
+.christmas-card { border-color: color-mix(in srgb, var(--color-christmas-green) 55%, var(--color-edge)); }

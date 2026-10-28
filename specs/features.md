@@ -12,6 +12,7 @@ tags: [product, features]
 |---|---|---|---|
 | [MUPP-001](MUPP-001-design/solution.md) | Design | Shared | Done |
 | [MUPP-002](MUPP-002-start-page/solution.md) | Start page | Startsida | Ongoing |
+| [MUPP-004](MUPP-004-birthday-card/solution.md) | Birthday card | Startsida | Ongoing |
 | [MUPP-003](MUPP-003-admin-page/solution.md) | Admin page | Administration | Ongoing |
 | [MUPP-010](MUPP-010-compact-admin/solution.md) | Compact admin | Administration | Ongoing |
 | [MUPP-009](MUPP-009-site-password/solution.md) | Site password | Shared | Done |

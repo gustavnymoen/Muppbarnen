@@ -3,9 +3,6 @@ import { expectNoA11yViolations } from "./helpers";
 
 const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
-// Korten i raden
-const cards = (page: Page) => page.getByRole("group", { name: "Barnens kort, exempel" }).getByRole("article");
-
 test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
@@ -59,7 +56,7 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   // R2: ett klick utanför stänger menyn
   await menu.click();
   await expect(nav).toBeVisible();
-  await page.getByRole("heading", { level: 2, name: "Alma" }).click();
+  await page.getByRole("main").click({ position: { x: 2, y: 2 } });
   await expect(nav).toHaveCount(0);
 
   // R2 (changed by MUPP-003-R8): "Admin" leads to /admin, which asks for the admin password
@@ -77,38 +74,9 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await expect(menu).toHaveAttribute("aria-expanded", "false");
 });
 
-test("MUPP-002-R1 R3 R4 the carousel and the fixed header on a phone, also at 320 px", async ({ page }) => {
+test("MUPP-002-R1 R4 the fixed header on a phone, also at 320 px", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-
-  // R3: raden är en grupp med ett namn som går att nå med Tab, tre kort, och inget kort döljer ett annat
-  const row = page.getByRole("group", { name: "Barnens kort, exempel" });
-  await expect(cards(page)).toHaveCount(3);
-  await row.focus();
-  await expect(row).toBeFocused();
-  for (const card of await cards(page).all()) await expect(card.getByText("Exempel", { exact: true })).toBeVisible();
-
-  // R3: ett kort syns helt och nästa tittar fram; sidan scrollar inte i sidled
-  const first = (await cards(page).nth(0).boundingBox())!;
-  const second = (await cards(page).nth(1).boundingBox())!;
-  expect(first.x + first.width).toBeLessThanOrEqual(390);
-  expect(second.x).toBeLessThan(390 - 16);
-  expect(second.x + second.width).toBeGreaterThan(390);
-  expect(await hasHorizontalScroll(page)).toBe(false);
-
-  // R3: exakt ett kort är markerat med sitt barns färg
-  expect(await page.locator(".card-highlight").count()).toBe(1);
-  await expect(cards(page).nth(1)).toHaveClass(/card-highlight/);
-
-  // R3: piltangenten flyttar raden ett kort åt gången och kortet snäpper på plats
-  await expect(cards(page).nth(0)).toBeInViewport({ ratio: 1 });
-  await page.keyboard.press("ArrowRight");
-  await expect(cards(page).nth(1)).toBeInViewport({ ratio: 1 });
-  await expect(cards(page).nth(0)).not.toBeInViewport({ ratio: 1 });
-  // Raden glider, så kortet är på plats först när rörelsen är klar
-  await expect.poll(async () => (await cards(page).nth(1).boundingBox())!.x, { message: "snaps to the edge, in line with the header" }).toBeCloseTo((await page.getByRole("heading", { level: 1 }).boundingBox())!.x, 0);
-  await page.keyboard.press("ArrowLeft");
-  await expect(cards(page).nth(0)).toBeInViewport({ ratio: 1 });
   expect(await hasHorizontalScroll(page)).toBe(false);
 
   // R1: sidhuvudet står kvar när innehållet scrollar och bara innehållsytan scrollar
@@ -120,7 +88,7 @@ test("MUPP-002-R1 R3 R4 the carousel and the fixed header on a phone, also at 32
   expect(after.y).toBe(before.y);
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
 
-  // R4: på 320 × 568 px fungerar sidhuvud, meny och kort utan sidled scroll (fönstret ändras mitt i testet)
+  // R4: på 320 × 568 px fungerar sidhuvud och meny utan sidled scroll (fönstret ändras mitt i testet)
   await page.setViewportSize({ width: 320, height: 568 });
   expect(await hasHorizontalScroll(page)).toBe(false);
   await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
@@ -131,15 +99,4 @@ test("MUPP-002-R1 R3 R4 the carousel and the fixed header on a phone, also at 32
   await expect(page.getByRole("navigation", { name: "Huvudmeny" })).toBeInViewport({ ratio: 1 });
   await expectNoA11yViolations(page);
   expect(await hasHorizontalScroll(page)).toBe(false);
-  await page.keyboard.press("Escape");
-  await expect(cards(page).nth(0)).toBeInViewport({ ratio: 1 });
-});
-
-test("MUPP-002-R3 R4 the start page on a desktop shows several cards at once", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
-  for (const card of await cards(page).all()) await expect(card).toBeInViewport({ ratio: 1 });
-  expect(await page.locator(".card-highlight").count()).toBe(1);
-  await expectNoA11yViolations(page);
 });

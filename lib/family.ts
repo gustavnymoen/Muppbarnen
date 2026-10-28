@@ -1,5 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
+import type { DeckInput, Wishes } from "./deck";
 import { collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
@@ -91,6 +92,22 @@ export async function listWishlists(childId: number) {
     });
   }
   return lists;
+}
+
+// Barnen och rubrikerna på önskningarna till kortleken på startsidan (MUPP-004), i listans ordning
+export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: Wishes }> {
+  const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, hasPicture: c.picture !== "" }));
+  const rows = await all<{ child_id: number; occasion: Occasion; id: number; title: string }>(
+    `SELECT w.child_id, w.occasion, i.id, i.title
+     FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,
+  );
+  const wishes: Wishes = new Map();
+  for (const row of rows) {
+    const lists = wishes.get(row.child_id) ?? { birthday: [], christmas: [] };
+    lists[row.occasion].push({ id: row.id, title: row.title });
+    wishes.set(row.child_id, lists);
+  }
+  return { children, wishes };
 }
 
 // Huvudadministratören kan ändra allt; en förälder bara sina egna barn

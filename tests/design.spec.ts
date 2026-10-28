@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, uniqueName } from "./helpers";
 import { addChild, addParent, clearFamily } from "./family-db";
+import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
 
 // Utseendet: ett test per sida och läge, så att sidan laddas en gång för många kontroller.
@@ -147,23 +148,77 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
   await page.mouse.up();
 });
 
-test("MUPP-002-R1 R3 the start page: a header without border, a carousel that glides or, with reduced motion, jumps", async ({ page }) => {
+test("MUPP-002-R1 the start page: a header without border", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-
-  // R1: sidhuvudet har ingen kant eller skiljelinje
   const header = page.getByRole("banner");
   for (const side of ["top", "right", "bottom", "left"]) await expect(header).toHaveCSS(`border-${side}-width`, "0px");
   await expect(header).toHaveCSS("box-shadow", "none");
+});
 
-  // R3: raden snäpper kort för kort och glider
-  const row = page.getByRole("group", { name: "Barnens kort, exempel" });
-  await expect(row).toHaveCSS("scroll-snap-type", "x mandatory");
-  await expect(row).toHaveCSS("scroll-behavior", "smooth");
+test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card, 44 px controls, a Christmas look, focus and reduced motion", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    const today = swedishToday();
+    await addChild(parent, "Otto", `2020-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`);
+    await addChild(parent, "Alma", "2019-03-03");
+    for (const [name, birthdate] of [["Vera", "2018-06-21"], ["Vilda", "2018-06-21"], ["Otis", "2021-01-09"], ["Ines", "2022-09-30"]]) await addChild(parent, name, birthdate);
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(page.locator(".deck-card").first());
+    await animationsDone(card);
 
-  // R3: med minskad rörelse hoppar den
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(row).toHaveCSS("scroll-behavior", "auto");
+    // R8: korten ligger som en hög; det översta är framför de andra, som är mindre och bakom; kortet i fronten har kortets yta
+    const behind = page.locator(".deck-card[inert]").first();
+    expect(Number(await css(card.locator(".."), "z-index"))).toBeGreaterThan(Number(await css(behind, "z-index")));
+    expect(await css(behind, "transform")).not.toBe("none");
+    await expect(card).toHaveCSS("background-color", CARD);
+
+    // R8: knapparna sitter vid kortet, på var sida och i höjd med dess mitt
+    const firstBox = (await card.boundingBox())!;
+    const prevBox = (await page.getByRole("button", { name: "Föregående kort" }).boundingBox())!;
+    const nextBox = (await page.getByRole("button", { name: "Nästa kort" }).boundingBox())!;
+    expect(Math.abs(prevBox.y + prevBox.height / 2 - (firstBox.y + firstBox.height / 2))).toBeLessThan(2);
+    expect(prevBox.x).toBeLessThan(firstBox.x + 8);
+    expect(nextBox.x + nextBox.width).toBeGreaterThan(firstBox.x + firstBox.width - 8);
+
+    // R2: exakt ett kort är markerat med barnets färg
+    expect(await page.locator(".card-highlight").count()).toBe(1);
+
+    // R8 R9: knapparna är minst 44 × 44 px, fokus syns, och korten rör sig i 250 ms eller, med minskad rörelse, inte alls
+    for (const name of ["Föregående kort", "Nästa kort", "Önskelista"]) {
+      const box = (await page.getByRole("button", { name: new RegExp(`^${name}`) }).boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+    }
+    const nextButton = page.getByRole("button", { name: "Nästa kort" });
+    await nextButton.focus();
+    await expect(nextButton).toHaveCSS("outline-width", "3px");
+    await expect(card.locator("..")).toHaveCSS("transition-duration", "0.25s, 0.25s");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(card.locator("..")).toHaveCSS("transition-duration", "0s");
+
+    // R5: julkortet har sitt eget utseende (färgad kant överst), och texten har god kontrast mot kortet
+    for (let i = 0; i < 3 && !(await page.getByRole("heading", { level: 2, name: "Julafton" }).isVisible()); i++) await nextButton.click();
+    await expect(card).toHaveClass(/christmas-card/);
+    expect(await card.locator("svg[aria-hidden='true']").count()).toBe(1);
+    // R5: sex barn får plats på julkortet utan scroll, som smala rader
+    await expect(card.getByRole("button", { name: /^Öppna / })).toHaveCount(6);
+    expect(await card.locator("ul").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+    expect(await card.innerText()).not.toMatch(/\p{Extended_Pictographic}/u);
+    const heading = page.getByRole("heading", { level: 2, name: "Julafton" });
+    expect(contrast(await css(heading, "color"), CARD)).toBeGreaterThanOrEqual(4.5);
+        // R5: alla kort är lika stora (julkortet har flera barn, födelsedagskortet ett) och rubriken står i mitten
+    const christmasBox = (await card.boundingBox())!;
+    expect(Math.abs(christmasBox.height - firstBox.height)).toBeLessThan(1);
+    const headingBox = (await heading.boundingBox())!;
+    expect(Math.abs(headingBox.x + headingBox.width / 2 - (christmasBox.x + christmasBox.width / 2))).toBeLessThan(2);
+  } finally {
+    await clearFamily();
+  }
 });
 
 test("MUPP-009-R1 the password page: a card with the name, a labelled field, a button and an error as coloured text", async ({ browser, baseURL }) => {
