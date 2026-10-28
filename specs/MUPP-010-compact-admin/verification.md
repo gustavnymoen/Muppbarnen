@@ -15,7 +15,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | MUPP-010-R2 | Browser test `MUPP-010-R1 R2 R6 Hantera starts folded …` (accessible names, `title` tooltips, at least 32 × 32 px, room between neighbours, buttons with text keep theirs); `MUPP-003-R8 every admin page works at … px` (icon buttons 32 px, all other controls 44 px); `MUPP-003-R4 R8 wish lists …` and `MUPP-003-R5 …` (the confirmations still name what is removed); `tests/design.spec.ts` (size and look of the icon buttons) | local | Pass | 2026-10-28 |
 | MUPP-010-R3 | Browser test `MUPP-010-R1 R3 a card unfolds with its form …` (pencil opens and closes, another card, the picture panel and the "new" forms fold the first, Esc and saving fold, a form with a mistake stays open); `MUPP-010-R6 with the keyboard only …` | local | Pass | 2026-10-28 |
 | MUPP-010-R4 | Browser test `MUPP-010-R4 a picture is uploaded …` (upload, the "Bild" row with the trash can, the confirmation naming the kid, Avbryt keeps, Ta bort clears the column and the file, the avatar shows, `/bilder/<id>` is 404); unit tests `MUPP-010-R4 …` in `lib/family.test.ts` (master admin clears and gets the name back, no picture is no change, a parent, a visitor, a bad id and a missing kid are refused) and `lib/pictures.test.ts` (removing a gone file is no error); `lib/route-checks.test.ts` requires the three checks in `removeChildPicture`; the order (database first, file after) read in the review | local | Pass | 2026-10-28 |
-| MUPP-010-R5 | Browser tests `MUPP-010-R1 R3 R5 a kid's page …` (sizes, Födelsedag and Jul are three separate cards, sizes folded, "Sparat." read out, opening an item folds the sizes) and `MUPP-003-R3 sizes are edited and saved …` | local | Pass | 2026-10-28 |
+| MUPP-010-R5 | Browser tests `MUPP-010-R1 R3 R5 the sizes page has only the sizes …` (each page has only its own content, "Sparat." read out), `MUPP-010-R2 R5 a kid on the parent's page has a measuring tape …` (the links lead to the right pages) and `MUPP-003-R3 sizes are edited and saved …` | local | Pass | 2026-10-28 |
 | MUPP-010-R6 | Browser tests `MUPP-010-R6 five kids fit on a phone without scrolling` (375 × 667 and 430 × 932), `MUPP-010-R6 the unfolded panels have no sideways scroll at 320 and 430 px, and pass axe`, `MUPP-010-R6 with the keyboard only …`; card height (at most 56 px) in the R1 tests and in `design.spec.ts`; axe on the folded and unfolded Hantera, the picture panel, the confirmation, the kid's page and the sizes card | local | Pass | 2026-10-28 |
 
 ## The test plan
@@ -36,14 +36,14 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before (MUPP-003) | 92 unit, 37 browser | 68.4 s | 4.3 s |
-| After | 95 unit, 45 browser | 78.7 s | 4.3 s |
+| After | 95 unit, 45 browser | 80.1 s | 4.8 s |
 
-The browser time grew about 15 %, inside the 25 % rule and the budgets. One new test was split in two to stay under 5 s. `adminSignIn` now waits for "Byt förälder" when it chooses a parent, since a page opened before the choice was stored showed "Sidan finns inte" (a flaky start found by the new tests).
+The browser time grew about 17 %, inside the 25 % rule and the budgets. One new test was split in two to stay under 5 s. `adminSignIn` now waits for "Byt förälder" when it chooses a parent, since a page opened before the choice was stored showed "Sidan finns inte" (a flaky start found by the new tests).
 
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
-- [x] Test suite: within the time budgets, total time grown by 15 %, and the new tests follow the quality rules in `wiki/system/testing.md`
+- [x] Test suite: within the time budgets, total time grown by 17 %, and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
 - [ ] Accessibility: axe passes on the changed pages and states; the checklist on the live site is not done yet (after the deploy)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
@@ -55,7 +55,7 @@ The browser time grew about 15 %, inside the 25 % rule and the budgets. One new 
 
 ## Requirements as built
 
-Copied from the card (`gh issue view 30`). As built, with two clarifications: "one open at a time" holds for the whole page (one `FoldGroup` per page, so a list, a picture panel and a "new" form all fold each other), and the parent's own page shows each kid as a slim card with two icon links, a measuring tape for the sizes (opens the sizes card) and a checklist for the wish lists (the sizes are on the kid's page, in their own card).
+Copied from the card (`gh issue view 30`). As built (the card was changed with the owner after the first version, see the solution), with two clarifications: "one open at a time" holds for the whole page (one `FoldGroup` per page, so a list, a picture panel and a "new" form all fold each other), and the parent's own page shows each kid as a slim card with two icon links, a measuring tape for the sizes and a checklist for the wish lists, each leading to a page with only that content (the sizes are on the kid's page, in their own card).
 
 ### MUPP-010-R1 Slim cards, folded
 

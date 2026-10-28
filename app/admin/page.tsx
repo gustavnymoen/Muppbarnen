@@ -72,7 +72,7 @@ function ChooseParent({ parents }: { parents: Parent[] }) {
           <li key={parent.id}>
             <form action={chooseParent}>
               <input type="hidden" name="parentId" value={parent.id} />
-              <Button type="submit" className="w-full">
+              <Button type="submit" variant="secondary" className="w-full">
                 {parent.name}
               </Button>
             </form>

@@ -132,7 +132,7 @@ function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
       title={child.name}
       actions={
         <>
-          <IconLink compact href={`/admin/barn/${child.id}`} label={`Önskelistor för ${child.name}`}>
+          <IconLink compact href={`/admin/barn/${child.id}/onskelistor`} label={`Önskelistor för ${child.name}`}>
             <ChecklistIcon />
           </IconLink>
           <FoldToggle id={edit} label={`Ändra ${child.name}`}>

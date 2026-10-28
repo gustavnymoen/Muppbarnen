@@ -47,7 +47,7 @@ test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anythi
   await expect(page.getByRole("heading", { level: 2 })).toHaveCount(0);
   await expectNoA11yViolations(page);
 
-  for (const path of ["/admin/hantera", "/admin/barn/1", "/admin/finns-inte"]) {
+  for (const path of ["/admin/hantera", "/admin/barn/1/storlekar", "/admin/barn/1/onskelistor", "/admin/finns-inte"]) {
     await page.goto(path);
     await expect(page, path).toHaveURL(/\/admin$/);
     await expect(page.getByLabel("Adminlösenord")).toBeVisible();
@@ -226,12 +226,9 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
 
   await page.setViewportSize({ width: 320, height: 568 });
   await adminSignIn(page, mia);
-  await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
+  await page.getByRole("link", { name: `Storlekar för ${kid}` }).click();
   await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
   expect(await hasHorizontalScroll(page)).toBe(false);
-  // The sizes card is folded until chosen (MUPP-010-R5)
-  await expect(page.getByLabel("Kläder")).toHaveCount(0);
-  await page.getByRole("button", { name: "Ändra storlekar" }).click();
 
   await page.getByLabel("Kläder").fill("128");
   await page.getByLabel("Skor").fill("31");
@@ -240,7 +237,6 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
   await page.getByRole("button", { name: "Spara" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
   await page.reload();
-  await page.getByRole("button", { name: "Ändra storlekar" }).click();
   await expect(page.getByLabel("Kläder")).toHaveValue("128");
   await expect(page.getByLabel("Handskar")).toHaveValue("4-6 år");
 
@@ -259,14 +255,13 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
   await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
 
   await page.reload();
-  await page.getByRole("button", { name: "Ändra storlekar" }).click();
   await expect(page.getByLabel("Skor")).toHaveValue("32");
   await expect(page.getByLabel("Huvud")).toHaveValue("52");
   await expect(page.getByLabel("Kläder")).toHaveValue("");
 
   // Another parent's kid, and an id that is no number: the page does not exist for Mia
   for (const id of [String(olaKid), "abc"]) {
-    await page.goto(`/admin/barn/${id}`);
+    await page.goto(`/admin/barn/${id}/storlekar`);
     await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" }), id).toBeVisible();
     await expect(page.getByLabel("Kläder"), id).toHaveCount(0);
   }
@@ -540,14 +535,14 @@ for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
   await addParent(chef);
   const kid = await addChild(miaId, uniqueName("Barn"));
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${kid}`);
+  await page.goto(`/admin/barn/${kid}/onskelistor`);
   const form = await opened(list(page, "Födelsedag"), "Ny önskning");
   await form.getByLabel("Namn").fill("Pussel");
   await form.getByRole("button", { name: "Lägg till" }).click();
   await expect(page.getByRole("heading", { level: 3, name: "Pussel" })).toBeVisible();
 
   await page.setViewportSize({ width, height });
-  for (const path of ["/admin", `/admin/barn/${kid}`, "/admin/hantera"]) {
+  for (const path of ["/admin", `/admin/barn/${kid}/storlekar`, `/admin/barn/${kid}/onskelistor`, "/admin/hantera"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await hasHorizontalScroll(page), `${path} at ${width}`).toBe(false);
@@ -592,7 +587,7 @@ test("MUPP-003-R8 with the keyboard only: open a form, send it and answer the co
   const kid = uniqueName("Barn");
   await addChild(await addParent(mia), kid);
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${await childIdOf(kid)}`);
+  await page.goto(`/admin/barn/${await childIdOf(kid)}/onskelistor`);
 
   // A button opens the form with Enter, the form is filled in and sent with Enter in a field
   const birthday = list(page, "Födelsedag");

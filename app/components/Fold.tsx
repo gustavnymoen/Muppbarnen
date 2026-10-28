@@ -19,9 +19,8 @@ const FoldContext = createContext<FoldState | null>(null);
 // Utanför en grupp finns ingen hopfällning (inloggningen), och då är det här null
 export const useFold = () => useContext(FoldContext);
 
-// initialOpen: panelen som står öppen när sidan öppnas (en länk som "Storlekar för Otis")
-export function FoldGroup({ initialOpen, children }: { initialOpen?: string; children: ReactNode }) {
-  const [openId, setOpenId] = useState<string | null>(initialOpen ?? null);
+export function FoldGroup({ children }: { children: ReactNode }) {
+  const [openId, setOpenId] = useState<string | null>(null);
   const opener = useRef<HTMLElement | null>(null);
   // close har alltid samma identitet, så att ett formulär kan lita på den i en effekt
   const close = useCallback(() => {

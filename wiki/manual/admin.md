@@ -31,19 +31,19 @@ Allt i admin är smala kort som är hopfällda när sidan öppnas. Knapparna är
 | Penna | **Ändra …** | Fäller ut kortet med information och formulär. Tryck igen, eller **Esc**, för att fälla ihop det. |
 | Papperskorg | **Ta bort …** | Frågar först och nämner vad som tas bort. |
 | Bild | **Bild för …** | Öppnar bilden (bara huvudadministratören). |
-| Måttband | **Storlekar för …** | Går till barnets sida med storlekskortet öppet. |
-| Checklista | **Önskelistor för …** | Går till barnets sida med önskelistorna. |
+| Måttband | **Storlekar för …** | Öppnar en sida med bara barnets storlekar. |
+| Checklista | **Önskelistor för …** | Öppnar en sida med bara barnets önskelistor. |
 
 Bara ett kort är utfällt åt gången: öppnar du ett annat fälls det första ihop. När du sparat fälls kortet ihop av sig självt. Blir det fel stannar kortet öppet med felet vid fältet.
 
 ## Storlekar
 
-1. På din sida finns ett smalt kort per barn. Tryck måttbandet **Storlekar för …**: barnets sida öppnas med storlekskortet utfällt.
+1. På din sida finns ett smalt kort per barn. Tryck måttbandet **Storlekar för …**. Sidan har bara storlekarna.
 2. Skriv storlek för kläder, skor, huvud och handskar (högst 40 tecken vardera, tomt tar bort storleken) och tryck **Spara**. Det står "Sparat." när det gick bra.
 
 ## Önskelistor
 
-Varje barn har två listor, **Födelsedag** och **Jul**.
+Tryck checklistan **Önskelistor för …** vid barnet: sidan har bara önskelistorna. Varje barn har två listor, **Födelsedag** och **Jul**.
 
 - **Lägg till:** tryck **Ny önskning**, fyll i **Namn** (måste finnas), och om du vill **Storlek**, **Beskrivning** och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
 - **Se mer och ändra:** tryck pennan **Ändra …** vid önskningen. Då syns storlek, beskrivning och länk, och formuläret. Ändra och tryck **Spara**.

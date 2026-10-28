@@ -169,30 +169,36 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   await expect(kidCard).toBeVisible();
 });
 
-test("MUPP-010-R1 R3 R5 a kid's page: the sizes are a card of their own, the lists are separate cards, items are slim rows, all folded", async ({ page }) => {
+test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page only the lists as slim folded rows", async ({ page }) => {
   const mia = uniqueName("Mia");
   const kid = uniqueName("Barn");
   const kidId = await addChild(await addParent(mia), kid);
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${kidId}`);
 
-  // R5: sizes, Födelsedag and Jul are three separate cards; none is part of another
-  const sizes = page.getByRole("article").filter({ has: page.getByRole("heading", { level: 2, name: "Storlekar" }) });
+  // R5: the sizes page has the sizes and nothing of the wish lists
+  await page.goto(`/admin/barn/${kidId}/storlekar`);
+  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Storlekar" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Födelsedag|Jul/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Ny önskning/ })).toHaveCount(0);
+  await page.getByLabel("Kläder").fill("128");
+  await page.getByRole("button", { name: "Spara" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
+  await expectNoA11yViolations(page);
+
+  // R5: the wish list page has Födelsedag and Jul as separate cards and no sizes
+  await page.goto(`/admin/barn/${kidId}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
   const christmas = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Jul" }) });
-  await expect(sizes).toBeVisible();
-  await expect(birthday.getByRole("heading", { name: "Storlekar" })).toHaveCount(0);
+  await expect(birthday).toBeVisible();
   await expect(christmas.getByRole("heading", { name: "Födelsedag" })).toHaveCount(0);
-  // R1: everything is folded when the page opens
+  await expect(page.getByRole("heading", { name: "Storlekar" })).toHaveCount(0);
   await expect(page.getByLabel("Kläder")).toHaveCount(0);
+  // R1: everything is folded when the page opens
   await expect(page.locator("main form:visible")).toHaveCount(0);
-  const sizesButton = sizes.getByRole("button", { name: "Ändra storlekar" });
-  expect(await expanded(sizesButton)).toBe("false");
-  expect((await sizes.boundingBox())!.height).toBeLessThanOrEqual(56);
 
   // An item is a slim row with its icon buttons; "Ny önskning" has text
-  const form = birthday.getByRole("button", { name: "Ny önskning, Födelsedag" });
-  await form.click();
+  await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
   await birthday.getByLabel("Namn").fill("Pussel");
   await birthday.getByRole("button", { name: "Lägg till" }).click();
   const item = birthday.getByRole("article").filter({ hasText: "Pussel" });
@@ -202,15 +208,10 @@ test("MUPP-010-R1 R3 R5 a kid's page: the sizes are a card of their own, the lis
   await expect(item.getByRole("button", { name: "Ta bort Pussel" })).toHaveAttribute("title", "Ta bort Pussel");
   await expect(item.getByLabel("Namn")).toHaveCount(0);
 
-  // R5 R3: the sizes card opens with its form and "Sparat." is read out; opening an item folds it
-  await sizesButton.click();
-  await expect(sizes.getByLabel("Kläder")).toBeVisible();
-  await expectNoA11yViolations(page);
-  await sizes.getByLabel("Kläder").fill("128");
-  await sizes.getByRole("button", { name: "Spara" }).click();
-  await expect(sizes.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
+  // R3: opening an item folds the "new" form; the item shows its details and form
+  await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
   await item.getByRole("button", { name: "Ändra Pussel" }).click();
-  await expect(sizes.getByLabel("Kläder")).toHaveCount(0);
+  await expect(birthday.getByRole("button", { name: "Ny önskning, Födelsedag" })).toHaveAttribute("aria-expanded", "false");
   await expect(item.getByLabel("Namn")).toHaveValue("Pussel");
   await expectNoA11yViolations(page);
 });
@@ -235,7 +236,7 @@ test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) 
   }
 });
 
-test("MUPP-010-R6 the unfolded panels have no sideways scroll at 320 and 430 px, and pass axe", async ({ page }) => {
+test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll at 320 and 430 px, and pass axe", async ({ page }) => {
   const chef = uniqueName("Chef");
   const kidId = await addChild(await addParent(chef, true), uniqueName("Barn"));
   await adminSignIn(page, chef);
@@ -248,9 +249,11 @@ test("MUPP-010-R6 the unfolded panels have no sideways scroll at 320 and 430 px,
     expect(await hasHorizontalScroll(page), `edit at ${width}`).toBe(false);
     await first.getByRole("button", { name: /^Bild för / }).click();
     expect(await hasHorizontalScroll(page), `picture at ${width}`).toBe(false);
-    await page.goto(`/admin/barn/${kidId}`);
-    await page.getByRole("button", { name: "Ändra storlekar" }).click();
+    await page.goto(`/admin/barn/${kidId}/storlekar`);
     expect(await hasHorizontalScroll(page), `sizes at ${width}`).toBe(false);
+    await expectNoA11yViolations(page);
+    await page.goto(`/admin/barn/${kidId}/onskelistor`);
+    expect(await hasHorizontalScroll(page), `lists at ${width}`).toBe(false);
     await expectNoA11yViolations(page);
   }
 });
@@ -284,7 +287,7 @@ test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc fo
   await expect(dialog(page)).toBeHidden();
 });
 
-test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape for the sizes, which opens the sizes card, and a checklist for the wish lists", async ({ page }) => {
+test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape to a page with only the sizes and a checklist to a page with only the wish lists", async ({ page }) => {
   const mia = "Mia";
   await addChild(await addParent(mia), "Otis");
   await adminSignIn(page, mia);
@@ -296,8 +299,9 @@ test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape for the siz
   await expectNoA11yViolations(page);
   await page.getByRole("link", { name: "Storlekar för Otis" }).click();
   await expect(page.getByLabel("Kläder")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Födelsedag" })).toHaveCount(0);
   await page.goto("/admin");
   await page.getByRole("link", { name: "Önskelistor för Otis" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Otis" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Födelsedag" })).toBeVisible();
   await expect(page.getByLabel("Kläder")).toHaveCount(0);
 });

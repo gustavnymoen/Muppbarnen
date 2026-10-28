@@ -232,14 +232,16 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     const wrong = page.getByRole("alert").filter({ hasText: "Fel lösenord." });
     await expectTextMessage(wrong, DANGER);
 
-    // A kid's page: the sizes are a slim card with an edge, "Ny önskning" looks like the secondary button
+    // The sizes page: a card with an edge; the wish list page: "Ny önskning" looks like the secondary button
     await adminSignIn(page, mia);
-    await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
+    await page.getByRole("link", { name: `Storlekar för ${kid}` }).click();
     await page.evaluate(() => document.fonts.ready);
-    const sizes = page.getByRole("article").filter({ has: page.getByRole("heading", { level: 2, name: "Storlekar" }) });
+    const sizes = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Storlekar" }) });
     await animationsDone(sizes);
     await expect(sizes).toHaveCSS("border-top-color", EDGE);
     await expect(sizes).toHaveCSS("background-color", CARD);
+    await page.goBack();
+    await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
     const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
     const open = birthday.getByRole("button", { name: "Ny önskning" });
     await expect(open).toHaveCSS("background-color", CARD);
