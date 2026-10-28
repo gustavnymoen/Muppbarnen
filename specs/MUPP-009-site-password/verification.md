@@ -115,6 +115,7 @@ The existing tests and the pipeline shall keep working with the site behind a pa
 ## Notes
 
 - **Vercel needs `SITE_PASSWORD` and `SITE_SESSION_SECRET` for Production and Preview before the pull request can build.** They were not set by this change: the password is the owner's to choose.
+- **Changed later by [TECH-005](../TECH-005-security-hardening/verification.md):** requirement R5 (5 attempts in 15 minutes, right ones counted) is replaced by a block after more than 5 wrong passwords (TECH-005-R3), and the cookie is named `__Host-site_session` in production. The test of the sixth attempt moved to TECH-005.
 - The page title of a page is static metadata and is sent even if the proxy were off; it holds no children's data.
 
 See also: [Solution](solution.md), [Review](review.md).

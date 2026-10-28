@@ -3,7 +3,10 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 // Sajtlösenordets kaka och jämförelse. Ren kod utan databas och cookies, så att
 // proxy.ts, servern och enhetstesterna delar den. Designen: wiki/system/security.md.
 
-export const SESSION_COOKIE = "site_session";
+// I produktion med prefixet __Host-: webbläsaren tar då bara emot kakan om den är
+// Secure, saknar Domain och gäller hela sajten, så en kaka satt från en underdomän
+// godtas inte (TECH-005). Lokalt över http går inte Secure, så där utan prefix.
+export const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-site_session" : "site_session";
 export const LOGIN_PATH = "/losenord";
 // Kakan gäller i 180 dagar
 export const SESSION_SECONDS = 180 * 24 * 60 * 60;

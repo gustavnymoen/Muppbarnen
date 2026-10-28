@@ -1,0 +1,22 @@
+%% TECH-005 Security hardening
+%% A sign-in attempt and a writing request, with the request limit (R2) and the block (R3).
+flowchart TD
+    A[Writing request: server action or POST/PUT/PATCH/DELETE] --> B{Signed in? R1<br/>first statement}
+    B -- no --> B1[401 / redirect]
+    B -- yes --> C{Origin is the site? R4}
+    C -- no --> C1[Refused]
+    C -- yes --> D{At most 60 in a minute<br/>for this IP? R2}
+    D -- no --> D1[429, no data touched]
+    D -- yes --> E[The action does its work]
+
+    L[Login form] --> M[guardWrite: Origin and request limit]
+    M --> N{IP blocked? R3}
+    N -- yes --> N1[För många försök. Försök igen om en stund.]
+    N -- no --> O[Write the attempt]
+    O --> P{More than 6 in 15 min?}
+    P -- yes --> Q[Block 20 min] --> N1
+    P -- no --> R{Password matches?}
+    R -- yes --> S[Delete the attempt, set the __Host- cookie R4]
+    R -- no --> T{More than 5 wrong in 15 min?}
+    T -- yes --> U[Block 20 min] --> V[Wait 1 s, then: Fel lösenord.]
+    T -- no --> V

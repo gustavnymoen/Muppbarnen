@@ -1,7 +1,7 @@
 ---
 type: Guide
 title: Site password
-description: "How the whole site is put behind one shared password: the proxy, the signed cookie, the attempt limit, the settings, the private picture store and how the tests get past it."
+description: "How the whole site is put behind one shared password: the proxy, the signed cookie, the block after wrong passwords, the settings, the private picture store and how the tests get past it."
 resource: proxy.ts
 feature: MUPP-009
 tags: [security, sign-in, proxy, cookie]
@@ -17,9 +17,10 @@ Nothing on the site is visible before the visitor has entered the site password.
 |---|---|---|
 | Proxy | `proxy.ts` | Runs for every request except `/_next/static`. Without a valid cookie: pages are sent to `/losenord?till=<path>`; API routes, server actions, `/bilder/…` and every other request get 401 with no content. |
 | Server check | `lib/site-auth.ts` | `hasSiteSession()` / `requireSiteSession()` read the cookie again. Each page checks in its own component behind `<Suspense>` and builds its content afterwards; API routes, server actions and the picture route call `hasSiteSession()` first. |
-| Cookie | `lib/site-session.ts` | `site_session`: expiry and HMAC-SHA256 signature made with `SITE_SESSION_SECRET`. `HttpOnly`, `Secure` in production, `SameSite=Lax`, 180 days. |
+| Cookie | `lib/site-session.ts` | `__Host-site_session` (`site_session` in development over http): expiry and HMAC-SHA256 signature made with `SITE_SESSION_SECRET`. `HttpOnly`, `Secure`, `SameSite=Lax`, path `/`, no `Domain`, 180 days. |
 | Password page | `app/losenord/` | The only page served without the cookie; asks for the password and leads on to the page the visitor asked for (only addresses on this site). |
-| Attempt limit | `lib/login-attempts.ts`, `db/migrations/001_login_attempts.sql` | At most 5 attempts per IP address in 15 minutes, counted in a table before the password is checked; a wrong password is answered after one second. |
+| Block | `lib/login-block.ts`, `db/migrations/001_login_attempts.sql`, `002_login_blocks_and_write_requests.sql` | More than 5 wrong passwords in 15 minutes from one IP address block it for 20 minutes, also for the right password; right passwords don't count; shared with the admin sign-in. A wrong password is answered after one second. |
+| Request limit and Origin | `lib/request-guard.ts`, `lib/write-limit.ts` | The login action first calls `guardWrite()`: at most 60 writing requests per IP address a minute, and the `Origin` must be the site. |
 
 ## Settings
 
@@ -33,9 +34,9 @@ The children's pictures are kept in a **private** Vercel Blob store and served b
 
 ## Tests
 
-- `npm run test:local`: `playwright.config.ts` gives the test server a made-up password and secret (overriding any real ones); `tests/global-setup.ts` signs in once and saves the cookie in `playwright/.auth/site.json`, which all tests reuse. Each test gets its own `x-real-ip`, so the attempt limit isn't shared.
+- `npm run test:local`: `playwright.config.ts` gives the test server a made-up password and secret (overriding any real ones); `tests/global-setup.ts` signs in once and saves the cookie in `playwright/.auth/site.json`, which all tests reuse. Each test gets its own `x-real-ip`, so the block and the request limit aren't shared.
 - Against a deployed site: set `SITE_PASSWORD` to the real password by hand. Without it only the smoke tests make sense, and they see the password page.
-- The tests are `tests/MUPP-009-site-password.spec.ts`, the smoke test in `tests/smoke.spec.ts`, the look in `tests/design.spec.ts`, and the unit tests `lib/site-session.test.ts` and `lib/login-attempts.test.ts` ([Testing](testing.md)).
+- The tests are `tests/MUPP-009-site-password.spec.ts`, the smoke test in `tests/smoke.spec.ts`, the look in `tests/design.spec.ts`, and the unit tests `lib/site-session.test.ts` and `lib/login-block.test.ts` ([Testing](testing.md)). The block, the request limit, the check test for new routes and actions and the Content-Security-Policy are described in [Security](security.md) and tested by [TECH-005](../../specs/TECH-005-security-hardening/solution.md).
 
 The design of the sign-in is also summarised in [Security](security.md). Built by [MUPP-009](../../specs/MUPP-009-site-password/solution.md); the Swedish version is [Lösenordet till sajten](../manual/losenord.md).
 

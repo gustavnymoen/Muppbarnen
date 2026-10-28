@@ -19,6 +19,7 @@ okf_version: "0.2"
 * [MUPP-001 Design](MUPP-001-design/solution.md) - The look of the site: tokens, shared components and a style guide page.
 * [MUPP-002 Start page](MUPP-002-start-page/solution.md) - The header, the hamburger menu and a swipeable row of example cards.
 * [TECH-004 OKF documentation](TECH-004-okf-documentation/solution.md) - The specs and the wiki as OKF bundles with an automatic check.
+* [TECH-005 Security hardening](TECH-005-security-hardening/solution.md) - A check test for sign-in on every route and action, a request limit, a block after wrong passwords and a Content-Security-Policy.
 
 ## Related
 

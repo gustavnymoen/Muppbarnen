@@ -13,7 +13,8 @@ test("TECH-001-R1 every response has the security headers", async ({ request }) 
   const response = await request.get("/");
   const headers = response.headers();
   expect(headers["x-frame-options"]).toBe("DENY");
-  expect(headers["content-security-policy"]).toBe("frame-ancestors 'none'");
+  // Policyn prövas för sig i TECH-005-R4
+  expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
 });

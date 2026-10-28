@@ -39,7 +39,7 @@ A new database is built from `db/schema.sql` and `db/seed.sql`; every later chan
 
 ## Security headers
 
-`next.config.ts` sends `X-Frame-Options: DENY`, `Content-Security-Policy: frame-ancestors 'none'`, `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin` on every response.
+`next.config.ts` sends `X-Frame-Options: DENY`, a `Content-Security-Policy` that limits scripts, styles, images, fonts and connections to the site itself ([Security](security.md)), `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin` on every response.
 
 Built by [TECH-001](../../specs/TECH-001-project-setup/solution.md) and [TECH-002](../../specs/TECH-002-repository-and-hosting/solution.md).
 

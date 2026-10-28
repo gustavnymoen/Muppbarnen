@@ -36,6 +36,7 @@ The review is light. It is there to try out code review as part of the workflow,
 7. **Project rules:** the rules in `CLAUDE.md`, for example database changes only through new migrations, read-only data left untouched, and the languages (Swedish for visitors and code comments, English for specs and system docs).
 8. **Security** (what only a reader sees; the pipeline's scans catch known patterns, secrets and vulnerable packages):
    - **Sign-in on the server:** every admin page, server action and API route that changes or reveals admin data checks the sign-in on the server (`requireAdminPage`, `requireAdmin` or the like), not only in `proxy.ts` or by hiding a button.
+   - **The rules in [`specs/rules.md`](../../specs/rules.md) that the change can break:** a route handler or server action that doesn't call the sign-in check first (the check test `lib/route-checks.test.ts` catches the missing call, not a wrong place), a write that skips `guardWrite()`, a new cookie without the `__Host-` prefix, and an inline script, stylesheet from another site or connection to another site that the Content-Security-Policy blocks. Also: that nothing is counted after a password is checked (a right password never counts towards the block), and that the check test still sees every new file.
    - **Input validated on the server:** values from forms, the address and API calls are checked on the server (type, length, allowed values) before they are used; the checks in the browser are only for the visitor's convenience.
    - **Database queries with parameters:** values go into queries as parameters (`?`), never joined into the SQL text.
    - **Secrets kept secret:** no passwords, keys or tokens in the code, in what is sent to the browser (`NEXT_PUBLIC_…`, props of client components), in logs or in error messages.
@@ -44,7 +45,7 @@ The review is light. It is there to try out code review as part of the workflow,
    - **Personal data:** only what the feature needs is stored, and it is not shown to anyone who shouldn't see it (for example by guessing an ID in the address).
    - **GitHub Actions:** a third-party action in `.github/` is pinned to a full commit SHA with its version as a comment, for example `actions/checkout@<sha> # v7.0.1`, never only to a tag that its owner can move. Dependabot proposes updates.
 
-   A change that breaks one of these is a must-fix finding. A change that touches sign-in, admin, API routes, server actions, database queries or personal data is also checked with Claude Code's `/security-review` in the review step; its high-severity findings are must-fix, and its result goes into `review.md`.
+   A change that breaks one of these, or one of the security rules in `specs/rules.md`, is a must-fix finding. A change that touches sign-in, admin, API routes, server actions, database queries or personal data is also checked with Claude Code's `/security-review` in the review step; its high-severity findings are must-fix, and its result goes into `review.md`.
 
 ## Levels
 

@@ -21,7 +21,7 @@ Det finns ingen knapp för att logga ut. Vill du bli utloggad rensar du webbläs
 ## Om det inte går
 
 - **"Fel lösenord."** Svaret kommer efter ungefär en sekund. Kontrollera stora och små bokstäver och försök igen.
-- **"För många försök. Försök igen om en stund."** Efter fem försök på 15 minuter från samma nätverk stängs det en stund, också för rätt lösenord. Vänta en kvart och försök igen.
+- **"För många försök. Försök igen om en stund."** Efter sex fel lösenord på 15 minuter från samma nätverk stängs det i 20 minuter, också för rätt lösenord. Rätta lösenord räknas inte. Vänta tjugo minuter och försök igen. Är ni flera på samma nätverk räknas era misstag ihop.
 
 ## Byta lösenord (för den som sköter sajten)
 

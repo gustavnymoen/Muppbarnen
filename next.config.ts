@@ -9,6 +9,25 @@ if (process.env.VERCEL && !(process.env.SITE_PASSWORD && process.env.SITE_SESSIO
   );
 }
 
+// Content-Security-Policy: allt hämtas från sajten själv, och inget kan skickas till
+// en annan sajt. En policy med nonce går inte: den kräver att varje sida byggs vid
+// varje förfrågan, och sajten använder Partial Prerendering (cacheComponents). Därför
+// tillåts inline-skript och inline-stilar (Next.js och React lägger själva in sådana
+// för start och strömning av sidor), men skript, anslutningar, ramar och formulär kan
+// inte peka på andra sajter. Valet och varför: wiki/system/security.md.
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' blob: data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 const nextConfig: NextConfig = {
   // Testservern (scripts/test-server.mjs) bygger i en egen mapp
   distDir: process.env.NEXT_DIST_DIR || ".next",
@@ -22,7 +41,7 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Content-Security-Policy", value: csp },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
