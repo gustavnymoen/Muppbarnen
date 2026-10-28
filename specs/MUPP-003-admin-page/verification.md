@@ -7,7 +7,7 @@ feature: MUPP-003
 
 # Verification of MUPP-003
 
-Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database and the local picture folder), the unit tests in `lib/` and `db/`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts`. Everything below was checked locally on 2026-10-28, never against the user's own database or Blob store. Not done: the real Blob upload on the preview, the accessibility checklist on the live site, and the Live tests after the merge (see Notes).
+Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database and the local picture folder), the unit tests in `lib/` and `db/`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts`. Everything below was checked locally on 2026-10-28, never against the user's own database or Blob store. Not done: the accessibility checklist on the live site, the site-password check of `/bilder/1` on the live site, and the Live tests after the merge (see Notes).
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -17,7 +17,7 @@ Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database a
 | MUPP-003-R4 | Browser test `MUPP-003-R4 R8 wish lists …` (add, edit, remove an item, clear a list, confirmations naming them, plain text); unit tests in `lib/family.test.ts` and `lib/form-input.test.ts` (limits, the link check) | local | Pass | 2026-10-28 |
 | MUPP-003-R5 | Browser tests `MUPP-003-R5 the master admin manages parents and kids …` and `MUPP-003-R5 R6 a parent who is not the master admin has no Hantera and no upload`; unit tests in `lib/family.test.ts` (last master admin, parent with kids, removing a kid with its lists) | local | Pass | 2026-10-28 |
 | MUPP-003-R6 | Browser test `MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, and a bad file is refused` (also: no picture without the site cookie, 404 without a picture); unit tests in `lib/image-type.test.ts` (JPEG, PNG, WebP by content, a renamed text file) and `lib/pictures.test.ts` (the local store, size limit, only generated names) | local | Pass | 2026-10-28 |
-| MUPP-003-R6, real Blob store | Manual check of a real upload and that the direct address is not public | preview | Not checked: needs the preview with the Blob token; do it before the merge | |
+| MUPP-003-R6, real Blob store | Manual check on the preview: the store `muppbarnen-blob` is Private (Vercel Storage); a picture was uploaded as the master admin (store shows 396 kB, file `barn-1-<uuid>.jpg`); `/bilder/1` shows the picture when signed in; the file's direct address without the signature answers 403 (only Vercel's time-limited signed link opens it). Not checked on the preview: that `/bilder/1` asks for the site password, because the preview is behind Vercel's own sign-in (a private window gets the Vercel login first); that is covered by the browser test and is to be seen on the live site | preview | Pass, except the site-password check, which was not checked on the preview | 2026-10-28 |
 | MUPP-003-R7 | Unit tests in `db/db-setup.test.ts` (the tables, the foreign keys, the unique list per kid and occasion, the `occasion` check); all queries use `?` parameters (read in the review and by `/security-review`); seed and test data are made up | local | Pass | 2026-10-28 |
 | MUPP-003-R8 | Browser tests `MUPP-003-R8 the menu ends with a quiet Admin link …` (last item, only link, `noindex`, `X-Robots-Tag`), `MUPP-003-R8 every admin page works at 320 and 430 px and on a desktop …` (three tests: no sideways scroll, controls of 44 px), `MUPP-003-R8 with the keyboard only …` (two tests), axe on every page and state, and `MUPP-003-R8 the admin link is quiet, and the admin pages look like the rest …` in `design.spec.ts` | local | Pass | 2026-10-28 |
 
@@ -30,7 +30,7 @@ Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database a
 | Smoke test | `@smoke` test in `tests/smoke.spec.ts`: `/admin` without the site cookie answers with the site password page and none of the admin | local; preview and live: not run yet | Pass locally | 2026-10-28 |
 | Accessibility | axe (`expectNoA11yViolations`) on the sign-in, the first-master form, the parent list, a parent's page with the forms, the master section and the confirmation; the manual checklist (VoiceOver, 200 % zoom, text spacing, contrast, target sizes) on the live site | local; live checklist: not done | axe: Pass; checklist: not checked | 2026-10-28 |
 | Security | The security points of the review; `/security-review` run on the whole change, nothing found at high confidence (see [review.md](review.md)) | local | Pass | 2026-10-28 |
-| Manual check | Real Blob upload on the preview | preview | Not checked | |
+| Manual check | Real Blob upload on the preview, as described under R6 | preview | Pass (the site-password check of `/bilder/1` not checked on the preview) | 2026-10-28 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-28 |
 
 ## Test suite
@@ -46,7 +46,7 @@ The browser time grew about 3.3 times, more than the 25 % rule, and is still ins
 
 ## Definition of Done
 
-- [x] Tests: every check in the card's test plan is done except the real Blob upload on the preview (not checked, recorded above); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
+- [x] Tests: every check in the card's test plan is done (the real Blob upload on the preview by hand, recorded above); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; total time grew more than 25 %, with the cause explained above; the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
 - [ ] Accessibility: changed pages and states pass `expectNoA11yViolations` (done), but the relevant items of `wiki/system/accessibility.md` are not yet checked on the live site
@@ -122,7 +122,8 @@ The admin pages need the admin password in addition to the site password.
 - **`notFound()` inside `Suspense` answers with status 200** (the page streams), so the tests check the page content ("Sidan finns inte", from the new Swedish `app/not-found.tsx`) instead of status 404.
 - **The proxy's redirect** from `/admin/...` to `/admin` carries the body "/admin"; the test allows both an empty body and that.
 - **The confirmation dialog does not wrap focus** (Tab past the last button leaves to the browser's own interface). The test checks that focus never lands behind the dialog, and Escape and Shift+Tab work.
-- **Not checked:** the real upload to the private Blob store on the preview (needs the preview's Blob token), the accessibility checklist on the live site, and the Live tests after the merge.
+- **Preview and Vercel's sign-in:** the preview is behind Vercel's own authentication, so a private window sees the Vercel login and never the site's password page. The site-password check of `/bilder/<id>` is therefore covered by the browser test (`MUPP-003-R6 …`, no picture without the site cookie) and is to be seen once on the live site.
+- **Not checked:** the accessibility checklist on the live site, the site-password check of `/bilder/1` on the live site, and the Live tests after the merge.
 - **Test time:** see Test suite above.
 
 See also: [Solution](solution.md), [Review](review.md).
