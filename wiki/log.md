@@ -2,6 +2,8 @@
 
 ## 2026-10-28
 
+* **Creation** [MUPP-010 Compact admin](../specs/MUPP-010-compact-admin/solution.md): the admin pages are slim cards that fold open one at a time, with icon buttons (pencil, trash can, picture, list) instead of large buttons, the sizes as a card of their own, and removal of a kid's picture.
+
 * **Creation** [MUPP-003 Admin page](../specs/MUPP-003-admin-page/solution.md): the admin page behind a second password, where parents fill in sizes and wish lists and the master admin manages kids, parents and private pictures; the first tables (parent, child, wishlist, wishlist item) and `/bilder/<child id>`.
 
 * **Creation** [TECH-005 Security hardening](../specs/TECH-005-security-hardening/solution.md): a test that every route and server action checks the sign-in, a request limit for writes, a 20-minute block after repeated wrong passwords, a Content-Security-Policy and `__Host-` cookies, and the rules written into the specs and the code review.

@@ -211,6 +211,16 @@ export async function setChildPicture(childId: number, picture: string) {
   await run("UPDATE child SET picture = ? WHERE id = ?", [picture, childId]);
 }
 
+// Tar bort barnets bild (MUPP-010-R4): fältet töms, och namnet på filen lämnas tillbaka så att
+// den kan tas bort ur lagret när databasen är uppdaterad. Bara huvudadministratören; utan bild
+// händer ingenting (picture är då tom).
+export async function clearChildPicture(actor: Parent | null, rawId: unknown): Promise<Outcome<{ picture: string }>> {
+  const child = await childForPicture(actor, rawId);
+  if (!child) return NOT_ALLOWED;
+  if (child.picture) await setChildPicture(child.id, "");
+  return { ok: true, picture: child.picture };
+}
+
 // ---- Storlekar (barnets förälder eller huvudadministratören)
 
 export async function saveSizes(

@@ -1,10 +1,11 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef } from "react";
-import { Button } from "./Button";
+import { Button, IconButton } from "./Button";
+import { TrashIcon } from "./icons";
 import type { FormAction } from "./form-state";
 
-// En knapp som frågar innan den gör något som inte går att ångra. Frågan är en modal
+// En papperskorgsknapp som frågar innan den gör något som inte går att ångra. Frågan är en modal
 // dialog (<dialog>), som håller tangentbordet borta från sidan bakom, stängs med Esc och nämner vad det gäller.
 // Fokus börjar på "Avbryt", så att Enter inte råkar bekräfta.
 export function ConfirmAction({
@@ -32,9 +33,9 @@ export function ConfirmAction({
 
   return (
     <>
-      <Button variant="secondary" aria-label={`${label} ${subject}`} onClick={() => dialog.current?.showModal()}>
-        {label}
-      </Button>
+      <IconButton compact label={`${label} ${subject}`} onClick={() => dialog.current?.showModal()}>
+        <TrashIcon />
+      </IconButton>
       <dialog
         ref={dialog}
         role="alertdialog"

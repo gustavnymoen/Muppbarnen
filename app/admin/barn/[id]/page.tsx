@@ -2,12 +2,14 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Avatar } from "@/app/components/Avatar";
 import { LinkButton } from "@/app/components/Button";
-import { Card } from "@/app/components/Card";
+import { FoldGroup, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Field, Form } from "@/app/components/Form";
+import { PencilIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
+import { SlimCard } from "@/app/components/SlimCard";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { childColor } from "@/lib/child-colors";
-import { canManage, findChild, listWishlists } from "@/lib/family";
+import { canManage, findChild, listWishlists, type Child } from "@/lib/family";
 import { OCCASIONS, parseId } from "@/lib/form-input";
 import { requireSiteSession } from "@/lib/site-auth";
 import { saveSizes } from "../../actions";
@@ -33,29 +35,49 @@ async function ChildContent({ params }: { params: PageProps<"/admin/barn/[id]">[
   return (
     <Page>
       <PageContent>
-        <div className="space-y-6">
-          <LinkButton href="/admin">Till barnen</LinkButton>
-          <div className="flex items-center gap-3">
-            <Avatar name={child.name} color={childColor(child.id)} src={child.picture ? `/bilder/${child.id}` : undefined} decorative />
-            <Heading level={1}>{child.name}</Heading>
+        <FoldGroup>
+          <div className="space-y-4">
+            <LinkButton href="/admin">Till barnen</LinkButton>
+            <div className="flex items-center gap-3">
+              <Avatar name={child.name} color={childColor(child.id)} src={child.picture ? `/bilder/${child.id}` : undefined} size={40} decorative />
+              <Heading level={1} small>
+                {child.name}
+              </Heading>
+            </div>
+            <SizesCard child={child} />
+            {OCCASIONS.map((occasion) => (
+              <WishlistSection key={occasion} child={child} occasion={occasion} items={lists[occasion]} />
+            ))}
           </div>
-          <Card as="section" className="space-y-4">
-            <Heading level={2}>Storlekar</Heading>
-            <Form action={saveSizes} submit="Spara">
-              <input type="hidden" name="childId" value={child.id} />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field name="clothes" label="Kläder" defaultValue={child.sizes.clothes} maxLength={40} />
-                <Field name="shoes" label="Skor" defaultValue={child.sizes.shoes} maxLength={40} />
-                <Field name="head" label="Huvud" defaultValue={child.sizes.head} maxLength={40} />
-                <Field name="gloves" label="Handskar" defaultValue={child.sizes.gloves} maxLength={40} />
-              </div>
-            </Form>
-          </Card>
-          {OCCASIONS.map((occasion) => (
-            <WishlistSection key={occasion} child={child} occasion={occasion} items={lists[occasion]} />
-          ))}
-        </div>
+        </FoldGroup>
       </PageContent>
     </Page>
+  );
+}
+
+// Storlekarna är ett eget kort, hopfällt tills det väljs (MUPP-010-R5). keepOpen: "Sparat." ska läsas upp.
+function SizesCard({ child }: { child: Child }) {
+  return (
+    <SlimCard
+      level={2}
+      title="Storlekar"
+      actions={
+        <FoldToggle id="storlekar" label="Ändra storlekar">
+          <PencilIcon />
+        </FoldToggle>
+      }
+    >
+      <FoldPanel id="storlekar">
+        <Form action={saveSizes} submit="Spara" keepOpen>
+          <input type="hidden" name="childId" value={child.id} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field name="clothes" label="Kläder" defaultValue={child.sizes.clothes} maxLength={40} />
+            <Field name="shoes" label="Skor" defaultValue={child.sizes.shoes} maxLength={40} />
+            <Field name="head" label="Huvud" defaultValue={child.sizes.head} maxLength={40} />
+            <Field name="gloves" label="Handskar" defaultValue={child.sizes.gloves} maxLength={40} />
+          </div>
+        </Form>
+      </FoldPanel>
+    </SlimCard>
   );
 }

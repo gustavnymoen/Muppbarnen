@@ -18,7 +18,11 @@ export async function adminSignIn(page: Page, parentName?: string) {
   await page.goto("/admin");
   await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
   await page.getByRole("button", { name: "Logga in" }).click();
-  if (parentName) await page.getByRole("button", { name: parentName, exact: true }).click();
+  if (parentName) {
+    await page.getByRole("button", { name: parentName, exact: true }).click();
+    // The choice is stored when the page shows "Byt förälder"; a page opened before that has no parent
+    await expect(page.getByRole("button", { name: "Byt förälder" })).toBeVisible();
+  }
   await expect(page.getByRole("heading", { level: 1, name: "Admin" })).toBeVisible();
 }
 

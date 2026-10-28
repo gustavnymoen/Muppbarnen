@@ -26,8 +26,10 @@ async function AdminContent() {
   return (
     <Page>
       <PageContent>
-        <div className="space-y-6">
-          <Heading level={1}>Admin</Heading>
+        <div className="space-y-5">
+          <Heading level={1} small>
+            Admin
+          </Heading>
           {!admin ? <SignIn /> : parents.length === 0 ? <FirstMaster /> : admin.parent ? <ParentHome parent={admin.parent} /> : <ChooseParent parents={parents} />}
         </div>
       </PageContent>
@@ -49,7 +51,9 @@ function SignIn() {
 function FirstMaster() {
   return (
     <Card className="max-w-md space-y-4">
-      <Heading level={2}>Skapa huvudadministratör</Heading>
+      <Heading level={2} small>
+        Skapa huvudadministratör
+      </Heading>
       <Form action={createMaster} submit="Skapa">
         <Field name="name" label="Namn" defaultValue="Gustav" maxLength={60} required />
       </Form>
@@ -59,19 +63,19 @@ function FirstMaster() {
 
 function ChooseParent({ parents }: { parents: Parent[] }) {
   return (
-    <section className="space-y-4">
-      <Heading level={2}>Vem är du?</Heading>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="space-y-3">
+      <Heading level={2} small>
+        Vem är du?
+      </Heading>
+      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {parents.map((parent) => (
           <li key={parent.id}>
-            <Card>
-              <form action={chooseParent}>
-                <input type="hidden" name="parentId" value={parent.id} />
-                <Button type="submit" className="w-full">
-                  {parent.name}
-                </Button>
-              </form>
-            </Card>
+            <form action={chooseParent}>
+              <input type="hidden" name="parentId" value={parent.id} />
+              <Button type="submit" className="w-full">
+                {parent.name}
+              </Button>
+            </form>
           </li>
         ))}
       </ul>
@@ -96,7 +100,7 @@ async function ParentHome({ parent }: { parent: Parent }) {
       {children.length === 0 ? (
         <p className="text-muted">Inga barn ännu.</p>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {children.map((child) => (
             <li key={child.id}>
               <ChildCard child={child} />
@@ -105,11 +109,13 @@ async function ParentHome({ parent }: { parent: Parent }) {
         </ul>
       )}
       {parent.isMasterAdmin && (
-        <Card className="space-y-3">
-          <Heading level={2}>Hantera</Heading>
+        <section className="space-y-3">
+          <Heading level={2} small>
+            Hantera
+          </Heading>
           <p className="text-muted">Barn, föräldrar och bilder.</p>
           <LinkButton href="/admin/hantera">Hantera barn och föräldrar</LinkButton>
-        </Card>
+        </section>
       )}
     </>
   );

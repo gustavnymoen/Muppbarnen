@@ -22,29 +22,43 @@ Första gången, när det inte finns några föräldrar, visas **Skapa huvudadmi
 
 Du väljer själv bland föräldrarna med en knapp per förälder. Vem du är visas överst ("Barn som tillhör …"). **Byt förälder** tar dig tillbaka till listan. Ingen förälder har eget lösenord, så var rädd om adminlösenordet.
 
+## Små kort och ikoner
+
+Allt i admin är smala kort som är hopfällda när sidan öppnas. Knapparna är små ikoner; håll musen över en ikon (eller läs med skärmläsare) för att se vad den gör:
+
+| Ikon | Namn | Gör |
+|---|---|---|
+| Penna | **Ändra …** | Fäller ut kortet med information och formulär. Tryck igen, eller **Esc**, för att fälla ihop det. |
+| Papperskorg | **Ta bort …** | Frågar först och nämner vad som tas bort. |
+| Bild | **Bild för …** | Öppnar bilden (bara huvudadministratören). |
+| Lista | **Önskelistor för …** | Går till barnets sida. |
+
+Bara ett kort är utfällt åt gången: öppnar du ett annat fälls det första ihop. När du sparat fälls kortet ihop av sig självt. Blir det fel stannar kortet öppet med felet vid fältet.
+
 ## Storlekar
 
-1. På din sida finns ett kort per barn. Tryck **Önskelistor och storlekar**.
-2. Skriv storlek för kläder, skor, huvud och handskar (högst 40 tecken vardera, tomt tar bort storleken) och tryck **Spara**. Det står "Sparat." när det gick bra.
+1. På din sida finns ett smalt kort per barn. Tryck listikonen **Önskelistor för …**.
+2. På barnets sida är **Storlekar** ett eget kort. Tryck pennan **Ändra storlekar**, skriv storlek för kläder, skor, huvud och handskar (högst 40 tecken vardera, tomt tar bort storleken) och tryck **Spara**. Det står "Sparat." när det gick bra.
 
 ## Önskelistor
 
 Varje barn har två listor, **Födelsedag** och **Jul**.
 
 - **Lägg till:** tryck **Ny önskning**, fyll i **Namn** (måste finnas), och om du vill **Storlek**, **Beskrivning** och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
-- **Ändra:** tryck **Ändra** vid önskningen, ändra och tryck **Spara**.
-- **Ta bort:** tryck **Ta bort**. Du får en fråga som nämner önskningen; svara **Ta bort** eller **Avbryt**.
-- **Töm listan:** tar bort alla önskningar i en lista, efter en fråga som nämner listan och barnet.
+- **Se mer och ändra:** tryck pennan **Ändra …** vid önskningen. Då syns storlek, beskrivning och länk, och formuläret. Ändra och tryck **Spara**.
+- **Ta bort:** tryck papperskorgen **Ta bort …**. Du får en fråga som nämner önskningen; svara **Ta bort** eller **Avbryt**.
+- **Töm listan:** papperskorgen vid rubriken tar bort alla önskningar i en lista, efter en fråga som nämner listan och barnet.
 
 Fel visas bredvid fältet, och det du skrivit finns kvar så att du kan rätta det.
 
 ## Hantera (bara huvudadministratören)
 
-Om du är huvudadministratör finns kortet **Hantera** på din sida, med knappen **Hantera barn och föräldrar**.
+Om du är huvudadministratör finns **Hantera** på din sida, med knappen **Hantera barn och föräldrar**. Där finns rubrikerna **Föräldrar** och **Barn**, med ett smalt kort för var och en.
 
 - **Föräldrar:** lägg till, ändra namn, kryssa i **Huvudadministratör**, eller ta bort. En förälder som har barn kan inte tas bort: flytta eller ta bort barnen först. Det måste alltid finnas minst en huvudadministratör.
-- **Barn:** lägg till med namn, födelsedatum (ett riktigt datum som inte är i framtiden) och förälder. Under **Ändra** byter du förälder. **Ta bort** tar också bort barnets listor och bild, efter en fråga.
-- **Bild:** tryck **Bild** vid barnet, välj en fil (JPEG, PNG eller WebP, högst 4 MB) och tryck **Spara bild**. En ny bild ersätter den gamla. Annat ger "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB."
+- **Barn:** lägg till med **Nytt barn**: namn, födelsedatum (ett riktigt datum som inte är i framtiden) och förälder. Pennan visar bilden, födelsedatum och förälder och låter dig ändra, bland annat byta förälder. Papperskorgen tar också bort barnets listor och bild, efter en fråga.
+- **Bild:** tryck bildikonen **Bild för …** vid barnet, välj en fil (JPEG, PNG eller WebP, högst 4 MB) och tryck **Spara bild**. En ny bild ersätter den gamla. Annat ger "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB."
+- **Ta bort bilden:** har barnet en bild visas en rad "Bild" med en papperskorg överst i bildpanelen (**Ta bort bilden för …**). Du får en fråga som nämner barnet; efter **Ta bort** visas barnets initial i stället.
 
 Bilderna syns bara för den som är inne på sajten med sajtlösenordet.
 
@@ -52,6 +66,6 @@ Bilderna syns bara för den som är inne på sajten med sajtlösenordet.
 
 Lösenordet och nyckeln som signerar inloggningen är inställningarna `ADMIN_PASSWORD` och `ADMIN_SESSION_SECRET` i Vercel (Production och Preview) och i `.env.local`. Byt värdet och publicera om sajten; byter du nyckeln loggas alla ut. Saknas någon av dem är admin stängd.
 
-Byggd av [MUPP-003](../../specs/MUPP-003-admin-page/solution.md); den tekniska beskrivningen är [Admin page](../system/admin.md).
+Byggd av [MUPP-003](../../specs/MUPP-003-admin-page/solution.md) och [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md); den tekniska beskrivningen är [Admin page](../system/admin.md).
 
 [Manual](index.md)

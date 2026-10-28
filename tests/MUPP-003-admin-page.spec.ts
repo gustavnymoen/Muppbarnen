@@ -26,11 +26,12 @@ test.afterEach(clearFamily);
 
 // The card for a list (Födelsedag or Jul) on a kid's page
 const list = (page: Page, name: string) => page.locator("section", { has: page.getByRole("heading", { level: 2, name, exact: true }) });
-// Opens the form behind a button ("Ändra", "Ny önskning, …") and gives it
-async function opened(scope: Locator, summary: string | RegExp) {
-  const details = scope.locator("details").filter({ has: scope.page().locator("summary", { hasText: summary }) });
-  if ((await details.getAttribute("open")) === null) await details.locator("summary").click();
-  return details;
+// Opens the form behind a button ("Ändra …", "Ny önskning, …") unless it is open, and gives
+// the card it is in (MUPP-010: one panel is open at a time, so opening one folds another)
+async function opened(scope: Locator, name: string) {
+  const toggle = scope.getByRole("button", { name });
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+  return scope;
 }
 // The page's alert dialog: answers it
 const dialog = (page: Page) => page.getByRole("alertdialog");
@@ -225,10 +226,12 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
 
   await page.setViewportSize({ width: 320, height: 568 });
   await adminSignIn(page, mia);
-  await expect(page.getByText("Inga storlekar ännu.")).toBeVisible();
-  await page.getByRole("link", { name: `Önskelistor och storlekar, ${kid}` }).click();
+  await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
   await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
   expect(await hasHorizontalScroll(page)).toBe(false);
+  // The sizes card is folded until chosen (MUPP-010-R5)
+  await expect(page.getByLabel("Kläder")).toHaveCount(0);
+  await page.getByRole("button", { name: "Ändra storlekar" }).click();
 
   await page.getByLabel("Kläder").fill("128");
   await page.getByLabel("Skor").fill("31");
@@ -237,6 +240,7 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
   await page.getByRole("button", { name: "Spara" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
   await page.reload();
+  await page.getByRole("button", { name: "Ändra storlekar" }).click();
   await expect(page.getByLabel("Kläder")).toHaveValue("128");
   await expect(page.getByLabel("Handskar")).toHaveValue("4-6 år");
 
@@ -254,10 +258,11 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
   await page.getByRole("button", { name: "Spara" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
 
-  await page.goto("/admin");
-  await expect(page.getByText("Skor: 32")).toBeVisible();
-  await expect(page.getByText("Huvud: 52")).toBeVisible();
-  await expect(page.getByText("Kläder:")).toHaveCount(0);
+  await page.reload();
+  await page.getByRole("button", { name: "Ändra storlekar" }).click();
+  await expect(page.getByLabel("Skor")).toHaveValue("32");
+  await expect(page.getByLabel("Huvud")).toHaveValue("52");
+  await expect(page.getByLabel("Kläder")).toHaveValue("");
 
   // Another parent's kid, and an id that is no number: the page does not exist for Mia
   for (const id of [String(olaKid), "abc"]) {
@@ -274,7 +279,7 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
 
   await page.setViewportSize({ width: 320, height: 568 });
   await adminSignIn(page, mia);
-  await page.getByRole("link", { name: `Önskelistor och storlekar, ${kid}` }).click();
+  await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
   const birthday = list(page, "Födelsedag");
   const christmas = list(page, "Jul");
   await expect(birthday.getByText("Inga önskningar ännu.")).toBeVisible();
@@ -302,17 +307,23 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
   await expect(item).toBeVisible();
   const unlimited = item.locator("span").filter({ hasText: /^Obegränsad$/ });
   await expect(unlimited).toBeVisible();
+  // The details are behind the row's pencil
+  await expect(item.getByText("Storlek: Stor")).toHaveCount(0);
+  await opened(item, "Ändra");
   await expect(item.getByText("Storlek: Stor")).toBeVisible();
   await expect(item.getByRole("link", { name: "https://exempel.se/lego" })).toHaveAttribute("href", "https://exempel.se/lego");
   await expect(item.locator("p").filter({ hasText: "<script>alert(1)</script> En stor ask" })).toBeVisible();
   // Never rendered as HTML: no element was made of the text
   expect(await birthday.locator("article b, article script").count()).toBe(0);
-  // The new form is empty again, and the other list is unchanged
+  // The new form folded when it was saved, is empty when opened again, and the other list is unchanged
+  await expect(birthday.getByRole("button", { name: "Ny önskning" })).toHaveAttribute("aria-expanded", "false");
+  form = await opened(birthday, "Ny önskning");
   await expect(form.getByLabel("Namn")).toHaveValue("");
   await expect(christmas.getByText("Inga önskningar ännu.")).toBeVisible();
 
-  // Edit
+  // Edit (one panel at a time: the new form folds when the row's pencil is chosen)
   const edit = await opened(item, "Ändra");
+  await expect(birthday.getByRole("button", { name: "Ny önskning" })).toHaveAttribute("aria-expanded", "false");
   await edit.getByLabel("Namn").fill("Lego Technic");
   await edit.getByLabel("Obegränsad").uncheck();
   await edit.getByRole("button", { name: "Spara" }).click();
@@ -382,13 +393,15 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   await form.getByLabel("Födelsedatum").fill("2019-03-09");
   await form.getByRole("button", { name: "Lägg till" }).click();
   const row = kids.getByRole("article").filter({ hasText: kid });
-  await expect(row).toContainText(`Född 2019-03-09, förälder: ${mia}`);
   await expectNoA11yViolations(page);
+  const edit = await opened(row, "Ändra");
+  await expect(row).toContainText(`Född 2019-03-09, förälder: ${mia}`);
 
   // Move the kid to another parent
-  const edit = await opened(row, "Ändra");
   await edit.getByLabel("Förälder").selectOption({ label: ola });
   await edit.getByRole("button", { name: "Spara" }).click();
+  await expect(row.getByRole("button", { name: "Ändra" })).toHaveAttribute("aria-expanded", "false");
+  await opened(row, "Ändra");
   await expect(row).toContainText(`förälder: ${ola}`);
 
   // A parent with kids cannot be removed; the message says what to do and the dialog stays open
@@ -430,7 +443,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   await page.goto("/admin/hantera");
   const row = page.getByRole("article").filter({ hasText: kid });
   const upload = async (file: { name: string; mimeType: string; buffer: Buffer }) => {
-    const form = await opened(row, /^Bild$/);
+    const form = await opened(row, `Bild för ${kid}`);
     await form.getByLabel("Bild", { exact: true }).setInputFiles(file);
     await form.getByRole("button", { name: "Spara bild" }).click();
     return form;
@@ -449,7 +462,9 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
 
   // A picture: stored, shown next to the name as decoration (empty alt text), served at /bilder/<id>
   form = await upload({ name: "bild.png", mimeType: "image/png", buffer: png });
-  await expect(form.getByRole("status")).toHaveText("Sparat.");
+  // The panel folds when the picture is saved
+  await expect.poll(() => pictureOf(kidId)).toMatch(/\.png$/);
+  await expect(form.getByLabel("Bild", { exact: true })).toHaveCount(0);
   const first = await pictureOf(kidId);
   expect(first).toMatch(/^barn-\d+-[0-9a-f-]{36}\.png$/);
   await expect(row.locator(`img[src="/bilder/${kidId}"]`)).toHaveAttribute("alt", "");
@@ -493,7 +508,7 @@ test("MUPP-003-R5 R6 a parent who is not the master admin has no Hantera and no 
   await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" })).toBeVisible();
   // The kid's own page has no picture upload or kid form either
   await page.goto("/admin");
-  await page.getByRole("link", { name: `Önskelistor och storlekar, ${kid}` }).click();
+  await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
   await expect(page.getByLabel("Bild")).toHaveCount(0);
   await expect(page.getByLabel("Födelsedatum")).toHaveCount(0);
 });
@@ -518,7 +533,7 @@ test("MUPP-003-R8 the menu ends with a quiet Admin link, nothing else points to 
 });
 
 for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
-  test(`MUPP-003-R8 every admin page works at ${width} px: no sideways scroll, controls of 44 px`, async ({ page }) => {
+  test(`MUPP-003-R8 every admin page works at ${width} px: no sideways scroll, controls of 44 px (32 px for the icon buttons)`, async ({ page }) => {
   const mia = uniqueName("Mia");
   const chef = uniqueName("Chef");
   const miaId = await addParent(mia, true);
@@ -536,12 +551,13 @@ for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await hasHorizontalScroll(page), `${path} at ${width}`).toBe(false);
-    // Every button, link, field and summary is at least 44 × 44 px (a checkbox sits in a row that high)
-    const small = await page.locator("main").locator("button, a, input:not([type=checkbox]):not([type=hidden]), select, textarea, summary").evaluateAll((els) =>
+    // Every button, link and field is at least 44 × 44 px (a checkbox sits in a row that high),
+    // except the compact icon buttons (the ones with a tooltip), which are 32 × 32 px (MUPP-010-R2)
+    const small = await page.locator("main").locator("button, a, input:not([type=checkbox]):not([type=hidden]), select, textarea").evaluateAll((els) =>
       els
         .filter((el) => (el as HTMLElement).offsetParent !== null)
-        .map((el) => ({ text: el.textContent?.trim().slice(0, 30) || el.getAttribute("name"), box: el.getBoundingClientRect() }))
-        .filter(({ box }) => box.height < 43.5 || box.width < 43.5)
+        .map((el) => ({ text: el.getAttribute("aria-label") || el.textContent?.trim().slice(0, 30) || el.getAttribute("name"), box: el.getBoundingClientRect(), min: el.hasAttribute("title") ? 31.5 : 43.5 }))
+        .filter(({ box, min }) => box.height < min || box.width < min)
         .map(({ text, box }) => `${text}: ${box.width}×${box.height}`),
     );
     expect(small, `${path} at ${width}`).toEqual([]);
@@ -564,7 +580,7 @@ test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a ki
   await choose.focus();
   await page.keyboard.press("Enter");
 
-  const open = page.getByRole("link", { name: `Önskelistor och storlekar, ${kid}` });
+  const open = page.getByRole("link", { name: `Önskelistor för ${kid}` });
   await open.focus();
   await expect(open).toHaveCSS("outline-width", "3px");
   await page.keyboard.press("Enter");
@@ -578,9 +594,9 @@ test("MUPP-003-R8 with the keyboard only: open a form, send it and answer the co
   await adminSignIn(page, mia);
   await page.goto(`/admin/barn/${await childIdOf(kid)}`);
 
-  // A summary opens with Enter, the form is filled in and sent with Enter in a field
+  // A button opens the form with Enter, the form is filled in and sent with Enter in a field
   const birthday = list(page, "Födelsedag");
-  await birthday.locator("summary", { hasText: "Ny önskning" }).focus();
+  await birthday.getByRole("button", { name: "Ny önskning" }).focus();
   await page.keyboard.press("Enter");
   await birthday.getByLabel("Namn").focus();
   await page.keyboard.type("Pussel");

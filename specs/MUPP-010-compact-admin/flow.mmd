@@ -1,0 +1,20 @@
+%% MUPP-010 Compact admin
+%% Folding (R1, R3), the icon buttons (R2), the picture panel (R4) and the sizes card (R5).
+flowchart TD
+    A[Admin page opens: every card folded] --> B{Icon button chosen}
+    B -- pencil or picture --> C[FoldGroup opens that panel and folds the one before]
+    B -- "Ny ..." --> C
+    B -- list --> L[Kid's page: sizes card and wish lists]
+    B -- trash can --> D[Confirmation names what is removed]
+    C --> F{Form sent}
+    F -- mistake --> G[Stays open, message next to the field]
+    G --> F
+    F -- saved --> H[Folds, focus back on the button]
+    C -- Esc or the same button --> H
+    D -- Avbryt --> A
+    D -- Ta bort --> E[Removed]
+    P[Picture panel, kid has a picture] --> Q[Trash can: Ta bort bilden för kid]
+    Q --> R{Master admin?}
+    R -- no --> X[Du kan inte göra det här.]
+    R -- yes --> S[Database cleared first, then the file is removed from the store]
+    S --> T[The kid shows the avatar again]
