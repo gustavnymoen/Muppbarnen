@@ -235,6 +235,27 @@ describe("MUPP-003-R5 parents and kids, master admin only", () => {
   });
 });
 
+describe("MUPP-010-R4 removing a kid's picture", () => {
+  test("MUPP-010-R4 the master admin clears the picture and gets its name back; the kid stays", async () => {
+    const master = await parent("Chef", true);
+    const kid = await child(await parent("Mia"));
+    await family.setChildPicture(kid, "barn-1-x.png");
+    expect(await family.clearChildPicture(master, String(kid))).toEqual({ ok: true, picture: "barn-1-x.png" });
+    expect((await family.findChild(kid))?.picture).toBe("");
+    expect(await family.clearChildPicture(master, String(kid))).toEqual({ ok: true, picture: "" });
+  });
+
+  test("MUPP-010-R4 a parent, a visitor, a bad id and a missing kid are refused and nothing changes", async () => {
+    const mia = await parent("Mia");
+    const kid = await child(mia);
+    await family.setChildPicture(kid, "barn-1-x.png");
+    for (const [who, id] of [[mia, String(kid)], [null, String(kid)], [await parent("Chef", true), "x"], [await parent("Chef2", true), "99999"]] as const) {
+      expect(await family.clearChildPicture(who, id)).toMatchObject({ ok: false });
+    }
+    expect((await family.findChild(kid))?.picture).toBe("barn-1-x.png");
+  });
+});
+
 describe("MUPP-003-R7 queries are parameterised", () => {
   test("MUPP-003-R7 SQL in a name is stored as text and does nothing", async () => {
     const master = await parent("Chef", true);

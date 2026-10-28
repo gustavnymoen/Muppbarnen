@@ -1,24 +1,40 @@
 import { Card } from "@/app/components/Card";
-import { Chip } from "@/app/components/Chip";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
-import { Disclosure } from "@/app/components/Disclosure";
+import { FoldButton, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Field, Form } from "@/app/components/Form";
+import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
+import { SlimCard } from "@/app/components/SlimCard";
 import type { Child, WishlistItem } from "@/lib/family";
 import { OCCASION_NAMES, type Occasion } from "@/lib/form-input";
 import { clearList, removeItem, saveItem } from "../../actions";
 
-// Den ena av barnets två listor, med önskningarna, ett formulär för nya och knappen "Töm listan".
+// Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
 // Texterna skrivs ut som vanlig text (React gör om < och & till text); länken bara om den är en webbadress.
 export function WishlistSection({ child, occasion, items }: { child: Child; occasion: Occasion; items: WishlistItem[] }) {
   const listName = OCCASION_NAMES[occasion];
+  const newItem = `ny-${occasion}`;
   return (
-    <Card as="section" className="space-y-4">
-      <Heading level={2}>{listName}</Heading>
+    <Card as="section" className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <Heading level={2} small>
+          {listName}
+        </Heading>
+        {items.length > 0 && (
+          <ConfirmAction
+            action={clearList}
+            fields={{ childId: String(child.id), occasion }}
+            label="Töm listan"
+            subject={`${listName}, ${child.name}`}
+            title={`Töm listan ”${listName}”?`}
+            text={`Alla önskningar i listan ”${listName}” för ${child.name} tas bort. Det går inte att ångra.`}
+          />
+        )}
+      </div>
       {items.length === 0 ? (
         <p className="text-muted">Inga önskningar ännu.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-2">
           {items.map((item) => (
             <li key={item.id}>
               <ItemCard child={child} occasion={occasion} item={item} />
@@ -26,53 +42,53 @@ export function WishlistSection({ child, occasion, items }: { child: Child; occa
           ))}
         </ul>
       )}
-      <Disclosure label={`Ny önskning, ${listName}`}>
+      <FoldButton id={newItem} label={`Ny önskning, ${listName}`}>
+        Ny önskning
+      </FoldButton>
+      <FoldPanel id={newItem}>
         <ItemForm child={child} occasion={occasion} submit="Lägg till" />
-      </Disclosure>
-      {items.length > 0 && (
-        <ConfirmAction
-          action={clearList}
-          fields={{ childId: String(child.id), occasion }}
-          label="Töm listan"
-          subject={`${listName}, ${child.name}`}
-          title={`Töm listan ”${listName}”?`}
-          text={`Alla önskningar i listan ”${listName}” för ${child.name} tas bort. Det går inte att ångra.`}
-        />
-      )}
+      </FoldPanel>
     </Card>
   );
 }
 
 function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion; item: WishlistItem }) {
+  const edit = `onskning-${item.id}`;
   return (
-    <article className="space-y-3 rounded-control border border-edge p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Heading level={3}>{item.title}</Heading>
-        {item.unlimited && <Chip>Obegränsad</Chip>}
-      </div>
-      {item.size && <p>Storlek: {item.size}</p>}
-      {item.description && <p className="whitespace-pre-line">{item.description}</p>}
-      {/^https?:\/\//.test(item.url) && (
-        <p>
-          <a href={item.url} target="_blank" rel="noopener noreferrer" className="break-all text-brand underline">
-            {item.url}
-          </a>
-        </p>
-      )}
-      <div className="flex flex-wrap gap-3">
-        <Disclosure label="Ändra" subject={item.title}>
-          <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
-        </Disclosure>
-        <ConfirmAction
-          action={removeItem}
-          fields={{ itemId: String(item.id) }}
-          label="Ta bort"
-          subject={item.title}
-          title={`Ta bort ”${item.title}”?`}
-          text={`”${item.title}” tas bort från listan för ${child.name}. Det går inte att ångra.`}
-        />
-      </div>
-    </article>
+    <SlimCard
+      title={item.title}
+      note={item.unlimited ? "Obegränsad" : undefined}
+      actions={
+        <>
+          <FoldToggle id={edit} label={`Ändra ${item.title}`}>
+            <PencilIcon />
+          </FoldToggle>
+          <ConfirmAction
+            action={removeItem}
+            fields={{ itemId: String(item.id) }}
+            label="Ta bort"
+            subject={item.title}
+            title={`Ta bort ”${item.title}”?`}
+            text={`”${item.title}” tas bort från listan för ${child.name}. Det går inte att ångra.`}
+          />
+        </>
+      }
+    >
+      <FoldPanel id={edit}>
+        <div className="space-y-2">
+          {item.size && <p>Storlek: {item.size}</p>}
+          {item.description && <p className="whitespace-pre-line">{item.description}</p>}
+          {/^https?:\/\//.test(item.url) && (
+            <p>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="break-all text-brand underline">
+                {item.url}
+              </a>
+            </p>
+          )}
+        </div>
+        <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
+      </FoldPanel>
+    </SlimCard>
   );
 }
 

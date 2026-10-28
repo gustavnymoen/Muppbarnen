@@ -33,4 +33,11 @@ describe("MUPP-003-R6 the picture store behind one small module", () => {
       await removePicture(name);
     }
   });
+
+  test("MUPP-010-R4 removing a picture that is already gone is not an error", async () => {
+    const { removePicture, storePicture } = await import("./pictures");
+    const name = await storePicture(6, png, "image/png");
+    await removePicture(name);
+    await expect(removePicture(name)).resolves.toBeUndefined();
+  });
 });

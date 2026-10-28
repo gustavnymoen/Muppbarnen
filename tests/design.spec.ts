@@ -203,7 +203,7 @@ test("MUPP-009-R1 the password page: a card with the name, a labelled field, a b
 const MUTED = "rgb(133, 145, 164)";
 const TEXT = "rgb(200, 208, 220)";
 
-test("MUPP-003-R8 the admin link is quiet, and the admin pages look like the rest: headings, cards, field, summary button, dialog", async ({ page }) => {
+test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages look like the rest: headings, cards, field, button, slim rows with icon buttons, dialog", async ({ page }) => {
   test.skip(!runsLocally, "needs the admin password of the local test server");
   await clearFamily();
   const mia = uniqueName("Mia");
@@ -232,31 +232,45 @@ test("MUPP-003-R8 the admin link is quiet, and the admin pages look like the res
     const wrong = page.getByRole("alert").filter({ hasText: "Fel lösenord." });
     await expectTextMessage(wrong, DANGER);
 
-    // A kid's page: cards with an edge, a "Ändra" summary that looks like the secondary button, an item in a bordered box
+    // The sizes page: a card with an edge; the wish list page: "Ny önskning" looks like the secondary button
     await adminSignIn(page, mia);
-    await page.getByRole("link", { name: `Önskelistor och storlekar, ${kid}` }).click();
+    await page.getByRole("link", { name: `Storlekar för ${kid}` }).click();
     await page.evaluate(() => document.fonts.ready);
     const sizes = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Storlekar" }) });
     await animationsDone(sizes);
     await expect(sizes).toHaveCSS("border-top-color", EDGE);
     await expect(sizes).toHaveCSS("background-color", CARD);
+    await page.goBack();
+    await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
     const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
-    const summary = birthday.locator("summary", { hasText: "Ny önskning" });
-    await expect(summary).toHaveCSS("background-color", CARD);
-    await expect(summary).toHaveCSS("border-top-width", "1px");
-    await expect(summary).toHaveCSS("list-style-type", "none");
-    expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await summary.focus();
-    await expect(summary).toHaveCSS("outline-width", "3px");
+    const open = birthday.getByRole("button", { name: "Ny önskning" });
+    await expect(open).toHaveCSS("background-color", CARD);
+    await expect(open).toHaveCSS("border-top-width", "1px");
+    expect((await open.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await open.focus();
+    await expect(open).toHaveCSS("outline-width", "3px");
 
-    // The confirmation: a card-coloured dialog in the middle with a dark backdrop, the question in Fredoka
-    await summary.click();
+    // MUPP-010-R2 R6: a slim row is about one line high, its icon buttons are 32 px, look like the secondary button, and are equally high side by side
+    await open.click();
     await birthday.getByLabel("Namn").fill("Pussel");
     await birthday.getByRole("button", { name: "Lägg till" }).click();
-    // Buttons side by side are equally high, also when one of them opens a form
-    const edit = birthday.locator("summary", { hasText: "Ändra" });
-    const remove = birthday.getByRole("button", { name: "Ta bort Pussel" });
-    expect((await edit.boundingBox())!.height).toBe((await remove.boundingBox())!.height);
+    const row = birthday.getByRole("article").filter({ hasText: "Pussel" });
+    expect((await row.boundingBox())!.height).toBeLessThanOrEqual(56);
+    await expect(row).toHaveCSS("border-top-color", EDGE);
+    await page.mouse.move(0, 0);
+    const edit = row.getByRole("button", { name: "Ändra Pussel" });
+    const remove = row.getByRole("button", { name: "Ta bort Pussel" });
+    for (const icon of [edit, remove]) {
+      const iconBox = (await icon.boundingBox())!;
+      expect([iconBox.width, iconBox.height]).toEqual([32, 32]);
+      await expect(icon).toHaveCSS("background-color", CARD);
+      await expect(icon).toHaveCSS("border-top-width", "1px");
+      await expect(icon.locator("svg")).toHaveAttribute("aria-hidden", "true");
+    }
+    await edit.focus();
+    await expect(edit).toHaveCSS("outline-width", "3px");
+
+    // The confirmation: a card-coloured dialog in the middle with a dark backdrop, the question in Fredoka
     await remove.click();
     const dialog = page.getByRole("alertdialog");
     await animationsDone(dialog);

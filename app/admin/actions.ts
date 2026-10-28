@@ -186,6 +186,17 @@ export async function saveChildPicture(_previous: FormState, formData: FormData)
   return answer(formData, { ok: true });
 }
 
+export async function removeChildPicture(_previous: FormState, formData: FormData): Promise<FormState> {
+  await requireSiteSession();
+  const { parent } = await requireAdminSession();
+  const guard = await guardWrite();
+  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const outcome = await family.clearChildPicture(parent, text(formData, "childId"));
+  // Filen tas bort först när databasen är uppdaterad
+  if (outcome.ok && outcome.picture) await removePicture(outcome.picture).catch(logPictureError);
+  return answer(formData, outcome);
+}
+
 // Bara meddelandet loggas, inte hela felet (det kan innehålla adresser till lagret)
 function logPictureError(e: unknown) {
   console.error("Bildlagret svarade med ett fel:", e instanceof Error ? e.message : "okänt fel");

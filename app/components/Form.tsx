@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useActionState, useContext, useId, type ReactNode } from "react";
+import { createContext, useActionState, useContext, useEffect, useId, type ReactNode } from "react";
 import { Button } from "./Button";
+import { useFold } from "./Fold";
 import type { FormAction, FormState } from "./form-state";
 
 const FormStateContext = createContext<FormState>(null);
@@ -9,10 +10,15 @@ const FormStateContext = createContext<FormState>(null);
 const control = "min-h-11 w-full rounded-control border border-muted/75 bg-page px-4 text-text";
 
 // Ett formulär som körs av en serveråtgärd (useActionState), så att det också går att skicka
-// utan script. Sparat och fel läses upp av skärmläsaren; felen per fält står vid fältet (Field).
+// utan script (utom i en hopfälld panel, som öppnas med script). Sparat och fel läses upp av skärmläsaren; felen per fält står vid fältet (Field).
 // noValidate: serverns meddelanden är de som visas, på samma sätt för alla fält.
+// I en hopfälld panel (Fold.tsx) fälls panelen ihop när formuläret sparats.
 export function Form({ action, submit, children, className = "space-y-4" }: { action: FormAction; submit: string; children: ReactNode; className?: string }) {
   const [state, formAction, pending] = useActionState(action, null);
+  const close = useFold()?.close;
+  useEffect(() => {
+    if (state?.saved) close?.();
+  }, [state, close]);
   return (
     <form action={formAction} noValidate className={className}>
       <FormStateContext value={state}>{children}</FormStateContext>

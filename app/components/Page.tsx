@@ -19,8 +19,9 @@ export function PageContent({ children }: { children: ReactNode }) {
   return <main className="-mx-3 -mt-3 min-h-0 flex-1 overflow-y-auto px-3 pb-6 pt-3">{children}</main>;
 }
 
-export function Heading({ level = 2, children }: { level?: 1 | 2 | 3; children: ReactNode }) {
+// small: de mindre rubrikerna i adminen (MUPP-010-R6)
+export function Heading({ level = 2, small, children }: { level?: 1 | 2 | 3; small?: boolean; children: ReactNode }) {
   const Tag = `h${level}` as const;
-  const size = { 1: "text-3xl", 2: "text-2xl", 3: "text-xl" }[level];
+  const size = (small ? { 1: "text-2xl", 2: "text-xl", 3: "text-base" } : { 1: "text-3xl", 2: "text-2xl", 3: "text-xl" })[level];
   return <Tag className={`font-heading font-semibold ${size}`}>{children}</Tag>;
 }
