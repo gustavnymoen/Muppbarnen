@@ -14,7 +14,7 @@ tags: [start-page, navigation, accessibility]
 | Part | Where | What |
 |---|---|---|
 | Header | `app/components/SiteHeader.tsx` | The site's name (a link to `/`) and the menu button, without a border. It is inside `Page`, outside the scrolling `PageContent`, so it stays in place. `<Page home>` makes the name the page's `h1`; other pages keep their own `h1`. |
-| Menu | `app/components/SiteMenu.tsx` | A hamburger on every screen size. The button "Meny" has `aria-expanded`; the list is a `nav` with "Start" (a link) and "Admin" (a placeholder button that does nothing until MUPP-003 makes it a link). |
+| Menu | `app/components/SiteMenu.tsx` | A hamburger on every screen size. The button "Meny" has `aria-expanded`; the list is a `nav` with "Start" and "Admin", both links; "Admin" (to `/admin`, [Admin page](admin.md)) is last and in the muted text colour, and nothing else on the page points to it. |
 | Carousel | `app/page.tsx`, `.carousel` in `app/globals.css` | Three made-up example cards in a row, in plain CSS scroll snapping; no script and no library. |
 
 ## How it behaves

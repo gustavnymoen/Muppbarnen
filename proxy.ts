@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { ADMIN_COOKIE, ADMIN_PATH, adminSecrets, verifyAdminSession } from "@/lib/admin-session";
 import { LOGIN_PATH, SESSION_COOKIE, siteSecrets, verifySession } from "@/lib/site-session";
 
 // Hela sajten ligger bakom sajtlösenordet (MUPP-009). Utan giltig kaka släpps
@@ -10,9 +11,9 @@ export function proxy(request: NextRequest) {
   // Alla metoder släpps hit, för inloggningens serveråtgärd: varje annan åtgärd kontrollerar kakan själv
   if (pathname === LOGIN_PATH) return NextResponse.next();
 
-  if (verifySession(request.cookies.get(SESSION_COOKIE)?.value, siteSecrets()?.secret)) return NextResponse.next();
-
   const isPage = (request.method === "GET" || request.method === "HEAD") && !request.headers.has("next-action");
+  if (verifySession(request.cookies.get(SESSION_COOKIE)?.value, siteSecrets()?.secret)) return adminGate(request, isPage);
+
   if (!isPage || pathname.startsWith("/api/") || pathname.startsWith("/bilder/")) {
     return new NextResponse(null, { status: 401 });
   }
@@ -20,6 +21,18 @@ export function proxy(request: NextRequest) {
   login.searchParams.set("till", pathname + search);
   // Utan innehåll i svaret, bara adressen i Location
   return new NextResponse(null, { status: 307, headers: { location: login.toString() } });
+}
+
+// Admin (MUPP-003): under /admin kommer bara den med adminkaka in. /admin själv släpps igenom,
+// eftersom det är inloggningssidan och dess inloggningsåtgärd; där och i varje åtgärd
+// kontrollerar koden adminkakan igen (lib/admin-auth.ts).
+function adminGate(request: NextRequest, isPage: boolean) {
+  const { pathname } = request.nextUrl;
+  const inAdmin = pathname === ADMIN_PATH || pathname.startsWith(`${ADMIN_PATH}/`);
+  if (!inAdmin || pathname === ADMIN_PATH) return NextResponse.next();
+  if (verifyAdminSession(request.cookies.get(ADMIN_COOKIE)?.value, adminSecrets()?.secret)) return NextResponse.next();
+  if (!isPage) return new NextResponse(null, { status: 401 });
+  return new NextResponse(null, { status: 307, headers: { location: new URL(ADMIN_PATH, request.url).toString() } });
 }
 
 export const config = {

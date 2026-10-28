@@ -1,5 +1,6 @@
 import "server-only";
 import { get, run } from "./db";
+import { passwordMatches } from "./site-session";
 
 // Spärr mot gissning av lösenord, gemensam för sajtlösenordet och adminlösenordet
 // (TECH-005): fler än 5 fel lösenord på 15 minuter spärrar adressen i 20 minuter.
@@ -52,4 +53,21 @@ async function block(ip: string, now: number) {
     "INSERT INTO login_blocks (ip, blocked_until) VALUES (?, ?) ON CONFLICT (ip) DO UPDATE SET blocked_until = excluded.blocked_until",
     [ip, now + BLOCK_SECONDS],
   );
+}
+
+export type LoginResult = "ok" | "wrong" | "blocked";
+
+// Hela kontrollen av ett lösenord, gemensam för sajtlösenordet och adminlösenordet:
+// försöket skrivs in först, ett fel lösenord kostar en sekund, ett rätt räknas inte.
+// expected är undefined när lösenordet saknas i miljön: då stämmer inget.
+export async function checkLogin(ip: string, supplied: unknown, expected: string | undefined): Promise<LoginResult> {
+  const attempt = await beginAttempt(ip);
+  if (attempt === null) return "blocked";
+  if (expected === undefined || typeof supplied !== "string" || !passwordMatches(supplied, expected)) {
+    await registerWrong(ip);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return "wrong";
+  }
+  await clearAttempt(attempt);
+  return "ok";
 }

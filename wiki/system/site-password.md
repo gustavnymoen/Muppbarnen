@@ -9,7 +9,7 @@ tags: [security, sign-in, proxy, cookie]
 
 # Site password
 
-Nothing on the site is visible before the visitor has entered the site password. It is separate from the admin password (MUPP-003 adds that later): the site password gets you in, the admin password lets you edit.
+Nothing on the site is visible before the visitor has entered the site password. It is separate from the admin password ([Admin page](admin.md)): the site password gets you in, the admin password lets you edit.
 
 ## Parts
 
@@ -30,7 +30,7 @@ Nothing on the site is visible before the visitor has entered the site password.
 
 ## Pictures
 
-The children's pictures are kept in a **private** Vercel Blob store and served by the site after the cookie check (the route `/bilder/…` is built with MUPP-003). A public store would give every picture an address that works without the password for anyone who has the link, so the store must stay private.
+The children's pictures are kept in a **private** Vercel Blob store and served by the site after the cookie check (the route `/bilder/<child id>`, see [Admin page](admin.md)). A public store would give every picture an address that works without the password for anyone who has the link, so the store must stay private.
 
 ## Tests
 

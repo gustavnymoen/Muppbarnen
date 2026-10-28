@@ -11,7 +11,6 @@ const local = baseURL.startsWith("http://localhost");
 // this secret, which lets automated tests past it.
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
-// Admin tests sign in with ADMIN_PASSWORD, read from .env.local when it exists
 try {
   process.loadEnvFile(".env.local");
 } catch {}
@@ -22,6 +21,9 @@ try {
 if (local) {
   process.env.SITE_PASSWORD = "påhittat-testlösenord";
   process.env.SITE_SESSION_SECRET = "påhittad-testnyckel-som-inte-skyddar-något-alls";
+  // Samma för admin (MUPP-003): adminsidorna testas bara mot den lokala testservern
+  process.env.ADMIN_PASSWORD = "påhittat-adminlösenord";
+  process.env.ADMIN_SESSION_SECRET = "påhittad-adminnyckel-som-inte-skyddar-något-alls";
 }
 const siteSignIn = process.env.SITE_PASSWORD ? siteSessionFile : undefined;
 
@@ -33,8 +35,6 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   // Loggar in med sajtlösenordet en gång; testerna återanvänder kakan (storageState)
   globalSetup: "./tests/global-setup.ts",
-  // Removes leftover "E2E …" test data after the run
-  globalTeardown: "./tests/global-teardown.ts",
   // One test at a time: the tests share one database, and some check totals
   workers: 1,
   // The live site answers slower than a local server (network, Turso)
@@ -47,8 +47,8 @@ export default defineConfig({
     // Sent with every request, so no bypass cookie is needed
     extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
     // Screenshot of failing tests, for the report. A trace only locally: it
-    // saves every request's headers and typed values, and so the bypass secret
-    // and the admin password, which the runs against a deployed site use.
+    // saves every request's headers and typed values, and so the bypass secret,
+    // which the runs against a deployed site use.
     screenshot: "only-on-failure",
     trace: local ? "retain-on-failure" : "off",
   },

@@ -15,6 +15,11 @@ const NO_SIGN_IN_CHECK: Record<string, string> = {
   "app/losenord/actions.ts#login": "den är själva inloggningen; den har gränsen och spärren i stället",
 };
 
+// Det enda under admin som får sakna adminkontrollen, med skälet
+const NO_ADMIN_CHECK: Record<string, string> = {
+  "app/admin/login-action.ts#adminLogin": "den är själva adminanmälan; den har gränsen och spärren i stället",
+};
+
 // Antingen requireSiteSession(), eller hasSiteSession() som nekas med ! (eller sparas i en variabel)
 const SITE_CHECK = /^(?:(?:await\s+)?requireSiteSession\(|const\s+\w+\s*=\s*await\s+hasSiteSession\(|if\s*\(\s*!\s*\(?\s*(?:await\s+)?hasSiteSession\()/;
 const ADMIN_CHECK = /(?:hasAdminSession|requireAdminSession)\(/;
@@ -98,7 +103,7 @@ function findProblems(sources: Source[]) {
       if (!(id in NO_SIGN_IN_CHECK) && !SITE_CHECK.test(first)) {
         problems.push(`${id}: anropar inte hasSiteSession() eller requireSiteSession() först`);
       }
-      if (/(^|\/)admin(\/|$)/.test(file) && !ADMIN_CHECK.test(first.slice(0, 300))) {
+      if (/(^|\/)admin(\/|$)/.test(file) && !(id in NO_ADMIN_CHECK) && !ADMIN_CHECK.test(first.slice(0, 300))) {
         problems.push(`${id}: ligger under admin men kontrollerar inte adminkakan (hasAdminSession/requireAdminSession) direkt efter`);
       }
       if ((isAction || WRITE_METHODS.test(name)) && !/\bguardWrite\(/.test(body)) {
@@ -140,7 +145,7 @@ describe("TECH-005-R1 every route and server action checks the sign-in first", (
     expect(findProblems(sources)).toEqual([]);
     // Undantagen finns kvar; ett som inte längre behövs ska tas bort
     const ids = sources.flatMap(({ file, text }) => exportedFunctions(withoutComments(text)).map((f) => `${file}#${f.name}`));
-    for (const id of Object.keys(NO_SIGN_IN_CHECK)) expect(ids, id).toContain(id);
+    for (const id of [...Object.keys(NO_SIGN_IN_CHECK), ...Object.keys(NO_ADMIN_CHECK)]) expect(ids, id).toContain(id);
   });
 
   test("TECH-005-R1 a route with the check passes", () => {
@@ -173,6 +178,14 @@ describe("TECH-005-R1 every route and server action checks the sign-in first", (
     const text = `"use server";\nexport async function login() {\n  await guardWrite();\n}`;
     expect(findProblems([{ file: "app/losenord/actions.ts", text }])).toEqual([]);
     expect(findProblems([{ file: "app/annat/actions.ts", text }])).toHaveLength(1);
+  });
+
+  test("MUPP-003-R1 the admin sign-in is the one listed exception from the admin check, and still needs the site cookie", () => {
+    expect(Object.keys(NO_ADMIN_CHECK)).toEqual(["app/admin/login-action.ts#adminLogin"]);
+    const text = `"use server";\nexport async function adminLogin() {\n  await requireSiteSession();\n  await guardWrite();\n}`;
+    expect(findProblems([{ file: "app/admin/login-action.ts", text }])).toEqual([]);
+    expect(findProblems([{ file: "app/admin/andra.ts", text }])[0]).toContain("adminkakan");
+    expect(findProblems([{ file: "app/admin/login-action.ts", text: text.replace("await requireSiteSession();\n  ", "") }])).toHaveLength(1);
   });
 
   test("TECH-005-R1 an inline server action inside a component fails", () => {

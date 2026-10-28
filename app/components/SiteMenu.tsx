@@ -6,8 +6,8 @@ import { IconButton } from "./Button";
 
 const item = "press flex min-h-11 w-full items-center rounded-control px-3 text-left font-heading font-medium hover:bg-edge";
 
-// Hamburgermenyn: en riktig knapp som öppnar en lista. "Admin" är än så länge
-// bara en knapp utan verkan; MUPP-003 gör den till en länk.
+// Hamburgermenyn: en riktig knapp som öppnar en lista. "Admin" är sist och i dämpad färg:
+// länken ska finnas men inte dra uppmärksamhet.
 export function SiteMenu() {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -57,9 +57,9 @@ export function SiteMenu() {
               </Link>
             </li>
             <li>
-              <button type="button" className={item} onClick={close}>
+              <Link href="/admin" className={`${item} text-muted hover:text-text`} onClick={close}>
                 Admin
-              </button>
+              </Link>
             </li>
           </ul>
         </nav>

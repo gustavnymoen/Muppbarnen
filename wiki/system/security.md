@@ -1,7 +1,7 @@
 ---
 type: Guide
 title: Security
-description: "How security is handled: review points, /security-review, the CI scans, Dependabot, the site password, the check test, the request limit, the block, the Content-Security-Policy, rotating secrets, and the planned admin sign-in design."
+description: "How security is handled: review points, /security-review, the CI scans, Dependabot, the site password, the check test, the request limit, the block, the Content-Security-Policy, rotating secrets, and the admin sign-in."
 resource: .semgrep/
 feature: TECH-004
 tags: [security, workflow]
@@ -34,8 +34,8 @@ The rules every route handler, server action and form follows are in [`specs/rul
 - **Block** (`lib/login-block.ts`, tables `login_attempts` and `login_blocks`): shared by the site and admin sign-ins. A sign-in attempt is written before the password is checked, so many requests at once cannot all slip through, and is deleted again if the password was right, so right passwords never count. More than 5 wrong passwords in 15 minutes from one address block it for 20 minutes: every attempt is refused with "För många försök. Försök igen om en stund.", also with the right password, and refused attempts add nothing. The block applies to sign-in only; the visitor still sees the password page. There is no rising delay, so a family on one shared address waits at most 20 minutes.
 - **Content-Security-Policy** (`next.config.ts`): `default-src 'self'`, scripts, styles, images (also `blob:` and `data:`), fonts and connections only from the site itself, `object-src 'none'`, `base-uri`, `form-action` and `frame-ancestors` limited to the site. Nonce-based CSP can't be used: Next.js needs every page rendered at each request for it, and the site uses Partial Prerendering (`cacheComponents`). The hash-based variant (experimental `sri`) was tried and does not work either: it adds `integrity` to the script files but the inline scripts that Next.js and React put in each page (starting the page, streaming the dynamic parts) get no hash, so `script-src 'self'` blocks them. So the policy is the strictest that works: inline scripts and styles are allowed (`'unsafe-inline'`), but nothing can be loaded from, or sent to, another site. In development `'unsafe-eval'` is added for React's debugging. A test (`TECH-005-R4`) checks the header and that the pages run without violations.
 - **Cookies** have the `__Host-` prefix in production (secure, path `/`, no `Domain`), so a cookie set from a sub-domain is not accepted. Locally over http the prefix is left off, since `Secure` cookies need https.
-- **Pictures:** the Blob store is private. The check test fails on `put()` without `access: "private"`; that a picture's direct address does not answer without the site is checked by hand when MUPP-003 creates the first upload.
-- **Uploads:** the limit of size and type comes with MUPP-003, where the upload is built.
+- **Pictures:** the Blob store is private. The check test fails on `put()` without `access: "private"`; that a picture's direct address does not answer without the site is checked by hand on the preview ([MUPP-003 verification](../../specs/MUPP-003-admin-page/verification.md)).
+- **Uploads:** only JPEG, PNG and WebP up to 4 MB, decided on the server by the file's first bytes and not its name or type; a server action body is limited to 5 MB ([Admin page](admin.md)).
 
 ## Rotating secrets and leaks
 
@@ -45,17 +45,19 @@ Set the new value in Vercel (Production and Preview) and in `.env.local`, and re
 |---|---|---|
 | `SITE_PASSWORD` | A friend should lose access, or it leaked | Only the next sign-in needs the new one; cookies already issued stay valid. To sign everyone out, rotate `SITE_SESSION_SECRET` too. |
 | `SITE_SESSION_SECRET` | The password leaked, or a cookie did | Everyone is signed out and must enter the password again. Create one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. |
-| `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` (MUPP-003) | Same, for the admin | Same, for the admin sign-in. |
+| `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` | Same, for the admin | Same, for the admin sign-in: the password only matters for the next sign-in, the key signs everyone out of the admin. |
 | `TURSO_AUTH_TOKEN`, Blob token | One leaked | Create a new token in Turso or Vercel, replace it, and revoke the old one. |
 
 If one leaks: rotate it first, then look for how (Git history, logs, a screenshot), then remove it. Removing it from Git doesn't make it secret again. If the password was guessed, a block shows in `login_blocks` in the database.
 
-## Admin sign-in (planned for MUPP-003)
+## Admin sign-in (built, MUPP-003)
 
-The design carried over from Gurras Flyg, built the same way as the site password:
+Built the same way as the site password; the whole page is described in [Admin page](admin.md):
 
-- One shared password, `ADMIN_PASSWORD`; a cookie with an expiry and an HMAC-SHA256 signature made with `ADMIN_SESSION_SECRET`: `HttpOnly`, `Secure` in production, `SameSite`, lasting until the browser closes and rejected after 8 hours.
-- The same hashed comparison, one-second delay, and the same block as the site password ([Hardening](#hardening-tech-005)): wrong admin and site passwords count together. Its routes and actions follow the check test and call `guardWrite()`.
-- `proxy.ts` checks the cookie before admin pages, and every server action checks it again; server actions check their input at run time (ids integers, texts strings of limited length, lists arrays).
+- One shared password, `ADMIN_PASSWORD`; the cookie `__Host-admin_session` holds an expiry, the chosen parent's id and an HMAC-SHA256 signature made with `ADMIN_SESSION_SECRET`: `HttpOnly`, `Secure` in production, `SameSite=Lax`, path `/`, no `Domain`, lasting until the browser closes and refused after 8 hours. The rights (master admin or not) are read from the database on every request and are never in the cookie.
+- The same hashed comparison, one-second wait and block as the site password ([Hardening](#hardening-tech-005)): wrong admin and site passwords count together. Every admin action starts with the site check, the admin check and `guardWrite()`; `lib/route-checks.test.ts` fails when one is missing. The one listed exception is `adminLogin`, which is the sign-in itself.
+- `proxy.ts` checks the cookie before every page and action below `/admin`; `/admin` itself is the sign-in page and passes, and everything there checks it again in code. Admin pages are `noindex` (meta tag and `X-Robots-Tag`).
+- Each action checks its input at run time (ids integers, texts strings of limited length, the occasion one of two values) and that the actor may change that kid; a refused change gives the same answer as one for a kid that does not exist. Queries are parameterised.
+- Missing `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` closes the admin for everyone, and a Vercel build stops.
 
 [System documentation](index.md)
