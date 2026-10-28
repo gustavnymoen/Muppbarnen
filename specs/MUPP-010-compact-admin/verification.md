@@ -23,7 +23,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
 | Unit tests | `lib/family.test.ts`, `lib/pictures.test.ts`; `lib/route-checks.test.ts` needs no change (it finds the new action) | local, CI | Pass | 2026-10-28 |
-| Browser tests | `tests/MUPP-010-compact-admin.spec.ts` (7 tests), the MUPP-003 tests updated to the new buttons, the look in `tests/design.spec.ts` | local, CI | Pass | 2026-10-28 |
+| Browser tests | `tests/MUPP-010-compact-admin.spec.ts` (8 tests), the MUPP-003 tests updated to the new buttons, the look in `tests/design.spec.ts` | local, CI | Pass | 2026-10-28 |
 | Smoke test | Not needed: no new main page; `/admin` is already in the smoke test | not applicable | Not applicable | 2026-10-28 |
 | Accessibility | axe in the browser tests on every changed page and state. The checklist on the live site (keyboard, VoiceOver for the icon names and the folding, 200 % zoom and 320 px, target sizes; MUPP-003's items too) is **not checked**: it comes after the deploy | local | axe Pass; checklist not checked | 2026-10-28 |
 | Security | The security points in the review; `/security-review` over the branch: no findings | local | Pass | 2026-10-28 |
@@ -36,14 +36,14 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before (MUPP-003) | 92 unit, 37 browser | 68.4 s | 4.3 s |
-| After | 95 unit, 44 browser | 76.4 s | 4.4 s |
+| After | 95 unit, 45 browser | 78.7 s | 4.3 s |
 
-The browser time grew about 12 %, inside the 25 % rule and the budgets. One new test was split in two to stay under 5 s. `adminSignIn` now waits for "Byt förälder" when it chooses a parent, since a page opened before the choice was stored showed "Sidan finns inte" (a flaky start found by the new tests).
+The browser time grew about 15 %, inside the 25 % rule and the budgets. One new test was split in two to stay under 5 s. `adminSignIn` now waits for "Byt förälder" when it chooses a parent, since a page opened before the choice was stored showed "Sidan finns inte" (a flaky start found by the new tests).
 
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
-- [x] Test suite: within the time budgets, total time grown by 12 %, and the new tests follow the quality rules in `wiki/system/testing.md`
+- [x] Test suite: within the time budgets, total time grown by 15 %, and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
 - [ ] Accessibility: axe passes on the changed pages and states; the checklist on the live site is not done yet (after the deploy)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
