@@ -1,4 +1,5 @@
 import { chromium, type FullConfig } from "@playwright/test";
+import { siteSessionFile } from "./site-session";
 
 // Runs once after all tests. Tests delete what they create, but a test that
 // fails halfway leaves its data behind. This removes everything named "E2E …"
@@ -11,7 +12,9 @@ export default async function globalTeardown(config: FullConfig) {
 
   const browser = await chromium.launch();
   try {
-    const page = await browser.newPage({ baseURL, extraHTTPHeaders });
+    // Förbi sajtlösenordet med inloggningen från tests/global-setup.ts
+    const storageState = process.env.SITE_PASSWORD ? siteSessionFile : undefined;
+    const page = await browser.newPage({ baseURL, extraHTTPHeaders, storageState });
     const login = await page.goto("/admin/login");
     // Admin-sidan kommer med MUPP-003; tills dess finns inget att städa
     if (login?.status() === 404) return;

@@ -23,6 +23,7 @@ A dark, muted, mobile-first look: blue-grey near-black surfaces, thin edges, lay
 | `--color-muted` | `#8591A4` | Secondary text, and the border of the secondary and icon buttons |
 | `--color-brand` | `#9AA9E0` | The main button and the focus ring (never red: red means cancel or error) |
 | `--color-on-brand` | `#0C1015` | Text on the brand colour |
+| `--color-danger` | `#E8938F` | Error messages, as text only (never a fill; with the words that say what is wrong) |
 | `--color-child-coral` | `#D4958B` | Child colour 1 |
 | `--color-child-sun` | `#D4B873` | Child colour 2 |
 | `--color-child-mint` | `#82BD9F` | Child colour 3 |

@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { siteSessionFile } from "./tests/site-session";
 
 // The tests run against the live site by default.
 // BASE_URL points them elsewhere: npm run test:local starts a production build
@@ -15,12 +16,23 @@ try {
   process.loadEnvFile(".env.local");
 } catch {}
 
+// Sajten ligger bakom sajtlösenordet. Mot den lokala testservern används påhittade
+// värden, som skriver över alla riktiga; mot en driftsatt sajt anger du lösenordet
+// själv i SITE_PASSWORD. Utan det hinner testerna bara se lösenordssidan (rökproven).
+if (local) {
+  process.env.SITE_PASSWORD = "påhittat-testlösenord";
+  process.env.SITE_SESSION_SECRET = "påhittad-testnyckel-som-inte-skyddar-något-alls";
+}
+const siteSignIn = process.env.SITE_PASSWORD ? siteSessionFile : undefined;
+
 export default defineConfig({
   testDir: "./tests",
   // On GitHub, also an HTML report that is saved when tests fail
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   // A forgotten test.only must not make the pipeline skip the other tests
   forbidOnly: !!process.env.CI,
+  // Loggar in med sajtlösenordet en gång; testerna återanvänder kakan (storageState)
+  globalSetup: "./tests/global-setup.ts",
   // Removes leftover "E2E …" test data after the run
   globalTeardown: "./tests/global-teardown.ts",
   // One test at a time: the tests share one database, and some check totals
@@ -31,6 +43,7 @@ export default defineConfig({
     baseURL,
     browserName: "chromium",
     locale: "sv-SE",
+    storageState: siteSignIn,
     // Sent with every request, so no bypass cookie is needed
     extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
     // Screenshot of failing tests, for the report. A trace only locally: it

@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { requireSiteSession } from "@/lib/site-auth";
 import { Avatar } from "./components/Avatar";
 import { Card } from "./components/Card";
 import { Chip } from "./components/Chip";
@@ -13,6 +15,15 @@ const examples = [
 ];
 
 export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+async function HomeContent() {
+  await requireSiteSession();
   return (
     <Page home>
       <PageContent>

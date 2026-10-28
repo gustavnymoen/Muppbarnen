@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { requireSiteSession } from "@/lib/site-auth";
 import { Avatar } from "@/app/components/Avatar";
 import { Button, IconButton } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
@@ -19,6 +21,15 @@ const picture =
   );
 
 export default function DesignPage() {
+  return (
+    <Suspense fallback={null}>
+      <Design />
+    </Suspense>
+  );
+}
+
+async function Design() {
+  await requireSiteSession();
   return (
     <Page>
       <PageContent>

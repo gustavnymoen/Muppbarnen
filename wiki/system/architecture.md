@@ -18,7 +18,8 @@ tags: [architecture, database, hosting]
 | Server code | `lib/`, with `import "server-only"` in files that touch the database or secrets. Pure rules (dates, validation) live in files without it, so the browser and the server share them and unit tests can import them. |
 | Database | SQLite through `@libsql/client`: the same SQL locally and in production. `lib/db.ts` has `all`, `get`, `run`, `withTransaction`, `constraintKind` and `escapeLike`; every value is a parameter (`?`). |
 | Hosting | Vercel (production from `main` at <https://muppbarnen.vercel.app>, a preview per pull request). The project's Framework Preset must be Next.js with no overridden build or output settings; with "Other" the build fails with `STATIC_BUILD_NO_OUT_DIR`. |
-| Pictures | Vercel Blob (token `BLOB_READ_WRITE_TOKEN` for Production and Preview); uploaded on the admin page. |
+| Access | The whole site is behind one shared password: `proxy.ts` refuses everything without a signed cookie, and pages and routes check it again ([Site password](site-password.md)). |
+| Pictures | A **private** Vercel Blob store (token `BLOB_READ_WRITE_TOKEN` for Production and Preview), served by the site after the cookie check, never through a public address; uploaded on the admin page. |
 
 ## Databases
 
@@ -34,7 +35,7 @@ A new database is built from `db/schema.sql` and `db/seed.sql`; every later chan
 
 ## Environment variables
 
-`.env.local` locally (never committed or printed), Vercel's environment variables for Preview and Production, `.env.turso` only for running migrations against Turso by hand (`npm run db:turso`). `.env.example` lists them.
+`SITE_PASSWORD` and `SITE_SESSION_SECRET` (the site password and the key that signs its cookie) must be set for Production and Preview, or the build stops. `.env.local` locally (never committed or printed), Vercel's environment variables for Preview and Production, `.env.turso` only for running migrations against Turso by hand (`npm run db:turso`). `.env.example` lists them.
 
 ## Security headers
 

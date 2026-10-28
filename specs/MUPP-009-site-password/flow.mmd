@@ -1,0 +1,23 @@
+%% MUPP-009 Site password
+%% Every request passes proxy.ts; pages and routes check the cookie again on the server.
+flowchart TD
+    A[Request] --> B{Path is /losenord<br/>or _next/static?}
+    B -- yes --> Z[Served]
+    B -- no --> C{Valid cookie?<br/>R2, R3}
+    C -- yes --> D[Page or route]
+    D --> E{Cookie valid again<br/>on the server? R3}
+    E -- yes --> Y[Content served]
+    E -- no --> L
+    C -- no --> F{A page request?}
+    F -- no: API, action, /bilder --> G[401 without content]
+    F -- yes --> L[Redirect to /losenord?till=path]
+    L --> H[Password page R1]
+    H --> I[Attempt counted in login_attempts R5]
+    I --> J{Fewer than 6 in 15 min?}
+    J -- no --> K[För många försök. Försök igen om en stund.]
+    J -- yes --> M{Password matches?<br/>SHA-256, constant time}
+    M -- no --> N[Wait 1 s, then: Fel lösenord.]
+    N --> H
+    K --> H
+    M -- yes --> O[Set signed cookie, 180 days R2]
+    O --> P[Redirect to till if on this site, else /]
