@@ -44,6 +44,10 @@ Small fixes that don't change behaviour (typos, styling details) need no card, b
 
 Tests (every check in the test plan, every requirement tested, unit and local browser tests pass, smoke tests pass against production after the deploy); accessibility (axe on every new page and state, the checklist on the live site per item); requirements match what was built; manual, system docs and log updated; no leftovers; clean code (lint, type check, build without warnings, shared components reused); code review done with no must-fix left; improvements handled; the test suite's numbers before and after recorded and within budget. The exact list is in [CLAUDE.md](../../CLAUDE.md).
 
+## Design work
+
+Design is not guessed in advance. The design skills (Impeccable, `design-taste-frontend` and `emil-design-eng`, in `.claude/skills/`) put forward two or three proposals as pages or states in the running site, the user tries them on a phone and decides, and the choice is written on the card and in `DESIGN.md`. Impeccable reads `PRODUCT.md` (the product, its users and tone) and `DESIGN.md` (the tokens). Every UI change gets at least a look with Impeccable's critique; the skills' roles are listed in [CLAUDE.md](../../CLAUDE.md). Set up by [TECH-006](../../specs/TECH-006-design-skills/solution.md).
+
 ## Technical tasks
 
 Improvements that don't change what the site does (leftovers, duplicated code, shared components, speed). Small and related: fixed in the same change, mentioned in the commit and `verification.md`. Large or unrelated: a card with Work type **Tech** and ID `TECH-001`, …, grouped so the board doesn't fill up. They go through the same steps and Definition of Done; their requirements are usually "the site behaves as before" plus the concrete change.

@@ -23,4 +23,6 @@ The words used for these are in [Terms](terms.md).
 
 In scope: the pages and flows in the board's features ([Feature list](features.md)). Out of scope: payments, shops, accounts per visitor.
 
+The product context the design skills read (users, purpose, tone, principles) is in [`PRODUCT.md`](../PRODUCT.md) at the root of the repository.
+
 [Specifications](index.md)

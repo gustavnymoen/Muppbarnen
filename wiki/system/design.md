@@ -21,6 +21,7 @@ A dark, muted, mobile-first look (about 90 % of visits come from phones), wide o
 | Card | `Card.tsx` | 1 px edge and a layered shadow. `highlight` gives a child's colour (toned down) on a 2 px edge and shadow; `pressable` makes it move into its shadow when pressed. |
 | Buttons | `Button.tsx` | `Button` (primary in the brand colour, secondary), `IconButton` and `IconLink` (need a `label`, which is the accessible name and the tooltip). At least 44 × 44 px; with `compact` (the admin's rows, [Admin page](admin.md)) 32 × 32 px. |
 | Forms | `Form.tsx`, `ListPicker.tsx` | `Form` and `Field` for every form. The `select` type of `Field` is the site's own list (`ListPicker`, [MUPP-012](../../specs/MUPP-012-parent-picker-mobile/solution.md)) instead of the browser's pop-up: an ARIA select-only combobox (a button that opens a listbox under the field, drawn in `body` so a folded panel cannot clip it, above the field if there is no room below). |
+| Wish list button | `WishList.tsx`, `.wish-button` in `globals.css` | The child's colour as a fill (85 % mixed with the card colour) with dark text; the unfolded list rolls down from the top (300 ms, none with reduced motion). Kids sharing a card are separated by `.divider-short`. |
 | Chip, avatar | `Chip.tsx`, `Avatar.tsx` | Child colour toned down; the avatar shows a picture or the initial and always has the child's name as its accessible name. |
 | Child colours | `lib/child-colors.ts` | `childColor(n)`: six colours, the same for the same number, never fails. The class names per colour are in `components/colors.ts`. |
 | Style guide | `app/design/page.tsx` | `/design` shows every token and component, with made-up data. |
@@ -28,7 +29,7 @@ A dark, muted, mobile-first look (about 90 % of visits come from phones), wide o
 ## Rules
 
 - **Reuse before adding.** A page is built from these components; a second copy of a card or a button is a code-review finding. A new shared component is added to `app/components/` and shown on `/design`.
-- **Colour has a purpose.** Only one card in a list is highlighted; a child colour is never a bright fill; red is not used for the main button.
+- **Colour has a purpose.** Only one card in a list is highlighted; a child colour is never a bright fill, except the wish list button, where it is dimmed (85 %) and has dark text; red is not used for the main button.
 - **Focus** is a 3 px ring in the brand colour on every control (`:focus-visible` in `globals.css`).
 - **Motion** is a press and a short entrance (at most 300 ms, transform and opacity), and is dropped with `prefers-reduced-motion`.
 - **A browser rounds a border** to whole device pixels; a thin edge on a phone is 1 px and the highlighted one is 2 px.

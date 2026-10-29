@@ -1,0 +1,7 @@
+%% TECH-006 Design skills and a design pass
+%% The main flow and its error paths. Label steps with requirement IDs where it helps.
+flowchart TD
+    A[User opens the page] --> B{Valid input?}
+    B -- yes --> C[Show the result]
+    B -- no --> D[Show error message]
+    D --> A

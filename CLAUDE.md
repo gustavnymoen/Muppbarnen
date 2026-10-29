@@ -45,6 +45,16 @@ A feature or technical task is done when all of these hold. Record them in its `
 8. **Improvements handled:** small cleanups related to the work are fixed in the same change; larger or unrelated ones are added to the board as technical tasks (see below).
 9. **Test suite:** the number of tests and the total time before and after the change are recorded, the suite is within the time budgets in `wiki/system/testing.md`, and the new tests follow its quality rules.
 
+## Design work
+
+Three design skills live in `.claude/skills/` (sources in `skills-lock.json`) and are used through the Skill tool. Use them for design work, and look at every UI change with at least Impeccable's critique.
+
+- **`impeccable`**: shaping, critique, audit and polish of a screen or component. Reads `PRODUCT.md` (who and what the site is for, its tone) and `DESIGN.md` (the tokens). Start with `/impeccable critique` on any UI change.
+- **`design-taste-frontend`**: art direction and the anti-slop rules: composition, type, palette and what makes a page look generic.
+- **`emil-design-eng`**: motion and the small details (easing, press feedback, transitions); motion must respect `prefers-reduced-motion`.
+
+Design is decided by trying proposals in the running site, on a phone first, and the choice is written on the card and in `DESIGN.md`.
+
 ## Tests
 
 How the site is tested is in `wiki/system/testing.md`: the kinds of checks (unit tests, browser tests, smoke tests, accessibility, security, code review), which to choose for what, where each runs, the quality rules and the time budgets. Check it with every change, so that the suite doesn't grow slower and weaker as the site grows.
