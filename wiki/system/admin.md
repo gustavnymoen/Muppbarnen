@@ -23,7 +23,7 @@ The admin page is where the parents fill in the kids' sizes and wish lists, and 
 | Master section | `app/admin/hantera/page.tsx` | Parents and kids: add, change, remove, give the master flag, move a kid to another parent, upload and remove a picture. A 404 for everyone else. |
 | Rules | `lib/family.ts`, `lib/form-input.ts` | Every read and every change. A function takes the actor (read from the database), checks the right and the input, and returns `{ ok }` or a message. |
 | Pictures | `lib/pictures.ts`, `lib/image-type.ts`, `app/bilder/[id]/route.ts` | See below. |
-| Forms | `app/components/Form.tsx`, `ConfirmAction.tsx` | Shared with the rest of the site: see [Design system](design.md). |
+| Forms | `app/components/Form.tsx`, `ListPicker.tsx`, `ConfirmAction.tsx` | Shared with the rest of the site: see [Design system](design.md). The parent of a kid is chosen in the site's own list (`ListPicker`), which sends the parent's id in a hidden field named `parentId`. |
 | Compact layout | `app/components/Fold.tsx`, `SlimCard.tsx`, `Button.tsx` (`IconButton`, `IconLink`), `icons.tsx` | See below. |
 
 ## Compact layout

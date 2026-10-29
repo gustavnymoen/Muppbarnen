@@ -1,0 +1,9 @@
+%% MUPP-012 Parent picker in mobile mode
+%% The site's own list for choosing among options: opening, choosing and closing.
+flowchart TD
+    A[Administrator activates the field] --> B["List opens under the field, as wide, or above if no room (R1)"]
+    B --> C{What does the administrator do?}
+    C -- "activates an option, or Enter / Space / Tab (R1, R2)" --> D[Option is chosen, list closes, field shows it]
+    C -- "Escape or activates outside (R1)" --> E[List closes, nothing changes]
+    C -- "arrows, Home, End or a letter (R2)" --> B
+    D --> F[Form is saved with the hidden value under the field's name (R3)]

@@ -114,3 +114,10 @@ export const EDGE = "rgb(39, 46, 57)";
 export const SHADOW = "rgb(5, 8, 13)";
 export const BRAND = "rgb(154, 169, 224)";
 export const DANGER = "rgb(232, 147, 143)";
+
+// Picks an option in the site's own list (ListPicker, MUPP-012) with the pointer: opens the
+// field with that label in `scope` and activates the option
+export async function pickOption(page: Page, scope: Locator, label: string, option: string) {
+  await scope.getByRole("button", { name: label }).click();
+  await page.getByRole("option", { name: option }).click();
+}

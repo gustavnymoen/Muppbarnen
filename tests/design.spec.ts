@@ -349,3 +349,51 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     await clearFamily();
   }
 });
+
+test("MUPP-012-R1 R2 the parent picker looks like the other fields, and its list like a card with the selected row marked and the focus visible", async ({ page }) => {
+  test.skip(!runsLocally, "needs the admin password of the local test server");
+  await clearFamily();
+  const chef = uniqueName("Chef");
+  const mia = uniqueName("Mia");
+  await addParent(chef, true);
+  await addParent(mia);
+  try {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await adminSignIn(page, chef);
+    await page.getByRole("link", { name: "Hantera barn och föräldrar" }).click();
+    await page.getByRole("button", { name: "Nytt barn" }).click();
+    const field = page.getByRole("button", { name: /^Förälder/ });
+    const name = page.getByLabel("Namn");
+
+    // The field: as high and as round as a text field, with the same colours
+    expect((await field.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    for (const property of ["background-color", "border-top-color", "border-top-width", "border-top-left-radius", "color", "height"]) {
+      expect(await css(field, property)).toBe(await css(name, property));
+    }
+
+    // The list: a card-coloured box with an edge and a shadow, rows of at least 44 px, the selected row bold with a check mark in the brand colour, the active row lighter
+    await field.click();
+    const list = page.getByRole("listbox");
+    await expect(list).toHaveCSS("background-color", CARD);
+    await expect(list).toHaveCSS("border-top-width", "1px");
+    expect(await css(list, "box-shadow")).not.toBe("none");
+    const selected = list.getByRole("option", { name: chef });
+    const other = list.getByRole("option", { name: mia });
+    expect((await other.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await expect(selected).toHaveCSS("font-weight", "700");
+    await expect(other).toHaveCSS("font-weight", "400");
+    await expect(selected.locator("svg")).toHaveCSS("color", BRAND);
+    await expect(list).toBeFocused();
+    await expect(list).toHaveCSS("outline-width", "3px");
+    await other.hover();
+    await expect(other).toHaveCSS("background-color", EDGE);
+    expect(contrast(TEXT, await backgroundOf(other))).toBeGreaterThanOrEqual(4.5);
+
+    // Closed again, the focus ring is on the field
+    await page.keyboard.press("Escape");
+    await expect(field).toBeFocused();
+    await expect(field).toHaveCSS("outline-width", "3px");
+  } finally {
+    await clearFamily();
+  }
+});

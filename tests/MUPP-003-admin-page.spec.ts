@@ -2,7 +2,7 @@ import { readdirSync } from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, childIdOf, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -382,7 +382,7 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   form = await opened(kids, "Nytt barn");
   await form.getByLabel("Namn").fill(kid);
   await form.getByLabel("Födelsedatum").fill("2999-01-01");
-  await form.getByLabel("Förälder").selectOption({ label: mia });
+  await pickOption(page, form, "Förälder", mia);
   await form.getByRole("button", { name: "Lägg till" }).click();
   await expect(form.getByRole("alert").filter({ hasText: "Skriv ett riktigt datum, högst tio månader fram." })).toBeVisible();
   await form.getByLabel("Födelsedatum").fill("2019-03-09");
@@ -393,7 +393,7 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   await expect(row).toContainText(`Född 2019-03-09, förälder: ${mia}`);
 
   // Move the kid to another parent
-  await edit.getByLabel("Förälder").selectOption({ label: ola });
+  await pickOption(page, edit, "Förälder", ola);
   await edit.getByRole("button", { name: "Spara" }).click();
   await expect(row.getByRole("button", { name: "Ändra" })).toHaveAttribute("aria-expanded", "false");
   await opened(row, "Ändra");

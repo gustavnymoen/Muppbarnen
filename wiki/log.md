@@ -2,6 +2,7 @@
 
 ## 2026-10-29
 
+* **Creation** [MUPP-012 Parent picker in mobile mode](../specs/MUPP-012-parent-picker-mobile/solution.md): the parent is chosen in the site's own accessible list under the field (a select-only combobox) instead of the browser's pop-up, which opened in the corner in mobile mode.
 * **Creation** [MUPP-011 Future birthdate](../specs/MUPP-011-future-birthdate/solution.md): a birthdate can be up to ten months ahead, and a child who is not born yet is shown as "Beräknad {månad}" without an age until the day; a born child never gets age 0.
 
 ## 2026-10-28
