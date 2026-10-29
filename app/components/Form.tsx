@@ -47,13 +47,14 @@ type FieldProps = {
   maxLength?: number;
   required?: boolean;
   hint?: string;
+  max?: string;
   accept?: string;
   autoComplete?: string;
 };
 
 // Ett fält med etikett och fel. Efter ett misslyckat försök visas det som skrevs (state.values),
 // annars värdet från servern. key gör att fältet byggs om med det nya värdet.
-export function Field({ name, label, type = "text", defaultValue = "", defaultChecked = false, options, maxLength, required, hint, accept, autoComplete }: FieldProps) {
+export function Field({ name, label, type = "text", defaultValue = "", defaultChecked = false, options, maxLength, required, hint, max, accept, autoComplete }: FieldProps) {
   const id = useId();
   const state = useContext(FormStateContext);
   const error = state?.fields?.[name];
@@ -111,7 +112,7 @@ export function Field({ name, label, type = "text", defaultValue = "", defaultCh
       ) : type === "file" ? (
         <input {...common} type="file" accept={accept} className={`${control} py-2`} />
       ) : (
-        <input key={value} {...common} type={type} defaultValue={value} maxLength={maxLength} autoComplete={autoComplete} className={control} />
+        <input key={value} {...common} type={type} defaultValue={value} maxLength={maxLength} max={max} autoComplete={autoComplete} className={control} />
       )}
       {message}
     </div>

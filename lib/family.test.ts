@@ -190,7 +190,7 @@ describe("MUPP-003-R5 parents and kids, master admin only", () => {
     expect(await family.listChildren(master.id)).toEqual([]);
   });
 
-  test("MUPP-003-R5 a name is needed, the birthdate must be real and not in the future, and the parent must exist", async () => {
+  test("MUPP-003-R5 a name is needed, the birthdate must be real and not too far ahead (MUPP-011-R1), and the parent must exist", async () => {
     const master = await parent("Chef", true);
     const base = { name: "Kim", birthdate: "2019-03-09", parentId: String(master.id) };
     expect(await family.saveParent(master, { name: "", isMasterAdmin: false })).toMatchObject({ ok: false, fields: { name: expect.any(String) } });

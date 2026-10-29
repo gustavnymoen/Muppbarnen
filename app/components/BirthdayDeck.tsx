@@ -18,7 +18,7 @@ const SIDE_OFFSET = 90; // % av kortets bredd som korten på sidorna ligger vid 
 const SIDE_SCALE = 0.88;
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${MONTHS[card.month! - 1].toLowerCase()}`);
-const ageText = (kid: DeckKid) => (kid.age === null ? null : `Fyller ${kid.age} år`);
+const ageText = (kid: DeckKid, month: number | null) => (kid.expected ? `Beräknad ${MONTHS[month! - 1].toLowerCase()}` : kid.age === null ? null : `Fyller ${kid.age} år`);
 const picture = (kid: DeckKid) => (kid.hasPicture ? `/bilder/${kid.id}` : undefined);
 
 // Vilket barns lista som är utfälld, på vilket kort
@@ -178,6 +178,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       {single ? (
         <KidFace
           cardKey={card.key}
+          month={card.month}
           kid={single}
           open={card.kids.length === 1 ? openList?.kidId === single.id : true}
           onToggle={() => (openList?.kidId === single.id ? onClose() : onOpen(single))}
@@ -209,7 +210,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
               <li key={kid.id} className="flex flex-col items-center gap-0.5 text-center">
                 <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={60} decorative />
                 <h3 className="font-heading text-lg font-semibold break-words">{kid.name}</h3>
-                {ageText(kid) && <p className="text-muted">{ageText(kid)}</p>}
+                {ageText(kid, card.month) && <p className="text-muted">{ageText(kid, card.month)}</p>}
                 <WishButton id={`barn-${card.key}-${kid.id}`} count={kid.wishes.length} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-1 w-44" />
               </li>
             ),
@@ -222,13 +223,13 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
 
 // Ett barn som hela kort: stor bild, namn, ålder och önskelistan
 // cardKey ingår i id:na: samma barn finns på flera kort, och korten bredvid ritas också
-function KidFace({ cardKey, kid, open, onToggle }: { cardKey: string; kid: DeckKid; open: boolean; onToggle: () => void }) {
+function KidFace({ cardKey, month, kid, open, onToggle }: { cardKey: string; month: number | null; kid: DeckKid; open: boolean; onToggle: () => void }) {
   return (
     <>
       <div className={`flex flex-col items-center justify-center gap-2 text-center ${open ? "" : "min-h-0 flex-1"}`}>
         <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={open ? 72 : 192} decorative />
         <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
-        {ageText(kid) && <p className="text-lg text-muted">{ageText(kid)}</p>}
+        {ageText(kid, month) && <p className="text-lg text-muted">{ageText(kid, month)}</p>}
       </div>
       <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} open={open} onToggle={onToggle} />
     </>

@@ -10,6 +10,8 @@ import { Heading, Page, PageContent } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { childColor } from "@/lib/child-colors";
+import { isExpected } from "@/lib/deck";
+import { latestBirthdate } from "@/lib/form-input";
 import { listChildren, listParents, type Child, type Parent } from "@/lib/family";
 import { requireSiteSession } from "@/lib/site-auth";
 import { removeChild, removeChildPicture, removeParent, saveChild, saveChildPicture, saveParent } from "../actions";
@@ -156,7 +158,7 @@ function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
         <div className="flex items-center gap-3">
           <Avatar name={child.name} color={childColor(child.id)} src={src} decorative />
           <p className="text-muted">
-            Född {child.birthdate}, förälder: {owner?.name}
+            {isExpected(child.birthdate) ? "Beräknad" : "Född"} {child.birthdate}, förälder: {owner?.name}
           </p>
         </div>
         <ChildForm child={child} parents={parents} submit="Spara" />
@@ -190,7 +192,7 @@ function ChildForm({ child, parents, submit }: { child?: Child; parents: Parent[
     <Form action={saveChild} submit={submit}>
       {child && <input type="hidden" name="childId" value={child.id} />}
       <Field name="name" label="Namn" defaultValue={child?.name} maxLength={60} required />
-      <Field name="birthdate" type="date" label="Födelsedatum" defaultValue={child?.birthdate} required />
+      <Field name="birthdate" type="date" label="Födelsedatum" defaultValue={child?.birthdate} max={latestBirthdate()} required />
       <Field
         name="parentId"
         type="select"

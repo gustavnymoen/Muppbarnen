@@ -377,14 +377,14 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   await expect(parents.getByRole("heading", { level: 3, name: ola })).toBeVisible();
   await expectNoA11yViolations(page);
 
-  // A kid: a real date that is not in the future
+  // A kid: a real date, not more than ten months ahead (MUPP-011-R1)
   const kid = uniqueName("Barn");
   form = await opened(kids, "Nytt barn");
   await form.getByLabel("Namn").fill(kid);
   await form.getByLabel("Födelsedatum").fill("2999-01-01");
   await form.getByLabel("Förälder").selectOption({ label: mia });
   await form.getByRole("button", { name: "Lägg till" }).click();
-  await expect(form.getByRole("alert").filter({ hasText: "Skriv ett riktigt datum som inte är i framtiden." })).toBeVisible();
+  await expect(form.getByRole("alert").filter({ hasText: "Skriv ett riktigt datum, högst tio månader fram." })).toBeVisible();
   await form.getByLabel("Födelsedatum").fill("2019-03-09");
   await form.getByRole("button", { name: "Lägg till" }).click();
   const row = kids.getByRole("article").filter({ hasText: kid });

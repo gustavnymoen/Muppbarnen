@@ -1,0 +1,11 @@
+%% MUPP-011 Future birthdate
+%% A birthdate is saved up to ten months ahead; a child who is not born yet is shown as expected until the day.
+flowchart TD
+    A[Administrator fills in the child form] --> B{"Birthdate: a real date, 1900 up to ten months ahead? (R1)"}
+    B -- no --> C["Message: Skriv ett riktigt datum, högst tio månader fram."]
+    C --> A
+    B -- yes --> D[Child is saved]
+    D --> E{"Birthdate after today? (R2, R4)"}
+    E -- yes --> F["Admin list: Beräknad datum. Birthday card: Beräknad månad, no age"]
+    E -- no --> G["Birthday card: Fyller N år, N at least 1 (R3)"]
+    F -- the day comes --> G

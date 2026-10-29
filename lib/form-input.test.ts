@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText } from "./form-input";
+import { collect, latestBirthdate, parseBirthdate, parseId, parseLink, parseOccasion, parseText } from "./form-input";
 
 describe("MUPP-003-R7 input is checked on the server", () => {
   test("MUPP-003-R7 ids are positive integers written with digits and nothing else", () => {
@@ -27,13 +27,21 @@ describe("MUPP-003-R7 input is checked on the server", () => {
     expect(parseText("två\nrader", 40).ok).toBe(true);
   });
 
-  test("MUPP-003-R5 a birthdate is a real date, not in the future", () => {
-    const today = new Date("2026-10-28T12:00:00Z");
+  test("MUPP-011-R1 a birthdate is a real date, from 1900 up to ten months ahead", () => {
+    const today = new Date("2026-10-29T12:00:00Z");
     expect(parseBirthdate("2020-02-29", today)).toEqual({ ok: true, value: "2020-02-29" });
-    expect(parseBirthdate("2026-10-28", today).ok).toBe(true);
-    for (const bad of ["2026-10-29", "2021-02-29", "2020-13-01", "2020-1-1", "20200101", "1899-12-31", "", null, undefined, "2020-02-30"]) {
-      expect(parseBirthdate(bad, today).ok, String(bad)).toBe(false);
+    for (const good of ["2026-10-29", "2027-03-05", "2027-08-29", "1900-01-01"]) expect(parseBirthdate(good, today).ok, good).toBe(true);
+    for (const bad of ["2027-08-30", "2062-01-01", "2021-02-29", "2020-13-01", "2020-1-1", "20200101", "1899-12-31", "", null, undefined, "2020-02-30"]) {
+      expect(parseBirthdate(bad, today), String(bad)).toEqual({ ok: false, error: "Skriv ett riktigt datum, högst tio månader fram." });
     }
+  });
+
+  test("MUPP-011-R1 the latest birthdate stays in the month at month ends and uses the Swedish date", () => {
+    expect(latestBirthdate(new Date("2026-04-30T12:00:00Z"))).toBe("2027-02-28");
+    expect(latestBirthdate(new Date("2026-12-31T12:00:00Z"))).toBe("2027-10-31");
+    expect(latestBirthdate(new Date("2026-03-31T12:00:00Z"))).toBe("2027-01-31");
+    // 23:30 UTC är redan nästa dag i Sverige
+    expect(latestBirthdate(new Date("2026-10-28T23:30:00Z"))).toBe("2027-08-29");
   });
 
   test("MUPP-003-R4 a link is empty or starts with http:// or https://", () => {

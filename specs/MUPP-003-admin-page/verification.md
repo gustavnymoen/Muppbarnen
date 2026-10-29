@@ -95,7 +95,7 @@ The admin pages need the admin password in addition to the site password.
 ### MUPP-003-R5 Manage kids and parents (master admin)
 
 - Only the master admin has the section "Hantera" with all parents and kids, and the server refuses its actions for others.
-- A parent (name mandatory, at most 60) or a kid (name mandatory at most 60, birthdate a real date not in the future, parent) can be added and edited.
+- A parent (name mandatory, at most 60) or a kid (name mandatory at most 60, birthdate a real date not in the future (changed by MUPP-011: up to ten months ahead), parent) can be added and edited.
 - Removing a kid removes its lists and its picture after a confirmation. A parent with kids cannot be removed (the message says to move or remove the kids first). The last master admin cannot be removed, and the flag can be given to another parent but never lost by the last master admin.
 
 ### MUPP-003-R6 Pictures

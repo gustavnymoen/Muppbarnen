@@ -20,6 +20,7 @@ Under det ligger en **karusell med kort** med barnens födelsedagar och julafton
 - **Julafton** är ett eget kort på en grön bakgrund med girlang, stjärnor, snö och granar. Alla barn står som smala rader med en liten bild och namnet; tryck på en rad för att se barnets önskelista till jul.
 - **Medan en önskelista är öppen går det inte att bläddra.** Texten "Stäng önskelistan för att bläddra." visas; stäng listan först.
 - Av en födelsedag visas bara månaden, aldrig dagen.
+- **Barn som inte är födda än:** kortet visar "Beräknad" och månaden i stället för åldern. När dagen kommer blir det ett vanligt födelsedagskort, utan att någon behöver ändra något. Första födelsedagen visas som "Fyller 1 år".
 - Finns inga barn än står det "Inga barn har lagts till än." Barnen läggs in på [adminsidan](admin.md).
 
 ## Menyn

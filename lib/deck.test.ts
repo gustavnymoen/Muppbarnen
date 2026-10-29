@@ -60,9 +60,32 @@ describe("MUPP-004-R6 the data for the browser", () => {
     const keys = (value: object) => Object.keys(value).sort();
     for (const card of deck) {
       expect(keys(card)).toEqual(["key", "kids", "kind", "month", "next"]);
-      expect(keys(card.kids[0])).toEqual(["age", "color", "hasPicture", "id", "name", "wishes"]);
+      expect(keys(card.kids[0])).toEqual(["age", "color", "expected", "hasPicture", "id", "name", "wishes"]);
     }
     expect(JSON.stringify(deck)).not.toContain("2019-03-17");
     expect(deck.find((c) => c.kind === "birthday")).toMatchObject({ month: 3, kids: [{ age: 8 }] });
+  });
+});
+
+describe("MUPP-011 a child who is not born yet", () => {
+  test("MUPP-011-R2 is expected: no age, the card is at its place by date, and the date stays on the server", () => {
+    const deck = buildDeck([kid(1, "Väntad", "2027-03-05"), kid(2, "Annan", "2020-12-01")], noWishes, today);
+    expect(deck.map((c) => [c.kind, c.month])).toEqual([["birthday", 12], ["christmas", null], ["birthday", 3]]);
+    expect(deck[2].kids[0]).toMatchObject({ name: "Väntad", age: null, expected: true });
+    expect(deck[1].kids.map((k) => k.expected)).toEqual([false, false]);
+    expect(JSON.stringify(deck)).not.toContain("2027-03-05");
+  });
+
+  test("MUPP-011-R3 a born child is never 0 years: the next birthday is the first one", () => {
+    const born = (birthdate: string) => buildDeck([kid(1, "A", birthdate)], noWishes, today).find((c) => c.kind === "birthday")!;
+    expect(born("2026-10-28")).toMatchObject({ month: 10, kids: [{ age: 1, expected: false }] });
+    expect(born("2026-10-27").kids[0].age).toBe(1);
+    expect(born("2026-02-14").kids[0].age).toBe(1);
+  });
+
+  test("MUPP-011-R3 an expected child turns into an ordinary one on the day", () => {
+    const deck = (day: number) => buildDeck([kid(1, "A", "2026-10-30")], noWishes, { year: 2026, month: 10, day }).find((c) => c.kind === "birthday")!;
+    expect(deck(29).kids[0]).toMatchObject({ age: null, expected: true });
+    expect(deck(30).kids[0]).toMatchObject({ age: 1, expected: false });
   });
 });
