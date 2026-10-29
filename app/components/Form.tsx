@@ -3,6 +3,7 @@
 import { createContext, useActionState, useContext, useEffect, useId, type ReactNode } from "react";
 import { Button } from "./Button";
 import { useFold } from "./Fold";
+import { ListPicker } from "./ListPicker";
 import type { FormAction, FormState } from "./form-state";
 
 const FormStateContext = createContext<FormState>(null);
@@ -95,20 +96,14 @@ export function Field({ name, label, type = "text", defaultValue = "", defaultCh
 
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="block font-heading font-medium">
+      <label id={`${id}-etikett`} htmlFor={id} className="block font-heading font-medium">
         {label}
       </label>
       {hintText}
       {type === "textarea" ? (
         <textarea key={value} {...common} defaultValue={value} maxLength={maxLength} rows={3} className={`${control} py-2`} />
       ) : type === "select" ? (
-        <select key={value} {...common} defaultValue={value} className={control}>
-          {options?.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <ListPicker key={value} id={id} name={name} options={options ?? []} defaultValue={value} labelledBy={`${id}-etikett`} describedBy={describedBy} className={control} />
       ) : type === "file" ? (
         <input {...common} type="file" accept={accept} className={`${control} py-2`} />
       ) : (
