@@ -15,6 +15,7 @@ tags: [product, features]
 | [MUPP-004](MUPP-004-birthday-card/solution.md) | Birthday card | Startsida | Ongoing |
 | [MUPP-003](MUPP-003-admin-page/solution.md) | Admin page | Administration | Ongoing |
 | [MUPP-010](MUPP-010-compact-admin/solution.md) | Compact admin | Administration | Ongoing |
+| [MUPP-011](MUPP-011-future-birthdate/solution.md) | Future birthdate | Administration | Ongoing |
 | [MUPP-009](MUPP-009-site-password/solution.md) | Site password | Shared | Done |
 | [TECH-001](TECH-001-project-setup/solution.md) | Project setup | Shared | Done |
 | [TECH-002](TECH-002-repository-and-hosting/solution.md) | Repository and hosting | Shared | Done |

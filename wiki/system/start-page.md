@@ -25,6 +25,7 @@ tags: [start-page, navigation, accessibility]
 - Every card is the same size (up to 40 rem high) and centred; the browse buttons sit at the sides of the card. The header is centred, with the month and, on the first card, the mark "✦ Nästa födelsedag ✦" under it.
 - A card with one kid shows the picture, name, age and the wish list (folded: one tall "Önskelista – Visa mer" button in the kid's colour); a birthday card with several kids shows a miniature per kid, one above the other (picture, name, age and a narrow wish list button), and the Christmas card shows narrow rows (a small picture and the name); the button or row opens that kid as an ordinary card with the list unfolded. Christmas Eve holds all kids, without age, on a green night background drawn in SVG behind the content (`ChristmasBackdrop.tsx`: a garland of lights, stars, snow and fir trees).
 - **Locked while a list is open:** an unfolded list disables the buttons, swipe and arrow keys and says so in text and to screen readers. Escape or the list button closes it.
+- A kid who is not born yet (birthdate after today, MUPP-011) has no age: the birthday card shows "Beräknad {månad}", and from the birthdate on the kid is an ordinary one whose next birthday is the first (age at least 1). The Christmas card lists the kid like any other.
 - With no kids the start page shows one card, "Inga barn har lagts till än.".
 - "Today" is the date in Sweden (`Europe/Stockholm`). A birthday on 29 February is on 28 February in years without one.
 - The cards at the sides are `aria-hidden` and `inert`; a live region tells the screen reader which card it is on.
@@ -33,6 +34,6 @@ tags: [start-page, navigation, accessibility]
 
 `tests/MUPP-002-start-page.spec.ts` (menu, keyboard, 320 px, axe), `tests/MUPP-004-birthday-card.spec.ts` (the deck), `lib/deck.test.ts` (order, grouping, privacy) and the look in `tests/design.spec.ts` ([Testing](testing.md)).
 
-Built by [MUPP-002](../../specs/MUPP-002-start-page/solution.md) and [MUPP-004](../../specs/MUPP-004-birthday-card/solution.md); the Swedish version is [Startsidan och menyn](../manual/startsidan.md).
+Built by [MUPP-002](../../specs/MUPP-002-start-page/solution.md), [MUPP-004](../../specs/MUPP-004-birthday-card/solution.md) and [MUPP-011](../../specs/MUPP-011-future-birthdate/solution.md); the Swedish version is [Startsidan och menyn](../manual/startsidan.md).
 
 [System documentation](index.md)

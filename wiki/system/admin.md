@@ -58,6 +58,8 @@ The picture is stored under a generated name (`barn-<id>-<uuid>.jpg|png|webp`); 
 
 `tests/MUPP-003-admin-page.spec.ts` and `tests/MUPP-010-compact-admin.spec.ts` (against the local test server, with made-up passwords, its own database and picture folder; data is made straight in the test database by `tests/family-db.ts`), the unit tests `lib/admin-session.test.ts`, `lib/form-input.test.ts`, `lib/image-type.test.ts`, `lib/pictures.test.ts`, `lib/family.test.ts` and `db/db-setup.test.ts`, the check test `lib/route-checks.test.ts`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts` ([Testing](testing.md)).
 
-Built by [MUPP-003](../../specs/MUPP-003-admin-page/solution.md) and made compact by [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md); the Swedish version is [Administrationssidan](../manual/admin.md).
+A kid's birthdate must be a real date from 1900 up to ten months ahead (`latestBirthdate` in `lib/form-input.ts`), so a kid who is on the way can be added; the kid is then listed as "Beräknad {datum}" until the day.
+
+Built by [MUPP-003](../../specs/MUPP-003-admin-page/solution.md), made compact by [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md) and given the future birthdate by [MUPP-011](../../specs/MUPP-011-future-birthdate/solution.md); the Swedish version is [Administrationssidan](../manual/admin.md).
 
 [System documentation](index.md)

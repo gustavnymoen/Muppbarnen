@@ -8,8 +8,9 @@ export type Wish = { id: number; title: string };
 export type Wishes = Map<number, { birthday: Wish[]; christmas: Wish[] }>;
 export type Today = { year: number; month: number; day: number };
 
-// Det som webbläsaren får: månad och ålder, aldrig dagen eller födelsedatumet (R6)
-export type DeckKid = { id: number; name: string; age: number | null; color: ChildColor; hasPicture: boolean; wishes: Wish[] };
+// Det som webbläsaren får: månad och ålder, aldrig dagen eller födelsedatumet (R6).
+// expected: barnet är inte fött än (MUPP-011), då finns ingen ålder.
+export type DeckKid = { id: number; name: string; age: number | null; expected: boolean; color: ChildColor; hasPicture: boolean; wishes: Wish[] };
 export type DeckCard = { key: string; kind: "birthday" | "christmas"; month: number | null; next: boolean; kids: DeckKid[] };
 
 export const MONTHS = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
@@ -24,15 +25,21 @@ export function swedishToday(now = new Date()): Today {
   return { year: part("year"), month: part("month"), day: part("day") };
 }
 
-// Nästa gång månaden och dagen kommer, räknat från idag (idag räknas). Den 29 februari
-// firas den 28:e de år som inte har någon 29:e.
+// Månadens dag ett visst år. Den 29 februari firas den 28:e de år som inte har någon 29:e.
+function occurrenceIn(year: number, month: number, day: number, today: Today) {
+  const date = month === 2 && day === 29 && !isLeapYear(year) ? 28 : day;
+  return { year, month, day: date, days: dayNumber(year, month, date) - dayNumber(today.year, today.month, today.day) };
+}
+
+// Nästa gång månaden och dagen kommer, räknat från idag (idag räknas)
 export function nextOccurrence(month: number, day: number, today: Today) {
-  const inYear = (year: number) => (month === 2 && day === 29 && !isLeapYear(year) ? 28 : day);
-  const from = dayNumber(today.year, today.month, today.day);
-  let year = today.year;
-  if (dayNumber(year, month, inYear(year)) < from) year += 1;
-  const date = inYear(year);
-  return { year, month, day: date, days: dayNumber(year, month, date) - from };
+  const thisYear = occurrenceIn(today.year, month, day, today);
+  return thisYear.days < 0 ? occurrenceIn(today.year + 1, month, day, today) : thisYear;
+}
+
+// Barnet är inte fött än (MUPP-011): födelsedatumet ligger efter idag
+export function isExpected(birthdate: string, today = swedishToday()) {
+  return birthdate > `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
 }
 
 const parseBirthdate = (birthdate: string) => {
@@ -50,29 +57,33 @@ function orderKids<T extends { parentId: number; birthdate: string; id: number }
 
 export function buildDeck(children: DeckInput[], wishes: Wishes, today: Today): DeckCard[] {
   const wishesOf = (id: number, occasion: "birthday" | "christmas") => wishes.get(id)?.[occasion] ?? [];
-  const toKid = (kid: DeckInput, age: number | null, occasion: "birthday" | "christmas"): DeckKid => ({
+  const toKid = (kid: DeckInput, age: number | null, occasion: "birthday" | "christmas", expected = false): DeckKid => ({
     id: kid.id,
     name: kid.name,
     age,
+    expected,
     color: childColor(kid.id),
     hasPicture: kid.hasPicture,
     wishes: wishesOf(kid.id, occasion),
   });
 
   // En födelsedagskort per datum
-  const byDate = new Map<string, { days: number; month: number; kids: (DeckInput & { age: number })[] }>();
+  const byDate = new Map<string, { days: number; month: number; kids: (DeckInput & { age: number | null })[] }>();
   for (const kid of children) {
     const born = parseBirthdate(kid.birthdate);
-    const next = nextOccurrence(born.month, born.day, today);
+    const expected = isExpected(kid.birthdate, today);
+    let next = nextOccurrence(born.month, born.day, today);
+    // Ett barn som är fött har aldrig ålder 0: nästa födelsedag är den första (MUPP-011-R3)
+    if (!expected && next.year === born.year) next = occurrenceIn(born.year + 1, born.month, born.day, today);
     const key = `${next.month}-${next.day}`;
     const entry = byDate.get(key) ?? { days: next.days, month: next.month, kids: [] };
-    entry.kids.push({ ...kid, age: next.year - born.year });
+    entry.kids.push({ ...kid, age: expected ? null : next.year - born.year });
     byDate.set(key, entry);
   }
 
   const christmas = nextOccurrence(12, 24, today);
   const entries = [
-    ...[...byDate.values()].map((entry) => ({ rank: 0, days: entry.days, card: { key: "", kind: "birthday" as const, month: entry.month, next: false, kids: orderKids(entry.kids).map((k) => toKid(k, k.age, "birthday")) } })),
+    ...[...byDate.values()].map((entry) => ({ rank: 0, days: entry.days, card: { key: "", kind: "birthday" as const, month: entry.month, next: false, kids: orderKids(entry.kids).map((k) => toKid(k, k.age, "birthday", k.age === null)) } })),
     ...(children.length > 0
       ? [{ rank: 1, days: christmas.days, card: { key: "", kind: "christmas" as const, month: null, next: false, kids: orderKids(children).map((k) => toKid(k, null, "christmas")) } }]
       : []),
