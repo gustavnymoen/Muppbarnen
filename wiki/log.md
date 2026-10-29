@@ -5,6 +5,10 @@
 * **Creation** [MUPP-012 Parent picker in mobile mode](../specs/MUPP-012-parent-picker-mobile/solution.md): the parent is chosen in the site's own accessible list under the field (a select-only combobox) instead of the browser's pop-up, which opened in the corner in mobile mode.
 * **Creation** [MUPP-011 Future birthdate](../specs/MUPP-011-future-birthdate/solution.md): a birthdate can be up to ten months ahead, and a child who is not born yet is shown as "Beräknad {månad}" without an age until the day; a born child never gets age 0.
 
+## 2026-10-29
+
+* **Creation** [TECH-006 Design skills and a design pass](../specs/TECH-006-design-skills/solution.md): the design skills (Impeccable, taste, Emil Kowalski) are part of the workflow with `PRODUCT.md`; the look stays (step 1), the admin gets narrow lists and text beside icons on wide screens (step 2), and the cards get filled wish buttons, bigger pictures and a divider for kids sharing a birthday, Christmas tiles and a rolling wish list (step 3); the site name is no longer shown as a heading.
+
 ## 2026-10-28
 
 * **Creation** [MUPP-004 Birthday card](../specs/MUPP-004-birthday-card/solution.md): the start page shows a deck of birthday cards (and Christmas Eve), nearest first, browsed by swipe, buttons and arrow keys, with a compact wish list that locks the deck while open; the example cards are gone and the day of birth never reaches the browser.

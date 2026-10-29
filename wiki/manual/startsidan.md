@@ -10,14 +10,14 @@ tags: [startsida, meny, kortlek]
 
 ## Startsidan
 
-Överst står sajtens namn, **Muppbarnens önskelistor**. Trycker du på namnet kommer du alltid tillbaka till startsidan.
+Överst finns bara menyknappen. Sajtens namn visas inte som rubrik; du kommer alltid tillbaka till startsidan via **Start** i menyn.
 
 Under det ligger en **karusell med kort** med barnens födelsedagar och julafton. Alla kort är lika stora. Det kort som kommer härnäst ligger överst och är märkt "✦ Nästa födelsedag ✦" (eller "Nästa: Julafton"). Föregående och nästa kort skymtar mörkare på sidorna.
 
 - **Bläddra:** svep åt sidan, tryck på pilknapparna på var sida om kortet ("Föregående kort", "Nästa kort") eller använd piltangenterna. Efter det sista kortet kommer det första igen.
 - **Ett barn på kortet:** du ser en stor bild, namn, hur gammal barnet fyller och en stor knapp i barnets färg, **Önskelista** ("Visa mer"). Trycker du på den fälls hela listan ut och du kan scrolla i den.
-- **Flera barn samma dag** (till exempel tvillingar): kortet visar en liten version av barnkortet per barn, under varandra, med bild, namn, ålder och en egen knapp **Önskelista**. Tryck på barnets knapp för att se barnets kort med önskelistan utfälld. Tryck på knappen eller på Esc för att stänga listan och komma tillbaka till alla barnen.
-- **Julafton** är ett eget kort på en grön bakgrund med girlang, stjärnor, snö och granar. Alla barn står som smala rader med en liten bild och namnet; tryck på en rad för att se barnets önskelista till jul.
+- **Flera barn samma dag** (till exempel tvillingar): kortet visar en liten version av barnkortet per barn, under varandra, med en stor bild, namn, ålder och en egen, smalare knapp **Önskelista**. En tunn linje i mitten skiljer barnen åt. Tryck på barnets knapp för att se barnets kort med önskelistan utfälld. Tryck på knappen eller på Esc för att stänga listan och komma tillbaka till alla barnen.
+- **Julafton** är ett eget kort på en grön bakgrund med girlang, stjärnor, snö och granar. Barnen står i rutor, två och två, med bilden över namnet; tryck på en ruta för att se barnets önskelista till jul.
 - **Medan en önskelista är öppen går det inte att bläddra.** Texten "Stäng önskelistan för att bläddra." visas; stäng listan först.
 - Av en födelsedag visas bara månaden, aldrig dagen.
 - **Barn som inte är födda än:** kortet visar "Beräknad" och månaden i stället för åldern. När dagen kommer blir det ett vanligt födelsedagskort, utan att någon behöver ändra något. Första födelsedagen visas som "Fyller 1 år".

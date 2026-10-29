@@ -28,7 +28,8 @@ export function LinkButton({ variant = "secondary", className = "", ...props }: 
 const iconClass = (compact?: boolean) =>
   `${base} ${compact ? "size-8" : "min-h-11 w-11"} border border-muted/75 bg-card text-text shadow-card hover:bg-edge`;
 
-type IconProps = { label: string; compact?: boolean };
+// text: en kort text bredvid ikonen på bred skärm (från 640 px); på mobil räcker ikonen
+type IconProps = { label: string; compact?: boolean; text?: string };
 
 // Knapp med bara en ikon: label är det skärmläsaren hör, och syns som tooltip
 export function IconButton({ label, compact, children, className = "", ...props }: ComponentProps<"button"> & IconProps & { ref?: Ref<HTMLButtonElement> }) {
@@ -40,10 +41,15 @@ export function IconButton({ label, compact, children, className = "", ...props 
 }
 
 // En länk som ser ut som en ikonknapp
-export function IconLink({ label, compact, children, className = "", ...props }: ComponentProps<typeof Link> & IconProps) {
+export function IconLink({ label, compact, text, children, className = "", ...props }: ComponentProps<typeof Link> & IconProps) {
   return (
-    <Link aria-label={label} title={label} className={`${iconClass(compact)} ${className}`} {...props}>
+    <Link aria-label={label} title={label} className={`${iconClass(compact)} ${text ? "sm:w-auto sm:px-3" : ""} ${className}`} {...props}>
       <span aria-hidden="true">{children}</span>
+      {text && (
+        <span aria-hidden="true" className="hidden text-sm sm:inline">
+          {text}
+        </span>
+      )}
     </Link>
   );
 }

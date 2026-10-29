@@ -397,3 +397,90 @@ test("MUPP-012-R1 R2 the parent picker looks like the other fields, and its list
     await clearFamily();
   }
 });
+
+test("TECH-006-R4 the admin start shows a short text by the icons from 640 px and only icons on a phone, and the manage page keeps its lists narrow on a wide screen", async ({ page }) => {
+  test.skip(!runsLocally, "needs the admin password of the local test server");
+  await clearFamily();
+  const chef = uniqueName("Chef");
+  const kid = uniqueName("Barn");
+  await addChild(await addParent(chef, true), kid);
+  try {
+    // Phone: only the icons, 32 px each
+    await page.setViewportSize({ width: 375, height: 667 });
+    await adminSignIn(page, chef);
+    const sizes = page.getByRole("link", { name: `Storlekar för ${kid}` });
+    const wishes = page.getByRole("link", { name: `Önskelistor för ${kid}` });
+    await expect(sizes.getByText("Storlekar", { exact: true })).toBeHidden();
+    expect([(await sizes.boundingBox())!.width, (await sizes.boundingBox())!.height]).toEqual([32, 32]);
+
+    // Wide screen: the text is visible beside the icon, the link grows, and the name is still the full one
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await expect(sizes.getByText("Storlekar", { exact: true })).toBeVisible();
+    await expect(wishes.getByText("Önskelistor", { exact: true })).toBeVisible();
+    expect((await sizes.boundingBox())!.width).toBeGreaterThan(32);
+    expect((await sizes.boundingBox())!.height).toBe(32);
+    await expectNoA11yViolations(page);
+
+    // The manage page: the content is at most 42 rem (672 px) wide, so the buttons stay near the names
+    await page.getByRole("link", { name: "Hantera barn och föräldrar" }).click();
+    const row = page.getByRole("article").filter({ hasText: kid });
+    await animationsDone(row);
+    expect((await row.boundingBox())!.width).toBeLessThanOrEqual(672);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearFamily();
+  }
+});
+
+test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    const today = swedishToday();
+    const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
+    const twins = `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+    await addChild(parent, "Vera", twins);
+    await addChild(parent, "Vilda", twins);
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+
+    // The card with two kids: the wish button is one line, narrow and 44 px high, the pictures are bigger than 60 px, and a thin line separates the kids
+    const buttons = card.getByRole("button", { name: /^Önskelista för / });
+    for (const button of await buttons.all()) {
+      const box = (await button.boundingBox())!;
+      expect(box.width).toBeLessThanOrEqual(160);
+      expect(box.height).toBe(44);
+      // Dark text on the kid's colour, readable
+      // (the fill is a colour mix; a canvas turns it into plain rgb(…) for the contrast helper)
+      const fill = await button.evaluate((el) => {
+        const context = document.createElement("canvas").getContext("2d")!;
+        context.fillStyle = getComputedStyle(el).backgroundColor;
+        context.fillRect(0, 0, 1, 1);
+        const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+        return `rgb(${r}, ${g}, ${b})`;
+      });
+      expect(contrast(await css(button, "color"), fill)).toBeGreaterThanOrEqual(4.5);
+    }
+    const kids = card.locator("ul > li");
+    expect((await kids.first().locator("[aria-hidden]").first().boundingBox())!.width).toBeGreaterThan(60);
+    expect(await css(kids.nth(1), "height", "::before")).toBe("1px");
+    expect(await css(kids.first(), "height", "::before")).not.toBe("1px");
+    await expectNoA11yViolations(page);
+
+    // Christmas Eve: the kids are tiles, two by two
+    for (let i = 0; i < 3 && (await card.getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
+      await page.getByRole("button", { name: "Nästa kort" }).click();
+      await animationsDone(card);
+    }
+    const tiles = card.getByRole("button", { name: /^Öppna / });
+    const [a, b] = [(await tiles.nth(0).boundingBox())!, (await tiles.nth(1).boundingBox())!];
+    expect(a.y).toBe(b.y);
+    expect(b.x).toBeGreaterThan(a.x + a.width - 1);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearFamily();
+  }
+});

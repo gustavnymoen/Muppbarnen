@@ -35,7 +35,7 @@ async function ManageContent() {
     <Page>
       <PageContent>
         <FoldGroup>
-          <div className="space-y-5">
+          <div className="max-w-2xl space-y-5">
             <LinkButton href="/admin">Till barnen</LinkButton>
             <Heading level={1} small>
               Hantera

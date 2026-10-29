@@ -42,8 +42,8 @@ test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anythi
   const field = page.getByLabel("Adminlösenord");
   await expect(field).toHaveAttribute("type", "password");
   await expect(page.getByRole("button", { name: "Logga in" })).toBeVisible();
-  // Nothing else from the admin: no parents, no lists, no links but the site name
-  await expect(page.getByRole("link")).toHaveCount(1);
+  // Nothing else from the admin: no parents, no lists, no links at all (TECH-006: the site name is no longer a link)
+  await expect(page.getByRole("link")).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 2 })).toHaveCount(0);
   await expectNoA11yViolations(page);
 

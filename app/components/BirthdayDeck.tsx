@@ -14,8 +14,11 @@ import { WishButton, WishList } from "./WishList";
 // den är låst medan en önskelista är utfälld (R9).
 
 const SWIPE_DISTANCE = 50;
-const SIDE_OFFSET = 90; // % av kortets bredd som korten på sidorna ligger vid sidan om det valda
-const SIDE_SCALE = 0.88;
+const SIDE_OFFSET = 94; // % av kortets bredd som korten på sidorna ligger vid sidan om det valda
+const SIDE_SCALE = 0.84;
+// Bilden på kort med flera barn växer med skärmens höjd: 72 px på en låg telefon (667 px), upp till 104 px
+const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
+const TILE_AVATAR = 56; // barnen på julkortet
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${MONTHS[card.month! - 1].toLowerCase()}`);
 const ageText = (kid: DeckKid, month: number | null) => (kid.expected ? `Beräknad ${MONTHS[month! - 1].toLowerCase()}` : kid.age === null ? null : `Fyller ${kid.age} år`);
@@ -167,7 +170,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
     <Card
       as="article"
       highlight={first ? card.kids[0].color : undefined}
-      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8 pt-12" : single ? "pb-8 pt-8" : "pb-6 pt-6"}`}
+      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8 pt-12" : single ? "pb-8 pt-8" : "pb-4 pt-4"}`}
     >
       {christmas && <ChristmasBackdrop />}
       <header className="flex flex-col items-center gap-2 text-center">
@@ -184,34 +187,31 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
           onToggle={() => (openList?.kidId === single.id ? onClose() : onOpen(single))}
         />
       ) : (
-        <ul className={`my-auto flex min-h-0 max-h-full flex-col overflow-y-auto ${christmas ? "gap-1.5" : "gap-3"}`}>
+        <ul className={`my-auto min-h-0 max-h-full overflow-y-auto ${christmas ? "grid grid-cols-2 gap-3" : "flex flex-col gap-3"}`}>
           {card.kids.map((kid) =>
             christmas ? (
-              // Julkortet har alla barnen, så raderna är smala: en bild och namnet bredvid, utan scroll
+              // Julkortet har alla barnen: rutor två och två med bilden över namnet
               <li key={kid.id}>
                 <button
                   type="button"
                   id={`barn-${card.key}-${kid.id}`}
                   onClick={() => onOpen(kid)}
-                  className="press flex min-h-11 w-full items-center gap-3 rounded-control border border-edge bg-page/50 px-2 py-1 text-left hover:bg-edge"
+                  className="press flex min-h-11 w-full flex-col items-center gap-1 rounded-control border border-edge bg-page/50 px-2 py-3 hover:bg-edge"
                 >
-                  <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={36} decorative />
-                  <span className="min-w-0 flex-1 break-words font-heading text-lg font-semibold">
+                  <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={TILE_AVATAR} decorative />
+                  <span className="min-w-0 break-words font-heading text-lg font-semibold">
                     <span className="sr-only">Öppna&nbsp;</span>
                     {kid.name}
-                  </span>
-                  <span aria-hidden="true" className="text-muted">
-                    ›
                   </span>
                 </button>
               </li>
             ) : (
               // Barn med samma födelsedag ligger över varandra, var och en som en liten version av barnkortet
-              <li key={kid.id} className="flex flex-col items-center gap-0.5 text-center">
-                <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={60} decorative />
+              <li key={kid.id} className="divider-short flex flex-col items-center gap-0.5 text-center">
+                <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={TWIN_AVATAR} decorative />
                 <h3 className="font-heading text-lg font-semibold break-words">{kid.name}</h3>
                 {ageText(kid, card.month) && <p className="text-muted">{ageText(kid, card.month)}</p>}
-                <WishButton id={`barn-${card.key}-${kid.id}`} count={kid.wishes.length} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-1 w-44" />
+                <WishButton id={`barn-${card.key}-${kid.id}`} count={kid.wishes.length} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-2 w-36" />
               </li>
             ),
           )}

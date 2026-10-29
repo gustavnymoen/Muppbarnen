@@ -33,7 +33,7 @@ A dark, muted, mobile-first look: blue-grey near-black surfaces, thin edges, lay
 | `--color-child-lilac` | `#A698D0` | Child colour 5 |
 | `--color-child-pink` | `#CD96B8` | Child colour 6 |
 
-A child's colour is only used toned down, mixed with the card colour: the ring of an avatar (65 %), the edge of a highlighted card (60 %), and a chip (the colour as text on a tint of 16 %, with an edge of 35 %). It is never a bright fill. Only one card in a list, the one that matters most now, is highlighted.
+A child's colour is only used toned down, mixed with the card colour: the ring of an avatar (65 %), the edge of a highlighted card (60 %), a chip (the colour as text on a tint of 16 %, with an edge of 35 %), and the wish list button (a fill of 85 %, with dark text on it, `--color-on-brand`). It is never a bright fill. Only one card in a list, the one that matters most now, is highlighted.
 
 ## Type
 
@@ -54,7 +54,7 @@ Both are loaded by `next/font` at build time and served from our own server (`fo
 | `--shadow-card-pressed` | layered, flatter | Pressed cards and buttons, which move into their shadow |
 | `--ease-out-soft` | `cubic-bezier(0.22, 1, 0.36, 1)` | All motion |
 
-Motion is only small feedback (a press, a card fading in) of at most 300 ms, with transform and opacity only. With reduced motion nothing moves; a pressed control only gets darker.
+Motion is only small feedback (a press, a card fading in, a wish list rolling down from the top when it opens) of at most 300 ms, with transform and opacity (the roll-down uses `clip-path` and opacity). The wish list closes without motion. With reduced motion nothing moves; a pressed control only gets darker.
 
 ## Child colours
 
@@ -62,7 +62,11 @@ Motion is only small feedback (a press, a card fading in) of at most 300 ms, wit
 
 ## Layout
 
-The page shell (`Page`, `PageContent`) fills the screen (`dvh`, with safe areas), the page itself does not scroll and only the content region does. It is a frame of at most 72 rem, centred, with side padding of 1 rem (2 rem from 640 px). Controls are at least 44 × 44 px.
+The page shell (`Page`, `PageContent`) fills the screen (`dvh`, with safe areas), the page itself does not scroll and only the content region does. It is a frame of at most 72 rem, centred, with side padding of 1 rem (2 rem from 640 px). Controls are at least 44 × 44 px; the exception is the 32 × 32 px icon buttons in the admin's slim rows (MUPP-010), which pass WCAG 2.2 AA (24 px). The site's name is not shown as a heading: the start page keeps it as a visually hidden `h1`.
+
+## Concept (TECH-006, step 1)
+
+The concept is decided: **the look above stays** (dark blue-grey night, thin edges, layered shadows with a short hard offset, a soft lilac-blue main button, Fredoka and Nunito). Eight proposals in four rounds were tried on a phone in the running site, among them a warm brown, a deep violet, a forest green, a light paper, a wine-red on cream, an arcade look, a graphite with wine-red and leaf-shaped buttons, and a black with gold. None was preferred over the current look, which stays the base for the admin (step 2) and the cards (step 3). Ideas liked from the proposals may be tried inside this concept in those steps, but the tokens above do not change.
 
 Built by [MUPP-001](specs/MUPP-001-design/solution.md).
 

@@ -7,9 +7,10 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  // R1: namnet är den enda h1 och en länk till startsidan, och sidtiteln är densamma (sidhuvudets utseende: tests/design.spec.ts)
+  // R1 (changed by TECH-006): namnet syns inte som rubrik; det finns kvar som en dold h1, den enda, och sidtiteln är densamma (sidhuvudets utseende: tests/design.spec.ts)
   const name = page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" });
-  await expect(name.getByRole("link")).toHaveAttribute("href", "/");
+  await expect(name).toBeAttached();
+  expect((await name.boundingBox())!.width).toBeLessThanOrEqual(1); // dold: syns inte, men finns för skärmläsare
   expect(await page.getByRole("heading", { level: 1 }).count()).toBe(1);
   await expect(page).toHaveTitle("Muppbarnens önskelistor");
 
@@ -30,8 +31,8 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   // R2 (changed by MUPP-003-R8): "Admin" is a real link and the last item
   await expect(nav.getByRole("link")).toHaveText(["Start", "Admin"]);
   await expect(nav.getByRole("button")).toHaveCount(0);
-  // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar förutom namnet
-  await expect(page.getByRole("link")).toHaveCount(3);
+  // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar (Start och Admin), och namnet är ingen länk (TECH-006)
+  await expect(page.getByRole("link")).toHaveCount(2);
   await expectNoA11yViolations(page);
 
   // R2: Escape stänger och fokus går tillbaka till knappen
