@@ -476,7 +476,8 @@ test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and
       await animationsDone(card);
     }
     const tiles = card.getByRole("button", { name: /^Öppna / });
-    const [a, b] = [(await tiles.nth(0).boundingBox())!, (await tiles.nth(1).boundingBox())!];
+    // Both boxes are read in one go: a name that is fitted a moment later (MUPP-013-R3) moves the list between two reads
+    const [a, b] = await tiles.evaluateAll((els) => els.slice(0, 2).map((el) => el.getBoundingClientRect()));
     expect(a.y).toBe(b.y);
     expect(b.x).toBeGreaterThan(a.x + a.width - 1);
     await expectNoA11yViolations(page);
