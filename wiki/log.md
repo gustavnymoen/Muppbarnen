@@ -2,6 +2,7 @@
 
 ## 2026-10-29
 
+* **Creation** [MUPP-013 Multi-kid birthday card fixes](../specs/MUPP-013-multi-kid-card-fixes/solution.md): the kids on a shared birthday card are spread over the card with a clearer line, a name always stays on one line (smaller, down to 12 px, then "…"), the "next" mark is yellow, and an open wish list swaps its button for a small sticky "Stäng".
 * **Creation** [MUPP-012 Parent picker in mobile mode](../specs/MUPP-012-parent-picker-mobile/solution.md): the parent is chosen in the site's own accessible list under the field (a select-only combobox) instead of the browser's pop-up, which opened in the corner in mobile mode.
 * **Creation** [MUPP-011 Future birthdate](../specs/MUPP-011-future-birthdate/solution.md): a birthdate can be up to ten months ahead, and a child who is not born yet is shown as "Beräknad {månad}" without an age until the day; a born child never gets age 0.
 

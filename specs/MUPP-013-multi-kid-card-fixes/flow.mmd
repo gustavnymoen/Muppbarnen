@@ -1,0 +1,11 @@
+%% MUPP-013 Multi-kid birthday card fixes
+%% The open wish list and how it is closed (R5); the other requirements are looks.
+flowchart TD
+    A[Card with a kid is shown] --> B[Visitor opens the wish list]
+    B --> C[Wish button is swapped for Stäng, focus moves to it]
+    C --> D[Deck is locked]
+    D --> E{Close how?}
+    E -- Stäng, sticky at the bottom R5 --> F[List closes]
+    E -- Escape --> F
+    F --> G[Wish button is back with the focus, deck is unlocked]
+    G --> H[Visitor browses to the next card or kid]

@@ -100,10 +100,10 @@ body {
 }
 .wish-button:hover { background: var(--child); }
 
-/* Avdelare mellan barn på samma kort: en kort tunn linje i mitten, ovanför varje barn utom det första */
+/* Avdelare mellan barn på samma kort: en tunn linje på 60 % av bredden i dämpad textfärg, ovanför varje barn utom det första */
 .divider-short { position: relative; }
 .divider-short:not(:first-child) { padding-top: 0.75rem; }
-.divider-short:not(:first-child)::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 1px; background: var(--color-edge); }
+.divider-short:not(:first-child)::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 1px; background: color-mix(in srgb, var(--color-muted) 45%, transparent); }
 
 /* Önskelistan rullas ner uppifrån när den öppnas; med minskad rörelse visas den direkt */
 @keyframes reveal { from { clip-path: inset(0 0 100% 0); opacity: 0; } }

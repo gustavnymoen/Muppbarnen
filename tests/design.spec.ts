@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, uniqueName } from "./helpers";
-import { addChild, addParent, clearFamily } from "./family-db";
+import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
 
@@ -480,6 +480,136 @@ test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and
     expect(a.y).toBe(b.y);
     expect(b.x).toBeGreaterThan(a.x + a.width - 1);
     await expectNoA11yViolations(page);
+  } finally {
+    await clearFamily();
+  }
+});
+
+test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear line, a name on one line, and a yellow mark for the next card", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    const today = swedishToday();
+    const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
+    const twins = `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+    const longName = "Maximiliana Wilhelmina Fredrika";
+    await addChild(parent, longName, twins);
+    await addChild(parent, "Vera", twins);
+    // A tall phone, where there is room to spread the kids out
+    await page.setViewportSize({ width: 375, height: 844 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+
+    // R1: each kid sits in its own half of the list, so the card is filled from top to bottom
+    const list = card.locator("ul");
+    const [listBox, firstBox, secondBox] = [(await list.boundingBox())!, (await list.locator("li").nth(0).boundingBox())!, (await list.locator("li").nth(1).boundingBox())!];
+    // (the second part is a little taller: the room above the line)
+    expect(Math.abs(secondBox.height - firstBox.height)).toBeLessThan(20);
+    expect(firstBox.height).toBeGreaterThan(listBox.height / 2 - 20);
+    const buttons = card.getByRole("button", { name: /^Önskelista för / });
+    expect((await buttons.nth(1).boundingBox())!.y).toBeGreaterThan(secondBox.y + secondBox.height / 2);
+
+    // R2: the line is 60 % of the width and clear enough to see, but still a thin line
+    const line = list.locator("li").nth(1);
+    expect(await css(line, "height", "::before")).toBe("1px");
+    expect(Number.parseFloat(await css(line, "left", "::before"))).toBeCloseTo(secondBox.width * 0.2, 0);
+    expect(await css(line, "background-color", "::before")).not.toBe(EDGE);
+
+    // R3: a long name stays on one line, smaller but not below 12 px, and is cut with an ellipsis when it still does not fit
+    const name = card.getByRole("heading", { level: 3, name: longName });
+    const [nameBox, shortBox] = [(await name.boundingBox())!, (await card.getByRole("heading", { level: 3, name: "Vera" }).boundingBox())!];
+    expect(nameBox.height).toBeLessThanOrEqual(shortBox.height);
+    const size = Number.parseFloat(await css(name.locator("span"), "font-size"));
+    expect(size).toBeGreaterThanOrEqual(12);
+    expect(size).toBeLessThan(18);
+    expect(await name.locator("span").evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await expectNoA11yViolations(page);
+
+    // R4: the mark is yellow (the sun colour), with readable text on its background
+    const mark = card.locator(".chip-child");
+    await expect(mark).toHaveCSS("color", "rgb(212, 184, 115)");
+    expect(contrast(await css(mark, "color"), await backgroundOf(mark))).toBeGreaterThanOrEqual(4.5);
+  } finally {
+    await clearFamily();
+  }
+});
+
+test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    const longName = "Maximiliana Wilhelmina Fredrika";
+    await addChild(parent, longName);
+    await addChild(parent, "Vera");
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+    for (let i = 0; i < 3 && (await card.getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
+      await page.getByRole("button", { name: "Nästa kort" }).click();
+      await animationsDone(card);
+    }
+    const [tileName, otherName] = [card.getByText(longName, { exact: true }), card.getByText("Vera", { exact: true })];
+    expect((await tileName.boundingBox())!.height).toBeLessThanOrEqual((await otherName.boundingBox())!.height);
+    // The tile is narrower than the card: this name does not fit even at 12 px, so it is cut with an ellipsis
+    expect(Number.parseFloat(await css(tileName, "font-size"))).toBe(12);
+    await expect(tileName).toHaveCSS("text-overflow", "ellipsis");
+    expect(await card.locator("ul").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearFamily();
+  }
+});
+
+test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng button, centred at the bottom of the list, that stays there when the list scrolls and closes the list", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    // Born in 20 days, so that the birthday card is the next one whatever the date is
+    const today = swedishToday();
+    const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
+    const child = await addChild(parent, "Vera", `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`);
+    for (let i = 1; i <= 30; i++) await addWish(child, "birthday", `Önskning ${i}`);
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+    const wishButton = card.getByRole("button", { name: /^Önskelista/ });
+    await wishButton.click();
+
+    // The wish button is gone and Stäng has the focus
+    const region = card.getByRole("region", { name: "Önskelista" });
+    const close = region.getByRole("button", { name: "Stäng önskelistan" });
+    await expect(wishButton).toHaveCount(0);
+    await expect(close).toBeFocused();
+    const corner = async () => {
+      const [regionBox, closeBox] = [(await region.boundingBox())!, (await close.boundingBox())!];
+      return { middle: closeBox.x + closeBox.width / 2 - (regionBox.x + regionBox.width / 2), bottom: regionBox.y + regionBox.height - (closeBox.y + closeBox.height), width: closeBox.width, height: closeBox.height };
+    };
+    // The list is long enough to scroll, and the button is small, 44 px high and centred at the bottom
+    expect(await region.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    const before = await corner();
+    expect(Math.abs(before.middle)).toBeLessThan(2);
+    expect(before.bottom).toBeLessThan(20);
+    expect(before.height).toBeGreaterThanOrEqual(44);
+    expect(before.width).toBeLessThan(120);
+    await expectNoA11yViolations(page);
+
+    // It stays in place when the list is scrolled
+    await region.evaluate((el) => el.scrollTo(0, el.scrollHeight / 2));
+    const scrolled = await corner();
+    expect(Math.abs(scrolled.bottom - before.bottom)).toBeLessThan(1);
+    expect(Math.abs(scrolled.middle - before.middle)).toBeLessThan(1);
+
+    // It closes the list and unlocks the deck, with the focus back on the wish button
+    await close.click();
+    await expect(region).toHaveCount(0);
+    await expect(wishButton).toBeFocused();
+    await expect(page.getByRole("button", { name: "Nästa kort" })).toBeEnabled();
   } finally {
     await clearFamily();
   }
