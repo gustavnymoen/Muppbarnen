@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addParent, clearFamily } from "./family-db";
-import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, settledBox, uniqueName } from "./helpers";
 import { testIp } from "./site-session";
 
 // De här testen gör egna föräldrar i testdatabasen, så de körs bara lokalt
@@ -25,8 +25,7 @@ const listOf = (page: Page) => page.getByRole("listbox");
 
 // The list's box is against the field's: as wide, and just under it (or just above it when there is no room below)
 async function expectAgainstField(field: Locator, list: Locator, side: "below" | "above") {
-  const f = (await field.boundingBox())!;
-  const l = (await list.boundingBox())!;
+  const [f, l] = await Promise.all([settledBox(field), settledBox(list)]);
   expect(Math.abs(l.x - f.x)).toBeLessThan(1);
   expect(Math.abs(l.width - f.width)).toBeLessThan(1);
   if (side === "below") expect(l.y - (f.y + f.height)).toBeLessThan(12);
@@ -122,7 +121,7 @@ test("MUPP-012-R1 R2 on a wide screen the list opens under the field, and above 
   const list = listOf(page);
   await expectAgainstField(field, list, "below");
   // Eight parents are more than fit under the field: the list scrolls and stays on the screen
-  const below = (await list.boundingBox())!;
+  const below = await settledBox(list);
   expect(below.y + below.height).toBeLessThanOrEqual(720);
   await expectNoA11yViolations(page);
   // The list is drawn in body, so the folded panel cannot cut it off, and clicking the field closes it
@@ -131,11 +130,11 @@ test("MUPP-012-R1 R2 on a wide screen the list opens under the field, and above 
   await expect(list).toBeHidden();
 
   // A window that ends just under the field: more room above than below, so the list goes above
-  const box = (await field.boundingBox())!;
+  const box = await settledBox(field);
   await page.setViewportSize({ width: 1280, height: Math.round(box.y + box.height + 30) });
-  const now = (await field.boundingBox())!;
+  const now = await settledBox(field);
   expect(now.y).toBeGreaterThan(200);
   await field.click();
   await expectAgainstField(field, list, "above");
-  expect((await list.boundingBox())!.y).toBeGreaterThanOrEqual(0);
+  expect((await settledBox(list)).y).toBeGreaterThanOrEqual(0);
 });

@@ -1,0 +1,8 @@
+%% TECH-009 Settled boxes in the feature tests
+%% How the feature tests read a box now: the same helper as the design tests.
+flowchart TD
+    A[Feature test needs the size or position of an element] --> D[settledBox]
+    D --> E{Compared with another box?}
+    E -- yes --> F[Read both in one go with Promise.all]
+    E -- no --> G[Compare with the limit]
+    F --> G

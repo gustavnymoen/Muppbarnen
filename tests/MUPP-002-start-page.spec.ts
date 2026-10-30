@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoA11yViolations } from "./helpers";
+import { expectNoA11yViolations, settledBox } from "./helpers";
 
 const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
@@ -10,7 +10,8 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   // R1 (changed by TECH-006): namnet syns inte som rubrik; det finns kvar som en dold h1, den enda, och sidtiteln är densamma (sidhuvudets utseende: tests/design.spec.ts)
   const name = page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" });
   await expect(name).toBeAttached();
-  expect((await name.boundingBox())!.width).toBeLessThanOrEqual(1); // dold: syns inte, men finns för skärmläsare
+  // dold: syns inte, men finns för skärmläsare
+  expect((await settledBox(name)).width).toBeLessThanOrEqual(1);
   expect(await page.getByRole("heading", { level: 1 }).count()).toBe(1);
   await expect(page).toHaveTitle("Muppbarnens önskelistor");
 
@@ -21,7 +22,7 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
 
   // R2: menyknappen heter "Meny", är minst 44 × 44 px och säger om menyn är öppen
   const menu = page.getByRole("button", { name: "Meny" });
-  const box = (await menu.boundingBox())!;
+  const box = await settledBox(menu);
   expect(box.width).toBeGreaterThanOrEqual(44);
   expect(box.height).toBeGreaterThanOrEqual(44);
   await expect(menu).toHaveAttribute("aria-expanded", "false");
@@ -82,10 +83,10 @@ test("MUPP-002-R1 R4 the fixed header on a phone, also at 320 px", async ({ page
 
   // R1: sidhuvudet står kvar när innehållet scrollar och bara innehållsytan scrollar
   const header = page.getByRole("banner");
-  const before = (await header.boundingBox())!;
+  const before = await settledBox(header);
   const main = page.getByRole("main");
   await main.evaluate((el) => el.scrollTo(0, 40));
-  const after = (await header.boundingBox())!;
+  const after = await settledBox(header);
   expect(after.y).toBe(before.y);
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
 
@@ -94,7 +95,7 @@ test("MUPP-002-R1 R4 the fixed header on a phone, also at 320 px", async ({ page
   expect(await hasHorizontalScroll(page)).toBe(false);
   await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
   const menu = page.getByRole("button", { name: "Meny" });
-  const menuBox = (await menu.boundingBox())!;
+  const menuBox = await settledBox(menu);
   expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(320);
   await menu.click();
   await expect(page.getByRole("navigation", { name: "Huvudmeny" })).toBeInViewport({ ratio: 1 });

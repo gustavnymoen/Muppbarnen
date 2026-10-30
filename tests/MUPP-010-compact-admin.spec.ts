@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addChild, addParent, clearFamily, pictureOf } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -44,7 +44,7 @@ test("MUPP-010-R1 R2 R6 Hantera starts folded: two headings, slim cards, and ico
     expect(await expanded(toggle)).toBe("false");
   }
   // R6: a folded card is about one line high
-  for (const slim of [parentCard, kidCard]) expect((await slim.boundingBox())!.height).toBeLessThanOrEqual(56);
+  for (const slim of [parentCard, kidCard]) expect((await settledBox(slim)).height).toBeLessThanOrEqual(56);
 
   // R2: the icons have an accessible name and the same text as a tooltip, are at least 32 × 32 px and do not touch
   const icons: [Locator, string][] = [
@@ -59,7 +59,7 @@ test("MUPP-010-R1 R2 R6 Hantera starts folded: two headings, slim cards, and ico
   for (const [icon, name] of icons) {
     await expect(icon).toHaveAttribute("title", name);
     await expect(icon).not.toContainText(/./);
-    const box = (await icon.boundingBox())!;
+    const box = await settledBox(icon);
     expect(box.width, name).toBeGreaterThanOrEqual(32);
     expect(box.height, name).toBeGreaterThanOrEqual(32);
     if (name.endsWith(kid) && previousRight !== -Infinity) expect(box.x - previousRight, name).toBeGreaterThanOrEqual(4);
@@ -203,7 +203,7 @@ test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page on
   await birthday.getByRole("button", { name: "Lägg till" }).click();
   const item = birthday.getByRole("article").filter({ hasText: "Pussel" });
   await expect(item).toBeVisible();
-  expect((await item.boundingBox())!.height).toBeLessThanOrEqual(56);
+  expect((await settledBox(item)).height).toBeLessThanOrEqual(56);
   await expect(item.getByRole("button", { name: "Ändra Pussel" })).toHaveAttribute("title", "Ändra Pussel");
   await expect(item.getByRole("button", { name: "Ta bort Pussel" })).toHaveAttribute("title", "Ta bort Pussel");
   await expect(item.getByLabel("Namn")).toHaveCount(0);
@@ -230,7 +230,7 @@ test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) 
     const kids = page.getByRole("article");
     await expect(kids).toHaveCount(5);
     for (const index of [0, 4]) {
-      const box = (await kids.nth(index).boundingBox())!;
+      const box = await settledBox(kids.nth(index));
       expect(box.y + box.height, `kid ${index} at ${width}`).toBeLessThanOrEqual(height);
     }
   }
@@ -294,7 +294,7 @@ test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape to a page w
   for (const name of ["Storlekar för Otis", "Önskelistor för Otis"]) {
     const link = page.getByRole("link", { name });
     await expect(link).toHaveAttribute("title", name);
-    expect((await link.boundingBox())!.width).toBeGreaterThanOrEqual(32);
+    expect((await settledBox(link)).width).toBeGreaterThanOrEqual(32);
   }
   await expectNoA11yViolations(page);
   await page.getByRole("link", { name: "Storlekar för Otis" }).click();
