@@ -1,10 +1,21 @@
 import { childColor, type ChildColor } from "./child-colors";
+import { sortWishes } from "./wishes";
 
 // Kortleken på startsidan (MUPP-004): vilka kort som finns, i vilken ordning och vad som
 // får skickas till webbläsaren. Rent data in och ut, så att det går att testa utan databas.
 
 export type DeckInput = { id: number; parentId: number; name: string; birthdate: string; hasPicture: boolean };
-export type Wish = { id: number; title: string };
+// claimedBy och claimedAt (ÅÅÅÅ-MM-DD) finns när någon har paxat önskningen (MUPP-005)
+export type Wish = {
+  id: number;
+  title: string;
+  description: string;
+  size: string;
+  url: string;
+  unlimited: boolean;
+  claimedBy: string | null;
+  claimedAt: string | null;
+};
 export type Wishes = Map<number, { birthday: Wish[]; christmas: Wish[] }>;
 export type Today = { year: number; month: number; day: number };
 
@@ -56,7 +67,7 @@ function orderKids<T extends { parentId: number; birthdate: string; id: number }
 }
 
 export function buildDeck(children: DeckInput[], wishes: Wishes, today: Today): DeckCard[] {
-  const wishesOf = (id: number, occasion: "birthday" | "christmas") => wishes.get(id)?.[occasion] ?? [];
+  const wishesOf = (id: number, occasion: "birthday" | "christmas") => sortWishes(wishes.get(id)?.[occasion] ?? []);
   const toKid = (kid: DeckInput, age: number | null, occasion: "birthday" | "christmas", expected = false): DeckKid => ({
     id: kid.id,
     name: kid.name,

@@ -1,18 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
-import { MONTHS, swedishToday } from "../lib/deck";
+import { MONTHS } from "../lib/deck";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
-
-// Ett födelsedatum så att födelsedagen kommer om `days` dagar; åldern blir då `age`
-function birthdateIn(days: number) {
-  const today = swedishToday();
-  const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
-  const nextYear = date.getUTCFullYear();
-  return { birthdate: `${nextYear - 6}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`, month: date.getUTCMonth() };
-}
 
 // Sidan scrollar inte: varken dokumentet eller innehållsytan, bara listan inuti kortet
 const pageDoesNotScroll = (page: Page) =>

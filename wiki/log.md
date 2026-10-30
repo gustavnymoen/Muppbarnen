@@ -2,7 +2,7 @@
 
 ## 2026-10-30
 
-* **Update** [MUPP-005](https://github.com/gustavnymoen/Muppbarnen/issues/11): the wish list button has no "Visa mer" and no number of wishes; on a card with one kid an arrow down unfolds the list and a sticky arrow up folds it, on a card with several kids and on Christmas Eve the sticky button says "Stäng" (R6–R8).
+* **Creation** [MUPP-005 Kid card and claiming gifts](../specs/MUPP-005-kid-card-and-claiming/solution.md): the wish list has rows with marks ("Paxad", "Kan köpas flera gånger"), details that unfold, checkboxes and a "Paxa" button with a dialog that claims gifts in the visitor's name through a checked server action; the wish list button has no "Visa mer" and no number, a card with one kid folds with an arrow, a card with several kids and Christmas Eve with "Stäng" (R6–R8).
 
 ## 2026-10-29
 

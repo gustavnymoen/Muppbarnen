@@ -1,6 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
-import type { DeckInput, Wishes } from "./deck";
+import { swedishToday, type DeckInput, type Wishes } from "./deck";
 import { collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
@@ -94,20 +94,62 @@ export async function listWishlists(childId: number) {
   return lists;
 }
 
-// Barnen och rubrikerna på önskningarna till kortleken på startsidan (MUPP-004), i listans ordning
+// Barnen och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning
 export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: Wishes }> {
   const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, hasPicture: c.picture !== "" }));
-  const rows = await all<{ child_id: number; occasion: Occasion; id: number; title: string }>(
-    `SELECT w.child_id, w.occasion, i.id, i.title
+  const rows = await all<{ child_id: number; occasion: Occasion; id: number; title: string; description: string; size: string; url: string; unlimited: number; claimed_by: string | null; claimed_at: string | null }>(
+    `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.claimed_by, i.claimed_at
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,
   );
   const wishes: Wishes = new Map();
   for (const row of rows) {
     const lists = wishes.get(row.child_id) ?? { birthday: [], christmas: [] };
-    lists[row.occasion].push({ id: row.id, title: row.title });
+    lists[row.occasion].push({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      size: row.size,
+      url: row.url,
+      unlimited: row.unlimited === 1,
+      claimedBy: row.claimed_by,
+      claimedAt: row.claimed_at,
+    });
     wishes.set(row.child_id, lists);
   }
   return { children, wishes };
+}
+
+// ---- Paxa (MUPP-005): vem som helst med sajtlösenordet
+
+const MAX_CLAIMS = 50;
+
+// claimed: hur många som paxades; notClaimed: rubrikerna på de som inte gick att paxa (redan paxade, kan köpas flera gånger),
+// och missing: hur många som inte fanns
+export type ClaimResult = { ok: boolean; error?: string; claimed: number; notClaimed: string[]; missing: number };
+
+// Varje önskan paxas med ett eget UPDATE som bara träffar en som är ledig, så att två som paxar samma önskan samtidigt
+// aldrig skriver över varandra: databasen låter bara en av dem ändra raden.
+export async function claimWishes(rawIds: unknown, rawName: unknown, today = swedishToday()): Promise<ClaimResult> {
+  const name = parseText(rawName, 60, true);
+  if (!name.ok) return { ok: false, error: name.error === "Fyll i det här fältet." ? "Skriv ditt namn." : name.error, claimed: 0, notClaimed: [], missing: 0 };
+  const ids = Array.isArray(rawIds) ? [...new Set(rawIds.map((id) => parseId(typeof id === "number" ? String(id) : id)))] : [];
+  if (ids.length === 0 || ids.length > MAX_CLAIMS || ids.includes(null)) return { ok: false, error: "Markera de presenter du vill paxa.", claimed: 0, notClaimed: [], missing: 0 };
+
+  const claimedAt = `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
+  let claimed = 0;
+  const notClaimed: string[] = [];
+  let missing = 0;
+  for (const id of ids as number[]) {
+    const { changes } = await run("UPDATE wishlist_item SET claimed_by = ?, claimed_at = ? WHERE id = ? AND claimed_by IS NULL AND unlimited = 0", [name.value, claimedAt, id]);
+    if (changes > 0) {
+      claimed++;
+      continue;
+    }
+    const item = await get<{ title: string }>("SELECT title FROM wishlist_item WHERE id = ?", [id]);
+    if (item) notClaimed.push(item.title);
+    else missing++;
+  }
+  return notClaimed.length === 0 && missing === 0 ? { ok: true, claimed, notClaimed, missing } : { ok: false, claimed, notClaimed, missing };
 }
 
 // Huvudadministratören kan ändra allt; en förälder bara sina egna barn
