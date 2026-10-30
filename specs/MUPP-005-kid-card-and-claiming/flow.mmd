@@ -1,0 +1,20 @@
+%% MUPP-005 Kid card and claiming gifts
+%% From the open wish list to a claimed gift; labels are requirement IDs.
+flowchart TD
+    A[Visitor opens a wish list] --> B[Rows: claimed last, marks shown R1]
+    B --> C{Unfold a row?}
+    C -- yes --> D[Description, size, link, who claimed it R2]
+    D --> B
+    C -- no --> E[Visitor ticks gifts that can be claimed R3]
+    E --> F[Paxa button with the number]
+    F --> G[Modal: name field, marked gifts R4]
+    G --> H{Name 1-60 characters?}
+    H -- no --> I[Error in the dialog, stays open R4]
+    I --> G
+    H -- yes --> J[Server action: site cookie, write guard R5]
+    J --> K[UPDATE where not claimed and not unlimited R5]
+    K --> L{All claimed?}
+    L -- yes --> M[Dialog closes, rows show Paxad]
+    L -- no --> N[Told which could not be claimed, list updated R5]
+    G -- Escape or Avbryt --> O[Dialog closes, focus back on Paxa R4]
+    B -- fold the list or close the card --> P[Marks cleared R3]

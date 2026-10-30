@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { buildDeck, nextOccurrence, type DeckInput, type Wishes } from "./deck";
+import { buildDeck, nextOccurrence, type DeckInput, type Wish, type Wishes } from "./deck";
 
 const today = { year: 2026, month: 10, day: 28 };
 // Påhittade barn
 const kid = (id: number, name: string, birthdate: string, parentId = 1): DeckInput => ({ id, parentId, name, birthdate, hasPicture: false });
 const noWishes: Wishes = new Map();
+const wish = (id: number, title: string, extra: Partial<Wish> = {}): Wish => ({ id, title, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
 
 describe("MUPP-004-R2 next occurrence", () => {
   test("today counts", () => expect(nextOccurrence(10, 28, today).days).toBe(0));
@@ -47,10 +48,10 @@ describe("MUPP-004-R2 the deck", () => {
   });
 
   test("each card shows the wishes of its occasion", () => {
-    const wishes: Wishes = new Map([[1, { birthday: [{ id: 1, title: "Cykel" }], christmas: [{ id: 2, title: "Pussel" }] }]]);
+    const wishes: Wishes = new Map([[1, { birthday: [wish(1, "Cykel")], christmas: [wish(2, "Pussel")] }]]);
     const deck = buildDeck([kid(1, "A", "2020-11-01")], wishes, today);
-    expect(deck[0].kids[0].wishes).toEqual([{ id: 1, title: "Cykel" }]);
-    expect(deck[1].kids[0].wishes).toEqual([{ id: 2, title: "Pussel" }]);
+    expect(deck[0].kids[0].wishes).toEqual([wish(1, "Cykel")]);
+    expect(deck[1].kids[0].wishes).toEqual([wish(2, "Pussel")]);
   });
 });
 

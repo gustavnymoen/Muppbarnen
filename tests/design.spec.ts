@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminSignIn, animationsDone, backgroundOf, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, settledBox, uniqueName } from "./helpers";
+import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, settledBox, uniqueName } from "./helpers";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -434,7 +434,7 @@ test("TECH-006-R4 the admin start shows a short text by the icons from 640 px an
   }
 });
 
-test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
+test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -452,6 +452,8 @@ test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and
     // The card with two kids: the wish button is one line, narrow and 44 px high, the pictures are bigger than 60 px, and a thin line separates the kids
     const buttons = card.getByRole("button", { name: /^Önskelista för / });
     for (const button of await buttons.all()) {
+      // MUPP-005-R7: no count on the button
+      await expect(button).toHaveText(/^Önskelista( för \S+)?$/);
       const box = await settledBox(button);
       expect(box.width).toBeLessThanOrEqual(160);
       expect(box.height).toBe(44);
@@ -567,7 +569,7 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
   }
 });
 
-test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng button, centred at the bottom of the list, that stays there when the list scrolls and closes the list", async ({ page }) => {
+test("MUPP-013-R5 MUPP-005-R6 an open wish list swaps the wish button for a small arrow button, centred at the bottom of the list, that stays there when the list scrolls and closes the list", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -582,11 +584,14 @@ test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng but
     const card = page.getByRole("article");
     await animationsDone(card);
     const wishButton = card.getByRole("button", { name: /^Önskelista/ });
+    // MUPP-005-R6: the button says only "Önskelista" with an arrow down, no "Visa mer" and no count
+    await expect(wishButton).toHaveText("Önskelista");
+    await expect(wishButton.locator("svg")).toHaveCount(1);
     await wishButton.click();
 
-    // The wish button is gone and Stäng has the focus
+    // The wish button is gone and the arrow up has the focus
     const region = card.getByRole("region", { name: "Önskelista" });
-    const close = region.getByRole("button", { name: "Stäng önskelistan" });
+    const close = region.getByRole("button", { name: "Fäll ihop önskelistan" });
     await expect(wishButton).toHaveCount(0);
     await expect(close).toBeFocused();
     const corner = async () => {
@@ -613,6 +618,66 @@ test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng but
     await expect(region).toHaveCount(0);
     await expect(wishButton).toBeFocused();
     await expect(page.getByRole("button", { name: "Nästa kort" })).toBeEnabled();
+  } finally {
+    await clearFamily();
+  }
+});
+
+test("MUPP-005-R1 R3 R4 R5 the wish rows and the claim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    const child = await addChild(parent, "Vera", birthdateIn(20).birthdate);
+    await addWish(child, "birthday", "Cykel");
+    await addWish(child, "birthday", "Strumpor", { unlimited: true });
+    await addWish(child, "birthday", "Hoppborg", { claimedBy: "Moster Lisa" });
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+    await card.getByRole("button", { name: /^Önskelista/ }).click();
+    const region = card.getByRole("region", { name: "Önskelista" });
+    await animationsDone(region);
+
+    // The marks are small muted text under the headline, readable on the card; the row buttons and checkboxes are 44 px targets
+    const claimedMark = region.getByText("Paxad", { exact: true });
+    expect(contrast(await css(claimedMark, "color"), await backgroundOf(claimedMark))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(await css(region.getByText("Kan köpas flera gånger"), "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+    const target = (locator: ReturnType<Page["locator"]>) => settledBox(locator);
+    expect((await target(region.getByRole("button", { name: /^Cykel/ }))).height).toBeGreaterThanOrEqual(44);
+    const tickTarget = await target(region.getByRole("checkbox", { name: "Cykel" }).locator(".."));
+    expect(tickTarget.width).toBeGreaterThanOrEqual(44);
+    expect(tickTarget.height).toBeGreaterThanOrEqual(44);
+
+    // "Paxa" is a main button of 44 px next to the arrow button, both centred at the bottom of the list
+    await region.getByRole("checkbox", { name: "Cykel" }).check();
+    const claim = region.getByRole("button", { name: /^Paxa \(/ });
+    const [claimBox, closeBox] = [await target(claim), await target(region.getByRole("button", { name: "Fäll ihop önskelistan" }))];
+    expect(claimBox.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(claimBox.y + claimBox.height / 2 - (closeBox.y + closeBox.height / 2))).toBeLessThan(2);
+    await expect(claim).toHaveCSS("background-color", BRAND);
+
+    // The dialog: a card on a dark backdrop, fits the phone, the name field has the focus ring, the error is red text
+    await claim.click();
+    const dialog = page.getByRole("dialog");
+    await animationsDone(dialog);
+    await expect(dialog).toHaveCSS("background-color", CARD);
+    await expect(dialog).toHaveCSS("border-top-color", EDGE);
+    const box = await settledBox(dialog);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(375);
+    expect(box.y + box.height).toBeLessThanOrEqual(667);
+    const name = dialog.getByLabel("Ditt namn");
+    await expect(name).toBeFocused();
+    await expect(name).toHaveCSS("outline-width", "3px");
+    await expect(name).toHaveCSS("outline-color", BRAND);
+    expect((await target(name)).height).toBeGreaterThanOrEqual(44);
+    for (const button of ["Avbryt", "Paxa"]) expect((await target(dialog.getByRole("button", { name: button }))).height).toBeGreaterThanOrEqual(44);
+    await dialog.getByRole("button", { name: "Paxa" }).click();
+    await expectTextMessage(dialog.getByRole("alert"), DANGER);
+    expect(contrast(DANGER, CARD)).toBeGreaterThanOrEqual(4.5);
+    await expectNoA11yViolations(page);
   } finally {
     await clearFamily();
   }

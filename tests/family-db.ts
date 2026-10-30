@@ -21,12 +21,28 @@ export const addChild = (parentId: number, name: string, birthdate = "2020-05-17
     Number((await db.execute({ sql: "INSERT INTO child (parent_id, name, birthdate) VALUES (?, ?, ?)", args: [parentId, name, birthdate] })).lastInsertRowid),
   );
 
-export const addWish = (childId: number, occasion: "birthday" | "christmas", title: string) =>
+type WishDetails = { description?: string; size?: string; url?: string; unlimited?: boolean; claimedBy?: string };
+
+export const addWish = (childId: number, occasion: "birthday" | "christmas", title: string, details: WishDetails = {}) =>
   withDb(async (db) => {
     await db.execute({ sql: "INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", args: [childId, occasion] });
     const list = await db.execute({ sql: "SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", args: [childId, occasion] });
-    await db.execute({ sql: "INSERT INTO wishlist_item (wishlist_id, title) VALUES (?, ?)", args: [list.rows[0].id, title] });
+    await db.execute({
+      sql: "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, claimed_by, claimed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      args: [list.rows[0].id, title, details.description ?? "", details.size ?? "", details.url ?? "", details.unlimited ? 1 : 0, details.claimedBy ?? null, details.claimedBy ? "2026-01-15" : null],
+    });
   });
+
+// Who has claimed a wish, as the database holds it (null: nobody)
+export const claimedByOf = (title: string) =>
+  withDb(async (db) => {
+    const row = (await db.execute({ sql: "SELECT claimed_by FROM wishlist_item WHERE title = ?", args: [title] })).rows[0];
+    return row ? (row.claimed_by as string | null) : undefined;
+  });
+
+// Another visitor claims a wish while the page is open
+export const claimDirectly = (title: string, name: string) =>
+  withDb((db) => db.execute({ sql: "UPDATE wishlist_item SET claimed_by = ?, claimed_at = '2026-01-15' WHERE title = ?", args: [name, title] }));
 
 export const setMasterFlag = (parentId: number, master: boolean) =>
   withDb((db) => db.execute({ sql: "UPDATE parent SET is_master_admin = ? WHERE id = ?", args: [master ? 1 : 0, parentId] }));

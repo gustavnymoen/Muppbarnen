@@ -185,6 +185,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
           cardKey={card.key}
           month={card.month}
           kid={single}
+          solo={card.kids.length === 1}
           open={card.kids.length === 1 ? openList?.kidId === single.id : true}
           onToggle={() => (openList?.kidId === single.id ? onClose() : onOpen(single))}
         />
@@ -213,7 +214,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
                   <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </h3>
                 {ageText(kid, card.month) && <p className="text-muted">{ageText(kid, card.month)}</p>}
-                <WishButton id={`barn-${card.key}-${kid.id}`} count={kid.wishes.length} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-2 w-36" />
+                <WishButton id={`barn-${card.key}-${kid.id}`} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-2 w-36" />
               </li>
             ),
           )}
@@ -225,7 +226,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
 
 // Ett barn som hela kort: stor bild, namn, ålder och önskelistan
 // cardKey ingår i id:na: samma barn finns på flera kort, och korten bredvid ritas också
-function KidFace({ cardKey, month, kid, open, onToggle }: { cardKey: string; month: number | null; kid: DeckKid; open: boolean; onToggle: () => void }) {
+function KidFace({ cardKey, month, kid, solo, open, onToggle }: { cardKey: string; month: number | null; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
   return (
     <>
       <div className={`flex flex-col items-center justify-center gap-2 text-center ${open ? "" : "min-h-0 flex-1"}`}>
@@ -233,7 +234,7 @@ function KidFace({ cardKey, month, kid, open, onToggle }: { cardKey: string; mon
         <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
         {ageText(kid, month) && <p className="text-lg text-muted">{ageText(kid, month)}</p>}
       </div>
-      <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} open={open} onToggle={onToggle} />
+      <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />
     </>
   );
 }

@@ -265,3 +265,62 @@ describe("MUPP-003-R7 queries are parameterised", () => {
     expect(await get("SELECT 1 FROM sqlite_master WHERE name = 'child'")).toBeDefined();
   });
 });
+
+describe("MUPP-005-R5 claiming", () => {
+  const today = { year: 2026, month: 10, day: 30 };
+  // Påhittade önskningar: ledig, ledig, kan köpas flera gånger
+  async function wishes(childName = "Testbarn") {
+    const owner = await parent("Förälder", true);
+    const childId = await child(owner, childName);
+    for (const [title, unlimited] of [["Cykel", false], ["Pussel", false], ["Strumpor", true]] as const) await family.saveItem(owner, item(childId, title, { unlimited }));
+    return (await family.listWishlists(childId)).birthday;
+  }
+  const state = (id: number) => get<{ claimed_by: string | null; claimed_at: string | null }>("SELECT claimed_by, claimed_at FROM wishlist_item WHERE id = ?", [id]);
+
+  test("MUPP-005-R4 R5 several free wishes get the trimmed name and today's date", async () => {
+    const [cykel, pussel] = await wishes();
+    expect(await family.claimWishes([cykel.id, pussel.id], "  Moster Lisa  ", today)).toMatchObject({ ok: true, claimed: 2 });
+    expect(await state(cykel.id)).toEqual({ claimed_by: "Moster Lisa", claimed_at: "2026-10-30" });
+    expect(await state(pussel.id)).toEqual({ claimed_by: "Moster Lisa", claimed_at: "2026-10-30" });
+  });
+
+  test("MUPP-005-R5 an unlimited wish is not claimed, and the others in the request still are", async () => {
+    const [cykel, , strumpor] = await wishes();
+    expect(await family.claimWishes([cykel.id, strumpor.id], "Moster", today)).toEqual({ ok: false, claimed: 1, notClaimed: ["Strumpor"], missing: 0 });
+    expect(await state(strumpor.id)).toEqual({ claimed_by: null, claimed_at: null });
+    expect((await state(cykel.id))!.claimed_by).toBe("Moster");
+  });
+
+  test("MUPP-005-R5 a claimed wish is never overwritten", async () => {
+    const [cykel] = await wishes();
+    await family.claimWishes([cykel.id], "Första", today);
+    expect(await family.claimWishes([cykel.id], "Andra", { ...today, day: 31 })).toMatchObject({ ok: false, claimed: 0, notClaimed: ["Cykel"] });
+    expect(await state(cykel.id)).toEqual({ claimed_by: "Första", claimed_at: "2026-10-30" });
+  });
+
+  test("MUPP-005-R5 a wish that does not exist is reported and nothing else changes", async () => {
+    const [cykel] = await wishes();
+    expect(await family.claimWishes([cykel.id, 999999], "Moster", today)).toEqual({ ok: false, claimed: 1, notClaimed: [], missing: 1 });
+  });
+
+  test("MUPP-005-R5 the name is checked: empty, blank and over 60 characters claim nothing", async () => {
+    const [cykel] = await wishes();
+    for (const name of ["", "   ", "a".repeat(61), null, 5]) {
+      expect(await family.claimWishes([cykel.id], name, today), String(name)).toMatchObject({ ok: false, claimed: 0, error: expect.any(String) });
+    }
+    expect(await family.claimWishes([cykel.id], "a".repeat(60), today)).toMatchObject({ ok: true });
+  });
+
+  test("MUPP-005-R5 the ids are checked: none, not a list, not numbers, too many", async () => {
+    const [cykel] = await wishes();
+    for (const ids of [[], "1", null, [-1], [1.5], ["x"], [cykel.id, "1; DROP TABLE wishlist_item"], Array.from({ length: 51 }, (_, i) => i + 1)]) {
+      expect(await family.claimWishes(ids, "Moster", today), JSON.stringify(ids)).toMatchObject({ ok: false, claimed: 0, error: expect.any(String) });
+    }
+    expect((await state(cykel.id))!.claimed_by).toBeNull();
+  });
+
+  test("MUPP-005-R5 the same id twice counts once", async () => {
+    const [cykel] = await wishes();
+    expect(await family.claimWishes([cykel.id, cykel.id], "Moster", today)).toMatchObject({ ok: true, claimed: 1 });
+  });
+});
