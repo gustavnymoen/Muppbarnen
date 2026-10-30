@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { MONTHS } from "../lib/deck";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -73,7 +73,8 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   // R7: listan är hopfälld, tom listan säger det, och hela kortet ryms på en telefon utan att sidan scrollar
   const list = card(page).getByRole("button", { name: /^Önskelista/ });
   await expect(list).toHaveAttribute("aria-expanded", "false");
-  expect((await card(page).boundingBox())!.y + (await card(page).boundingBox())!.height).toBeLessThanOrEqual(667);
+  const cardBox = await settledBox(card(page));
+  expect(cardBox.y + cardBox.height).toBeLessThanOrEqual(667);
   expect(await pageDoesNotScroll(page)).toBe(true);
   await expectNoA11yViolations(page);
   await list.click();
@@ -105,7 +106,7 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   await page.keyboard.press("ArrowLeft");
   await expect(status(page)).toHaveText(/^Kort 1 av \d: /);
   await expect(card(page).getByRole("heading", { level: 3, name: "Otto" })).toBeVisible();
-  const box = (await card(page).boundingBox())!;
+  const box = await settledBox(card(page));
   await page.mouse.move(box.x + box.width - 20, box.y + 20);
   await page.mouse.down();
   await page.mouse.move(box.x + 20, box.y + 20, { steps: 8 });
@@ -158,7 +159,8 @@ test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", asy
   // R4: miniatyrerna ligger över varandra och får plats på en telefon utan scroll i kortet
   expect(await card(page).locator("ul").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
   const [first, second] = await open.all();
-  expect((await first.boundingBox())!.y).toBeLessThan((await second.boundingBox())!.y);
+  const [firstBox, secondBox] = await Promise.all([settledBox(first), settledBox(second)]);
+  expect(firstBox.y).toBeLessThan(secondBox.y);
   await expectNoA11yViolations(page);
 
   // R4 R9: barnet öppnas som ett vanligt kort med listan utfälld och leken låst; Escape går tillbaka till barnen med fokus på knappen
