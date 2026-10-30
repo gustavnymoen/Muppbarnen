@@ -7,7 +7,7 @@ feature: MUPP-014
 
 # Verification of MUPP-014
 
-All checks below were run locally on 2026-10-30. Nothing was checked on the live site or in CI yet.
+The checks in the tables below were run locally on 2026-10-30. After the deploy (PR #51), Live tests passed on `main` (run 41032144275) and the accessibility checklist was gone through on the live site, see "Live accessibility checklist".
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -25,7 +25,7 @@ All checks below were run locally on 2026-10-30. Nothing was checked on the live
 | Unit tests | `npm run test:time`: 125 passed | local | Pass | 2026-10-30 |
 | Browser tests | `npm run test:time`: 69 passed; `tests/MUPP-014-kid-sizes.spec.ts` (6 tests, axe on every state including the open dialog) and two design tests | local | Pass | 2026-10-30 |
 | Smoke test | Not applicable: no new main page or flow | - | - | 2026-10-30 |
-| Accessibility | axe in every browser test state. The checklist items on the live site (keyboard, screen reader names, 400 % zoom, contrast on the Christmas card) are not checked yet | local | axe pass; checklist not checked | 2026-10-30 |
+| Accessibility | axe in every browser test state; the checklist on the live site, see below | local, live | axe pass; checklist done except what is listed as not checked | 2026-10-30 |
 | Security | Security points in the review; `/security-review` run, no findings | local | Pass | 2026-10-30 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-30 |
 | Design critique | `/impeccable critique` run inline (no sub-agents) on screenshots at 375 × 667: found the dialog text centred by the browser default, fixed (`text-left`) | local | Done | 2026-10-30 |
@@ -45,14 +45,32 @@ The first run had one design test of 5.7 s, over the 5 s budget; it was split in
 
 - [x] Tests: every check in the card's test plan is done locally; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 7 %, and the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not done yet
-- [ ] Accessibility: axe passes; the checklist on the live site is not done yet
+- [x] Deployed (PR #51), and the smoke tests pass against production (Live tests, run 41032144275 on `main`)
+- [x] Accessibility: axe passes; the relevant checklist items were gone through on the live site (below). Not checked: VoiceOver itself, text spacing (item 5), reduced motion (item 11)
 - [x] Requirements in the card match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
 - [x] Clean code: `npm run lint`, `npm run typecheck` and `npm run build` pass
 - [x] Code review done, no must-fix findings; see [review.md](review.md)
 - [x] No larger improvements noticed for the board
+
+## Live accessibility checklist
+
+Checked on https://muppbarnen.vercel.app on 2026-10-30 in the built-in browser (Chromium, desktop and emulated 320 × 568), on the two-kid card, the Christmas card with a kid's list open and a single-kid card. Items are from [accessibility.md](../../wiki/system/accessibility.md).
+
+| # | Item | Result |
+|---|---|---|
+| 1 | Keyboard | Pass. Enter on the focused "Storlekar" button opens the dialog; focus moves to "Stäng" (the only control), Tab stays inside, Space/Enter on "Stäng" and Esc close it. The page behind is inert while it is open. The open wish list stays open |
+| 2 | Focus visible | Pass. 3 px focus ring on "Storlekar" buttons and "Stäng", not hidden by the dialog |
+| 3 | Screen reader | Partly. The accessibility tree gives "Storlekar" and "Storlekar för {name}" as button names, the dialog has a heading "Storlekar för {name}" that names it, and the icon is `aria-hidden`. VoiceOver itself was not run: not checked |
+| 4 | 320 px and 400 % zoom | Pass at 320 × 568 (the same width as 400 % of 1280): no sideways scroll, dialog inside the screen, nothing cut off or overlapping on the Christmas card (corner icon) and the single-kid card |
+| 5 | Text spacing | Not checked |
+| 6 | Contrast | Pass. Icon `rgb(200, 208, 220)` on the button background `rgb(20, 25, 32)` is 11.4:1, also on the Christmas card (the corner button is opaque, so the card behind does not matter). The button border was judged by eye only |
+| 7 | Target size | Pass. Icon buttons 44 × 44 px; the "Storlekar" button is 44 px high (a card that is not in front is scaled down by the carousel, so it measures smaller on screen) |
+| 8 | Hover and focus content | Not affected: the sizes show in a dialog, not a tooltip |
+| 9 | Errors and labels | Not affected: no form |
+| 10 | Title, language, images | Not affected: no new page or image; the icon is decoration (`aria-hidden`) |
+| 11 | Reduced motion | Not checked |
 
 ## Requirements as built
 
