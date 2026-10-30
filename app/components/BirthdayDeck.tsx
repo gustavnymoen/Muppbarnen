@@ -8,6 +8,7 @@ import { Card } from "./Card";
 import { FitName } from "./FitName";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 import { ChristmasBackdrop } from "./ChristmasBackdrop";
+import { SizesButton } from "./SizesButton";
 import { WishButton, WishList } from "./WishList";
 
 // Kortleken på startsidan (MUPP-004). Korten ligger på varandra: det valda överst, nästa och
@@ -19,6 +20,8 @@ const SIDE_OFFSET = 94; // % av kortets bredd som korten på sidorna ligger vid 
 const SIDE_SCALE = 0.84;
 // Bilden på kort med flera barn växer med skärmens höjd: 72 px på en låg telefon (667 px), upp till 104 px
 const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
+// Bilden på kortet med ett barn: 192 px på en hög telefon, och krymper med skärmens höjd så att knappen Storlekar får plats (96 px på 568 px)
+const SOLO_AVATAR = "clamp(96px, calc(100dvh - 527px), 192px)";
 const TILE_AVATAR = 56; // barnen på julkortet
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${MONTHS[card.month! - 1].toLowerCase()}`);
@@ -166,6 +169,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
   const christmas = card.kind === "christmas";
   // Ett barn visas som hela kort; flera visas som miniatyrer tills ett öppnas
   const single = card.kids.length === 1 ? card.kids[0] : card.kids.find((k) => k.id === openList?.kidId);
+  const openKid = single && (card.kids.length > 1 || openList?.kidId === single.id) ? single : null;
   const nextMark = first ? (christmas ? "Nästa: Julafton" : "Nästa födelsedag") : null;
 
   return (
@@ -175,8 +179,11 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8 pt-12" : single ? "pb-8 pt-8" : "pb-4 pt-4"}`}
     >
       {christmas && <ChristmasBackdrop />}
+      {/* Ikonen för storlekar i hörnet av varje öppen barnvy (MUPP-014-R4) */}
+      {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
       <header className="flex flex-col items-center gap-2 text-center">
-        <h2 className="font-heading text-3xl font-semibold">{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
+        {/* På en smal telefon krymper månaden i en öppen barnvy, så att ikonen i hörnet (och tillbaka-knappen, MUPP-015) får plats bredvid */}
+        <h2 className={`font-heading text-3xl font-semibold ${openKid ? "max-[23rem]:text-xl" : ""}`}>{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
@@ -214,7 +221,10 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
                   <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </h3>
                 {ageText(kid, card.month) && <p className="text-muted">{ageText(kid, card.month)}</p>}
-                <WishButton id={`barn-${card.key}-${kid.id}`} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-2 w-36" />
+                <div className="mt-2 flex w-full max-w-48 gap-1.5">
+                  <WishButton id={`barn-${card.key}-${kid.id}`} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="min-w-0 flex-1" />
+                  <SizesButton kid={kid} mode="icon" forKid />
+                </div>
               </li>
             ),
           )}
@@ -230,9 +240,10 @@ function KidFace({ cardKey, month, kid, solo, open, onToggle }: { cardKey: strin
   return (
     <>
       <div className={`flex flex-col items-center justify-center gap-2 text-center ${open ? "" : "min-h-0 flex-1"}`}>
-        <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={open ? 72 : 192} decorative />
+        <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={open ? 72 : SOLO_AVATAR} decorative />
         <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
         {ageText(kid, month) && <p className="text-lg text-muted">{ageText(kid, month)}</p>}
+        {!open && <SizesButton kid={kid} mode="text" className="mt-2" />}
       </div>
       <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />
     </>

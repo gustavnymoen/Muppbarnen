@@ -19,6 +19,7 @@ tags: [product, features]
 | [MUPP-011](MUPP-011-future-birthdate/solution.md) | Future birthdate | Administration | Ongoing |
 | [MUPP-012](MUPP-012-parent-picker-mobile/solution.md) | Parent picker in mobile mode | Administration | Ongoing |
 | [MUPP-013](MUPP-013-multi-kid-card-fixes/solution.md) | Multi-kid birthday card fixes | Startsida | Ongoing |
+| [MUPP-014](MUPP-014-kid-sizes/solution.md) | Expose kids sizes on kids card | Startsida | Ongoing |
 | [MUPP-009](MUPP-009-site-password/solution.md) | Site password | Shared | Done |
 | [TECH-001](TECH-001-project-setup/solution.md) | Project setup | Shared | Done |
 | [TECH-002](TECH-002-repository-and-hosting/solution.md) | Repository and hosting | Shared | Done |

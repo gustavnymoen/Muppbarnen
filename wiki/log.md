@@ -2,6 +2,7 @@
 
 ## 2026-10-30
 
+* **Creation** [MUPP-014 Expose kids sizes on kids card](../specs/MUPP-014-kid-sizes/solution.md): visitors can open a child's sizes in a dialog from a "Storlekar" button on the single-kid card, an icon beside "Önskelista" on the multi-kid card and an icon in the top right corner of every open kid view; the dialog markup is shared by the three dialogs of the site.
 * **Creation** [TECH-008 Flaky box measurements](../specs/TECH-008-flaky-box-measurements/solution.md): the design tests read every box with `settledBox`, which waits until the element is visible and its box has stopped changing, so a read during an animation or a re-render no longer fails a pull request.
 * **Creation** [MUPP-005 Kid card and claiming gifts](../specs/MUPP-005-kid-card-and-claiming/solution.md): the wish list has rows with marks ("Paxad", "Kan köpas flera gånger"), details that unfold, checkboxes and a "Paxa" button with a dialog that claims gifts in the visitor's name through a checked server action; the wish list button has no "Visa mer" and no number, a card with one kid folds with an arrow, a card with several kids and Christmas Eve with "Stäng" (R6–R8).
 

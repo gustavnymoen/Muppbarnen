@@ -1,6 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
-import { swedishToday, type DeckInput, type Wishes } from "./deck";
+import { swedishToday, type DeckInput, type Sizes, type Wishes } from "./deck";
 import { collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
@@ -14,7 +14,7 @@ export type Child = {
   name: string;
   birthdate: string;
   picture: string;
-  sizes: { clothes: string; shoes: string; head: string; gloves: string };
+  sizes: Sizes;
 };
 export type WishlistItem = { id: number; title: string; description: string; size: string; url: string; unlimited: boolean };
 
@@ -94,9 +94,9 @@ export async function listWishlists(childId: number) {
   return lists;
 }
 
-// Barnen och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning
+// Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning
 export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: Wishes }> {
-  const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, hasPicture: c.picture !== "" }));
+  const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, hasPicture: c.picture !== "", sizes: c.sizes }));
   const rows = await all<{ child_id: number; occasion: Occasion; id: number; title: string; description: string; size: string; url: string; unlimited: number; claimed_by: string | null; claimed_at: string | null }>(
     `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.claimed_by, i.claimed_at
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,

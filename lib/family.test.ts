@@ -160,6 +160,17 @@ describe("MUPP-003-R4 wish lists", () => {
   });
 });
 
+describe("MUPP-014-R1 sizes for the deck", () => {
+  test("listDeckInput reads the four sizes of every kid, empty where none are saved", async () => {
+    const mia = await parent("Mia");
+    const [withSizes, without] = [await child(mia, "Med"), await child(mia, "Utan")];
+    await family.saveSizes(mia, String(withSizes), { clothes: "122", shoes: "30", head: "", gloves: "S" });
+    const { children } = await family.listDeckInput();
+    expect(children.find((c) => c.id === withSizes)!.sizes).toEqual({ clothes: "122", shoes: "30", head: "", gloves: "S" });
+    expect(children.find((c) => c.id === without)!.sizes).toEqual({ clothes: "", shoes: "", head: "", gloves: "" });
+  });
+});
+
 describe("MUPP-003-R5 parents and kids, master admin only", () => {
   test("MUPP-003-R5 a parent who is not master admin can neither create nor change parents or kids", async () => {
     const mia = await parent("Mia");
