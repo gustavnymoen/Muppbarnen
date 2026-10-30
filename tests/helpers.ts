@@ -91,6 +91,30 @@ export async function animationsDone(locator: Locator) {
   await locator.evaluate((el) => Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 
+// The box of an element once it has settled: visible, and the same in two reads
+// in a row. A bare boundingBox() is read at once, so it can catch an element
+// mid-animation (a height of 43.99 instead of 44) or one the page is just
+// re-rendering (null, which a "!" would hide).
+export async function settledBox(locator: Locator) {
+  await expect(locator).toBeVisible();
+  let previous = "";
+  let box: Awaited<ReturnType<Locator["boundingBox"]>> = null;
+  await expect
+    .poll(
+      async () => {
+        box = await locator.boundingBox();
+        const now = JSON.stringify(box);
+        const settled = box !== null && now === previous;
+        previous = now;
+        return settled;
+      },
+      // Two equal reads 50 ms apart: an animation or re-render is over, a still box costs one extra read
+      { message: "the box never settled", intervals: [50] },
+    )
+    .toBe(true);
+  return box!;
+}
+
 // Runs axe on the page as it looks right now and requires that it breaks no
 // WCAG 2.x level A or AA rule. axe finds only some of the
 // problems; the rest is checked by hand.
