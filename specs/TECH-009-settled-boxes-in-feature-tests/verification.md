@@ -39,9 +39,9 @@ Two tests of `MUPP-003-admin-page.spec.ts` were over the 5 s budget in the "befo
 
 ## Definition of Done
 
-- [ ] Tests: every read passes in 20 runs under load, but `MUPP-010-R4` (unchanged) flaked in two runs; see Notes
+- [ ] Tests: every changed read passes in 20 runs under load, but `MUPP-010-R4` (unchanged) flaked in two runs; see Notes. Followed up in [#54](https://github.com/gustavnymoen/Muppbarnen/issues/54)
 - [x] Test suite: no slower (116.1 s against 116.0 s), within the budgets
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed (PR #53), and the smoke tests pass against production (Live tests, run 41041174635 on `main`)
 - [x] Accessibility: not applicable
 - [x] Requirements in the card match what was built; copied below as built
 - [x] Manual, system docs and `wiki/log.md` updated (no manual change: tests only)
