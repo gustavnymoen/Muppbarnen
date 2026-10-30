@@ -27,7 +27,7 @@ No migration. The four sizes already live in `child` (`size_clothes`, `size_shoe
 - **One component, three modes, instead of three buttons.** They share the dialog, the icon and the name logic; only the button differs.
 - **The dialog is shared, not copied.** The three dialogs only differ in content; `Dialog` holds the classes and the event stopping. Fixing Esc there also fixes the same latent problem of the claim dialog.
 - **The one-kid picture shrinks with the height** (`SOLO_AVATAR`: 96 px at 568 px high up to 192 px, as `TWIN_AVATAR` does for the multi-kid card) so the new button fits without scroll at 320 × 568.
-- **On a phone narrower than 23 rem the month in an open kid view is smaller** (`text-xl`), so the corner icon (and the back button of MUPP-015 on the other side) fits beside it.
+- **On a phone narrower than 23 rem the month in an open kid view is smaller** (`text-xl`), so the corner icon fits beside it. With the back button of MUPP-015 the heading has a row of its own and keeps its size.
 - **Text centring.** `<dialog>` centres its text by default; the sizes content is `text-left`.
 - **Esc test, not an Esc handler.** The focus return to the opening button is the browser's own behaviour for `showModal()`.
 

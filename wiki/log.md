@@ -2,6 +2,7 @@
 
 ## 2026-10-30
 
+* **Creation** [MUPP-015 Back button on kids card](../specs/MUPP-015-back-button/solution.md): an open kid view on a card with several kids or on Christmas Eve has a "Tillbaka" button in the top left corner that does what "Stäng" does; the heading gets a row of its own below the two corner buttons.
 * **Creation** [TECH-009 Settled boxes in the feature tests](../specs/TECH-009-settled-boxes-in-feature-tests/solution.md): the feature tests of the start page, the birthday card, the admin and the parent picker read every box with `settledBox`, as the design tests do, and boxes that are compared are read together.
 * **Creation** [MUPP-014 Expose kids sizes on kids card](../specs/MUPP-014-kid-sizes/solution.md): visitors can open a child's sizes in a dialog from a "Storlekar" button on the single-kid card, an icon beside "Önskelista" on the multi-kid card and an icon in the top right corner of every open kid view; the dialog markup is shared by the three dialogs of the site.
 * **Creation** [TECH-008 Flaky box measurements](../specs/TECH-008-flaky-box-measurements/solution.md): the design tests read every box with `settledBox`, which waits until the element is visible and its box has stopped changing, so a read during an animation or a re-render no longer fails a pull request.

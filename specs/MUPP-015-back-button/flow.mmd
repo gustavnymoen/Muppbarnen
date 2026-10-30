@@ -1,0 +1,9 @@
+%% MUPP-015 Back button on kids card
+%% How a visitor gets back to all the kids; labels are requirement IDs.
+flowchart TD
+    A[Kid opened on a card with several kids or Christmas Eve] --> B[Tillbaka in the top left corner, first in tab order R1 R3]
+    A --> C[Stäng at the bottom, and Esc]
+    B --> D[close: list closed, marks forgotten, deck unlocked R2]
+    C --> D
+    D --> E[All the kids shown again, focus on that kid's button, announcement: Kortleken är upplåst]
+    F[Card with one kid] --> G[No Tillbaka: the arrow up folds the list R1]

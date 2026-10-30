@@ -685,7 +685,7 @@ test("MUPP-005-R1 R3 R4 R5 the wish rows and the claim dialog: marks, targets, c
 
 // One test per phone size, to stay within the time budget of a test
 for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }]) {
-  test(`MUPP-014-R2 R3 R4 R6 the sizes buttons at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corner of an open kid view, and no scroll or overlap`, async ({ page }) => {
+  test(`MUPP-014-R2 R3 R4 R6 MUPP-015-R1 R4 the sizes buttons and Tillbaka at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corners of an open kid view, and no scroll or overlap`, async ({ page }) => {
     test.skip(!runsLocally, "needs its own kids in the local test database");
     await clearFamily();
     try {
@@ -707,6 +707,26 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
         a.x + a.width <= b.x + 0.5 || b.x + b.width <= a.x + 0.5 || a.y + a.height <= b.y + 0.5 || b.y + b.height <= a.y + 0.5;
       const inside = (inner: { x: number; y: number; width: number; height: number }, outer: { x: number; y: number; width: number; height: number }) =>
         inner.x >= outer.x - 0.5 && inner.y >= outer.y - 0.5 && inner.x + inner.width <= outer.x + outer.width + 0.5 && inner.y + inner.height <= outer.y + outer.height + 0.5;
+
+      // MUPP-015-R1 R4: Tillbaka is in the top left corner, 44 px, clear of the heading, the picture and the icon, with readable text
+      const expectBack = async (name: string) => {
+        const back = card.getByRole("button", { name });
+        const [box, cardBox, heading, picture, icon] = [
+          await settledBox(back),
+          await settledBox(card),
+          await settledBox(card.getByRole("heading", { level: 2 })),
+          await settledBox(card.locator(".ring-child")),
+          await settledBox(card.getByRole("button", { name: "Storlekar", exact: true })),
+        ];
+        expect(box.height).toBeGreaterThanOrEqual(44);
+        expect(box.x - cardBox.x).toBeLessThan(20);
+        expect(box.y - cardBox.y).toBeLessThan(20);
+        expect(inside(box, cardBox)).toBe(true);
+        for (const other of [heading, picture, icon]) expect(disjoint(box, other)).toBe(true);
+        // the heading stays centred in the card
+        expect(Math.abs(heading.x + heading.width / 2 - (cardBox.x + cardBox.width / 2))).toBeLessThan(1);
+        expect(contrast(await css(back, "color"), await backgroundOf(back))).toBeGreaterThanOrEqual(4.5);
+      };
 
       await page.setViewportSize(viewport);
       await page.goto("/");
@@ -748,6 +768,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       expect(inside(corner, cardBox)).toBe(true);
       expect(disjoint(corner, await settledBox(card.getByRole("heading", { level: 2 })))).toBe(true);
       expect(await noScroll()).toBe(true);
+      await expectBack("Tillbaka till alla barn");
       await region.getByRole("button", { name: /^Stäng/ }).click();
 
       // The single kid card: the button is between the age and the wish button
@@ -783,6 +804,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       expect(corner.width).toBeGreaterThanOrEqual(44);
       expect(disjoint(corner, await settledBox(card.getByRole("heading", { level: 2 })))).toBe(true);
       expect(await noScroll()).toBe(true);
+      await expectBack("Tillbaka till Julafton");
     } finally {
       await clearFamily();
     }
