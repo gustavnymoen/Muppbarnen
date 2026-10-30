@@ -1,19 +1,19 @@
 import type { ComponentProps, CSSProperties } from "react";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
-import { Button } from "./Button";
+import { Button, IconButton } from "./Button";
+import { ChevronDownIcon, ChevronUpIcon } from "./icons";
 
 // Knappen som öppnar en önskelista (utseende i globals.css): önskelistan är det viktigaste på sajten, så den är en tydlig knapp
-// med "Önskelista" på första raden och "Visa mer" på den andra; den smala varianten (small)
-// har en rad. forKid hänger på barnets namn för skärmläsaren när flera barn står på samma kort.
+// med "Önskelista" och en pil ner; den smala varianten (small) på kort med flera barn har bara texten.
+// forKid hänger på barnets namn för skärmläsaren när flera barn står på samma kort.
 export function WishButton({
-  count,
   small,
   forKid,
   color,
   className = "",
   ...props
-}: { count: number; color: ChildColor; small?: boolean; forKid?: string } & Omit<ComponentProps<"button">, "children">) {
+}: { color: ChildColor; small?: boolean; forKid?: string } & Omit<ComponentProps<"button">, "children">) {
   return (
     <button
       type="button"
@@ -22,19 +22,15 @@ export function WishButton({
       className={`wish-button press inline-flex flex-col items-center justify-center rounded-control leading-tight disabled:opacity-60 ${small ? "min-h-11 px-2" : "min-h-[4.5rem] w-full py-3"} ${className}`}
     >
       {small ? (
-        // Den smala knappen på kort med flera barn: en enda rad, med antalet efter namnet
+        // Den smala knappen på kort med flera barn: en enda rad
         <span className="font-heading text-base font-semibold">
           Önskelista
           {forKid && <span className="sr-only"> för {forKid}</span>}
-          <span className="font-normal"> · {count}</span>
         </span>
       ) : (
         <>
           <span className="font-heading text-xl font-semibold">Önskelista</span>
-          <span>
-            Visa mer · {count}
-            <span aria-hidden="true"> ▾</span>
-          </span>
+          <ChevronDownIcon />
         </>
       )}
     </button>
@@ -43,18 +39,21 @@ export function WishButton({
 
 // Önskelistan på ett barnkort (MUPP-004-R7): knappen fäller ut listan med varje önskans rubrik.
 // Listan scrollar inuti kortet. Är den öppen styr kortleken, som låser sig då (R9); knappen byts då mot en
-// liten Stäng som ligger kvar mitt i botten av listan (MUPP-013-R5).
+// knapp som ligger kvar mitt i botten av listan: en pil upp på ett kort med ett barn (solo), annars en liten
+// Stäng som tar tillbaka till kortet med flera barn eller Julafton (MUPP-013-R5, MUPP-005-R6, -R7).
 // MUPP-005 bygger ut den här komponenten med detaljer, markering och paxning.
 export function WishList({
   id,
   wishes,
   color,
+  solo,
   open,
   onToggle,
 }: {
   id: string;
   wishes: Wish[];
   color: ChildColor;
+  solo: boolean;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -76,13 +75,19 @@ export function WishList({
           )}
           {/* Sitter kvar nere i mitten medan listan scrollar, så att den går att stänga var man än är i den; fokus hamnar här när listan öppnas */}
           <div className="sticky bottom-1 mt-auto flex justify-center pt-2">
-            <Button id={`${id}-knapp`} variant="secondary" onClick={onToggle} className="px-4 text-sm">
-              Stäng<span className="sr-only"> önskelistan</span>
-            </Button>
+            {solo ? (
+              <IconButton id={`${id}-knapp`} label="Fäll ihop önskelistan" onClick={onToggle}>
+                <ChevronUpIcon />
+              </IconButton>
+            ) : (
+              <Button id={`${id}-knapp`} variant="secondary" onClick={onToggle} className="px-4 text-sm">
+                Stäng<span className="sr-only"> önskelistan</span>
+              </Button>
+            )}
           </div>
         </div>
       ) : (
-        <WishButton id={`${id}-knapp`} aria-expanded={false} aria-controls={id} count={wishes.length} color={color} onClick={onToggle} />
+        <WishButton id={`${id}-knapp`} aria-expanded={false} aria-controls={id} color={color} onClick={onToggle} />
       )}
     </section>
   );

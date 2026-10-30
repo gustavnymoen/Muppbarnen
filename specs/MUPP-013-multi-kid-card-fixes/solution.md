@@ -22,7 +22,7 @@ As built:
 - R1, R2: the list of kids on the card with several kids fills the card's height, each kid centred in an equal part; the divider is 60 % wide in the muted colour at 45 % (`app/globals.css`, `BirthdayDeck.tsx`).
 - R3: a small component shrinks a name until it fits on one line, down to 12 px, then cuts it with an ellipsis (the full name stays for screen readers). Used for the kids on the two-kid card and the tiles of the Christmas card.
 - R4: `NextMark` uses `--color-child-sun` instead of the kid's colour.
-- R5: while a list is open, `WishList.tsx` shows a small sticky "Stäng" button (`Button`, secondary) centred at the bottom of the list instead of the wish button. It has the same id as the wish button, so the existing focus handling in `BirthdayDeck.tsx` puts the focus on it when the list opens and back on the wish button when it closes. The "Dölj" state of `WishButton` (the `open` prop) is removed.
+- R5: while a list is open, `WishList.tsx` shows a small sticky "Stäng" button (`Button`, secondary) centred at the bottom of the list instead of the wish button. It has the same id as the wish button, so the existing focus handling in `BirthdayDeck.tsx` puts the focus on it when the list opens and back on the wish button when it closes. On a card with one kid the Stäng button is an arrow up ("Fäll ihop önskelistan", `IconButton`) since MUPP-005-R6; on several kids and Christmas Eve it stays "Stäng". The "Dölj" state of `WishButton` (the `open` prop) is removed.
 
 ## Decisions
 

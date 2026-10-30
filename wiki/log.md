@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-30
+
+* **Update** [MUPP-005](https://github.com/gustavnymoen/Muppbarnen/issues/11): the wish list button has no "Visa mer" and no number of wishes; on a card with one kid an arrow down unfolds the list and a sticky arrow up folds it, on a card with several kids and on Christmas Eve the sticky button says "Stäng" (R6–R8).
+
 ## 2026-10-29
 
 * **Creation** [MUPP-013 Multi-kid birthday card fixes](../specs/MUPP-013-multi-kid-card-fixes/solution.md): the kids on a shared birthday card are spread over the card with a clearer line, a name always stays on one line (smaller, down to 12 px, then "…"), the "next" mark is yellow, and an open wish list swaps its button for a small sticky "Stäng".

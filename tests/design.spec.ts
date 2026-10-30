@@ -432,7 +432,7 @@ test("TECH-006-R4 the admin start shows a short text by the icons from 640 px an
   }
 });
 
-test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
+test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -450,6 +450,8 @@ test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and
     // The card with two kids: the wish button is one line, narrow and 44 px high, the pictures are bigger than 60 px, and a thin line separates the kids
     const buttons = card.getByRole("button", { name: /^Önskelista för / });
     for (const button of await buttons.all()) {
+      // MUPP-005-R7: no count on the button
+      await expect(button).toHaveText(/^Önskelista( för \S+)?$/);
       const box = (await button.boundingBox())!;
       expect(box.width).toBeLessThanOrEqual(160);
       expect(box.height).toBe(44);
@@ -565,7 +567,7 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
   }
 });
 
-test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng button, centred at the bottom of the list, that stays there when the list scrolls and closes the list", async ({ page }) => {
+test("MUPP-013-R5 MUPP-005-R6 an open wish list swaps the wish button for a small arrow button, centred at the bottom of the list, that stays there when the list scrolls and closes the list", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -580,11 +582,14 @@ test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng but
     const card = page.getByRole("article");
     await animationsDone(card);
     const wishButton = card.getByRole("button", { name: /^Önskelista/ });
+    // MUPP-005-R6: the button says only "Önskelista" with an arrow down, no "Visa mer" and no count
+    await expect(wishButton).toHaveText("Önskelista");
+    await expect(wishButton.locator("svg")).toHaveCount(1);
     await wishButton.click();
 
-    // The wish button is gone and Stäng has the focus
+    // The wish button is gone and the arrow up has the focus
     const region = card.getByRole("region", { name: "Önskelista" });
-    const close = region.getByRole("button", { name: "Stäng önskelistan" });
+    const close = region.getByRole("button", { name: "Fäll ihop önskelistan" });
     await expect(wishButton).toHaveCount(0);
     await expect(close).toBeFocused();
     const corner = async () => {

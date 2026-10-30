@@ -88,9 +88,9 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   await expect(card(page).getByText("Inga önskningar än.")).toBeVisible();
 
   // R9: listan är öppen, så kortleken är låst: knapparna är avstängda och texten och skärmläsaren säger det
-  // (listknappen har bytts mot Stäng, som får fokus; MUPP-013-R5)
+  // (listknappen har bytts mot pilen upp, som får fokus; MUPP-013-R5, MUPP-005-R6)
   await expect(list).toHaveCount(0);
-  await expect(card(page).getByRole("button", { name: "Stäng önskelistan" })).toBeFocused();
+  await expect(card(page).getByRole("button", { name: "Fäll ihop önskelistan" })).toBeFocused();
   await expect(next(page)).toBeDisabled();
   await expect(previous(page)).toBeDisabled();
   await expect(page.getByText("Stäng önskelistan för att bläddra.", { exact: true })).toBeVisible();
