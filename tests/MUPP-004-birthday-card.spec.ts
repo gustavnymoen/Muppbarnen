@@ -88,7 +88,9 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   await expect(card(page).getByText("Inga önskningar än.")).toBeVisible();
 
   // R9: listan är öppen, så kortleken är låst: knapparna är avstängda och texten och skärmläsaren säger det
-  await expect(list).toHaveAttribute("aria-expanded", "true");
+  // (listknappen har bytts mot Stäng, som får fokus; MUPP-013-R5)
+  await expect(list).toHaveCount(0);
+  await expect(card(page).getByRole("button", { name: "Stäng önskelistan" })).toBeFocused();
   await expect(next(page)).toBeDisabled();
   await expect(previous(page)).toBeDisabled();
   await expect(page.getByText("Stäng önskelistan för att bläddra.", { exact: true })).toBeVisible();
@@ -170,7 +172,7 @@ test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", asy
   // R4 R9: barnet öppnas som ett vanligt kort med listan utfälld och leken låst; Escape går tillbaka till barnen med fokus på knappen
   await open.first().click();
   await expect(card(page).getByRole("heading", { level: 3, name: "Vera" })).toBeVisible();
-  await expect(card(page).getByRole("button", { name: /^Önskelista/ })).toHaveAttribute("aria-expanded", "true");
+  await expect(card(page).getByRole("button", { name: "Stäng önskelistan" })).toBeVisible();
   await expect(card(page).getByRole("listitem")).toHaveText(["Dockhus"]);
   await expect(next(page)).toBeDisabled();
   await expectNoA11yViolations(page);
@@ -184,7 +186,7 @@ test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", asy
   await expect(card(page).getByText(/Fyller/)).toHaveCount(0);
   await expectNoA11yViolations(page);
   await card(page).getByRole("button", { name: "Öppna Vera" }).click();
-  await expect(card(page).getByRole("button", { name: /^Önskelista/ })).toHaveAttribute("aria-expanded", "true");
+  await expect(card(page).getByRole("button", { name: "Stäng önskelistan" })).toBeVisible();
   await expect(card(page).getByRole("listitem")).toHaveText(["Julpussel"]);
   await expectNoA11yViolations(page);
   // R4 R9: Escape på julkortet för fokus tillbaka till barnets knapp på just det kortet (samma barn finns också på födelsedagskortet)
