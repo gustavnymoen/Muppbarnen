@@ -26,6 +26,7 @@ tags: [product, features]
 | [TECH-005](TECH-005-security-hardening/solution.md) | Security hardening | Shared | Done |
 | [TECH-006](TECH-006-design-skills/solution.md) | Design skills and a design pass | Shared | Done |
 | [TECH-007](TECH-007-flaky-admin-tests/solution.md) | Flaky admin tests | Shared | Done |
+| [TECH-008](TECH-008-flaky-box-measurements/solution.md) | Flaky box measurements | Shared | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 
