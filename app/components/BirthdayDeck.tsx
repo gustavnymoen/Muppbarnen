@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { MONTHS, type DeckCard, type DeckKid } from "@/lib/deck";
 import { Avatar } from "./Avatar";
-import { IconButton } from "./Button";
+import { Button, IconButton } from "./Button";
 import { Card } from "./Card";
 import { FitName } from "./FitName";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
@@ -170,20 +170,29 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
   // Ett barn visas som hela kort; flera visas som miniatyrer tills ett öppnas
   const single = card.kids.length === 1 ? card.kids[0] : card.kids.find((k) => k.id === openList?.kidId);
   const openKid = single && (card.kids.length > 1 || openList?.kidId === single.id) ? single : null;
+  // Med knappen Tillbaka uppe till vänster och ikonen uppe till höger får rubriken en egen rad under dem (MUPP-015-R4)
+  const hasBack = openKid !== null && card.kids.length > 1;
   const nextMark = first ? (christmas ? "Nästa: Julafton" : "Nästa födelsedag") : null;
 
   return (
     <Card
       as="article"
       highlight={first ? card.kids[0].color : undefined}
-      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8 pt-12" : single ? "pb-8 pt-8" : "pb-4 pt-4"}`}
+      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${hasBack ? "pt-16" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
     >
       {christmas && <ChristmasBackdrop />}
+      {/* Tillbaka till alla barn uppe till vänster, först i tabbordningen (MUPP-015); på kortet med ett barn finns inget att gå tillbaka till */}
+      {hasBack && (
+        <Button variant="secondary" onClick={onClose} aria-label={christmas ? "Tillbaka till Julafton" : "Tillbaka till alla barn"} className="absolute left-3 top-3 z-10 gap-1 px-3 text-base">
+          <ChevronLeftIcon />
+          Tillbaka
+        </Button>
+      )}
       {/* Ikonen för storlekar i hörnet av varje öppen barnvy (MUPP-014-R4) */}
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
       <header className="flex flex-col items-center gap-2 text-center">
-        {/* På en smal telefon krymper månaden i en öppen barnvy, så att ikonen i hörnet (och tillbaka-knappen, MUPP-015) får plats bredvid */}
-        <h2 className={`font-heading text-3xl font-semibold ${openKid ? "max-[23rem]:text-xl" : ""}`}>{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
+        {/* På en smal telefon krymper månaden på kortet med ett barn när ikonen i hörnet ligger bredvid den; med Tillbaka har rubriken en rad för sig */}
+        <h2 className={`font-heading text-3xl font-semibold ${openKid && !hasBack ? "max-[23rem]:text-xl" : ""}`}>{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
