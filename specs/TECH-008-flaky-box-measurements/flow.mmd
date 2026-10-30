@@ -1,0 +1,10 @@
+%% TECH-008 Flaky box measurements
+%% How a box is read in the design tests, and what the old read missed.
+flowchart TD
+    A[Test needs the size or position of an element] --> B[settledBox]
+    B --> C{Visible?}
+    C -- no --> C
+    C -- yes --> D[Read the box twice, a frame apart]
+    D --> E{Same box both times?}
+    E -- "no: animating, re-rendered or moving" --> D
+    E -- yes --> F[Compare with the limit]

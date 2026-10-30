@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminSignIn, animationsDone, backgroundOf, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, uniqueName } from "./helpers";
+import { adminSignIn, animationsDone, backgroundOf, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, settledBox, uniqueName } from "./helpers";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -50,7 +50,7 @@ test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone: fonts, cards, controls, shell 
   // R4: varje knapp är minst 44 × 44 px
   const buttons = page.getByRole("button");
   for (const button of await buttons.all()) {
-    const box = (await button.boundingBox())!;
+    const box = await settledBox(button);
     expect(box.width, await button.innerText()).toBeGreaterThanOrEqual(44);
     expect(box.height).toBeGreaterThanOrEqual(44);
   }
@@ -75,13 +75,13 @@ test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone: fonts, cards, controls, shell 
   await expect(page.getByText("Önskat", { exact: true })).toBeVisible();
 
   // R4: fokusringen och skuggorna klipps inte av innehållsytan: första knappen och korten ligger minst 6 px (ringen) inom ytans kant
-  const region = (await page.getByRole("main").boundingBox())!;
-  const firstButton = (await main.boundingBox())!;
-  const firstCard = (await normal.boundingBox())!;
+  const region = await settledBox(page.getByRole("main"));
+  const firstButton = await settledBox(main);
+  const firstCard = await settledBox(normal);
   expect(firstButton.x - region.x).toBeGreaterThanOrEqual(6);
   expect(firstCard.x - region.x).toBeGreaterThanOrEqual(6);
   await page.getByRole("heading", { level: 1 }).scrollIntoViewIfNeeded();
-  expect((await page.getByRole("heading", { level: 1 }).boundingBox())!.y - region.y).toBeGreaterThanOrEqual(6);
+  expect((await settledBox(page.getByRole("heading", { level: 1 }))).y - region.y).toBeGreaterThanOrEqual(6);
 
   // R5: sidan själv scrollar inte, bara innehållsytan
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
@@ -102,7 +102,7 @@ test("MUPP-001-R5 R8 /design on a desktop: a wide centred frame with the same lo
   await page.goto("/design");
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   const frame = page.getByRole("main").locator("..");
-  const box = (await frame.boundingBox())!;
+  const box = await settledBox(frame);
   expect(box.width).toBeGreaterThan(1000);
   expect(box.width).toBeLessThanOrEqual(1152);
   expect(box.x).toBeCloseTo((1280 - box.width) / 2, 0);
@@ -115,7 +115,7 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
   await page.goto("/design");
   const pressable = page.getByRole("button", { name: "Tryckbart kort" });
   await pressable.scrollIntoViewIfNeeded();
-  const box = (await pressable.boundingBox())!;
+  const box = await settledBox(pressable);
 
   // R7: en rörelse tar högst 300 ms och använder bara transform och opacity
   const entrance = await page.getByText("Ett vanligt kort").locator("..").evaluate((el) => {
@@ -141,7 +141,7 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   await pressable.scrollIntoViewIfNeeded();
-  const pressedBox = (await pressable.boundingBox())!;
+  const pressedBox = await settledBox(pressable);
   await page.mouse.move(pressedBox.x + pressedBox.width / 2, pressedBox.y + pressedBox.height / 2);
   await page.mouse.down();
   await expect(pressable).toHaveCSS("transform", "none");
@@ -184,9 +184,9 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
     expect(await page.locator(".deck-card").count()).toBe(3);
 
     // R8: knapparna sitter vid kortet, på var sida och i höjd med dess mitt
-    const firstBox = (await card.boundingBox())!;
-    const prevBox = (await page.getByRole("button", { name: "Föregående kort" }).boundingBox())!;
-    const nextBox = (await page.getByRole("button", { name: "Nästa kort" }).boundingBox())!;
+    const firstBox = await settledBox(card);
+    const prevBox = await settledBox(page.getByRole("button", { name: "Föregående kort" }));
+    const nextBox = await settledBox(page.getByRole("button", { name: "Nästa kort" }));
     expect(Math.abs(prevBox.y + prevBox.height / 2 - (firstBox.y + firstBox.height / 2))).toBeLessThan(2);
     expect(prevBox.x).toBeLessThan(firstBox.x + 8);
     expect(nextBox.x + nextBox.width).toBeGreaterThan(firstBox.x + firstBox.width - 8);
@@ -196,7 +196,7 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
 
     // R8 R9: knapparna är minst 44 × 44 px, fokus syns, och korten rör sig i 250 ms eller, med minskad rörelse, inte alls
     for (const name of ["Föregående kort", "Nästa kort", "Önskelista"]) {
-      const box = (await page.getByRole("button", { name: new RegExp(`^${name}`) }).boundingBox())!;
+      const box = await settledBox(page.getByRole("button", { name: new RegExp(`^${name}`) }));
       expect(box.width).toBeGreaterThanOrEqual(44);
       expect(box.height).toBeGreaterThanOrEqual(44);
     }
@@ -219,9 +219,9 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
     const heading = page.getByRole("heading", { level: 2, name: "Julafton" });
     expect(contrast(await css(heading, "color"), "rgb(52, 79, 67)")).toBeGreaterThanOrEqual(4.5);
     // R5: alla kort är lika stora (julkortet har flera barn, födelsedagskortet ett) och rubriken står i mitten
-    const christmasBox = (await card.boundingBox())!;
+    const christmasBox = await settledBox(card);
     expect(Math.abs(christmasBox.height - firstBox.height)).toBeLessThan(1);
-    const headingBox = (await heading.boundingBox())!;
+    const headingBox = await settledBox(heading);
     expect(Math.abs(headingBox.x + headingBox.width / 2 - (christmasBox.x + christmasBox.width / 2))).toBeLessThan(2);
   } finally {
     await clearFamily();
@@ -244,10 +244,10 @@ test("MUPP-009-R1 the password page: a card with the name, a labelled field, a b
   await animationsDone(card);
   const field = page.getByLabel("Lösenord");
   await expect(field).toHaveCSS("background-color", PAGE);
-  expect((await field.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect((await settledBox(field)).height).toBeGreaterThanOrEqual(44);
   const button = page.getByRole("button", { name: "Öppna" });
   await expect(button).toHaveCSS("background-color", BRAND);
-  expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect((await settledBox(button)).height).toBeGreaterThanOrEqual(44);
 
   // Fokus syns på fältet
   await field.focus();
@@ -287,7 +287,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     expect(await css(page.getByRole("heading", { level: 1, name: "Admin" }), "font-family")).toMatch(/Fredoka/);
     const field = page.getByLabel("Adminlösenord");
     await expect(field).toHaveCSS("background-color", PAGE);
-    expect((await field.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(field)).height).toBeGreaterThanOrEqual(44);
     await expect(page.getByRole("button", { name: "Logga in" })).toHaveCSS("background-color", BRAND);
     await field.fill("fel");
     await page.getByRole("button", { name: "Logga in" }).click();
@@ -308,7 +308,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     const open = birthday.getByRole("button", { name: "Ny önskning" });
     await expect(open).toHaveCSS("background-color", CARD);
     await expect(open).toHaveCSS("border-top-width", "1px");
-    expect((await open.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(open)).height).toBeGreaterThanOrEqual(44);
     await open.focus();
     await expect(open).toHaveCSS("outline-width", "3px");
 
@@ -317,13 +317,13 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     await birthday.getByLabel("Namn").fill("Pussel");
     await birthday.getByRole("button", { name: "Lägg till" }).click();
     const row = birthday.getByRole("article").filter({ hasText: "Pussel" });
-    expect((await row.boundingBox())!.height).toBeLessThanOrEqual(56);
+    expect((await settledBox(row)).height).toBeLessThanOrEqual(56);
     await expect(row).toHaveCSS("border-top-color", EDGE);
     await page.mouse.move(0, 0);
     const edit = row.getByRole("button", { name: "Ändra Pussel" });
     const remove = row.getByRole("button", { name: "Ta bort Pussel" });
     for (const icon of [edit, remove]) {
-      const iconBox = (await icon.boundingBox())!;
+      const iconBox = await settledBox(icon);
       expect([iconBox.width, iconBox.height]).toEqual([32, 32]);
       await expect(icon).toHaveCSS("background-color", CARD);
       await expect(icon).toHaveCSS("border-top-width", "1px");
@@ -340,7 +340,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     await expect(dialog).toHaveCSS("border-top-color", EDGE);
     expect(await css(dialog.getByRole("heading"), "font-family")).toMatch(/Fredoka/);
     expect(await css(dialog, "background-color", "::backdrop")).toMatch(/^(rgba\(0, 0, 0, 0\.7\)|color\(srgb 0 0 0 \/ 0\.7\)|oklab\(0 0 0 \/ 0\.7\))$/);
-    const box = (await dialog.boundingBox())!;
+    const box = await settledBox(dialog);
     const viewport = page.viewportSize()!;
     expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(2);
     expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThan(2);
@@ -366,7 +366,7 @@ test("MUPP-012-R1 R2 the parent picker looks like the other fields, and its list
     const name = page.getByLabel("Namn");
 
     // The field: as high and as round as a text field, with the same colours
-    expect((await field.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(field)).height).toBeGreaterThanOrEqual(44);
     for (const property of ["background-color", "border-top-color", "border-top-width", "border-top-left-radius", "color", "height"]) {
       expect(await css(field, property)).toBe(await css(name, property));
     }
@@ -379,7 +379,7 @@ test("MUPP-012-R1 R2 the parent picker looks like the other fields, and its list
     expect(await css(list, "box-shadow")).not.toBe("none");
     const selected = list.getByRole("option", { name: chef });
     const other = list.getByRole("option", { name: mia });
-    expect((await other.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(other)).height).toBeGreaterThanOrEqual(44);
     await expect(selected).toHaveCSS("font-weight", "700");
     await expect(other).toHaveCSS("font-weight", "400");
     await expect(selected.locator("svg")).toHaveCSS("color", BRAND);
@@ -411,21 +411,23 @@ test("TECH-006-R4 the admin start shows a short text by the icons from 640 px an
     const sizes = page.getByRole("link", { name: `Storlekar för ${kid}` });
     const wishes = page.getByRole("link", { name: `Önskelistor för ${kid}` });
     await expect(sizes.getByText("Storlekar", { exact: true })).toBeHidden();
-    expect([(await sizes.boundingBox())!.width, (await sizes.boundingBox())!.height]).toEqual([32, 32]);
+    const phoneBox = await settledBox(sizes);
+    expect([phoneBox.width, phoneBox.height]).toEqual([32, 32]);
 
     // Wide screen: the text is visible beside the icon, the link grows, and the name is still the full one
     await page.setViewportSize({ width: 1280, height: 800 });
     await expect(sizes.getByText("Storlekar", { exact: true })).toBeVisible();
     await expect(wishes.getByText("Önskelistor", { exact: true })).toBeVisible();
-    expect((await sizes.boundingBox())!.width).toBeGreaterThan(32);
-    expect((await sizes.boundingBox())!.height).toBe(32);
+    const wideBox = await settledBox(sizes);
+    expect(wideBox.width).toBeGreaterThan(32);
+    expect(wideBox.height).toBe(32);
     await expectNoA11yViolations(page);
 
     // The manage page: the content is at most 42 rem (672 px) wide, so the buttons stay near the names
     await page.getByRole("link", { name: "Hantera barn och föräldrar" }).click();
     const row = page.getByRole("article").filter({ hasText: kid });
     await animationsDone(row);
-    expect((await row.boundingBox())!.width).toBeLessThanOrEqual(672);
+    expect((await settledBox(row)).width).toBeLessThanOrEqual(672);
     await expectNoA11yViolations(page);
   } finally {
     await clearFamily();
@@ -450,7 +452,7 @@ test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and
     // The card with two kids: the wish button is one line, narrow and 44 px high, the pictures are bigger than 60 px, and a thin line separates the kids
     const buttons = card.getByRole("button", { name: /^Önskelista för / });
     for (const button of await buttons.all()) {
-      const box = (await button.boundingBox())!;
+      const box = await settledBox(button);
       expect(box.width).toBeLessThanOrEqual(160);
       expect(box.height).toBe(44);
       // Dark text on the kid's colour, readable
@@ -465,7 +467,7 @@ test("TECH-006-R5 the cards: a narrow one-line wish button and a big picture and
       expect(contrast(await css(button, "color"), fill)).toBeGreaterThanOrEqual(4.5);
     }
     const kids = card.locator("ul > li");
-    expect((await kids.first().locator("[aria-hidden]").first().boundingBox())!.width).toBeGreaterThan(60);
+    expect((await settledBox(kids.first().locator("[aria-hidden]").first())).width).toBeGreaterThan(60);
     expect(await css(kids.nth(1), "height", "::before")).toBe("1px");
     expect(await css(kids.first(), "height", "::before")).not.toBe("1px");
     await expectNoA11yViolations(page);
@@ -505,12 +507,12 @@ test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear l
 
     // R1: each kid sits in its own half of the list, so the card is filled from top to bottom
     const list = card.locator("ul");
-    const [listBox, firstBox, secondBox] = [(await list.boundingBox())!, (await list.locator("li").nth(0).boundingBox())!, (await list.locator("li").nth(1).boundingBox())!];
+    const [listBox, firstBox, secondBox] = await Promise.all([settledBox(list), settledBox(list.locator("li").nth(0)), settledBox(list.locator("li").nth(1))]);
     // (the second part is a little taller: the room above the line)
     expect(Math.abs(secondBox.height - firstBox.height)).toBeLessThan(20);
     expect(firstBox.height).toBeGreaterThan(listBox.height / 2 - 20);
     const buttons = card.getByRole("button", { name: /^Önskelista för / });
-    expect((await buttons.nth(1).boundingBox())!.y).toBeGreaterThan(secondBox.y + secondBox.height / 2);
+    expect((await settledBox(buttons.nth(1))).y).toBeGreaterThan(secondBox.y + secondBox.height / 2);
 
     // R2: the line is 60 % of the width and clear enough to see, but still a thin line
     const line = list.locator("li").nth(1);
@@ -520,7 +522,7 @@ test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear l
 
     // R3: a long name stays on one line, smaller but not below 12 px, and is cut with an ellipsis when it still does not fit
     const name = card.getByRole("heading", { level: 3, name: longName });
-    const [nameBox, shortBox] = [(await name.boundingBox())!, (await card.getByRole("heading", { level: 3, name: "Vera" }).boundingBox())!];
+    const [nameBox, shortBox] = await Promise.all([settledBox(name), settledBox(card.getByRole("heading", { level: 3, name: "Vera" }))]);
     expect(nameBox.height).toBeLessThanOrEqual(shortBox.height);
     const size = Number.parseFloat(await css(name.locator("span"), "font-size"));
     expect(size).toBeGreaterThanOrEqual(12);
@@ -554,7 +556,7 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
       await animationsDone(card);
     }
     const [tileName, otherName] = [card.getByText(longName, { exact: true }), card.getByText("Vera", { exact: true })];
-    expect((await tileName.boundingBox())!.height).toBeLessThanOrEqual((await otherName.boundingBox())!.height);
+    expect((await settledBox(tileName)).height).toBeLessThanOrEqual((await settledBox(otherName)).height);
     // The tile is narrower than the card: this name does not fit even at 12 px, so it is cut with an ellipsis
     expect(Number.parseFloat(await css(tileName, "font-size"))).toBe(12);
     await expect(tileName).toHaveCSS("text-overflow", "ellipsis");
@@ -588,7 +590,7 @@ test("MUPP-013-R5 an open wish list swaps the wish button for a small Stäng but
     await expect(wishButton).toHaveCount(0);
     await expect(close).toBeFocused();
     const corner = async () => {
-      const [regionBox, closeBox] = [(await region.boundingBox())!, (await close.boundingBox())!];
+      const [regionBox, closeBox] = await Promise.all([settledBox(region), settledBox(close)]);
       return { middle: closeBox.x + closeBox.width / 2 - (regionBox.x + regionBox.width / 2), bottom: regionBox.y + regionBox.height - (closeBox.y + closeBox.height), width: closeBox.width, height: closeBox.height };
     };
     // The list is long enough to scroll, and the button is small, 44 px high and centred at the bottom
