@@ -1,9 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { buildDeck, nextOccurrence, type DeckInput, type Wish, type Wishes } from "./deck";
+import { buildDeck, nextOccurrence, type DeckInput, type Sizes, type Wish, type Wishes } from "./deck";
 
 const today = { year: 2026, month: 10, day: 28 };
 // Påhittade barn
-const kid = (id: number, name: string, birthdate: string, parentId = 1): DeckInput => ({ id, parentId, name, birthdate, hasPicture: false });
+const noSizes: Sizes = { clothes: "", shoes: "", head: "", gloves: "" };
+const kid = (id: number, name: string, birthdate: string, parentId = 1, sizes: Sizes = noSizes): DeckInput => ({ id, parentId, name, birthdate, hasPicture: false, sizes });
 const noWishes: Wishes = new Map();
 const wish = (id: number, title: string, extra: Partial<Wish> = {}): Wish => ({ id, title, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
 
@@ -61,7 +62,7 @@ describe("MUPP-004-R6 the data for the browser", () => {
     const keys = (value: object) => Object.keys(value).sort();
     for (const card of deck) {
       expect(keys(card)).toEqual(["key", "kids", "kind", "month", "next"]);
-      expect(keys(card.kids[0])).toEqual(["age", "color", "expected", "hasPicture", "id", "name", "wishes"]);
+      expect(keys(card.kids[0])).toEqual(["age", "color", "expected", "hasPicture", "id", "name", "sizes", "wishes"]);
     }
     expect(JSON.stringify(deck)).not.toContain("2019-03-17");
     expect(deck.find((c) => c.kind === "birthday")).toMatchObject({ month: 3, kids: [{ age: 8 }] });
@@ -88,5 +89,23 @@ describe("MUPP-011 a child who is not born yet", () => {
     const deck = (day: number) => buildDeck([kid(1, "A", "2026-10-30")], noWishes, { year: 2026, month: 10, day }).find((c) => c.kind === "birthday")!;
     expect(deck(29).kids[0]).toMatchObject({ age: null, expected: true });
     expect(deck(30).kids[0]).toMatchObject({ age: 1, expected: false });
+  });
+});
+
+describe("MUPP-014-R1 sizes reach the deck", () => {
+  test("every kid of every card has its four sizes as trimmed text", () => {
+    const sizes = { clothes: " 122 ", shoes: "30", head: "", gloves: "S\n" };
+    const deck = buildDeck([kid(1, "A", "2019-03-17", 1, sizes)], noWishes, today);
+    for (const card of deck) expect(card.kids[0].sizes).toEqual({ clothes: "122", shoes: "30", head: "", gloves: "S" });
+  });
+
+  test("a kid with no sizes has four empty texts", () => {
+    const deck = buildDeck([kid(1, "A", "2019-03-17")], noWishes, today);
+    expect(deck.flatMap((c) => c.kids.map((k) => k.sizes))).toEqual([noSizes, noSizes]);
+  });
+
+  test("the birthdate and the day still stay on the server", () => {
+    const deck = buildDeck([kid(1, "A", "2019-03-17", 1, { ...noSizes, clothes: "122" })], noWishes, today);
+    expect(JSON.stringify(deck)).not.toContain("2019-03-17");
   });
 });

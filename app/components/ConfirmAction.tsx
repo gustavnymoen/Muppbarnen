@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useId, useRef } from "react";
 import { Button, IconButton } from "./Button";
+import { Dialog } from "./Dialog";
 import { TrashIcon } from "./icons";
 import type { FormAction } from "./form-state";
 
@@ -36,13 +37,7 @@ export function ConfirmAction({
       <IconButton compact label={`${label} ${subject}`} onClick={() => dialog.current?.showModal()}>
         <TrashIcon />
       </IconButton>
-      <dialog
-        ref={dialog}
-        role="alertdialog"
-        aria-labelledby={`${id}-titel`}
-        aria-describedby={`${id}-text`}
-        className="m-auto w-[min(92vw,28rem)] rounded-card border border-edge bg-card p-5 text-text shadow-card backdrop:bg-black/70"
-      >
+      <Dialog ref={dialog} role="alertdialog" aria-labelledby={`${id}-titel`} aria-describedby={`${id}-text`}>
         <form action={formAction} className="space-y-4">
           {Object.entries(fields).map(([name, value]) => (
             <input key={name} type="hidden" name={name} value={value} />
@@ -63,7 +58,7 @@ export function ConfirmAction({
             </Button>
           </div>
         </form>
-      </dialog>
+      </Dialog>
     </>
   );
 }

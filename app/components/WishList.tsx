@@ -6,6 +6,7 @@ import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
 import { canClaim, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
+import { Dialog } from "./Dialog";
 import { ChevronDownIcon, ChevronUpIcon } from "./icons";
 
 // Knappen som öppnar en önskelista (utseende i globals.css): önskelistan är det viktigaste på sajten, så den är en tydlig knapp
@@ -191,13 +192,7 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wis
   };
 
   return (
-    <dialog
-      ref={ref}
-      aria-labelledby={`${id}-titel`}
-      aria-describedby={`${id}-text`}
-      onClose={() => setError("")}
-      className="m-auto w-[min(92vw,28rem)] rounded-card border border-edge bg-card p-5 text-text shadow-card backdrop:bg-black/70"
-    >
+    <Dialog ref={ref} aria-labelledby={`${id}-titel`} aria-describedby={`${id}-text`} onClose={() => setError("")}>
       <form onSubmit={submit} noValidate className="space-y-4">
         <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
           {plural ? "Paxa presenterna" : "Paxa presenten"}
@@ -230,6 +225,6 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wis
           </Button>
         </div>
       </form>
-    </dialog>
+    </Dialog>
   );
 }

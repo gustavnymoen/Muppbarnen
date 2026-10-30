@@ -1,0 +1,15 @@
+%% MUPP-014 Expose kids sizes on kids card
+%% Where a visitor opens a child's sizes; labels are requirement IDs.
+flowchart TD
+    A[Start page: server reads the kids and their sizes R1] --> B{Which card?}
+    B -- one kid, list folded --> C[Storlekar button between age and Önskelista R2]
+    B -- several kids --> D[Icon beside Önskelista, 70-80 % for the wish button R3]
+    B -- any open kid view --> E[Icon in the top right corner R4]
+    C --> F[Dialog: Storlekar för name R5]
+    D --> F
+    E --> F
+    F --> G{Any sizes saved?}
+    G -- yes --> H[One row per size with a value]
+    G -- no --> I[Inga storlekar inlagda än.]
+    H --> J[Stäng or Esc: dialog closes, focus back on the button, list and marks unchanged]
+    I --> J

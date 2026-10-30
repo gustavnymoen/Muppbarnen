@@ -66,3 +66,12 @@ export const clearFamily = () =>
 
 export const childIdOf = (name: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "SELECT id FROM child WHERE name = ?", args: [name] })).rows[0].id));
+
+// A kid's sizes, as the admin page would save them
+export const setSizes = (childId: number, sizes: { clothes?: string; shoes?: string; head?: string; gloves?: string }) =>
+  withDb((db) =>
+    db.execute({
+      sql: "UPDATE child SET size_clothes = ?, size_shoes = ?, size_head = ?, size_gloves = ? WHERE id = ?",
+      args: [sizes.clothes ?? "", sizes.shoes ?? "", sizes.head ?? "", sizes.gloves ?? "", childId],
+    }),
+  );
