@@ -5,6 +5,7 @@ import { MONTHS, type DeckCard, type DeckKid } from "@/lib/deck";
 import { Avatar } from "./Avatar";
 import { IconButton } from "./Button";
 import { Card } from "./Card";
+import { FitName } from "./FitName";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 import { ChristmasBackdrop } from "./ChristmasBackdrop";
 import { WishButton, WishList } from "./WishList";
@@ -55,6 +56,7 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   };
 
   const open = (card: DeckCard, kid: DeckKid) => {
+    // Önskelistans Stäng-knapp har samma id som önskelistknappen, så fokus hamnar på den när listan öppnas
     refocus.current = `lista-${card.key}-${kid.id}-knapp`;
     setOpenList({ cardKey: card.key, kidId: kid.id });
     setAnnouncement("Kortleken är låst. Stäng önskelistan för att bläddra.");
@@ -149,10 +151,10 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   );
 }
 
-// Märket på det närmaste kortet, med en stjärna på var sida
-function NextMark({ color, children }: { color: DeckKid["color"]; children: string }) {
+// Märket på det närmaste kortet, med en stjärna på var sida; alltid gult, oavsett barnets färg (MUPP-013-R4)
+function NextMark({ children }: { children: string }) {
   return (
-    <span className="chip-child inline-flex items-center gap-2 rounded-full px-4 py-1 font-heading text-base font-semibold" style={{ "--child": `var(--color-child-${color})` } as CSSProperties}>
+    <span className="chip-child inline-flex items-center gap-2 rounded-full px-4 py-1 font-heading text-base font-semibold" style={{ "--child": "var(--color-child-sun)" } as CSSProperties}>
       <span aria-hidden="true">✦</span>
       <span>{children}</span>
       <span aria-hidden="true">✦</span>
@@ -175,7 +177,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       {christmas && <ChristmasBackdrop />}
       <header className="flex flex-col items-center gap-2 text-center">
         <h2 className="font-heading text-3xl font-semibold">{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
-        {nextMark && <NextMark color={card.kids[0].color}>{nextMark}</NextMark>}
+        {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
       {single ? (
@@ -187,7 +189,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
           onToggle={() => (openList?.kidId === single.id ? onClose() : onOpen(single))}
         />
       ) : (
-        <ul className={`my-auto min-h-0 max-h-full overflow-y-auto ${christmas ? "grid grid-cols-2 gap-3" : "flex flex-col gap-3"}`}>
+        <ul className={`min-h-0 overflow-y-auto ${christmas ? "my-auto max-h-full grid grid-cols-2 gap-3" : "flex flex-1 flex-col gap-3"}`}>
           {card.kids.map((kid) =>
             christmas ? (
               // Julkortet har alla barnen: rutor två och två med bilden över namnet
@@ -196,20 +198,20 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
                   type="button"
                   id={`barn-${card.key}-${kid.id}`}
                   onClick={() => onOpen(kid)}
-                  className="press flex min-h-11 w-full flex-col items-center gap-1 rounded-control border border-edge bg-page/50 px-2 py-3 hover:bg-edge"
+                  className="press flex h-full min-h-11 w-full flex-col items-center gap-1 rounded-control border border-edge bg-page/50 px-2 py-3 hover:bg-edge"
                 >
                   <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={TILE_AVATAR} decorative />
-                  <span className="min-w-0 break-words font-heading text-lg font-semibold">
-                    <span className="sr-only">Öppna&nbsp;</span>
-                    {kid.name}
-                  </span>
+                  <span className="sr-only">Öppna&nbsp;</span>
+                  <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </button>
               </li>
             ) : (
-              // Barn med samma födelsedag ligger över varandra, var och en som en liten version av barnkortet
-              <li key={kid.id} className="divider-short flex flex-col items-center gap-0.5 text-center">
+              // Barn med samma födelsedag ligger över varandra, var och en som en liten version av barnkortet och mitt i sin del av kortet (R1)
+              <li key={kid.id} className="divider-short flex flex-1 flex-col items-center justify-center gap-0.5 text-center">
                 <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={TWIN_AVATAR} decorative />
-                <h3 className="font-heading text-lg font-semibold break-words">{kid.name}</h3>
+                <h3 className="max-w-full">
+                  <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
+                </h3>
                 {ageText(kid, card.month) && <p className="text-muted">{ageText(kid, card.month)}</p>}
                 <WishButton id={`barn-${card.key}-${kid.id}`} count={kid.wishes.length} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="mt-2 w-36" />
               </li>

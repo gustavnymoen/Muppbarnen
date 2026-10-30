@@ -12,11 +12,12 @@ tags: [startsida, meny, kortlek]
 
 Överst finns bara menyknappen. Sajtens namn visas inte som rubrik; du kommer alltid tillbaka till startsidan via **Start** i menyn.
 
-Under det ligger en **karusell med kort** med barnens födelsedagar och julafton. Alla kort är lika stora. Det kort som kommer härnäst ligger överst och är märkt "✦ Nästa födelsedag ✦" (eller "Nästa: Julafton"). Föregående och nästa kort skymtar mörkare på sidorna.
+Under det ligger en **karusell med kort** med barnens födelsedagar och julafton. Alla kort är lika stora. Det kort som kommer härnäst ligger överst och är märkt med ett gult "✦ Nästa födelsedag ✦" (eller "Nästa: Julafton"). Föregående och nästa kort skymtar mörkare på sidorna.
 
 - **Bläddra:** svep åt sidan, tryck på pilknapparna på var sida om kortet ("Föregående kort", "Nästa kort") eller använd piltangenterna. Efter det sista kortet kommer det första igen.
-- **Ett barn på kortet:** du ser en stor bild, namn, hur gammal barnet fyller och en stor knapp i barnets färg, **Önskelista** ("Visa mer"). Trycker du på den fälls hela listan ut och du kan scrolla i den.
-- **Flera barn samma dag** (till exempel tvillingar): kortet visar en liten version av barnkortet per barn, under varandra, med en stor bild, namn, ålder och en egen, smalare knapp **Önskelista**. En tunn linje i mitten skiljer barnen åt. Tryck på barnets knapp för att se barnets kort med önskelistan utfälld. Tryck på knappen eller på Esc för att stänga listan och komma tillbaka till alla barnen.
+- **Ett barn på kortet:** du ser en stor bild, namn, hur gammal barnet fyller och en stor knapp i barnets färg, **Önskelista** ("Visa mer"). Trycker du på den fälls hela listan ut och du kan scrolla i den. Knappen byts då mot en liten **Stäng** längst ned i mitten av listan, som ligger kvar när du scrollar. Tryck på den (eller Esc) för att stänga listan.
+- **Flera barn samma dag** (till exempel tvillingar): kortet visar en liten version av barnkortet per barn, under varandra, med en stor bild, namn, ålder och en egen, smalare knapp **Önskelista**. Barnen fördelas över kortet, med en tunn linje mellan dem. Tryck på barnets knapp för att se barnets kort med önskelistan utfälld. Tryck på **Stäng** (eller Esc) för att stänga listan och komma tillbaka till alla barnen.
+- **Långa namn** står alltid på en rad: texten blir mindre (som minst 12 px) och kapas med "…" om namnet ändå inte ryms.
 - **Julafton** är ett eget kort på en grön bakgrund med girlang, stjärnor, snö och granar. Barnen står i rutor, två och två, med bilden över namnet; tryck på en ruta för att se barnets önskelista till jul.
 - **Medan en önskelista är öppen går det inte att bläddra.** Texten "Stäng önskelistan för att bläddra." visas; stäng listan först.
 - Av en födelsedag visas bara månaden, aldrig dagen.
