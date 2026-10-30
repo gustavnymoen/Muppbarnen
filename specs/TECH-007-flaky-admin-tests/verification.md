@@ -32,10 +32,10 @@ feature: TECH-007
 
 ## Definition of Done
 
-- [ ] Tests: both tests pass 20 runs in a row locally (MUPP-003-R5 to be confirmed in CI over time)
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Tests: `MUPP-012-R1 R2 R3` passes 20 runs in a row locally; `MUPP-003-R5` passed 40 runs locally but was never reproduced failing, so its fix is not proven (see Notes). CI (`check`, `security`) and Preview tests (`preview`) were green on pull request #44
+- [x] Deployed, and the smoke tests pass against production (Live tests): "Live tests" on `main` for the merge commit 8b54c2e succeeded (2026-10-30)
 - [x] Accessibility: not applicable
-- [ ] Requirements in the card match what was built (the open question is answered: a real bug in `ListPicker`)
+- [x] Requirements in the card match what was built (the open question is answered: a real bug in `ListPicker`)
 
 ## Requirements as built
 
@@ -50,6 +50,8 @@ If the `Home` failure is a bug in `ListPicker` (a key press ignored), it is fixe
 ## Notes
 
 The cause of the `MUPP-003-R5` failure is inferred from the CI report (axe running mid page-change), not observed.
+
+After the merge (2026-10-30, checked with `gh`): on pull request #44 "CI" (`check`, `security`), "Preview tests" (`preview`) and Vercel were green, and "Live tests" on `main` passed. Whether `MUPP-003-R5` is fixed is not yet known: only repeated CI runs can show it. At the time of writing no "CI" run had finished since the merge (one on `MUPP-013-multi-kid-card-fixes` was still running), so zero post-merge runs have confirmed it. The last "CI" run before it on PR #44 passed.
 
 The `Home` key was not ignored: the active option was overridden by `pointerenter` from the resting mouse pointer.
 
