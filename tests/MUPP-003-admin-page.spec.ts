@@ -388,6 +388,8 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   await form.getByLabel("Födelsedatum").fill("2019-03-09");
   await form.getByRole("button", { name: "Lägg till" }).click();
   const row = kids.getByRole("article").filter({ hasText: kid });
+  // The page is re-rendered when the kid is saved: axe waits until the new row is there
+  await expect(row).toBeVisible();
   await expectNoA11yViolations(page);
   const edit = await opened(row, "Ändra");
   await expect(row).toContainText(`Född 2019-03-09, förälder: ${mia}`);

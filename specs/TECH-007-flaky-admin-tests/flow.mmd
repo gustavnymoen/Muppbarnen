@@ -1,0 +1,8 @@
+%% TECH-007 Flaky admin tests
+%% Why the list picker's active option moved without the keyboard, and the fix.
+flowchart TD
+    A[Option picked with the mouse] --> B[Pointer rests where the list reopens]
+    B --> C[Keyboard opens the list]
+    C --> D{Pointer event type}
+    D -- "pointerenter (before)" --> E[Fires when the list appears: active option jumps to the one under the pointer]
+    D -- "pointermove (now)" --> F[Fires only when the pointer moves: keys decide the active option]

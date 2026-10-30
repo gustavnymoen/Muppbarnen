@@ -202,7 +202,8 @@ export function ListPicker({
                 id={`${listId}-${index}`}
                 role="option"
                 aria-selected={index === selected}
-                onPointerEnter={() => setActive(index)}
+                // Pointer move, inte enter: en lista som öppnas under en stillastående pekare får inte flytta det aktiva valet
+                onPointerMove={() => setActive(index)}
                 onClick={() => choose(index)}
                 className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 px-4 ${index === active ? "bg-edge" : ""} ${index === selected ? "font-bold" : ""}`}
               >
