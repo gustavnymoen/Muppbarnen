@@ -6,7 +6,7 @@ import { checkLogin } from "@/lib/login-block";
 import { clientIp, guardMessage, guardWrite } from "@/lib/request-guard";
 import { createSession, safeTarget, SESSION_COOKIE, SESSION_SECONDS, siteSecrets } from "@/lib/site-session";
 
-export type LoginState = { error: string } | null;
+type LoginState = { error: string } | null;
 
 // Den enda åtgärden utan inloggningskontroll (lib/route-checks.test.ts): den är själva inloggningen
 export async function login(_previous: LoginState, formData: FormData): Promise<LoginState> {

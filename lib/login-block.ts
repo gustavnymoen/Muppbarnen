@@ -55,7 +55,7 @@ async function block(ip: string, now: number) {
   );
 }
 
-export type LoginResult = "ok" | "wrong" | "blocked";
+type LoginResult = "ok" | "wrong" | "blocked";
 
 // Hela kontrollen av ett lösenord, gemensam för sajtlösenordet och adminlösenordet:
 // försöket skrivs in först, ett fel lösenord kostar en sekund, ett rätt räknas inte.

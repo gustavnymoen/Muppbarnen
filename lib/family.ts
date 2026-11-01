@@ -1,6 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
-import { swedishToday, type DeckInput, type Sizes, type Wishes } from "./deck";
+import { isoDate, swedishToday, type DeckInput, type Sizes, type Wishes } from "./deck";
 import { collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
@@ -73,8 +73,11 @@ export async function listChildren(parentId?: number) {
   return rows.map(toChild);
 }
 
+type ItemRow = { id: number; title: string; description: string; size: string; url: string; unlimited: number };
+const toItem = (row: ItemRow): WishlistItem => ({ id: row.id, title: row.title, description: row.description, size: row.size, url: row.url, unlimited: row.unlimited === 1 });
+
 export async function listWishlists(childId: number) {
-  const rows = await all<{ occasion: Occasion } & Record<string, string | number>>(
+  const rows = await all<{ occasion: Occasion } & ItemRow>(
     `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id
      WHERE w.child_id = ? ORDER BY i.id`,
@@ -82,14 +85,7 @@ export async function listWishlists(childId: number) {
   );
   const lists: Record<Occasion, WishlistItem[]> = { birthday: [], christmas: [] };
   for (const row of rows) {
-    lists[row.occasion].push({
-      id: row.id as number,
-      title: row.title as string,
-      description: row.description as string,
-      size: row.size as string,
-      url: row.url as string,
-      unlimited: row.unlimited === 1,
-    });
+    lists[row.occasion].push(toItem(row));
   }
   return lists;
 }
@@ -97,23 +93,14 @@ export async function listWishlists(childId: number) {
 // Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning
 export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: Wishes }> {
   const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, hasPicture: c.picture !== "", sizes: c.sizes }));
-  const rows = await all<{ child_id: number; occasion: Occasion; id: number; title: string; description: string; size: string; url: string; unlimited: number; claimed_by: string | null; claimed_at: string | null }>(
+  const rows = await all<{ child_id: number; occasion: Occasion; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
     `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.claimed_by, i.claimed_at
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,
   );
   const wishes: Wishes = new Map();
   for (const row of rows) {
     const lists = wishes.get(row.child_id) ?? { birthday: [], christmas: [] };
-    lists[row.occasion].push({
-      id: row.id,
-      title: row.title,
-      description: row.description,
-      size: row.size,
-      url: row.url,
-      unlimited: row.unlimited === 1,
-      claimedBy: row.claimed_by,
-      claimedAt: row.claimed_at,
-    });
+    lists[row.occasion].push({ ...toItem(row), claimedBy: row.claimed_by, claimedAt: row.claimed_at });
     wishes.set(row.child_id, lists);
   }
   return { children, wishes };
@@ -135,7 +122,7 @@ export async function claimWishes(rawIds: unknown, rawName: unknown, today = swe
   const ids = Array.isArray(rawIds) ? [...new Set(rawIds.map((id) => parseId(typeof id === "number" ? String(id) : id)))] : [];
   if (ids.length === 0 || ids.length > MAX_CLAIMS || ids.includes(null)) return { ok: false, error: "Markera de presenter du vill paxa.", claimed: 0, notClaimed: [], missing: 0 };
 
-  const claimedAt = `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
+  const claimedAt = isoDate(today);
   let claimed = 0;
   const notClaimed: string[] = [];
   let missing = 0;

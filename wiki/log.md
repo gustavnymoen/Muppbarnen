@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-01
+
+* **Creation** [TECH-011 Ponytail audit and tidy-up](../specs/TECH-011-ponytail-audit/solution.md): the ponytail audit of the repository ([report](../specs/TECH-011-ponytail-audit/audit.md)) and its fixes: the unit tests no longer pick up other checkouts under `.claude/`, pictures are answered with an `ETag` and `304`, two unused database helpers and the unused `export` keywords are gone, and the wish row mapping and the `ÅÅÅÅ-MM-DD` date text each live in one place. Shrinking the pictures became [TECH-012](https://github.com/gustavnymoen/Muppbarnen/issues/63).
+
 ## 2026-10-30
 
 * **Creation** [MUPP-015 Back button on kids card](../specs/MUPP-015-back-button/solution.md): an open kid view on a card with several kids or on Christmas Eve has a "Tillbaka" button in the top left corner that does what "Stäng" does; the heading gets a row of its own below the two corner buttons.

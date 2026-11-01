@@ -19,7 +19,7 @@ export type Wish = {
   claimedAt: string | null;
 };
 export type Wishes = Map<number, { birthday: Wish[]; christmas: Wish[] }>;
-export type Today = { year: number; month: number; day: number };
+type Today = { year: number; month: number; day: number };
 
 // Det som webbläsaren får: månad och ålder, aldrig dagen eller födelsedatumet (R6).
 // expected: barnet är inte fött än (MUPP-011), då finns ingen ålder. sizes: storlekarna visas för alla besökare (MUPP-014).
@@ -38,6 +38,9 @@ export function swedishToday(now = new Date()): Today {
   return { year: part("year"), month: part("month"), day: part("day") };
 }
 
+// Datumet som text, ÅÅÅÅ-MM-DD, som i databasen
+export const isoDate = (today: Today) => `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
+
 // Månadens dag ett visst år. Den 29 februari firas den 28:e de år som inte har någon 29:e.
 function occurrenceIn(year: number, month: number, day: number, today: Today) {
   const date = month === 2 && day === 29 && !isLeapYear(year) ? 28 : day;
@@ -52,7 +55,7 @@ export function nextOccurrence(month: number, day: number, today: Today) {
 
 // Barnet är inte fött än (MUPP-011): födelsedatumet ligger efter idag
 export function isExpected(birthdate: string, today = swedishToday()) {
-  return birthdate > `${today.year}-${String(today.month).padStart(2, "0")}-${String(today.day).padStart(2, "0")}`;
+  return birthdate > isoDate(today);
 }
 
 const parseBirthdate = (birthdate: string) => {

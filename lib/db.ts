@@ -73,17 +73,3 @@ async function runTransaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T
     tx.close();
   }
 }
-
-// Vilken sorts databasfel det är, oavsett om det kom från filen eller Turso
-export function constraintKind(e: unknown): "unique" | "foreignKey" | null {
-  const message = e instanceof Error ? e.message : "";
-  if (/UNIQUE constraint failed|PRIMARY KEY/.test(message)) return "unique";
-  if (/FOREIGN KEY constraint failed/.test(message)) return "foreignKey";
-  return null;
-}
-
-// % och _ betyder något speciellt i LIKE, så de måste "escapas".
-// Används tillsammans med ESCAPE '\' i SQL-frågan.
-export function escapeLike(text: string) {
-  return text.replace(/[\\%_]/g, (c) => "\\" + c);
-}

@@ -8,7 +8,7 @@ import { findParent, type Parent } from "./family";
 // Kontrollen av adminkakan på servern, utöver proxy.ts: sidor och serveråtgärder under
 // admin frågar den igen. Vem som är inloggad som, och om hen är huvudadministratör,
 // läses ur databasen vid varje förfrågan och står aldrig i kakan.
-export type AdminSession = { expires: number; parent: Parent | null };
+type AdminSession = { expires: number; parent: Parent | null };
 
 // Sessionen om kakan är giltig, annars null. parent är null när ingen förälder är vald
 // eller när den valda inte finns längre (valet släpps då).
