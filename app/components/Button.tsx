@@ -12,7 +12,7 @@ const variants = {
 type Variant = keyof typeof variants;
 
 // Knappens utseende, för det som ser ut som en knapp men inte är en <button> (länkar, <summary>)
-export const buttonClass = (variant: Variant = "primary") => `${base} ${fullSize} ${variants[variant]}`;
+const buttonClass = (variant: Variant = "primary") => `${base} ${fullSize} ${variants[variant]}`;
 
 export function Button({ variant = "primary", className = "", ...props }: ComponentProps<"button"> & { variant?: Variant }) {
   return <button type="button" className={`${buttonClass(variant)} ${className}`} {...props} />;

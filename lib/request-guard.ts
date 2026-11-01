@@ -19,7 +19,7 @@ export function originMatches(origin: string | null, host: string | null) {
   }
 }
 
-export type WriteGuard = "ok" | "origin" | "limit";
+type WriteGuard = "ok" | "origin" | "limit";
 
 // Det första en skrivande rutt eller serveråtgärd gör efter inloggningskontrollen
 // (specs/rules.md): kommer anropet från sajten själv, och är adressen under

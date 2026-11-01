@@ -26,7 +26,7 @@ The project follows specification-driven development (see [Way of working](way-o
 
 ## Unit tests
 
-- **Tool:** Vitest. `npm run test:unit` runs all unit tests once; `npm run test:unit -- --watch` reruns the affected ones on every save.
+- **Tool:** Vitest. `npm run test:unit` runs all unit tests once (never the ones in `.claude/`, where other checkouts of the project may live); `npm run test:unit -- --watch` reruns the affected ones on every save.
 - **Place and name:** next to the code they test, as `<file>.test.ts` (for example `lib/dates.test.ts`); data checks next to the data or migrations they check. Each test is named after its requirement, as the browser tests are.
 - **Data:** tests that read the database use their own test database, `~/Ai Projekt/muppbarnen-data/unit-test.db`, which `vitest.global-setup.mjs` deletes and builds again from the schema, seed and migrations (with `scripts/db-setup.mjs`) before every run, so it is never the user's own. Read it with `queryUnitDb` or `openUnitDb` from `db/test-db.ts`.
 - **The check test** `lib/route-checks.test.ts` reads the code as text and fails when a route handler or server action lacks the sign-in check or `guardWrite()` ([Security](security.md)); it needs no change when a route is added, only when an exception is.

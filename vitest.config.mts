@@ -14,7 +14,7 @@ export default defineConfig({
   },
   test: {
     include: ["**/*.test.ts"],
-    exclude: ["node_modules/**", ".next/**", ".next-test/**", "tests/**"],
+    exclude: ["**/node_modules/**", ".claude/**", ".next/**", ".next-test/**", "tests/**"],
     environment: "node",
     // Bygger en färsk databas för datakontrollerna, aldrig din egen
     globalSetup: ["./vitest.global-setup.mjs"],

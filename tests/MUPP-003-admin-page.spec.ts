@@ -469,6 +469,10 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   expect(served.status()).toBe(200);
   expect(served.headers()["content-type"]).toBe("image/png");
   expect(await served.body()).toEqual(png);
+  // An unchanged picture is not sent again (TECH-011): the file name is the ETag, and a new picture has a new name
+  const etag = served.headers()["etag"];
+  expect(etag).toBe(`"${first}"`);
+  expect((await page.request.get(`/bilder/${kidId}`, { headers: { "If-None-Match": etag } })).status()).toBe(304);
   // The page never mentions where the file is kept
   expect(await page.content()).not.toContain(first);
 
@@ -477,12 +481,15 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   await expect.poll(() => pictureOf(kidId)).toMatch(/\.jpg$/);
   expect(readdirSync(testPicturesDir).filter((f) => f.startsWith(`barn-${kidId}-`))).toHaveLength(1);
   expect((await page.request.get(`/bilder/${kidId}`)).headers()["content-type"]).toBe("image/jpeg");
+  expect((await page.request.get(`/bilder/${kidId}`, { headers: { "If-None-Match": etag } })).status()).toBe(200);
 
   // No picture, a made-up id and text instead of an id: 404
   for (const id of [String(noPicture), "999999", "abc"]) expect((await page.request.get(`/bilder/${id}`)).status(), id).toBe(404);
   // Without the site cookie there is no picture (MUPP-009-R4)
   const stranger = await playwright.request.newContext({ baseURL: baseURL!, storageState: { cookies: [], origins: [] }, extraHTTPHeaders: { "x-real-ip": testIp() } });
   expect((await stranger.get(`/bilder/${kidId}`, { maxRedirects: 0 })).status()).toBe(401);
+  // Not even a matching ETag gets past the cookie check (TECH-011)
+  expect((await stranger.get(`/bilder/${kidId}`, { maxRedirects: 0, headers: { "If-None-Match": etag } })).status()).toBe(401);
   await stranger.dispose();
 
   // Removing the kid removes its picture

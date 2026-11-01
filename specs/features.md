@@ -31,6 +31,7 @@ tags: [product, features]
 | [TECH-007](TECH-007-flaky-admin-tests/solution.md) | Flaky admin tests | Shared | Done |
 | [TECH-008](TECH-008-flaky-box-measurements/solution.md) | Flaky box measurements | Shared | Done |
 | [TECH-009](TECH-009-settled-boxes-in-feature-tests/solution.md) | Settled boxes in the feature tests | Shared | Done |
+| [TECH-011](TECH-011-ponytail-audit/solution.md) | Ponytail audit and tidy-up | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

@@ -2,7 +2,7 @@
 // längd och tillåtna värden. Ren kod, så att den går att enhetstesta.
 import { swedishToday } from "./deck";
 
-export type Parsed<T> = { ok: true; value: T } | { ok: false; error: string };
+type Parsed<T> = { ok: true; value: T } | { ok: false; error: string };
 
 export const OCCASIONS = ["birthday", "christmas"] as const;
 export type Occasion = (typeof OCCASIONS)[number];
@@ -35,7 +35,7 @@ export function parseOccasion(raw: unknown): Occasion | null {
 }
 
 // Hur långt fram ett födelsedatum får ligga, för ett barn som är på väg (MUPP-011)
-export const MAX_MONTHS_AHEAD = 10;
+const MAX_MONTHS_AHEAD = 10;
 
 // Det senaste tillåtna födelsedatumet, ÅÅÅÅ-MM-DD, räknat från dagens datum i Sverige.
 // Månaden får inte rinna över: 30 april + 10 månader blir 28 februari, inte 2 mars.
