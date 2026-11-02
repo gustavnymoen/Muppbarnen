@@ -1,0 +1,6 @@
+%% MUPP-026 Menu hidden after refresh on a phone
+flowchart TD
+    A[Page reloaded or dragged] --> B{Document can scroll?}
+    B -- before --> C[Page shifted up, menu behind the browser bar]
+    B -- after, R1 R2 --> D[Document is fixed: overflow hidden, no bounce]
+    D --> E[Menu always in place; only PageContent scrolls]
