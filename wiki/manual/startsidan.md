@@ -24,8 +24,8 @@ Under det ligger en **karusell med kort** med barnens födelsedagar och julafton
 - **Långa namn** står alltid på en rad: texten blir mindre (som minst 12 px) och kapas med "…" om namnet ändå inte ryms.
 - **Julafton** är ett eget kort på en grön bakgrund med girlang, stjärnor, snö och granar. Barnen står i rutor, två och två, med bilden över namnet; tryck på en ruta för att se barnets önskelista till jul.
 - **Du kan bläddra medan en önskelista är öppen.** Med pilknapparna vid sidorna (eller piltangenterna) går du till nästa eller föregående barn med önskelistan öppen. På ett kort med flera barn och på Julafton byter du barn inom kortet. Dina kryss försvinner när du byter. Att svepa fungerar inte medan listan är öppen, så att du kan scrolla i den.
-- Av en födelsedag visas bara månaden, aldrig dagen.
-- **Barn som inte är födda än:** kortet visar "Beräknad" och månaden i stället för åldern. När dagen kommer blir det ett vanligt födelsedagskort, utan att någon behöver ändra något. Första födelsedagen visas som "Fyller 1 år".
+- Överst på ett födelsedagskort står dagen och månaden, till exempel "17 mars". Födelseåret och hela födelsedatumet visas aldrig.
+- **Barn som inte är födda än:** kortet visar "Beräknad" och datumet, till exempel "Beräknad 17 mars", i stället för åldern. När dagen kommer blir det ett vanligt födelsedagskort, utan att någon behöver ändra något. Första födelsedagen visas som "Fyller 1 år".
 - Finns inga barn än står det "Inga barn har lagts till än." Barnen läggs in på [adminsidan](admin.md).
 
 ## Menyn

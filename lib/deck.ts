@@ -22,12 +22,15 @@ export type Wish = {
 export type Wishes = Map<number, { birthday: Wish[]; christmas: Wish[] }>;
 type Today = { year: number; month: number; day: number };
 
-// Det som webbläsaren får: månad och ålder, aldrig dagen eller födelsedatumet (R6).
+// Det som webbläsaren får: kortets dag och månad och varje barns ålder, aldrig födelsedatumet eller födelseåret (specs/rules.md).
 // expected: barnet är inte fött än (MUPP-011), då finns ingen ålder. sizes: storlekarna visas för alla besökare (MUPP-014).
 export type DeckKid = { id: number; name: string; age: number | null; expected: boolean; color: ChildColor; picture: string | undefined; sizes: Sizes; wishes: Wish[] };
-export type DeckCard = { key: string; kind: "birthday" | "christmas"; month: number | null; next: boolean; kids: DeckKid[] };
+export type DeckCard = { key: string; kind: "birthday" | "christmas"; day: number | null; month: number | null; next: boolean; kids: DeckKid[] };
 
-export const MONTHS = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+const MONTHS = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+
+// "17 mars"
+export const dayAndMonth = (day: number, month: number) => `${day} ${MONTHS[month - 1].toLowerCase()}`;
 
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 const dayNumber = (year: number, month: number, day: number) => Date.UTC(year, month - 1, day) / 86_400_000;
@@ -86,7 +89,7 @@ export function buildDeck(children: DeckInput[], wishes: Wishes, today: Today): 
   });
 
   // En födelsedagskort per datum
-  const byDate = new Map<string, { days: number; month: number; kids: (DeckInput & { age: number | null })[] }>();
+  const byDate = new Map<string, { days: number; day: number; month: number; kids: (DeckInput & { age: number | null })[] }>();
   for (const kid of children) {
     const born = parseBirthdate(kid.birthdate);
     const expected = isExpected(kid.birthdate, today);
@@ -94,20 +97,20 @@ export function buildDeck(children: DeckInput[], wishes: Wishes, today: Today): 
     // Ett barn som är fött har aldrig ålder 0: nästa födelsedag är den första (MUPP-011-R3)
     if (!expected && next.year === born.year) next = occurrenceIn(born.year + 1, born.month, born.day, today);
     const key = `${next.month}-${next.day}`;
-    const entry = byDate.get(key) ?? { days: next.days, month: next.month, kids: [] };
+    const entry = byDate.get(key) ?? { days: next.days, day: next.day, month: next.month, kids: [] };
     entry.kids.push({ ...kid, age: expected ? null : next.year - born.year });
     byDate.set(key, entry);
   }
 
   const christmas = nextOccurrence(12, 24, today);
   const entries = [
-    ...[...byDate.values()].map((entry) => ({ rank: 0, days: entry.days, card: { key: "", kind: "birthday" as const, month: entry.month, next: false, kids: orderKids(entry.kids).map((k) => toKid(k, k.age, "birthday", k.age === null)) } })),
+    ...[...byDate.values()].map((entry) => ({ rank: 0, days: entry.days, card: { key: "", kind: "birthday" as const, day: entry.day, month: entry.month, next: false, kids: orderKids(entry.kids).map((k) => toKid(k, k.age, "birthday", k.age === null)) } })),
     ...(children.length > 0
-      ? [{ rank: 1, days: christmas.days, card: { key: "", kind: "christmas" as const, month: null, next: false, kids: orderKids(children).map((k) => toKid(k, null, "christmas")) } }]
+      ? [{ rank: 1, days: christmas.days, card: { key: "", kind: "christmas" as const, day: null, month: null, next: false, kids: orderKids(children).map((k) => toKid(k, null, "christmas")) } }]
       : []),
   ];
   // Närmast först; en födelsedag på julafton kommer före julkortet
-  // Nyckeln är kortets plats i leken, aldrig datumet: dagen får inte skickas till webbläsaren
+  // Nyckeln är kortets plats i leken, inte datumet
   const cards = entries.sort((a, b) => a.days - b.days || a.rank - b.rank).map((e, i) => ({ ...e.card, key: `kort-${i}` }));
   if (cards.length > 0) cards[0].next = true;
   return cards;

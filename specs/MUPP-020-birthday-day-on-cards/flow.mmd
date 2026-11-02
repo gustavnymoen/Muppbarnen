@@ -1,0 +1,7 @@
+%% MUPP-020 Birthday day on the cards
+flowchart TD
+    A[Server: buildDeck] --> B[One card per date: day, month, kids with age]
+    B --> C[Browser gets day, month and age, never birthdate or year]
+    C --> D{Kid born?}
+    D -- yes --> E["Heading '17 mars', 'Fyller N år'"]
+    D -- no --> F["Heading '17 mars', 'Beräknad 17 mars', no age"]

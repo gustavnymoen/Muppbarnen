@@ -13,10 +13,10 @@ Everything below was checked locally on 2026-10-28 against the local test server
 |---|---|---|---|---|
 | MUPP-004-R1 | Test `MUPP-004-R1 the empty deck …` in `tests/MUPP-004-birthday-card.spec.ts`; the examples are gone from `app/page.tsx` (code review) | local | Pass | 2026-10-28 |
 | MUPP-004-R2 | Unit tests `MUPP-004-R2 …` in `lib/deck.test.ts` (today, tomorrow, passed, 29 February, 24 December, grouping, oldest first); browser tests for the order and the "next" mark | local | Pass | 2026-10-28 |
-| MUPP-004-R3 | Browser test `MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid …` (month, mark, name, age); picture through `/bilder/<id>`, empty `alt` and the avatar fallback: code review (the avatar is `decorative`; a test with a real picture needs the Blob upload) | local | Pass | 2026-10-28 |
-| MUPP-004-R4 | Browser test `MUPP-004-R2 R4 R5 R7 R9 several kids …` (buttons, opening, Escape, focus on the kid's button) | local | Pass | 2026-10-28 |
+| MUPP-004-R3 | Browser test `MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid …` (month, mark, name, age); picture through `/bilder/<id>`, empty `alt` and the avatar fallback: code review (the avatar is `decorative`; a test with a real picture needs the Blob upload) | local | Pass | 2026-10-28 |
+| MUPP-004-R4 | Browser test `MUPP-004-R2 R4 R5 R7 R9 MUPP-020-R1 several kids …` (buttons, opening, Escape, focus on the kid's button) | local | Pass | 2026-10-28 |
 | MUPP-004-R5 | The same test (Christmas Eve with all kids, no age, "Önskelista jul"); the look in `tests/design.spec.ts` (gradient, contrast of the heading and the star) | local | Pass | 2026-10-28 |
-| MUPP-004-R6 | Unit test `MUPP-004-R6 …` (the JSON holds month and age but not the day or birthdate; a test caught a card key made from the date), and the browser test (the page HTML holds no birthdate) | local | Pass | 2026-10-28 |
+| MUPP-004-R6 | Unit test `MUPP-004-R6 …` (the JSON holds the card's day and month and the age but not the birthdate or year; a test caught a card key made from the date), and the browser test (the page HTML holds no birthdate) | local | Pass | 2026-10-28 |
 | MUPP-004-R7 | Browser test (folded, fits 375×667, unfolded with 15 wishes that scroll inside the card, empty list, plain text of `<b>`) | local | Pass | 2026-10-28 |
 | MUPP-004-R8 | Browser tests (buttons, arrow keys, swipe with the mouse, wrapping both ways); the look and 250 ms / reduced motion in `tests/design.spec.ts`. Buttons disabled with a single card: not tested, since a deck with a kid always has at least two cards (code path in `go()`) | local | Pass | 2026-10-28 |
 | MUPP-004-R9 | Browser test (disabled buttons, the text, the live region texts, arrow key does nothing, Escape closes and focus stays on the list button) | local | Pass | 2026-10-28 |
@@ -112,14 +112,16 @@ Acceptance criteria:
 - **Given** the card, **then** it shows all kids as narrow rows (a small picture with the name beside it, no age; a button named "Öppna Vera") so that six kids fit a 375×667 phone without any scroll in the card; the row opens that kid's Christmas wish list as in R4.
 - **Given** the cards, **then** text and decorations meet the contrast rules (WCAG 2.2 AA).
 
-### MUPP-004-R6 The birthday day stays private
+### MUPP-004-R6 The birthdate stays private
 
-The site shall not show or send a kid's day of birth or full birthdate to the browser.
+*Changed by [MUPP-020](../MUPP-020-birthday-day-on-cards/solution.md): the card now shows the day and the month, as the rule in `specs/rules.md` says. The birthdate and the birth year are still never sent.*
+
+The site shall not send a kid's full birthdate to the browser.
 
 Acceptance criteria:
 
-- **Given** the start page, **then** the HTML and the data sent to the browser contain the month, the age and the order, but not the day of the month or the birthdate.
-- **Given** the page text, **then** only the month name is shown.
+- **Given** the start page, **then** the HTML and the data sent to the browser contain the day and month of the card, the age and the order, but not the birthdate or the birth year.
+- **Given** the page text, **then** the day and the month are shown ("17 mars").
 
 ### MUPP-004-R7 Compact wish list
 

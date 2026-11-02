@@ -11,10 +11,10 @@ How each requirement was checked. All checks are local so far; the live checks a
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| MUPP-011-R1 | Unit tests `MUPP-011-R1 …` in `lib/form-input.test.ts` (today, ten months, one day too far, 1899, month ends, Swedish date) and `lib/family.test.ts`; browser test `MUPP-011-R1 R2 R4 …` (the `max` of the field, 11 months refused with the message, 4 months saved) | local | Pass | 2026-10-29 |
-| MUPP-011-R2 | Unit test `MUPP-011-R2 …` in `lib/deck.test.ts` (no age, place by date, no date in the data); browser test `MUPP-011-R1 R2 R4 …` (the start page shows "Beräknad {månad}", no "Fyller", the date not in the page) | local | Pass | 2026-10-29 |
+| MUPP-011-R1 | Unit tests `MUPP-011-R1 …` in `lib/form-input.test.ts` (today, ten months, one day too far, 1899, month ends, Swedish date) and `lib/family.test.ts`; browser test `MUPP-011-R1 R2 R4 MUPP-020-R2 …` (the `max` of the field, 11 months refused with the message, 4 months saved) | local | Pass | 2026-10-29 |
+| MUPP-011-R2 | Unit test `MUPP-011-R2 …` in `lib/deck.test.ts` (no age, place by date, no date in the data); browser test `MUPP-011-R1 R2 R4 MUPP-020-R2 …` (the start page shows "Beräknad {dag och månad}", no "Fyller", the date not in the page) | local | Pass | 2026-10-29 |
 | MUPP-011-R3 | Unit tests `MUPP-011-R3 …` in `lib/deck.test.ts` (born today, yesterday and earlier this year give 1; an expected kid turns ordinary on the day) | local | Pass | 2026-10-29 |
-| MUPP-011-R4 | Browser test `MUPP-011-R1 R2 R4 …` (the kid's row says "Beräknad {datum}") | local | Pass | 2026-10-29 |
+| MUPP-011-R4 | Browser test `MUPP-011-R1 R2 R4 MUPP-020-R2 …` (the kid's row says "Beräknad {datum}") | local | Pass | 2026-10-29 |
 
 ## The test plan
 
@@ -59,7 +59,7 @@ The admin form accepts a birthdate from 1900-01-01 up to ten months after today 
 
 ### MUPP-011-R2 An expected child is shown without an age
 
-On the start page the birthday card of a child whose birthdate is after today shows "Beräknad {månad}" in place of the age, and never a number. The child is in the deck at its place by date with the wish list as for any child; only the month and a flag go to the browser, never the date. The Christmas card lists the child like any other.
+On the start page the birthday card of a child whose birthdate is after today shows "Beräknad {månad}" in place of the age, and never a number. The child is in the deck at its place by date with the wish list as for any child; only the day and month and a flag go to the browser, never the birthdate (MUPP-020). The Christmas card lists the child like any other.
 
 ### MUPP-011-R3 The age is never below 1
 

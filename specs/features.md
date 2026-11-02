@@ -23,6 +23,7 @@ tags: [product, features]
 | [MUPP-015](MUPP-015-back-button/solution.md) | Back button on kids card | Startsida | Done |
 | [MUPP-016](MUPP-016-wishlist-open-transition/solution.md) | Wish list open transition | Startsida | Ongoing |
 | [MUPP-017](MUPP-017-browse-with-open-list/solution.md) | Browse kids with the wish list open | Startsida | Review |
+| [MUPP-020](MUPP-020-birthday-day-on-cards/solution.md) | Birthday day on the cards | Startsida | Ongoing |
 | [MUPP-023](MUPP-023-long-wish-titles/solution.md) | Long wish titles wrap and get a maximum length | Startsida | Review |
 | [MUPP-025](MUPP-025-ios-close-animation/solution.md) | Close animation visible on iPhone | Startsida | Review |
 | [MUPP-024](MUPP-024-picture-cache/solution.md) | Pictures are cached by the browser | Startsida | Review |

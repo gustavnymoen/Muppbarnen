@@ -19,7 +19,7 @@ None. The birthdate is still a `YYYY-MM-DD` text in `child.birthdate`; whether a
 
 - **`lib/form-input.ts`:** `MAX_MONTHS_AHEAD` (10) and `latestBirthdate(now)`, the last allowed date, counted from the Swedish date. `parseBirthdate` accepts 1900-01-01 up to that date and otherwise gives "Skriv ett riktigt datum, högst tio månader fram." (R1).
 - **`app/components/Form.tsx`:** `Field` takes `max`, which the date field gets from `latestBirthdate()` in `app/admin/hantera/page.tsx`. The form has `noValidate`, so the server's message is still the one shown; `max` only limits the date picker.
-- **`lib/deck.ts`:** `isExpected(birthdate, today)` (the date is after today). `DeckKid` has `expected`; an expected kid on a birthday card has `age: null` and `expected: true`. For a kid who is born, `nextOccurrence` is moved to the first birthday if it would give age 0 (R3). Only the month and the flag go to the browser, as before (MUPP-004-R6).
+- **`lib/deck.ts`:** `isExpected(birthdate, today)` (the date is after today). `DeckKid` has `expected`; an expected kid on a birthday card has `age: null` and `expected: true`. For a kid who is born, `nextOccurrence` is moved to the first birthday if it would give age 0 (R3). Only the day and month of the card and the flag go to the browser, never the birthdate (MUPP-004-R6, MUPP-020).
 - **`app/components/BirthdayDeck.tsx`:** `ageText(kid, month)` gives "Beräknad {månad}" for an expected kid (R2) and otherwise "Fyller N år"; the Christmas card shows no age, as before.
 - **`app/admin/hantera/page.tsx`:** the info line of a kid says "Beräknad {datum}" instead of "Född {datum}" when the kid is expected (R4).
 - The flow is in [flow.mmd](flow.mmd).

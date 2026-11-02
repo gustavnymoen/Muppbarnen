@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
-import { MONTHS, type DeckCard, type DeckKid } from "@/lib/deck";
+import { dayAndMonth, type DeckCard, type DeckKid } from "@/lib/deck";
 import { Avatar } from "./Avatar";
 import { IconButton } from "./Button";
 import { Card } from "./Card";
@@ -26,8 +26,9 @@ const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
 const SOLO_AVATAR = "clamp(96px, calc(100dvh - 527px), 192px)";
 const TILE_AVATAR = 56; // barnen på julkortet
 
-const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${MONTHS[card.month! - 1].toLowerCase()}`);
-const ageText = (kid: DeckKid, month: number | null) => (kid.expected ? `Beräknad ${MONTHS[month! - 1].toLowerCase()}` : kid.age === null ? null : `Fyller ${kid.age} år`);
+const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${dayAndMonth(card.day!, card.month!)}`);
+// Datumet står i kortets rubrik; på miniatyrerna (utan date) står bara "Beräknad"
+const ageText = (kid: DeckKid, date = "") => (kid.expected ? `Beräknad ${date}`.trim() : kid.age === null ? null : `Fyller ${kid.age} år`);
 
 // Vilket barns lista som är utfälld, på vilket kort
 type OpenList = { cardKey: string; kidId: number } | null;
@@ -208,6 +209,7 @@ function NextMark({ children }: { children: string }) {
 
 function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCard; first: boolean; openList: OpenList; onOpen: (kid: DeckKid) => void; onClose: () => void }) {
   const christmas = card.kind === "christmas";
+  const date = christmas ? "" : dayAndMonth(card.day!, card.month!);
   // Ett barn visas som hela kort; flera visas som miniatyrer tills ett öppnas
   const single = card.kids.length === 1 ? card.kids[0] : card.kids.find((k) => k.id === openList?.kidId);
   const openKid = single && (card.kids.length > 1 || openList?.kidId === single.id) ? single : null;
@@ -231,8 +233,8 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       {/* Ikonen för storlekar i hörnet av varje öppen barnvy (MUPP-014-R4) */}
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
       <header className="flex flex-col items-center gap-2 text-center">
-        {/* På en smal telefon krymper månaden när ikonerna i hörnen ligger bredvid den */}
-        <h2 className={`font-heading text-3xl font-semibold ${openKid ? "max-[23rem]:text-xl" : ""}`}>{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
+        {/* På en smal telefon krymper datumet så att det ryms på en rad, och i en öppen barnvy också för ikonerna i hörnen */}
+        <h2 className={`font-heading font-semibold ${openKid ? "text-2xl max-[23rem]:text-lg" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
@@ -240,7 +242,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
         <KidFace
           key={single.id}
           cardKey={card.key}
-          month={card.month}
+          date={date}
           kid={single}
           solo={card.kids.length === 1}
           open={card.kids.length === 1 ? openList?.kidId === single.id : true}
@@ -270,7 +272,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
                 <h3 className="max-w-full">
                   <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </h3>
-                {ageText(kid, card.month) && <p className="text-muted">{ageText(kid, card.month)}</p>}
+                {ageText(kid) && <p className="text-muted">{ageText(kid)}</p>}
                 <div className="mt-2 flex w-full max-w-48 gap-1.5">
                   <WishButton id={`barn-${card.key}-${kid.id}`} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="min-w-0 flex-1" />
                   <SizesButton kid={kid} mode="icon" forKid />
@@ -286,13 +288,13 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
 
 // Ett barn som hela kort: stor bild, namn, ålder och önskelistan
 // cardKey ingår i id:na: samma barn finns på flera kort, och korten bredvid ritas också
-function KidFace({ cardKey, month, kid, solo, open, onToggle }: { cardKey: string; month: number | null; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
+function KidFace({ cardKey, date, kid, solo, open, onToggle }: { cardKey: string; date: string; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
   return (
     <>
       <div className={`flex flex-col items-center justify-center gap-2 text-center ${open ? "" : "min-h-0 flex-1"}`}>
         <Avatar name={kid.name} color={kid.color} src={kid.picture} size={open ? 72 : SOLO_AVATAR} decorative />
         <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
-        {ageText(kid, month) && <p className="text-lg text-muted">{ageText(kid, month)}</p>}
+        {ageText(kid, date) && <p className="text-lg text-muted">{ageText(kid, date)}</p>}
         {!open && <SizesButton kid={kid} mode="text" className="mt-2" />}
       </div>
       <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />
