@@ -45,7 +45,7 @@ test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons,
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and unfolded list, browsing, the lock and the screen reader", async ({ page }) => {
+test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and unfolded list, browsing and the screen reader", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   const parent = await addParent(uniqueName("Förälder"));
   const otto = birthdateIn(0);
@@ -80,23 +80,23 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   await list.click();
   await expect(card(page).getByText("Inga önskningar än.")).toBeVisible();
 
-  // R9: listan är öppen, så kortleken är låst: knapparna är avstängda och texten och skärmläsaren säger det
+  // R9: listan är öppen och kortleken går att bläddra i (MUPP-017): knapparna är på, texten om låset finns inte mer
   // (listknappen har bytts mot pilen upp, som får fokus; MUPP-013-R5, MUPP-005-R6)
   await expect(list).toHaveCount(0);
   await expect(card(page).getByRole("button", { name: "Fäll ihop önskelistan" })).toBeFocused();
-  await expect(next(page)).toBeDisabled();
-  await expect(previous(page)).toBeDisabled();
-  await expect(page.getByText("Stäng önskelistan för att bläddra.", { exact: true })).toBeVisible();
-  await expect(status(page)).toHaveText("Kortleken är låst. Stäng önskelistan för att bläddra.");
+  await expect(next(page)).toBeEnabled();
+  await expect(previous(page)).toBeEnabled();
+  await expect(page.getByText("Stäng önskelistan för att bläddra.")).toHaveCount(0);
   await page.keyboard.press("ArrowRight");
+  await expect(card(page).getByRole("heading", { level: 3, name: "Alma" })).toBeVisible();
+  await page.keyboard.press("ArrowLeft");
   await expect(card(page).getByRole("heading", { level: 3, name: "Otto" })).toBeVisible();
   await expectNoA11yViolations(page);
 
-  // R9: Escape stänger listan, fokus stannar på listknappen och leken är upplåst
+  // R9: Escape stänger listan och fokus stannar på listknappen
   await page.keyboard.press("Escape");
   await expect(list).toHaveAttribute("aria-expanded", "false");
   await expect(list).toBeFocused();
-  await expect(status(page)).toHaveText("Kortleken är upplåst.");
   await expect(next(page)).toBeEnabled();
 
   // R8 R10: nästa kort med knappen, med pil och med svep; skärmläsaren hör var man är; fokus stannar på knappen
@@ -163,12 +163,11 @@ test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", asy
   expect(firstBox.y).toBeLessThan(secondBox.y);
   await expectNoA11yViolations(page);
 
-  // R4 R9: barnet öppnas som ett vanligt kort med listan utfälld och leken låst; Escape går tillbaka till barnen med fokus på knappen
+  // R4 R9: barnet öppnas som ett vanligt kort med listan utfälld; Escape går tillbaka till barnen med fokus på knappen
   await open.first().click();
   await expect(card(page).getByRole("heading", { level: 3, name: "Vera" })).toBeVisible();
   await expect(card(page).getByRole("button", { name: "Stäng önskelistan" })).toBeVisible();
   await expect(card(page).getByRole("listitem")).toHaveText(["Dockhus"]);
-  await expect(next(page)).toBeDisabled();
   await expectNoA11yViolations(page);
   await page.keyboard.press("Escape");
   await expect(card(page).getByRole("button", { name: "Önskelista för Vera" })).toBeFocused();

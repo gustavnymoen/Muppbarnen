@@ -3,18 +3,19 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { MONTHS, type DeckCard, type DeckKid } from "@/lib/deck";
 import { Avatar } from "./Avatar";
-import { Button, IconButton } from "./Button";
+import { IconButton } from "./Button";
 import { Card } from "./Card";
 import { FitName } from "./FitName";
-import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
+import { ChevronLeftIcon, ChevronRightIcon, ReturnIcon } from "./icons";
 import { ChristmasBackdrop } from "./ChristmasBackdrop";
 import { SizesButton } from "./SizesButton";
 import { dropGhost, growFrom, makeGhost, originOf, shrinkTo, sinkAway, type Origin } from "./transition";
 import { WishButton, WishList } from "./WishList";
 
 // Kortleken på startsidan (MUPP-004). Korten ligger på varandra: det valda överst, nästa och
-// föregående tittar fram bakom. Den går att bläddra i med svep, knappar och piltangenter, och
-// den är låst medan en önskelista är utfälld (R9).
+// föregående tittar fram bakom. Den går att bläddra i med svep, knappar och piltangenter. Med en
+// önskelista utfälld går knapparna och piltangenterna vidare med listan öppen (MUPP-017); svepet
+// är avstängt så att det inte krockar med att scrolla listan.
 
 const SWIPE_DISTANCE = 50;
 const SIDE_OFFSET = 94; // % av kortets bredd som korten på sidorna ligger vid sidan om det valda
@@ -44,7 +45,9 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   const origin = useRef<Origin | null>(null);
   const leaving = useRef<"shrink" | "sink" | null>(null);
   const count = cards.length;
-  const locked = openList !== null;
+  // Med flera barn på kortet byter knapparna barn på kortet, så de fungerar även om leken bara har ett kort
+  const openCard = openList && cards.find((c) => c.key === openList.cardKey);
+  const canGo = count > 1 || (openCard?.kids.length ?? 0) > 1;
 
   useLayoutEffect(() => {
     const target = refocus.current ? document.getElementById(refocus.current) : null;
@@ -57,13 +60,6 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
 
   if (count === 0) return <Card as="section" className="mt-3">Inga barn har lagts till än.</Card>;
 
-  const go = (delta: number) => {
-    if (locked || count < 2) return;
-    const next = (index + delta + count) % count;
-    setIndex(next);
-    setAnnouncement(`Kort ${next + 1} av ${count}: ${cardLabel(cards[next])}`);
-  };
-
   const open = (card: DeckCard, kid: DeckKid) => {
     // Önskelistans Stäng-knapp har samma id som önskelistknappen, så fokus hamnar på den när listan öppnas
     refocus.current = `lista-${card.key}-${kid.id}-knapp`;
@@ -72,7 +68,29 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
     const pressed = card.kids.length > 1 ? document.getElementById(`barn-${card.key}-${kid.id}`) : null;
     origin.current = pressed && originOf(pressed);
     setOpenList({ cardKey: card.key, kidId: kid.id });
-    setAnnouncement("Kortleken är låst. Stäng önskelistan för att bläddra.");
+  };
+
+  const go = (delta: number) => {
+    if (!canGo) return;
+    if (openList && openCard!.kids.length > 1) {
+      // Byter barn på samma kort; markeringarna går bort eftersom varje barns lista har sin egen nyckel
+      const { kids } = openCard!;
+      const kid = kids[(kids.findIndex((k) => k.id === openList.kidId) + delta + kids.length) % kids.length];
+      open(openCard!, kid);
+      setAnnouncement(`${kid.name}, önskelistan är öppen`);
+      return;
+    }
+    const next = (index + delta + count) % count;
+    const card = cards[next];
+    setIndex(next);
+    setAnnouncement(`Kort ${next + 1} av ${count}: ${cardLabel(card)}`);
+    if (!openList) return;
+    // Med en lista öppen visas nästa kort med sitt barns lista öppen, eller som översikt om det har flera barn (fokus till första barnet, listan där är borta)
+    if (card.kids.length === 1) open(card, card.kids[0]);
+    else {
+      refocus.current = `barn-${card.key}-${card.kids[0].id}`;
+      setOpenList(null);
+    }
   };
   const close = () => {
     if (!openList) return;
@@ -83,17 +101,18 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
     // Ett kort med flera barn går tillbaka till barnets knapp, annars stannar fokus på listknappen
     refocus.current = multi ? `barn-${card.key}-${openList.kidId}` : `lista-${card.key}-${openList.kidId}-knapp`;
     setOpenList(null);
-    setAnnouncement("Kortleken är upplåst.");
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
+    // Piltangenterna i dialogerna (paxa, storlekar) hör till dem
+    if ((event.target as Element).closest("dialog") && event.key !== "Escape") return;
     if (event.key === "ArrowRight") go(1);
     else if (event.key === "ArrowLeft") go(-1);
     else if (event.key === "Escape") close();
   };
 
   const onPointerDown = (event: PointerEvent) => {
-    if (!locked && count > 1 && event.button === 0) swipeStart.current = event.clientX;
+    if (!openList && count > 1 && event.button === 0) swipeStart.current = event.clientX;
   };
   const onPointerMove = (event: PointerEvent) => {
     if (swipeStart.current === null) return;
@@ -149,17 +168,16 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
           })}
         </div>
         <div className="absolute inset-y-0 left-2 z-10 flex items-center pointer-events-none">
-          <IconButton className="pointer-events-auto" label="Föregående kort" disabled={locked || count < 2} onClick={() => go(-1)}>
+          <IconButton className="pointer-events-auto" label="Föregående kort" disabled={!canGo} onClick={() => go(-1)}>
             <ChevronLeftIcon />
           </IconButton>
         </div>
         <div className="absolute inset-y-0 right-2 z-10 flex items-center pointer-events-none">
-          <IconButton className="pointer-events-auto" label="Nästa kort" disabled={locked || count < 2} onClick={() => go(1)}>
+          <IconButton className="pointer-events-auto" label="Nästa kort" disabled={!canGo} onClick={() => go(1)}>
             <ChevronRightIcon />
           </IconButton>
         </div>
       </div>
-      {locked && <p className="text-center text-sm text-muted">Stäng önskelistan för att bläddra.</p>}
       <p role="status" className="sr-only">
         {announcement}
       </p>
@@ -183,7 +201,6 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
   // Ett barn visas som hela kort; flera visas som miniatyrer tills ett öppnas
   const single = card.kids.length === 1 ? card.kids[0] : card.kids.find((k) => k.id === openList?.kidId);
   const openKid = single && (card.kids.length > 1 || openList?.kidId === single.id) ? single : null;
-  // Med knappen Tillbaka uppe till vänster och ikonen uppe till höger får rubriken en egen rad under dem (MUPP-015-R4)
   const hasBack = openKid !== null && card.kids.length > 1;
   const nextMark = first ? (christmas ? "Nästa: Julafton" : "Nästa födelsedag") : null;
 
@@ -192,26 +209,26 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       as="article"
       id={`karta-${card.key}`}
       highlight={first ? card.kids[0].color : undefined}
-      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${hasBack ? "pt-16" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
+      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
     >
       {christmas && <ChristmasBackdrop />}
       {/* Tillbaka till alla barn uppe till vänster, först i tabbordningen (MUPP-015); på kortet med ett barn finns inget att gå tillbaka till */}
       {hasBack && (
-        <Button variant="secondary" onClick={onClose} aria-label={christmas ? "Tillbaka till Julafton" : "Tillbaka till alla barn"} className="absolute left-3 top-3 z-10 gap-1 px-3 text-base">
-          <ChevronLeftIcon />
-          Tillbaka
-        </Button>
+        <IconButton label={christmas ? "Tillbaka till Julafton" : "Tillbaka till alla barn"} onClick={onClose} className="absolute left-3 top-3 z-10">
+          <ReturnIcon />
+        </IconButton>
       )}
       {/* Ikonen för storlekar i hörnet av varje öppen barnvy (MUPP-014-R4) */}
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
       <header className="flex flex-col items-center gap-2 text-center">
-        {/* På en smal telefon krymper månaden på kortet med ett barn när ikonen i hörnet ligger bredvid den; med Tillbaka har rubriken en rad för sig */}
-        <h2 className={`font-heading text-3xl font-semibold ${openKid && !hasBack ? "max-[23rem]:text-xl" : ""}`}>{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
+        {/* På en smal telefon krymper månaden när ikonerna i hörnen ligger bredvid den */}
+        <h2 className={`font-heading text-3xl font-semibold ${openKid ? "max-[23rem]:text-xl" : ""}`}>{christmas ? "Julafton" : MONTHS[card.month! - 1]}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
       {single ? (
         <KidFace
+          key={single.id}
           cardKey={card.key}
           month={card.month}
           kid={single}

@@ -14,7 +14,7 @@ feature: MUPP-016
 | MUPP-016-R3 | Test `MUPP-016-R3 R4 …` for the card with several kids and the Christmas card: the first frame of the animation is the pressed button's box, the last is the whole card, then the ordinary open view, axe | local | Pass | 2026-11-02 |
 | MUPP-016-R4 | Same tests: closing with Stäng, Tillbaka and Esc ends at the button's box, focus on it; after a window resize the target is where the button now is | local | Pass | 2026-11-02 |
 | MUPP-016-R5 | Tests `MUPP-016-R5 …` with `reducedMotion: "reduce"` on the three cards: no animation (colour transitions aside) and no ghost after opening or closing | local | Pass | 2026-11-02 |
-| MUPP-016-R6 | Test `MUPP-016-R6 …`: double press, Esc right after opening, locking and no sideways scroll; the MUPP-004, -005, -013, -014, -015 and -019 tests pass unchanged | local | Pass | 2026-11-02 |
+| MUPP-016-R6 | Test `MUPP-016-R6 …`: double press, Esc right after opening, nothing left over and no sideways scroll; the MUPP-004, -005, -013, -014, -015, -017 and -019 tests pass unchanged | local | Pass | 2026-11-02 |
 
 The look of the motion (curve, distances) is not tested, by design (the card's test plan). It has **not been looked at** on a phone in the running site yet.
 
@@ -36,14 +36,14 @@ The look of the motion (curve, distances) is not tested, by design (the card's t
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before (MUPP-019) | 127 unit + 76 browser | 124.3 s | 4.3 s |
-| After | 132 unit + 84 browser | 137.4 s | 4.8 s (an older admin test; the new ones are 4.4 s and 4.1 s) |
+| After (merged with MUPP-017) | 132 unit + 91 browser | 152.5 s | 4.8 s (an older admin test) |
 
-(The unit count differs from MUPP-019's because other cards landed on `main` since.)
+(Other cards landed on `main` since MUPP-019, so the counts include theirs. In the last full run `MUPP-003-R6 a picture is uploaded…` failed once and passed twice on its own: unrelated to this card, and not looked into.)
 
 ## Definition of Done
 
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
-- [x] Test suite: within the time budgets (137.4 s of 180 s; grown 10 % since MUPP-019)
+- [x] Test suite: within the time budgets (152.5 s of 180 s; grown 23 % since MUPP-019, partly other cards)
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
 - [ ] Accessibility: axe passes; the live checklist is not checked yet
 - [x] Requirements match what was built (below); `solution.md` describes how
@@ -108,13 +108,13 @@ Acceptance criteria:
 
 - **Given** a transition is running, **when** the visitor presses a button, key or Escape, **then** it is handled as without the transition and the transition ends in the right state (open or closed).
 - **Given** the visitor presses the opening button twice quickly, **then** the second press is handled by what is under it, as without the transitions (on a single-kid card the fold-up arrow sits where the button was), and the list is open once or closed, never twice or half open, with nothing left over when the motion ends.
-- **Given** the list is open or closed, **then** the deck's locking (swipe, arrow keys, buttons), the focus rules and the texts of MUPP-005, MUPP-013 and MUPP-015 are unchanged.
+- **Given** the list is open or closed, **then** the deck's behaviour with an open list (swipe locked, the arrows as MUPP-017 made them), the focus rules and the texts of MUPP-005, MUPP-013, MUPP-015 and MUPP-017 are unchanged.
 - **Given** the transitions, **then** they use only `transform`, `opacity` and `clip-path` (nothing that changes the layout while it runs), the easing `--ease-out-soft`, and the card does not scroll sideways or jump.
 
 
 ## Notes
 
-- The card was changed while building: R2 (the press during closing removes the ghost copy and opens; the real list is already closed), R5 (a colour change on a pressed button is not movement) and R6 (two quick presses on a single-kid card: the second lands on the fold-up arrow that sits where the button was, as before; the list is open or closed, never twice or half open).
+- The card was changed while building (after MUPP-017 landed on `main`, R6 no longer says the deck stays locked, since the arrows now work with an open list): R2 (the press during closing removes the ghost copy and opens; the real list is already closed), R5 (a colour change on a pressed button is not movement) and R6 (two quick presses on a single-kid card: the second lands on the fold-up arrow that sits where the button was, as before; the list is open or closed, never twice or half open).
 - The check that `reveal` is gone is in the R1 test, not in `tests/design.spec.ts` as the plan said: it reads the running animation's name, which the R1 test already has.
 
 See also: [Solution](solution.md), [Review](review.md).
