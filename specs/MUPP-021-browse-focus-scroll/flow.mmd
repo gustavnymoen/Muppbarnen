@@ -1,0 +1,8 @@
+%% MUPP-021 Browse forward with a list open
+%% Why the deck shifted, and what the fix changes.
+flowchart TD
+    A[Next card with a list open] --> B[go: setIndex and open next card]
+    B --> C[Effect on openList moves focus to the next card's button]
+    C --> D{preventScroll?}
+    D -- no, before --> E[Browser scrolls the deck sideways: R1 broken]
+    D -- yes --> F[Deck stays at scrollLeft 0, next card slides in: R1]

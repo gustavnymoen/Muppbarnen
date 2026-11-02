@@ -55,7 +55,8 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
     else if (leaving.current === "shrink") shrinkTo(target);
     else if (leaving.current === "sink") sinkAway();
     origin.current = leaving.current = refocus.current = null;
-    target?.focus();
+    // Utan preventScroll scrollar webbläsaren leken åt sidan för att visa ett kort som ännu glider in
+    target?.focus({ preventScroll: true });
   }, [openList]);
 
   if (count === 0) return <Card as="section" className="mt-3">Inga barn har lagts till än.</Card>;

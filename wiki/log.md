@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Fix** [MUPP-021 Browse forward with a list open](../specs/MUPP-021-browse-focus-scroll/solution.md): going to the next card with a list open no longer scrolls the deck sideways (the focus is moved with `preventScroll`).
 * **Creation** [MUPP-017 Browse kids with the wish list open](../specs/MUPP-017-browse-with-open-list/solution.md): the arrow buttons and keys work with a wish list open (next card, or next kid within a card with several kids and on Christmas Eve), and Tillbaka is a return icon.
 * **Creation** [MUPP-016 Wish list open transition](../specs/MUPP-016-wishlist-open-transition/solution.md): the wish list slides up on a card with one kid, and the kid's view grows out of the pressed button or tile on cards with several kids and on Christmas Eve; closing runs the same movement backwards (a ghost copy moves while the real view is already closed), and nothing moves with reduced motion.
 * **Creation** [MUPP-019 Wish row: info button, labels and order](../specs/MUPP-019-unlimited-gifts-explained-and-sorted/solution.md): a gift that can be bought several times has an info button with the explanation, the list is ordered claimable, unlimited, claimed, the description is labelled "Beskrivning:", and "Paxad" is orange.
