@@ -4,7 +4,9 @@
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const OPEN_MS = 300;
-const CLOSE_MS = 200;
+const CLOSE_MS = 300;
+// Hur stor del av stängningen kopian är helt synlig innan den börjar tona
+const FADE_AFTER = 0.4;
 
 const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const radiusOf = (el: Element) => getComputedStyle(el).borderTopLeftRadius;
@@ -56,10 +58,14 @@ export function makeGhost(el: HTMLElement | null) {
 }
 
 // Spelar upp kopians rörelse och tar bort kopian när den är slut. Kopian får aldrig bli kvar: den tas också bort om animationen avbryts,
-// och efter en säkerhetstid om webbläsaren (iOS) aldrig skickar finish.
-function play(copy: HTMLElement, keyframes: Keyframe[]) {
-  const animation = copy.animate(keyframes, { duration: CLOSE_MS, easing: EASE, fill: "forwards" });
-  animation.onfinish = animation.oncancel = () => remove(copy);
+// och efter en säkerhetstid om webbläsaren (iOS) aldrig skickar finish. Rörelsen och tonandet är två animationer: rörelsen mjuk och snabb i början,
+// tonandet först när kopian är på väg (MUPP-025). Med en gemensam kurva var kopian nästan osynlig efter 100 ms och rörelsen syntes inte alls på en telefon.
+function play(copy: HTMLElement, transform: string) {
+  const options = { duration: CLOSE_MS, fill: "forwards" } as const;
+  const move = copy.animate([{ transform: "none" }, { transform }], { ...options, easing: EASE });
+  copy.animate([{ opacity: 1 }, { opacity: 1, offset: FADE_AFTER }, { opacity: 0 }], { ...options, easing: "linear" });
+  // Det är rörelsen som städar: tonandet är lika långt, och säkerhetstiden tar det som blir över
+  move.onfinish = move.oncancel = () => remove(copy);
   setTimeout(() => remove(copy), CLOSE_MS + 300);
 }
 
@@ -71,13 +77,10 @@ export function shrinkTo(button: HTMLElement | null) {
   if (!button) return remove(copy);
   const [box, to] = [copy.getBoundingClientRect(), button.getBoundingClientRect()];
   copy.style.transformOrigin = "top left";
-  play(copy, [
-    { transform: "none", opacity: 1 },
-    { transform: `translate(${to.left - box.left}px, ${to.top - box.top}px) scale(${to.width / box.width}, ${to.height / box.height})`, opacity: 0 },
-  ]);
+  play(copy, `translate(${to.left - box.left}px, ${to.top - box.top}px) scale(${to.width / box.width}, ${to.height / box.height})`);
 }
 
 // Listan på kortet med ett barn glider ner mot knappen och tonar bort
 export function sinkAway() {
-  if (ghost) play(ghost, [{ transform: "none", opacity: 1 }, { transform: "translateY(1.5rem)", opacity: 0 }]);
+  if (ghost) play(ghost, "translateY(1.5rem)");
 }

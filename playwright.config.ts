@@ -29,6 +29,8 @@ const siteSignIn = process.env.SITE_PASSWORD ? siteSessionFile : undefined;
 
 export default defineConfig({
   testDir: "./tests",
+  // WebKit-testen (npm run test:webkit) ingår inte i den vanliga sviten: WebKit installeras inte i CI
+  testIgnore: process.env.WEBKIT ? undefined : "**/*.webkit.spec.ts",
   // On GitHub, also an HTML report that is saved when tests fail
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   // A forgotten test.only must not make the pipeline skip the other tests

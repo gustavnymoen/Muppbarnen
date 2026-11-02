@@ -22,6 +22,7 @@
     "postinstall": "node scripts/postinstall.mjs",
     "test": "playwright test",
     "test:local": "BASE_URL=http://localhost:3100 playwright test",
+    "test:webkit": "WEBKIT=1 BASE_URL=http://localhost:3100 playwright test webkit",
     "test:smoke": "playwright test --grep @smoke",
     "test:unit": "vitest run",
     "test:time": "node scripts/test-time.mjs"

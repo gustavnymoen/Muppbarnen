@@ -2,6 +2,8 @@
 
 ## 2026-11-02
 
+* **Fix** [MUPP-025 Close animation visible on iPhone](../specs/MUPP-025-ios-close-animation/solution.md): the closing copy moves in 300 ms and fades only after 40 % of it, so it is seen on a phone; a WebKit test (`npm run test:webkit`, outside the normal suite) checks it.
+* **Fix** [MUPP-024 Pictures are cached by the browser](../specs/MUPP-024-picture-cache/solution.md): picture addresses carry a version (`?v=`) and are kept privately for a year, so the small pictures are not fetched again each time a view closes; a replaced picture has a new address.
 * **Fix** [MUPP-022 Close animation glitch and focus ring on phone](../specs/MUPP-022-close-animation-glitch/solution.md): closing a kid's view shrinks the whole view (scaled and fading, transform and opacity only) instead of a cut-out that stuttered on a phone, the copy is always removed, and no focus ring is left on the tile after a close with a finger or mouse.
 * **Fix** [MUPP-021 Browse forward with a list open](../specs/MUPP-021-browse-focus-scroll/solution.md): going to the next card with a list open no longer scrolls the deck sideways (the focus is moved with `preventScroll`).
 * **Creation** [MUPP-017 Browse kids with the wish list open](../specs/MUPP-017-browse-with-open-list/solution.md): the arrow buttons and keys work with a wish list open (next card, or next kid within a card with several kids and on Christmas Eve), and Tillbaka is a return icon.
