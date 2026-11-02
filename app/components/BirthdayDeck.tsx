@@ -234,7 +234,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
       <header className="flex flex-col items-center gap-2 text-center">
         {/* På en smal telefon krymper datumet så att det ryms på en rad, och i en öppen barnvy också för ikonerna i hörnen */}
-        <h2 className={`font-heading font-semibold ${openKid ? "text-2xl max-[23rem]:text-lg" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
+        <h2 className={`font-heading font-semibold ${openKid ? "text-xl max-[23rem]:text-base" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 

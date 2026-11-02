@@ -18,7 +18,7 @@ None. The birthdate is stored as before.
 ## Interface
 
 - **`lib/deck.ts`:** `DeckCard` has `day` (null on the Christmas card) next to `month`. `buildDeck` takes it from the next occurrence, so a 29 February birthday has `day: 28` in a year without a 29th (R3). `dayAndMonth(day, month)` writes it as "17 mars". `DeckKid` is unchanged: age and `expected`, no day (R1, R4).
-- **`app/components/BirthdayDeck.tsx`:** the heading, the screen reader label ("Alma och Vera, 17 mars") and the single kid's "Beräknad 17 mars" use `dayAndMonth`. The miniatures on a card with several kids show only "Beräknad" for an expected kid, since the date is in the heading (R1, R2). In an open kid view, with icons in both top corners, the heading is `text-2xl` (`text-lg` under 23 rem) so a long date such as "29 september" stays clear of them; on a closed card it is `text-3xl` (`text-2xl` under 23 rem) so "22 november" stays on one line on a 320 px phone.
+- **`app/components/BirthdayDeck.tsx`:** the heading, the screen reader label ("Alma och Vera, 17 mars") and the single kid's "Beräknad 17 mars" use `dayAndMonth`. The miniatures on a card with several kids show only "Beräknad" for an expected kid, since the date is in the heading (R1, R2). In an open kid view, with icons in both top corners, the heading is `text-xl` (`text-base` under 23 rem) so a long date such as "29 september" stays clear of them; on a closed card it is `text-3xl` (`text-2xl` under 23 rem) so "22 november" stays on one line on a 320 px phone.
 - **Rule:** `specs/rules.md` states what the browser gets (day and month of the card, age, never the birthdate or the birth year); MUPP-004-R6, `wiki/system/start-page.md` and `wiki/manual/startsidan.md` match it (R4, R5).
 
 ## Decisions
