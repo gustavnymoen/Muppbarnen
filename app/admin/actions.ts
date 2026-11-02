@@ -8,7 +8,7 @@ import { ADMIN_PATH } from "@/lib/admin-session";
 import * as family from "@/lib/family";
 import { parseId } from "@/lib/form-input";
 import { detectImageType, MAX_IMAGE_BYTES } from "@/lib/image-type";
-import { removePicture, storePicture } from "@/lib/pictures";
+import { BadPictureError, removePicture, storePicture } from "@/lib/pictures";
 import { guardMessage, guardWrite } from "@/lib/request-guard";
 import { requireSiteSession } from "@/lib/site-auth";
 
@@ -169,14 +169,14 @@ export async function saveChildPicture(_previous: FormState, formData: FormData)
   if (file.size > MAX_IMAGE_BYTES) return failed(formData, { fields: { picture: BAD_PICTURE } });
   // Typen avgörs av innehållet, inte av filnamnet eller den typ webbläsaren uppger
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const type = detectImageType(bytes);
-  if (!type) return failed(formData, { fields: { picture: BAD_PICTURE } });
+  if (!detectImageType(bytes)) return failed(formData, { fields: { picture: BAD_PICTURE } });
 
   let stored: string | undefined;
   try {
-    stored = await storePicture(child.id, bytes, type);
+    stored = await storePicture(child.id, bytes);
     await family.setChildPicture(child.id, stored);
   } catch (e) {
+    if (e instanceof BadPictureError) return failed(formData, { fields: { picture: BAD_PICTURE } });
     logPictureError(e);
     if (stored) await removePicture(stored).catch(logPictureError);
     return failed(formData, { error: "Bilden kunde inte sparas. Försök igen om en stund." });

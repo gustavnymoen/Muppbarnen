@@ -58,7 +58,7 @@ Om du är huvudadministratör finns **Hantera** på din sida, med knappen **Hant
 
 - **Föräldrar:** lägg till, ändra namn, kryssa i **Huvudadministratör**, eller ta bort. En förälder som har barn kan inte tas bort: flytta eller ta bort barnen först. Det måste alltid finnas minst en huvudadministratör.
 - **Barn:** lägg till med **Nytt barn**: namn, födelsedatum (ett riktigt datum, högst tio månader fram, så att du kan lägga till ett barn som ännu inte är fött) och förälder. Föräldern väljer du i en lista som öppnas under fältet: tryck på fältet och sedan på en förälder, eller använd piltangenterna och Enter (Esc stänger utan att ändra). Ett barn som inte är fött visas som "Beräknad" med datumet. Pennan visar bilden, födelsedatum och förälder och låter dig ändra, bland annat byta förälder. Papperskorgen tar också bort barnets listor och bild, efter en fråga.
-- **Bild:** tryck bildikonen **Bild för …** vid barnet, välj en fil (JPEG, PNG eller WebP, högst 4 MB) och tryck **Spara bild**. En ny bild ersätter den gamla. Annat ger "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB."
+- **Bild:** tryck bildikonen **Bild för …** vid barnet, välj en fil (JPEG, PNG eller WebP, högst 4 MB) och tryck **Spara bild**. Bilden görs liten automatiskt när den sparas (och platsdata i bilden tas bort), så du behöver inte förminska den själv. En ny bild ersätter den gamla. Annat, eller en fil som inte går att öppna som bild, ger "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB."
 - **Ta bort bilden:** har barnet en bild visas en rad "Bild" med en papperskorg överst i bildpanelen (**Ta bort bilden för …**). Du får en fråga som nämner barnet; efter **Ta bort** visas barnets initial i stället.
 
 Bilderna syns bara för den som är inne på sajten med sajtlösenordet.
