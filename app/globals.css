@@ -43,6 +43,11 @@ html {
   color-scheme: dark;
 }
 
+/* Sidan själv står still som i en app (MUPP-026): ingen studs, och dokumentet kan inte
+   scrollas ur läge, t.ex. efter en omladdning. Bara innehållsytan i Page scrollar. */
+html { overscroll-behavior: none; }
+html:has([data-page]) { overflow: hidden; }
+
 body {
   font-family: var(--font-sans);
   font-size: 1rem;

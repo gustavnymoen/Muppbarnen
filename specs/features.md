@@ -25,6 +25,7 @@ tags: [product, features]
 | [MUPP-017](MUPP-017-browse-with-open-list/solution.md) | Browse kids with the wish list open | Startsida | Review |
 | [MUPP-023](MUPP-023-long-wish-titles/solution.md) | Long wish titles wrap and get a maximum length | Startsida | Review |
 | [MUPP-025](MUPP-025-ios-close-animation/solution.md) | Close animation visible on iPhone | Startsida | Review |
+| [MUPP-026](MUPP-026-menu-hidden-after-refresh/solution.md) | Menu hidden after refresh on a phone | Shared | Review |
 | [MUPP-024](MUPP-024-picture-cache/solution.md) | Pictures are cached by the browser | Startsida | Review |
 | [MUPP-022](MUPP-022-close-animation-glitch/solution.md) | Close animation glitch and focus ring on phone | Startsida | Ongoing |
 | [MUPP-021](MUPP-021-browse-focus-scroll/solution.md) | Browse forward with a list open | Startsida | Review |
