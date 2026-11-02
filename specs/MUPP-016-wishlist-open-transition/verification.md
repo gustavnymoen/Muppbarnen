@@ -44,7 +44,7 @@ The look of the motion (curve, distances) is not tested, by design (the card's t
 
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (152.5 s of 180 s; grown 23 % since MUPP-019, partly other cards)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41435572672 on the merge commit a1faa88
 - [ ] Accessibility: axe passes; the live checklist is not checked yet
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated
