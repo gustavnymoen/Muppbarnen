@@ -53,6 +53,8 @@ body {
   outline: 3px solid var(--color-brand);
   outline-offset: 3px;
 }
+/* Knappen som fick fokus av att en vy stängdes med ett finger eller en mus (MUPP-022): ringen behövs bara för tangentbordet */
+[data-quiet-focus]:focus-visible { outline: none; }
 
 /* Kort som tonar in: bara transform och opacity, högst 300 ms */
 @keyframes enter {

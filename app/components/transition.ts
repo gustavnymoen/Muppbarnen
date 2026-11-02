@@ -1,4 +1,4 @@
-// Rörelsen när en önskelista öppnas och stängs (MUPP-016). Bara clip-path, transform och opacity, så att inget i layouten flyttar sig
+// Rörelsen när en önskelista öppnas och stängs (MUPP-016, MUPP-022). Bara clip-path (när en vy växer), transform och opacity, så att inget i layouten flyttar sig
 // medan det rör sig. Med minskad rörelse görs ingenting alls.
 // Web Animations tar inte var(), så kurvan är samma som --ease-out-soft i globals.css.
 
@@ -55,19 +55,29 @@ export function makeGhost(el: HTMLElement | null) {
   ghost = copy;
 }
 
-// Barnets vy krymper tillbaka till knappen den kom från (mäts nu, så att den hamnar rätt även om sidan har scrollats eller bytt storlek)
+// Spelar upp kopians rörelse och tar bort kopian när den är slut. Kopian får aldrig bli kvar: den tas också bort om animationen avbryts,
+// och efter en säkerhetstid om webbläsaren (iOS) aldrig skickar finish.
+function play(copy: HTMLElement, keyframes: Keyframe[]) {
+  const animation = copy.animate(keyframes, { duration: CLOSE_MS, easing: EASE, fill: "forwards" });
+  animation.onfinish = animation.oncancel = () => remove(copy);
+  setTimeout(() => remove(copy), CLOSE_MS + 300);
+}
+
+// Barnets vy krymper hel tillbaka till knappen den kom från och tonar bort (mäts nu, så att den hamnar rätt även om sidan har scrollats
+// eller bytt storlek). Bara transform och opacity: clip-path ritas om på huvudtråden och hackade på en telefon, och visade bara ett utsnitt.
 export function shrinkTo(button: HTMLElement | null) {
   const copy = ghost;
   if (!copy) return;
   if (!button) return remove(copy);
-  const box = copy.getBoundingClientRect();
-  const full = `inset(0px round ${radiusOf(copy)})`;
-  copy.animate({ clipPath: [full, inset(box, button.getBoundingClientRect(), radiusOf(button))] }, { duration: CLOSE_MS, easing: EASE, fill: "forwards" }).onfinish = () => remove(copy);
+  const [box, to] = [copy.getBoundingClientRect(), button.getBoundingClientRect()];
+  copy.style.transformOrigin = "top left";
+  play(copy, [
+    { transform: "none", opacity: 1 },
+    { transform: `translate(${to.left - box.left}px, ${to.top - box.top}px) scale(${to.width / box.width}, ${to.height / box.height})`, opacity: 0 },
+  ]);
 }
 
 // Listan på kortet med ett barn glider ner mot knappen och tonar bort
 export function sinkAway() {
-  const copy = ghost;
-  if (!copy) return;
-  copy.animate({ transform: ["none", "translateY(1.5rem)"], opacity: [1, 0] }, { duration: CLOSE_MS, easing: EASE, fill: "forwards" }).onfinish = () => remove(copy);
+  if (ghost) play(ghost, [{ transform: "none", opacity: 1 }, { transform: "translateY(1.5rem)", opacity: 0 }]);
 }
