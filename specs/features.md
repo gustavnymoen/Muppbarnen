@@ -21,6 +21,7 @@ tags: [product, features]
 | [MUPP-013](MUPP-013-multi-kid-card-fixes/solution.md) | Multi-kid birthday card fixes | Startsida | Ongoing |
 | [MUPP-014](MUPP-014-kid-sizes/solution.md) | Expose kids sizes on kids card | Startsida | Done |
 | [MUPP-015](MUPP-015-back-button/solution.md) | Back button on kids card | Startsida | Done |
+| [MUPP-018](MUPP-018-description-max-length/solution.md) | Description max length | Administration | Done |
 | [MUPP-009](MUPP-009-site-password/solution.md) | Site password | Shared | Done |
 | [TECH-001](TECH-001-project-setup/solution.md) | Project setup | Shared | Done |
 | [TECH-002](TECH-002-repository-and-hosting/solution.md) | Repository and hosting | Shared | Done |

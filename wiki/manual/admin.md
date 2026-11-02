@@ -45,7 +45,7 @@ Bara ett kort är utfällt åt gången: öppnar du ett annat fälls det första 
 
 Tryck checklistan **Önskelistor för …** vid barnet: sidan har bara önskelistorna. Varje barn har två listor, **Födelsedag** och **Jul**.
 
-- **Lägg till:** tryck **Ny önskning**, fyll i **Namn** (måste finnas), och om du vill **Storlek**, **Beskrivning** och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
+- **Lägg till:** tryck **Ny önskning**, fyll i **Namn** (måste finnas), och om du vill **Storlek**, **Beskrivning** (högst 100 tecken) och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
 - **Se mer och ändra:** tryck pennan **Ändra …** vid önskningen. Då syns storlek, beskrivning och länk, och formuläret. Ändra och tryck **Spara**.
 - **Ta bort:** tryck papperskorgen **Ta bort …**. Du får en fråga som nämner önskningen; svara **Ta bort** eller **Avbryt**.
 - **Töm listan:** papperskorgen vid rubriken tar bort alla önskningar i en lista, efter en fråga som nämner listan och barnet.
