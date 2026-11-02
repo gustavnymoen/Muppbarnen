@@ -8,6 +8,9 @@ export const OCCASIONS = ["birthday", "christmas"] as const;
 export type Occasion = (typeof OCCASIONS)[number];
 export const OCCASION_NAMES: Record<Occasion, string> = { birthday: "Födelsedag", christmas: "Jul" };
 
+// Längsta beskrivning av en önskning (MUPP-018); formuläret och servern läser samma tal
+export const MAX_DESCRIPTION = 100;
+
 const fail = (error: string): { ok: false; error: string } => ({ ok: false, error });
 // Styrtecken utom radbrytning och tabb sparas aldrig
 const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;

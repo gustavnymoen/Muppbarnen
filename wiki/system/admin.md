@@ -44,7 +44,7 @@ The admin page is where the parents fill in the kids' sizes and wish lists, and 
 
 ## Data
 
-Migration `db/migrations/003_family.sql`: `parent`, `child`, `wishlist` (one per kid and occasion, made with the first item) and `wishlist_item` (title, description, size, link, `unlimited`, and `claimed_by` / `claimed_at` for MUPP-005). The texts have length checks in the database and on the server. Real names, birthdates, sizes and pictures are entered on the page and live only in the database and the picture store.
+Migration `db/migrations/003_family.sql`: `parent`, `child`, `wishlist` (one per kid and occasion, made with the first item) and `wishlist_item` (title, description, size, link, `unlimited`, and `claimed_by` / `claimed_at` for MUPP-005). The texts have length checks in the database and on the server. The description of a wish is kept to 100 characters (`MAX_DESCRIPTION` in `lib/form-input.ts`, used by the form and `saveItem`; MUPP-018); the database check stays at 500 as a safety net. Real names, birthdates, sizes and pictures are entered on the page and live only in the database and the picture store.
 
 ## Pictures
 
@@ -56,10 +56,10 @@ The picture is stored under a generated name (`barn-<id>-<uuid>.jpg|png|webp`); 
 
 ## Tests
 
-`tests/MUPP-003-admin-page.spec.ts` and `tests/MUPP-010-compact-admin.spec.ts` (against the local test server, with made-up passwords, its own database and picture folder; data is made straight in the test database by `tests/family-db.ts`), the unit tests `lib/admin-session.test.ts`, `lib/form-input.test.ts`, `lib/image-type.test.ts`, `lib/pictures.test.ts`, `lib/family.test.ts` and `db/db-setup.test.ts`, the check test `lib/route-checks.test.ts`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts` ([Testing](testing.md)).
+`tests/MUPP-003-admin-page.spec.ts` and `tests/MUPP-010-compact-admin.spec.ts` and `tests/MUPP-018-description-max-length.spec.ts` (against the local test server, with made-up passwords, its own database and picture folder; data is made straight in the test database by `tests/family-db.ts`), the unit tests `lib/admin-session.test.ts`, `lib/form-input.test.ts`, `lib/image-type.test.ts`, `lib/pictures.test.ts`, `lib/family.test.ts` and `db/db-setup.test.ts`, the check test `lib/route-checks.test.ts`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts` ([Testing](testing.md)).
 
 A kid's birthdate must be a real date from 1900 up to ten months ahead (`latestBirthdate` in `lib/form-input.ts`), so a kid who is on the way can be added; the kid is then listed as "Beräknad {datum}" until the day.
 
-Built by [MUPP-003](../../specs/MUPP-003-admin-page/solution.md), made compact by [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md) and given the future birthdate by [MUPP-011](../../specs/MUPP-011-future-birthdate/solution.md); the Swedish version is [Administrationssidan](../manual/admin.md).
+Built by [MUPP-003](../../specs/MUPP-003-admin-page/solution.md), made compact by [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md) and given the future birthdate by [MUPP-011](../../specs/MUPP-011-future-birthdate/solution.md) and the 100-character wish description by [MUPP-018](../../specs/MUPP-018-description-max-length/solution.md); the Swedish version is [Administrationssidan](../manual/admin.md).
 
 [System documentation](index.md)

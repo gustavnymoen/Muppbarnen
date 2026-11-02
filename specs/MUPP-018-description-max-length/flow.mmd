@@ -1,0 +1,8 @@
+%% MUPP-018 Description max length
+flowchart TD
+    A[Administrator types a description] --> B{Field: at most 100?}
+    B -- stops typing at 100 --> C[Save the wish]
+    C --> D{Server: at most 100?}
+    D -- yes --> E[Saved]
+    D -- no --> F["Högst 100 tecken." on the field]
+    F --> A
