@@ -63,7 +63,7 @@ function expectCutOut(clipPath: string, size: { width: number; height: number },
 
 // Den stängda vyn krymper (MUPP-022): sista bildrutan flyttar och skalar kopian från vyns ruta till knappens
 async function shrunkTo(el: Locator, button: Box, view: Box) {
-  const transform = await el.evaluate((node) => String(node.getAnimations().flatMap((a) => (a.effect as KeyframeEffect).getKeyframes()).at(-1)?.transform));
+  const transform = await el.evaluate((node) => String(node.getAnimations().flatMap((a) => (a.effect as KeyframeEffect).getKeyframes()).findLast((k) => k.transform)?.transform));
   const [dx, dy, sx, sy] = (transform.match(/-?[\d.]+(?=px|,|\))/g) ?? []).map(Number);
   for (const [got, want] of [[dx, button.x - view.x], [dy, button.y - view.y], [sx, button.width / view.width], [sy, button.height / view.height]]) expect(got).toBeCloseTo(want, 1);
 }
@@ -94,7 +94,7 @@ test("MUPP-016-R2 the single kid list slides down when closed, and can be opened
   await expect(region(page)).toHaveCount(0);
   await expect(open).toBeFocused();
   await expect(ghost(page)).toHaveCount(1);
-  expect(await ghost(page).evaluate((el) => el.getAnimations().length)).toBe(1);
+  expect(await ghost(page).evaluate((el) => el.getAnimations().length)).toBe(2); // rörelsen och tonandet (MUPP-025)
   await expect(ghost(page)).toHaveCount(0);
   await expectNoA11yViolations(page);
 

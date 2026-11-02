@@ -92,7 +92,7 @@ export async function listWishlists(childId: number) {
 
 // Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning
 export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: Wishes }> {
-  const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, hasPicture: c.picture !== "", sizes: c.sizes }));
+  const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, picture: c.picture, sizes: c.sizes }));
   const rows = await all<{ child_id: number; occasion: Occasion; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
     `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.claimed_by, i.claimed_at
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,

@@ -7,6 +7,7 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import { childColor } from "@/lib/child-colors";
 import { canManage, findChild, type Child } from "@/lib/family";
 import { parseId } from "@/lib/form-input";
+import { pictureUrl } from "@/lib/picture-url";
 import { requireSiteSession } from "@/lib/site-auth";
 
 // Barnets sidor (storlekar, önskelistor) delar kontrollerna och sidhuvudet. Någon annans barn ser
@@ -25,7 +26,7 @@ export async function KidPage({ params, content }: { params: Promise<{ id: strin
         <div className="space-y-4">
           <LinkButton href="/admin">Till barnen</LinkButton>
           <div className="flex items-center gap-3">
-            <Avatar name={child.name} color={childColor(child.id)} src={child.picture ? `/bilder/${child.id}` : undefined} size={40} decorative />
+            <Avatar name={child.name} color={childColor(child.id)} src={pictureUrl(child.id, child.picture)} size={40} decorative />
             <Heading level={1} small>
               {child.name}
             </Heading>

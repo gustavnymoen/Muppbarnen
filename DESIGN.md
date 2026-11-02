@@ -55,7 +55,7 @@ Both are loaded by `next/font` at build time and served from our own server (`fo
 | `--shadow-card-pressed` | layered, flatter | Pressed cards and buttons, which move into their shadow |
 | `--ease-out-soft` | `cubic-bezier(0.22, 1, 0.36, 1)` | All motion |
 
-Motion is only small feedback (a press, a card fading in, the wish list opening and closing) of at most 300 ms, with transform, opacity and `clip-path`. On a card with one kid the wish list slides up 1.5 rem while fading in (250 ms) and slides back down while fading out (200 ms); on a card with several kids and on Christmas Eve the kid's view grows out of the pressed button or tile (300 ms) and shrinks back to it as a whole picture, scaled and fading (200 ms), so it looks as if the card unfolds from the button. With reduced motion nothing moves; a pressed control only gets darker.
+Motion is only small feedback (a press, a card fading in, the wish list opening and closing) of at most 300 ms, with transform, opacity and `clip-path`. On a card with one kid the wish list slides up 1.5 rem while fading in (250 ms) and slides back down while fading out (300 ms); on a card with several kids and on Christmas Eve the kid's view grows out of the pressed button or tile (300 ms) and shrinks back to it as a whole picture, scaled and fading (300 ms, fully visible for the first 40 %), so it looks as if the card unfolds from the button. With reduced motion nothing moves; a pressed control only gets darker.
 
 ## Child colours
 

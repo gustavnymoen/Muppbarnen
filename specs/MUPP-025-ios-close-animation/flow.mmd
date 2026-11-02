@@ -1,0 +1,6 @@
+%% MUPP-025 Close animation visible on iPhone
+flowchart TD
+    A[Visitor closes the kid's view] --> B[Copy of the view over the page]
+    B --> C[Move to the button, 300 ms ease-out R1]
+    B --> D[Fully visible for 40 %, then fade R1]
+    C --> E[Copy removed on finish, cancel or timeout R1]

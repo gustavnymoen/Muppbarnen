@@ -473,7 +473,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   await expect(form.getByLabel("Bild", { exact: true })).toHaveCount(0);
   const first = await pictureOf(kidId);
   expect(first).toMatch(/^barn-\d+-[0-9a-f-]{36}\.webp$/);
-  await expect(row.locator(`img[src="/bilder/${kidId}"]`)).toHaveAttribute("alt", "");
+  await expect(row.locator(`img[src^="/bilder/${kidId}?v="]`)).toHaveAttribute("alt", "");
   const served = await page.request.get(`/bilder/${kidId}`);
   expect(served.status()).toBe(200);
   expect(served.headers()["content-type"]).toBe("image/webp");
@@ -482,6 +482,13 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   const etag = served.headers()["etag"];
   expect(etag).toBe(`"${first}"`);
   expect((await page.request.get(`/bilder/${kidId}`, { headers: { "If-None-Match": etag } })).status()).toBe(304);
+  // MUPP-024-R1: the page's address carries a version, and with that version the picture is kept for good; a new picture is a new address
+  const src = await row.locator("img").getAttribute("src");
+  expect(src).toMatch(new RegExp(`^/bilder/${kidId}\\?v=[0-9a-z]+$`));
+  const versioned = await page.request.get(src!);
+  expect(versioned.headers()["cache-control"]).toBe("private, max-age=31536000, immutable");
+  expect(served.headers()["cache-control"]).toBe("private, no-cache");
+  expect((await page.request.get(`/bilder/${kidId}?v=old`)).headers()["cache-control"]).toBe("private, no-cache");
   // The page never mentions where the file is kept
   expect(await page.content()).not.toContain(first);
 
@@ -494,6 +501,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   const shrunkInfo = await sharp(await shrunk.body()).metadata();
   expect([shrunkInfo.width, shrunkInfo.height]).toEqual([256, 128]);
   expect((await page.request.get(`/bilder/${kidId}`, { headers: { "If-None-Match": etag } })).status()).toBe(200);
+  await expect(row.locator("img")).not.toHaveAttribute("src", src!);
 
   // A picture stored before TECH-012 is still served, with its own type, and shown (TECH-012-R4)
   const old = `barn-${kidId}-00000000-0000-4000-8000-000000000001.jpg`;
@@ -502,7 +510,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   await setPicture(kidId, old);
   expect((await page.request.get(`/bilder/${kidId}`)).headers()["content-type"]).toBe("image/jpeg");
   await page.reload();
-  await expect(row.locator(`img[src="/bilder/${kidId}"]`)).toBeVisible();
+  await expect(row.locator(`img[src^="/bilder/${kidId}?v="]`)).toBeVisible();
   expect(await row.locator("img").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(30);
 
   // No picture, a made-up id and text instead of an id: 404

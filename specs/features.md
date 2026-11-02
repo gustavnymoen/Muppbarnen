@@ -23,6 +23,8 @@ tags: [product, features]
 | [MUPP-015](MUPP-015-back-button/solution.md) | Back button on kids card | Startsida | Done |
 | [MUPP-016](MUPP-016-wishlist-open-transition/solution.md) | Wish list open transition | Startsida | Ongoing |
 | [MUPP-017](MUPP-017-browse-with-open-list/solution.md) | Browse kids with the wish list open | Startsida | Review |
+| [MUPP-025](MUPP-025-ios-close-animation/solution.md) | Close animation visible on iPhone | Startsida | Review |
+| [MUPP-024](MUPP-024-picture-cache/solution.md) | Pictures are cached by the browser | Startsida | Review |
 | [MUPP-022](MUPP-022-close-animation-glitch/solution.md) | Close animation glitch and focus ring on phone | Startsida | Ongoing |
 | [MUPP-021](MUPP-021-browse-focus-scroll/solution.md) | Browse forward with a list open | Startsida | Review |
 | [MUPP-018](MUPP-018-description-max-length/solution.md) | Description max length | Administration | Done |
