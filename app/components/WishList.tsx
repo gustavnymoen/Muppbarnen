@@ -153,7 +153,7 @@ function InfoBubble({ children }: { children: string }) {
         }
       }}
     >
-      <IconButton label="Kan köpas flera gånger" aria-expanded={shown} aria-controls={bubbleId} onClick={() => setShown(!shown)}>
+      <IconButton frameless label="Kan köpas flera gånger" aria-expanded={shown} aria-controls={bubbleId} onClick={() => setShown(!shown)}>
         <InfoIcon />
       </IconButton>
       {shown && (
