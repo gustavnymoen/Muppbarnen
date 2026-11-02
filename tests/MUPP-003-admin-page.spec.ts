@@ -1,9 +1,11 @@
-import { readdirSync } from "node:fs";
+import { readdirSync, unlinkSync, writeFileSync } from "node:fs";
+import sharp from "sharp";
+import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
 import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, uniqueName } from "./helpers";
-import { addChild, addParent, childIdOf, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag } from "./family-db";
+import { addChild, addParent, childIdOf, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
 // The admin pages are tested against the local test server only: it has made-up passwords and its
@@ -15,7 +17,9 @@ const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documen
 // The test server is a production build, so the cookie has the __Host- prefix and is Secure
 const ADMIN_COOKIE = "__Host-admin_session";
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
-const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 16, 0x4a, 0x46, 0x49, 0x46, 0, 1]);
+// A real picture of the given size (TECH-012: every upload is decoded and shrunk)
+const solid = (width: number, height: number, format: "jpeg" | "png") =>
+  sharp({ create: { width, height, channels: 3, background: "#2980b9" } })[format]().toBuffer();
 
 test.beforeEach(async ({ page }) => {
   // Its own "IP address" per test, so that the limits on wrong passwords and writes are not shared
@@ -454,21 +458,26 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   await expect(form.getByRole("alert").filter({ hasText: message })).toBeVisible();
   form = await upload({ name: "rörlig.gif", mimeType: "image/gif", buffer: Buffer.from("GIF89a\u0001\u0000") });
   await expect(form.getByRole("alert").filter({ hasText: message })).toBeVisible();
+  // TECH-012-R3: a picture's type with broken contents gives the same message. The GIF may still be on its way
+  // (the alert above can be the one from the file before), so wait until the form is ready again.
+  await expect(form.getByRole("button", { name: "Spara bild" })).toBeEnabled();
+  form = await upload({ name: "trasig.png", mimeType: "image/png", buffer: Buffer.concat([png.subarray(0, 8), Buffer.from("trasig")]) });
+  await expect(form.getByRole("alert").filter({ hasText: message })).toBeVisible();
   expect(await pictureOf(kidId)).toBe("");
   await expectNoA11yViolations(page);
 
   // A picture: stored, shown next to the name as decoration (empty alt text), served at /bilder/<id>
   form = await upload({ name: "bild.png", mimeType: "image/png", buffer: png });
   // The panel folds when the picture is saved
-  await expect.poll(() => pictureOf(kidId)).toMatch(/\.png$/);
+  await expect.poll(() => pictureOf(kidId)).toMatch(/\.webp$/);
   await expect(form.getByLabel("Bild", { exact: true })).toHaveCount(0);
   const first = await pictureOf(kidId);
-  expect(first).toMatch(/^barn-\d+-[0-9a-f-]{36}\.png$/);
+  expect(first).toMatch(/^barn-\d+-[0-9a-f-]{36}\.webp$/);
   await expect(row.locator(`img[src="/bilder/${kidId}"]`)).toHaveAttribute("alt", "");
   const served = await page.request.get(`/bilder/${kidId}`);
   expect(served.status()).toBe(200);
-  expect(served.headers()["content-type"]).toBe("image/png");
-  expect(await served.body()).toEqual(png);
+  expect(served.headers()["content-type"]).toBe("image/webp");
+  expect((await sharp(await served.body()).metadata()).format).toBe("webp");
   // An unchanged picture is not sent again (TECH-011): the file name is the ETag, and a new picture has a new name
   const etag = served.headers()["etag"];
   expect(etag).toBe(`"${first}"`);
@@ -476,12 +485,25 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   // The page never mentions where the file is kept
   expect(await page.content()).not.toContain(first);
 
-  // Replaced: the old file is gone
-  await upload({ name: "ny.jpg", mimeType: "image/jpeg", buffer: jpeg });
-  await expect.poll(() => pictureOf(kidId)).toMatch(/\.jpg$/);
+  // Replaced by a large picture (TECH-012-R1): the old file is gone and the new one is small, in WebP
+  await upload({ name: "ny.jpg", mimeType: "image/jpeg", buffer: await solid(2000, 1000, "jpeg") });
+  await expect.poll(() => pictureOf(kidId)).not.toBe(first);
   expect(readdirSync(testPicturesDir).filter((f) => f.startsWith(`barn-${kidId}-`))).toHaveLength(1);
-  expect((await page.request.get(`/bilder/${kidId}`)).headers()["content-type"]).toBe("image/jpeg");
+  const shrunk = await page.request.get(`/bilder/${kidId}`);
+  expect(shrunk.headers()["content-type"]).toBe("image/webp");
+  const shrunkInfo = await sharp(await shrunk.body()).metadata();
+  expect([shrunkInfo.width, shrunkInfo.height]).toEqual([256, 128]);
   expect((await page.request.get(`/bilder/${kidId}`, { headers: { "If-None-Match": etag } })).status()).toBe(200);
+
+  // A picture stored before TECH-012 is still served, with its own type, and shown (TECH-012-R4)
+  const old = `barn-${kidId}-00000000-0000-4000-8000-000000000001.jpg`;
+  unlinkSync(path.join(testPicturesDir, await pictureOf(kidId)));
+  writeFileSync(path.join(testPicturesDir, old), await solid(30, 30, "jpeg"));
+  await setPicture(kidId, old);
+  expect((await page.request.get(`/bilder/${kidId}`)).headers()["content-type"]).toBe("image/jpeg");
+  await page.reload();
+  await expect(row.locator(`img[src="/bilder/${kidId}"]`)).toBeVisible();
+  expect(await row.locator("img").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(30);
 
   // No picture, a made-up id and text instead of an id: 404
   for (const id of [String(noPicture), "999999", "abc"]) expect((await page.request.get(`/bilder/${id}`)).status(), id).toBe(404);

@@ -55,6 +55,9 @@ export const countRows = (table: "parent" | "child" | "wishlist" | "wishlist_ite
 export const pictureOf = (childId: number) =>
   withDb(async (db) => String((await db.execute({ sql: "SELECT picture FROM child WHERE id = ?", args: [childId] })).rows[0].picture));
 
+export const setPicture = (childId: number, name: string) =>
+  withDb((db) => db.execute({ sql: "UPDATE child SET picture = ? WHERE id = ?", args: [name, childId] }));
+
 // Everything the tests made. The test database is only theirs, so it is all removed.
 export const clearFamily = () =>
   withDb(async (db) => {
