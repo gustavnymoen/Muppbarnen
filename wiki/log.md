@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Creation** [MUPP-019 Wish row: info button, labels and order](../specs/MUPP-019-unlimited-gifts-explained-and-sorted/solution.md): a gift that can be bought several times has an info button with the explanation, the list is ordered claimable, unlimited, claimed, the description is labelled "Beskrivning:", and "Paxad" is orange.
 * **Creation** [TECH-012 Shrink uploaded pictures](../specs/TECH-012-shrink-pictures/solution.md): a kid's picture is decoded with `sharp` when it is uploaded, turned upright, shrunk to at most 256 px and stored as WebP without metadata, so the start page loads small pictures; a broken file gives the same error message as before, and pictures stored earlier still work.
 * **Creation** [MUPP-018 Description max length](../specs/MUPP-018-description-max-length/solution.md): the description of a wish is at most 100 characters, in the form and on the server.
 

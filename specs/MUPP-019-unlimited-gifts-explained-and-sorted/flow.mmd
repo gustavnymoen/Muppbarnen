@@ -1,0 +1,9 @@
+%% MUPP-019 Wish row: info button, labels and order
+flowchart TD
+    A[Visitor opens a wish list] --> B[Rows: claimable, then bought several times, then claimed]
+    B --> C{Row can be bought several times?}
+    C -- yes --> D["Info button where the checkbox would be"]
+    D --> E[Press: bubble over the row]
+    E --> F[Press again, Esc or press elsewhere: bubble hidden]
+    C -- no --> G[Checkbox or nothing if claimed]
+    B --> H[Unfold row: Beskrivning, Storlek, link, Paxad av in orange]
