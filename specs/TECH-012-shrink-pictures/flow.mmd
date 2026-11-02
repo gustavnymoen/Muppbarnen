@@ -1,0 +1,11 @@
+%% TECH-012 Shrink uploaded pictures
+%% The upload of a kid's picture, with the new decoding and shrinking step.
+flowchart TD
+    A[Admin chooses a picture] --> B{Right type and at most 4 MB?}
+    B -- no --> E[Error: Bilden måste vara JPEG, PNG eller WebP och högst 4 MB]
+    B -- yes --> C{sharp can decode it? R3}
+    C -- no --> E
+    C -- yes --> D[Turn upright, at most 256 px, WebP, no metadata. R1, R2]
+    D --> F[Store as barn-id-uuid.webp]
+    F --> G[Remove the old picture, if any]
+    H[/bilder/id with an old jpg, png or webp. R4/] --> I[Served as before with its own type]

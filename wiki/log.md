@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Creation** [TECH-012 Shrink uploaded pictures](../specs/TECH-012-shrink-pictures/solution.md): a kid's picture is decoded with `sharp` when it is uploaded, turned upright, shrunk to at most 256 px and stored as WebP without metadata, so the start page loads small pictures; a broken file gives the same error message as before, and pictures stored earlier still work.
 * **Creation** [MUPP-018 Description max length](../specs/MUPP-018-description-max-length/solution.md): the description of a wish is at most 100 characters, in the form and on the server.
 
 ## 2026-11-01
