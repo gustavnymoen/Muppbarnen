@@ -86,7 +86,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
 
   return (
     // Platsen finns bara medan listan är öppen; den går att scrolla med tangentbordet
-    <div id={id} tabIndex={0} aria-label="Önskelista" role="region" className="wish-list flex min-h-0 flex-1 flex-col overflow-y-auto rounded-control border border-edge bg-page/40 px-3 py-1">
+    <div id={id} tabIndex={0} aria-label="Önskelista" role="region" className={`${solo ? "wish-slide" : ""} flex min-h-0 flex-1 flex-col overflow-y-auto rounded-control border border-edge bg-page/40 px-3 py-1`}>
       {wishes.length === 0 ? (
         <p className="py-2 text-muted">Inga önskningar än.</p>
       ) : (
