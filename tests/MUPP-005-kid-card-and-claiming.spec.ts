@@ -12,7 +12,7 @@ const region = (page: Page) => card(page).getByRole("region", { name: "Önskelis
 const claimButton = (page: Page) => region(page).getByRole("button", { name: /^Paxa \(/ });
 const dialog = (page: Page) => page.getByRole("dialog");
 const row = (page: Page, title: string) => region(page).getByRole("listitem").filter({ hasText: title });
-const rowButton = (page: Page, title: string) => row(page, title).getByRole("button", { expanded: false }).or(row(page, title).getByRole("button", { expanded: true }));
+const rowButton = (page: Page, title: string) => row(page, title).getByRole("button", { name: title });
 
 test.beforeEach(async () => {
   await clearFamily();
@@ -42,7 +42,7 @@ async function openVerasList(page: Page) {
 test("MUPP-005-R1 R2 R3 the rows: marks, order, details, links, and marking rows", async ({ page }) => {
   await openVerasList(page);
 
-  // R1: claimed gifts last, the others in their order; the marks show without unfolding; the texts are plain text
+  // R1: claimed gifts last, the others in their order (the full order is tested in MUPP-019); the marks show without unfolding; the texts are plain text
   const rows = region(page).getByRole("listitem");
   await expect(rows).toHaveCount(7);
   await expect(rows.first()).toContainText("Cykel");
@@ -78,11 +78,11 @@ test("MUPP-005-R1 R2 R3 the rows: marks, order, details, links, and marking rows
   await rowButton(page, "<b>Fet</b> tröja").click();
   await expect(row(page, "<b>Fet</b> tröja").getByRole("link")).toHaveCount(0);
 
-  // R2: the claimed row says by whom and when, the unlimited row says it can't be claimed
+  // R2: the claimed row says by whom and when, the unlimited row has an info button (MUPP-019)
   await rowButton(page, "Hoppborg").click();
   await expect(row(page, "Hoppborg")).toContainText("Paxad av Moster Lisa 2026-01-15");
   await rowButton(page, "Strumpor").click();
-  await expect(row(page, "Strumpor")).toContainText("kan köpas flera gånger, så den går inte att paxa");
+  await expect(row(page, "Strumpor").getByRole("button", { name: "Kan köpas flera gånger", exact: true })).toBeVisible();
 
   // R3: a checkbox named after the wish on rows that can be claimed, none on claimed and unlimited rows
   await expect(region(page).getByRole("checkbox")).toHaveCount(5);

@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Creation** [MUPP-019 Wish row: info button, labels and order](../specs/MUPP-019-unlimited-gifts-explained-and-sorted/solution.md): a gift that can be bought several times has an info button with the explanation, the list is ordered claimable, unlimited, claimed, the description is labelled "Beskrivning:", and "Paxad" is orange.
 * **Creation** [MUPP-018 Description max length](../specs/MUPP-018-description-max-length/solution.md): the description of a wish is at most 100 characters, in the form and on the server.
 
 ## 2026-11-01

@@ -643,7 +643,18 @@ test("MUPP-005-R1 R3 R4 R5 the wish rows and the claim dialog: marks, targets, c
     // The marks are small muted text under the headline, readable on the card; the row buttons and checkboxes are 44 px targets
     const claimedMark = region.getByText("Paxad", { exact: true });
     expect(contrast(await css(claimedMark, "color"), await backgroundOf(claimedMark))).toBeGreaterThanOrEqual(4.5);
-    expect(contrast(await css(region.getByText("Kan köpas flera gånger"), "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(await css(region.getByText("Kan köpas flera gånger", { exact: true }), "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+    // MUPP-019: the "Paxad" mark and the "Paxad av" line are orange-like (red above green and blue), and the info button is a 44 px target in the checkbox column
+    expect(await css(claimedMark, "color")).toBe("rgb(227, 161, 95)");
+    await region.getByRole("button", { name: "Hoppborg" }).click();
+    const claimedBy = region.getByText("Paxad av Moster Lisa");
+    expect(await css(claimedBy, "color")).toBe("rgb(227, 161, 95)");
+    expect(contrast(await css(claimedBy, "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+    const info = await settledBox(region.getByRole("button", { name: "Kan köpas flera gånger", exact: true }));
+    expect(info.width).toBeGreaterThanOrEqual(44);
+    expect(info.height).toBeGreaterThanOrEqual(44);
+    const tick = await settledBox(region.getByRole("checkbox", { name: "Cykel" }).locator(".."));
+    expect(Math.abs(info.x + info.width / 2 - (tick.x + tick.width / 2))).toBeLessThan(2);
     const target = (locator: ReturnType<Page["locator"]>) => settledBox(locator);
     expect((await target(region.getByRole("button", { name: /^Cykel/ }))).height).toBeGreaterThanOrEqual(44);
     const tickTarget = await target(region.getByRole("checkbox", { name: "Cykel" }).locator(".."));

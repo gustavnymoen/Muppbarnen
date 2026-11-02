@@ -6,10 +6,14 @@ import { canClaim, sortWishes, webLink } from "./wishes";
 const wish = (id: number, extra: Partial<Wish> = {}): Wish => ({ id, title: `Önskan ${id}`, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
 const claimed = { claimedBy: "Moster", claimedAt: "2026-10-30" };
 
-describe("MUPP-005-R1 the order of the rows", () => {
-  test("MUPP-005-R1 claimed wishes come last and the others keep their order", () => {
-    const sorted = sortWishes([wish(1, claimed), wish(2), wish(3, claimed), wish(4, { unlimited: true }), wish(5)]);
-    expect(sorted.map((w) => w.id)).toEqual([2, 4, 5, 1, 3]);
+describe("MUPP-019-R2 the order of the rows", () => {
+  test("MUPP-019-R2 claimable first, then unlimited, then claimed, each group in its own order", () => {
+    const sorted = sortWishes([wish(1, claimed), wish(2, { unlimited: true }), wish(3), wish(4, claimed), wish(5, { unlimited: true }), wish(6)]);
+    expect(sorted.map((w) => w.id)).toEqual([3, 6, 2, 5, 1, 4]);
+  });
+
+  test("MUPP-019-R2 a claimed unlimited wish counts as claimed", () => {
+    expect(sortWishes([wish(1, { ...claimed, unlimited: true }), wish(2, { unlimited: true })]).map((w) => w.id)).toEqual([2, 1]);
   });
 
   test("MUPP-005-R1 sorting does not change the list it is given", () => {

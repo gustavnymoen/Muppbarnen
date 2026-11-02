@@ -24,6 +24,7 @@ A dark, muted, mobile-first look: blue-grey near-black surfaces, thin edges, lay
 | `--color-brand` | `#9AA9E0` | The main button and the focus ring (never red: red means cancel or error) |
 | `--color-on-brand` | `#0C1015` | Text on the brand colour |
 | `--color-danger` | `#E8938F` | Error messages, as text only (never a fill; with the words that say what is wrong) |
+| `--color-claimed` | `#E3A15F` | A claimed gift: the "Paxad" mark and the "Paxad av …" line, as text only (with the words that say it) |
 | `--color-christmas-green` | `#5F9A73` | The Christmas Eve card: its green night background drawn as shapes behind the content |
 | `--color-christmas-red` | `#D8766F` | Lights and berries in the Christmas background (decoration only) |
 | `--color-child-coral` | `#D4958B` | Child colour 1 |
