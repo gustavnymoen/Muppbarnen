@@ -35,7 +35,7 @@ feature: MUPP-027
 
 - [x] Tests: all checks of the test plan done; unit and local browser tests pass
 - [x] Test suite: within the budgets (no test added, one extended)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not done yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
 - [ ] Accessibility: axe passes; the live checklist is not checked (not done)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual (no change: it does not describe the frame), system docs and `wiki/log.md` updated
