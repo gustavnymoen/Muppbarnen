@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-02
+
+* **Creation** [MUPP-018 Description max length](../specs/MUPP-018-description-max-length/solution.md): the description of a wish is at most 100 characters, in the form and on the server.
+
 ## 2026-11-01
 
 * **Creation** [TECH-011 Ponytail audit and tidy-up](../specs/TECH-011-ponytail-audit/solution.md): the ponytail audit of the repository ([report](../specs/TECH-011-ponytail-audit/audit.md)) and its fixes: the unit tests no longer pick up other checkouts under `.claude/`, pictures are answered with an `ETag` and `304`, two unused database helpers and the unused `export` keywords are gone, and the wish row mapping and the `ÅÅÅÅ-MM-DD` date text each live in one place. Shrinking the pictures became [TECH-012](https://github.com/gustavnymoen/Muppbarnen/issues/63).

@@ -115,19 +115,27 @@ describe("MUPP-003-R4 wish lists", () => {
   test("MUPP-003-R4 a missing name, a too long text and a bad link are refused with a message per field", async () => {
     const mia = await parent("Mia");
     const kid = await child(mia);
-    const bad = await family.saveItem(mia, item(kid, "", { size: "x".repeat(41), description: "y".repeat(501), url: "javascript:alert(1)" }));
+    const bad = await family.saveItem(mia, item(kid, "", { size: "x".repeat(41), description: "y".repeat(101), url: "javascript:alert(1)" }));
     expect(bad).toEqual({
       ok: false,
       fields: {
         title: "Fyll i det här fältet.",
         size: "Högst 40 tecken.",
-        description: "Högst 500 tecken.",
+        description: "Högst 100 tecken.",
         url: "Länken måste börja med http:// eller https://.",
       },
     });
     expect(await family.saveItem(mia, item(kid, "t".repeat(121)))).toMatchObject({ ok: false, fields: { title: "Högst 120 tecken." } });
     expect(await family.saveItem(mia, item(kid, "Ok", { occasion: "easter" }))).toMatchObject({ ok: false });
     expect((await family.listWishlists(kid)).birthday).toEqual([]);
+  });
+
+  test("MUPP-018-R1 a description of 100 characters is saved and one of 101 is refused", async () => {
+    const mia = await parent("Mia");
+    const kid = await child(mia);
+    expect(await family.saveItem(mia, item(kid, "Ok", { description: "d".repeat(100) }))).toEqual({ ok: true });
+    expect(await family.saveItem(mia, item(kid, "För lång", { description: "d".repeat(101) }))).toEqual({ ok: false, fields: { description: "Högst 100 tecken." } });
+    expect((await family.listWishlists(kid)).birthday).toHaveLength(1);
   });
 
   test("MUPP-003-R4 texts are stored as given, never changed into HTML", async () => {
