@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { buildDeck, nextOccurrence, type DeckInput, type Sizes, type Wish, type Wishes } from "./deck";
+import { buildDeck, dayAndMonth, nextOccurrence, type DeckInput, type Sizes, type Wish, type Wishes } from "./deck";
 
 const today = { year: 2026, month: 10, day: 28 };
 // Påhittade barn
@@ -57,15 +57,16 @@ describe("MUPP-004-R2 the deck", () => {
 });
 
 describe("MUPP-004-R6 the data for the browser", () => {
-  test("holds the month and the age but not the day or the birthdate", () => {
+  test("holds the day, month and age but not the birthdate or the year", () => {
     const deck = buildDeck([kid(1, "A", "2019-03-17")], noWishes, today);
     const keys = (value: object) => Object.keys(value).sort();
     for (const card of deck) {
-      expect(keys(card)).toEqual(["key", "kids", "kind", "month", "next"]);
+      expect(keys(card)).toEqual(["day", "key", "kids", "kind", "month", "next"]);
       expect(keys(card.kids[0])).toEqual(["age", "color", "expected", "id", "name", "picture", "sizes", "wishes"]);
     }
     expect(JSON.stringify(deck)).not.toContain("2019-03-17");
-    expect(deck.find((c) => c.kind === "birthday")).toMatchObject({ month: 3, kids: [{ age: 8 }] });
+    expect(deck.find((c) => c.kind === "birthday")).toMatchObject({ day: 17, month: 3, kids: [{ age: 8 }] });
+    expect(JSON.stringify(deck)).not.toContain("2019");
   });
 });
 
@@ -107,5 +108,26 @@ describe("MUPP-014-R1 sizes reach the deck", () => {
   test("the birthdate and the day still stay on the server", () => {
     const deck = buildDeck([kid(1, "A", "2019-03-17", 1, { ...noSizes, clothes: "122" })], noWishes, today);
     expect(JSON.stringify(deck)).not.toContain("2019-03-17");
+  });
+});
+
+describe("MUPP-020 day and month on the card", () => {
+  const birthday = (kids: DeckInput[], on = today) => buildDeck(kids, noWishes, on).find((c) => c.kind === "birthday")!;
+
+  test("MUPP-020-R1 the card holds the day once and the kids hold none", () => {
+    const card = birthday([kid(1, "A", "2019-03-17"), kid(2, "B", "2021-03-17")]);
+    expect(card).toMatchObject({ day: 17, month: 3 });
+    expect(card.kids.map((k) => "day" in k)).toEqual([false, false]);
+    expect(dayAndMonth(card.day!, card.month!)).toBe("17 mars");
+  });
+
+  test("MUPP-020-R2 an expected kid's card has the date of the birth", () => {
+    expect(birthday([kid(1, "Väntad", "2027-03-05")])).toMatchObject({ day: 5, month: 3, kids: [{ age: null, expected: true }] });
+  });
+
+  test("MUPP-020-R3 29 February is shown as 28 February in a year without one", () => {
+    const born = [kid(1, "Skott", "2020-02-29")];
+    expect(birthday(born, { year: 2026, month: 12, day: 1 })).toMatchObject({ day: 28, month: 2 });
+    expect(birthday(born, { year: 2027, month: 12, day: 1 })).toMatchObject({ day: 29, month: 2 });
   });
 });

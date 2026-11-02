@@ -1,5 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
-import { MONTHS, swedishToday } from "../lib/deck";
+import { dayAndMonth, swedishToday } from "../lib/deck";
 import { latestBirthdate } from "../lib/form-input";
 import { addParent, clearFamily } from "./family-db";
 import { adminSignIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
@@ -27,7 +27,7 @@ async function opened(scope: Locator, name: string) {
   return scope;
 }
 
-test("MUPP-011-R1 R2 R4 an expected child is added, listed and shown as expected; a date too far ahead is refused", async ({ page }) => {
+test("MUPP-011-R1 R2 R4 MUPP-020-R2 an expected child is added, listed and shown as expected; a date too far ahead is refused", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
   await page.setViewportSize({ width: 375, height: 667 });
@@ -56,12 +56,12 @@ test("MUPP-011-R1 R2 R4 an expected child is added, listed and shown as expected
   await expect(row).toContainText(`Beräknad ${isoDate(due)}`);
   await expectNoA11yViolations(page);
 
-  // R2: the card has the name and "Beräknad {månad}" and no age
+  // R2: the card has the name and "Beräknad {dag och månad}" and no age
   await page.goto("/");
-  const month = MONTHS[due.getUTCMonth()].toLowerCase();
+  const date = dayAndMonth(due.getUTCDate(), due.getUTCMonth() + 1);
   for (let i = 0; i < 3 && !(await page.getByRole("heading", { level: 3, name }).isVisible()); i++) await page.getByRole("button", { name: "Nästa kort" }).click();
   await expect(page.getByRole("heading", { level: 3, name })).toBeVisible();
-  await expect(page.getByText(`Beräknad ${month}`)).toBeVisible();
+  await expect(page.getByText(`Beräknad ${date}`)).toBeVisible();
   await expect(page.getByText(/Fyller \d+ år/)).toHaveCount(0);
   expect(await page.content()).not.toContain(isoDate(due));
   await expectNoA11yViolations(page);

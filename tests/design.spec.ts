@@ -761,7 +761,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
     await clearFamily();
     try {
       const parent = await addParent(uniqueName("Förälder"));
-      const { birthdate } = birthdateIn(20);
+      const { birthdate, date } = birthdateIn(20);
       await addChild(parent, "Vera", birthdate);
       await addChild(parent, "Vilda", birthdate);
       // Ensam has a card of her own, the twins share another
@@ -804,7 +804,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       await animationsDone(card);
 
       // The twins' card: the wish button takes 70-80 % of the two buttons together, both 44 px high, on one line
-      await toCard("November");
+      await toCard(date);
       const wishButtons = card.getByRole("button", { name: /^Önskelista för / });
       for (let i = 0; i < 2; i++) {
         const wish = await settledBox(wishButtons.nth(i));
@@ -843,7 +843,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       await region.getByRole("button", { name: /^Stäng/ }).click();
 
       // The single kid card: the button is between the age and the wish button
-      await toCard("Februari");
+      await toCard("2 februari");
       const age = await settledBox(card.getByText(/^Fyller \d+ år$/));
       const sizes = await settledBox(card.getByRole("button", { name: "Storlekar" }));
       const wish = await settledBox(card.getByRole("button", { name: /^Önskelista/ }));
@@ -881,3 +881,46 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
     }
   });
 }
+
+test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit on the narrowest phone", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const parent = await addParent(uniqueName("Förälder"));
+    const today = swedishToday();
+    const due = new Date(Date.UTC(today.year, today.month - 1 + 4, 29)).toISOString().slice(0, 10);
+    await addChild(parent, "Alma", "2018-09-29");
+    await addChild(parent, "Alva", "2018-09-29");
+    await addChild(parent, "Väntad", due);
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    const seen: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      await animationsDone(card);
+      const heading = card.getByRole("heading", { level: 2 });
+      seen.push(await heading.innerText());
+      // One line: a heading of two lines would push the card down on a short phone
+      expect((await settledBox(heading)).height).toBeLessThan(40);
+      for (const text of [heading, card.getByText(/^Beräknad \d+ \p{L}+$/u)]) {
+        if ((await text.count()) > 0) expect(await text.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      }
+      if (seen.at(-1) === "29 september") {
+        await expectNoA11yViolations(page);
+        // The open kid view has icons in both top corners; the heading stays clear of them
+        await card.getByRole("button", { name: "Önskelista för Alma" }).click();
+        const openHeading = await settledBox(card.getByRole("heading", { level: 2 }));
+        for (const name of ["Tillbaka till alla barn", "Storlekar"]) {
+          const icon = await settledBox(card.getByRole("button", { name, exact: true }));
+          expect(icon.x + icon.width <= openHeading.x + 0.5 || openHeading.x + openHeading.width <= icon.x + 0.5).toBe(true);
+        }
+        await card.getByRole("button", { name: "Tillbaka till alla barn" }).click();
+      }
+      await page.getByRole("button", { name: "Nästa kort" }).click();
+    }
+    expect(seen).toContain("29 september");
+    expect(await hasHorizontalScroll(page)).toBe(false);
+  } finally {
+    await clearFamily();
+  }
+});

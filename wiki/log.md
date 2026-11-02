@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Creation** [MUPP-020 Birthday day on the cards](../specs/MUPP-020-birthday-day-on-cards/solution.md): a birthday card's heading shows the day and the month ("17 mars", "Beräknad 17 mars" for an expected kid); the birthdate and the birth year are still never sent, and the privacy rule is now stated in `specs/rules.md`.
 * **Fix** [MUPP-027 Info button without a frame](../specs/MUPP-027-info-button-no-frame/solution.md): the (i) button in a wish row is the icon alone, with a round `edge` tint while hovered or pressed (`IconButton` `frameless`).
 * **Fix** [MUPP-026 Menu hidden after refresh on a phone](../specs/MUPP-026-menu-hidden-after-refresh/solution.md): the page itself no longer scrolls or bounces on a phone, so the menu is always in place after a reload; only the content area scrolls.
 * **Fix** [MUPP-023](../specs/MUPP-023-long-wish-titles/solution.md) (follow-up): the arrow of a wish row keeps its size beside a long title (icons are `shrink-0`).

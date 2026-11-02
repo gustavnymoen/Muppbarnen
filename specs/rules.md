@@ -18,6 +18,7 @@ tags: [product, rules]
   - **Pictures are served only by the site,** from the private Blob store, after the check (`access: "private"`).
   - **A new cookie** is named with the `__Host-` prefix and is `HttpOnly`, `Secure` and path `/` without `Domain`.
   - **No inline script or connection to another site** that the Content-Security-Policy blocks.
+- **Birthdays:** a birthday card shows the day and the month ("17 mars") and each kid's age, never the birthdate or the birth year; they stay on the server ([MUPP-020](MUPP-020-birthday-day-on-cards/solution.md)).
 - **Personal data:** the repository is public. Real names, birthdates, sizes and pictures live in the database and Vercel Blob, entered on the admin page, never in Git. Seed and test data are made up.
 - **Language:** everything visitors see is Swedish.
 

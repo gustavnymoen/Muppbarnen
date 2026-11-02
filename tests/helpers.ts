@@ -1,18 +1,18 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Locator, type Page } from "@playwright/test";
-import { swedishToday } from "../lib/deck";
+import { dayAndMonth, swedishToday } from "../lib/deck";
 
 // True when the tests run against the local test server (npm run test:local),
 // false against the live site. Tests that change shared data in a way that
 // can't be undone run only locally.
 export const runsLocally = (process.env.BASE_URL ?? "").startsWith("http://localhost");
 
-// A birth date so that the birthday comes in `days` days; the age is then 6
+// A birth date so that the birthday comes in `days` days; the age is then 6; date is the card heading, "17 mars".
 export function birthdateIn(days: number) {
   const today = swedishToday();
   const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
   const nextYear = date.getUTCFullYear();
-  return { birthdate: `${nextYear - 6}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`, month: date.getUTCMonth() };
+  return { birthdate: `${nextYear - 6}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`, date: dayAndMonth(date.getUTCDate(), date.getUTCMonth() + 1) };
 }
 
 // A name no one else uses, so tests can create data without clashing with

@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { MONTHS } from "../lib/deck";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
 
@@ -45,7 +44,7 @@ test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons,
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and unfolded list, browsing and the screen reader", async ({ page }) => {
+test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid: month, nearest mark, folded and unfolded list, browsing and the screen reader", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   const parent = await addParent(uniqueName("Förälder"));
   const otto = birthdateIn(0);
@@ -63,8 +62,8 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   await expect(card(page)).toHaveCount(1);
   expect(await page.locator(".deck-card[inert][aria-hidden='true']").count()).toBeGreaterThanOrEqual(1);
 
-  // R2 R3: det närmaste kortet är överst med månaden, märket, namnet och åldern; bara det har märket
-  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText(MONTHS[otto.month]);
+  // R2 R3: det närmaste kortet är överst med dagen och månaden, märket, namnet och åldern; bara det har märket
+  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText(otto.date);
   await expect(card(page).getByText("Nästa födelsedag")).toBeVisible();
   await expect(page.getByText("Nästa födelsedag")).toHaveCount(1);
   await expect(card(page).getByRole("heading", { level: 3, name: "Otto" })).toBeVisible();
@@ -140,7 +139,7 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 one kid: month, nearest mark, folded and un
   for (const { birthdate } of [otto, alma, vera]) expect(html).not.toContain(birthdate);
 });
 
-test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", async ({ page }) => {
+test("MUPP-004-R2 R4 R5 R7 R9 MUPP-020-R1 several kids on one card, then Christmas Eve", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   const parent = await addParent(uniqueName("Förälder"));
   const twins = birthdateIn(20);
@@ -151,7 +150,9 @@ test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", asy
   await page.goto("/");
 
   // R4: ett kort med två barn: ett litet kort per barn, äldst först (här i ordning efter id), utan att några listor är öppna
-  await showCard(page, MONTHS[twins.month]);
+  await showCard(page, twins.date);
+  // MUPP-020-R1: the date is in the heading once, not on the miniatures
+  await expect(card(page).getByText(twins.date)).toHaveCount(1);
   const open = card(page).getByRole("button", { name: /^Önskelista för / });
   await expect(open).toHaveText([/Vera/, /Vilda/]);
   await expect(card(page).getByText("Fyller 6 år")).toHaveCount(2);
@@ -190,7 +191,7 @@ test("MUPP-004-R2 R4 R5 R7 R9 several kids on one card, then Christmas Eve", asy
 test("MUPP-004-R2 a birthday on Christmas Eve comes before the Christmas Eve card", async ({ page }) => {
   await addChild(await addParent(uniqueName("Förälder")), "Jul", "2020-12-24");
   await page.goto("/");
-  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("December");
+  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("24 december");
   await expect(card(page).getByText("Nästa födelsedag")).toBeVisible();
   await next(page).click();
   await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("Julafton");
