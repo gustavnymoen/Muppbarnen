@@ -44,6 +44,8 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   // Rörelsen runt öppna och stäng (MUPP-016): varifrån barnets vy växer, och hur den stängda vyn ska röra sig
   const origin = useRef<Origin | null>(null);
   const leaving = useRef<"shrink" | "sink" | null>(null);
+  // Om det senaste som hände var en tangent eller ett tryck (MUPP-022)
+  const byKeyboard = useRef(false);
   const count = cards.length;
   // Med flera barn på kortet byter knapparna barn på kortet, så de fungerar även om leken bara har ett kort
   const openCard = openList && cards.find((c) => c.key === openList.cardKey);
@@ -57,6 +59,11 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
     origin.current = leaving.current = refocus.current = null;
     // Utan preventScroll scrollar webbläsaren leken åt sidan för att visa ett kort som ännu glider in
     target?.focus({ preventScroll: true });
+    // Efter en stängning med finger eller mus ska ringen inte ligga kvar runt knappen (iOS visar den annars); tangentbordet får den som vanligt
+    if (target && !openList && !byKeyboard.current) {
+      target.dataset.quietFocus = "";
+      target.addEventListener("blur", () => delete target.dataset.quietFocus, { once: true });
+    }
   }, [openList]);
 
   if (count === 0) return <Card as="section" className="mt-3">Inga barn har lagts till än.</Card>;
@@ -105,6 +112,9 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
+    // Assistenttekniker som trycker utan tangent eller pekare räknas som pekare (ringen göms): en känd gräns
+    byKeyboard.current = true;
+    delete (event.target as HTMLElement).dataset.quietFocus;
     // Piltangenterna i dialogerna (paxa, storlekar) hör till dem
     if ((event.target as Element).closest("dialog") && event.key !== "Escape") return;
     if (event.key === "ArrowRight") go(1);
@@ -139,7 +149,7 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   });
 
   return (
-    <div role="group" aria-label="Födelsedagskort" aria-roledescription="karusell" onKeyDown={onKeyDown} className="flex h-full flex-col gap-2">
+    <div role="group" aria-label="Födelsedagskort" aria-roledescription="karusell" onKeyDown={onKeyDown} onPointerDownCapture={() => (byKeyboard.current = false)} className="flex h-full flex-col gap-2">
       {/* Karusell: alla kort är lika stora och ligger mitt på ytan; kortet före och efter skymtar på sidorna, och knapparna sitter på kortets kanter */}
       <div className="relative mx-auto min-h-0 w-full max-w-md flex-1">
         <div

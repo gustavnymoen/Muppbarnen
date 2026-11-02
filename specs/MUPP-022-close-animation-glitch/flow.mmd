@@ -1,0 +1,10 @@
+%% MUPP-022 Close animation glitch and focus ring on phone
+%% What happens when a kid's view is closed; labels are requirement IDs.
+flowchart TD
+    A[Visitor closes the kid's view] --> B[State closes at once, focus moves to the tile]
+    B --> C{Last input a key?}
+    C -- yes --> D[Focus ring shown as before R2]
+    C -- no --> E[data-quiet-focus: no ring until blur R2]
+    A --> F[Ghost copy of the view made]
+    F --> G[Copy scaled to the button's box and faded, transform and opacity R1]
+    G --> H[Copy removed on finish, cancel or after the safety time R1]

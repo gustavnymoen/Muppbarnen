@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Fix** [MUPP-022 Close animation glitch and focus ring on phone](../specs/MUPP-022-close-animation-glitch/solution.md): closing a kid's view shrinks the whole view (scaled and fading, transform and opacity only) instead of a cut-out that stuttered on a phone, the copy is always removed, and no focus ring is left on the tile after a close with a finger or mouse.
 * **Fix** [MUPP-021 Browse forward with a list open](../specs/MUPP-021-browse-focus-scroll/solution.md): going to the next card with a list open no longer scrolls the deck sideways (the focus is moved with `preventScroll`).
 * **Creation** [MUPP-017 Browse kids with the wish list open](../specs/MUPP-017-browse-with-open-list/solution.md): the arrow buttons and keys work with a wish list open (next card, or next kid within a card with several kids and on Christmas Eve), and Tillbaka is a return icon.
 * **Creation** [MUPP-016 Wish list open transition](../specs/MUPP-016-wishlist-open-transition/solution.md): the wish list slides up on a card with one kid, and the kid's view grows out of the pressed button or tile on cards with several kids and on Christmas Eve; closing runs the same movement backwards (a ghost copy moves while the real view is already closed), and nothing moves with reduced motion.
