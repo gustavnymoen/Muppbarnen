@@ -10,6 +10,8 @@ export const OCCASION_NAMES: Record<Occasion, string> = { birthday: "Födelsedag
 
 // Längsta beskrivning av en önskning (MUPP-018); formuläret och servern läser samma tal
 export const MAX_DESCRIPTION = 100;
+// Längsta namn på en önskning (MUPP-023)
+export const MAX_TITLE = 60;
 
 const fail = (error: string): { ok: false; error: string } => ({ ok: false, error });
 // Styrtecken utom radbrytning och tabb sparas aldrig

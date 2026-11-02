@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, useTransition, type ComponentProps,
 import { claimWishes } from "@/app/actions";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
-import { canClaim, webLink } from "@/lib/wishes";
+import { canClaim, isLongTitle, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
 import { Dialog } from "./Dialog";
 import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from "./icons";
@@ -172,7 +172,7 @@ function WishRow({ wish, marked, onMark }: { wish: Wish; marked: boolean; onMark
   const link = webLink(wish.url);
 
   return (
-    <li className="relative py-1 break-words">
+    <li className="relative py-1">
       <div className="flex items-center gap-1">
         {canClaim(wish) && (
           <label className="flex min-h-11 min-w-11 shrink-0 items-center justify-center">
@@ -180,9 +180,10 @@ function WishRow({ wish, marked, onMark }: { wish: Wish; marked: boolean; onMark
           </label>
         )}
         {wish.unlimited && wish.claimedBy === null && <InfoBubble>Den här presenten kan köpas flera gånger, så den går inte att paxa.</InfoBubble>}
-        <button type="button" aria-expanded={open} aria-controls={detailsId} onClick={() => setOpen(!open)} className="flex min-h-11 flex-1 items-center justify-between gap-2 text-left">
-          <span className="flex flex-col">
-            <span>{wish.title}</span>
+        <button type="button" aria-expanded={open} aria-controls={detailsId} onClick={() => setOpen(!open)} className="flex min-h-11 min-w-0 flex-1 items-center justify-between gap-2 text-left">
+          <span className="flex min-w-0 flex-col">
+            {/* Högst två rader med ellips och mindre text när titeln är lång (MUPP-023); den utfällda raden visar hela titeln */}
+            <span className={`wrap-anywhere ${open ? "" : "line-clamp-2"} ${isLongTitle(wish.title) ? "text-sm" : ""}`}>{wish.title}</span>
             {wish.claimedBy !== null && <span className="text-sm font-semibold text-claimed">Paxad</span>}
             {wish.unlimited && <span className="text-sm text-muted">Kan köpas flera gånger</span>}
           </span>
@@ -239,7 +240,7 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wis
         <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
           {plural ? "Paxa presenterna" : "Paxa presenten"}
         </h2>
-        <ul className="list-inside list-disc break-words">
+        <ul className="list-inside list-disc wrap-anywhere">
           {wishes.map((wish) => (
             <li key={wish.id}>{wish.title}</li>
           ))}

@@ -6,7 +6,7 @@ import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
 import type { Child, WishlistItem } from "@/lib/family";
-import { MAX_DESCRIPTION, OCCASION_NAMES, type Occasion } from "@/lib/form-input";
+import { MAX_DESCRIPTION, MAX_TITLE, OCCASION_NAMES, type Occasion } from "@/lib/form-input";
 import { clearList, removeItem, saveItem } from "../../actions";
 
 // Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
@@ -98,7 +98,7 @@ function ItemForm({ child, occasion, item, submit }: { child: Child; occasion: O
       <input type="hidden" name="childId" value={child.id} />
       <input type="hidden" name="occasion" value={occasion} />
       {item && <input type="hidden" name="itemId" value={item.id} />}
-      <Field name="title" label="Namn" defaultValue={item?.title} maxLength={120} required />
+      <Field name="title" label="Namn" defaultValue={item?.title} maxLength={MAX_TITLE} required />
       <Field name="size" label="Storlek" defaultValue={item?.size} maxLength={40} />
       <Field name="description" type="textarea" label="Beskrivning" defaultValue={item?.description} maxLength={MAX_DESCRIPTION} />
       <Field name="url" label="Länk" defaultValue={item?.url} maxLength={500} hint="Börjar med http:// eller https://" />
