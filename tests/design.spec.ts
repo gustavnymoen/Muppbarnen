@@ -694,6 +694,41 @@ test("MUPP-005-R1 R3 R4 R5 the wish rows and the claim dialog: marks, targets, c
   }
 });
 
+test("MUPP-023-R2 a wish title is on at most two lines with an ellipsis and smaller when long, and the opened row shows all of it", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const long = "Ett ganska långt önskemål med många ord som aldrig får plats på en enda rad i listan på en telefon ".repeat(2).trim().slice(0, 120);
+    const child = await addChild(await addParent(uniqueName("Förälder")), "Vera", birthdateIn(20).birthdate);
+    await addWish(child, "birthday", "Cykel");
+    await addWish(child, "birthday", long);
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+    await card.getByRole("button", { name: /^Önskelista/ }).click();
+    const region = card.getByRole("region", { name: "Önskelista" });
+    await animationsDone(region);
+
+    const short = region.getByRole("button", { name: "Cykel" }).getByText("Cykel", { exact: true });
+    const title = region.getByRole("button", { name: long }).getByText(long, { exact: true });
+    const lines = async () => Math.round((await settledBox(title)).height / parseFloat(await css(title, "line-height")));
+    // A short title is as before: one line at the body size; a long one is smaller and cut after two lines with an ellipsis
+    expect(await css(short, "font-size")).toBe("16px");
+    expect(parseFloat(await css(title, "font-size"))).toBeLessThan(16);
+    expect(await lines()).toBe(2);
+    expect(await title.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+
+    // The opened row shows the whole title
+    await region.getByRole("button", { name: long }).click();
+    expect(await lines()).toBeGreaterThan(2);
+    expect(await title.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearFamily();
+  }
+});
+
 // One test per phone size, to stay within the time budget of a test
 for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }]) {
   test(`MUPP-014-R2 R3 R4 R6 MUPP-015-R1 R4 the sizes buttons and Tillbaka at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corners of an open kid view, and no scroll or overlap`, async ({ page }) => {

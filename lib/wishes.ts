@@ -19,3 +19,7 @@ export function webLink(url: string) {
     return null;
   }
 }
+
+// En titel över det här antalet tecken får mindre text i raden (MUPP-023); CSS kan inte veta om en titel radbröts
+const LONG_TITLE = 24;
+export const isLongTitle = (title: string) => title.length > LONG_TITLE;

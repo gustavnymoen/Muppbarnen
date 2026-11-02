@@ -1,0 +1,9 @@
+%% MUPP-023 Long wish titles wrap and get a maximum length
+flowchart TD
+    A[Wish list is open] --> B{Title over 24 characters?}
+    B -- no --> C[Normal size, one line]
+    B -- yes --> D[Smaller text, wraps, at most two lines R2]
+    D --> E{Row pressed?}
+    E -- yes --> F[Whole title shown R2]
+    A --> G[Wish marked and Paxa pressed]
+    G --> H[Dialog lists the title, wrapped R1]

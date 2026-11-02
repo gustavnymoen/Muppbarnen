@@ -1,7 +1,7 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
 import { isoDate, swedishToday, type DeckInput, type Sizes, type Wishes } from "./deck";
-import { MAX_DESCRIPTION, collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
+import { MAX_DESCRIPTION, MAX_TITLE, collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
 // något tar emot vem som gör det (actor, läst ur databasen vid varje förfrågan) och
@@ -296,7 +296,7 @@ export async function saveItem(
 ): Promise<Outcome> {
   const occasion = parseOccasion(input.occasion);
   const checked = collect({
-    title: parseText(input.title, 120, true),
+    title: parseText(input.title, MAX_TITLE, true),
     size: parseText(input.size, 40),
     description: parseText(input.description, MAX_DESCRIPTION),
     url: parseLink(input.url),

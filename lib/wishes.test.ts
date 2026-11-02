@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { Wish } from "./deck";
-import { canClaim, sortWishes, webLink } from "./wishes";
+import { canClaim, isLongTitle, sortWishes, webLink } from "./wishes";
 
 // Påhittade önskningar
 const wish = (id: number, extra: Partial<Wish> = {}): Wish => ({ id, title: `Önskan ${id}`, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
@@ -36,5 +36,13 @@ describe("MUPP-005-R2 the link", () => {
     expect(webLink("https://example.com/cykel")).toBe("https://example.com/cykel");
     expect(webLink("http://example.com")).toBe("http://example.com");
     for (const bad of ["javascript:alert(1)", "data:text/html,hej", "ftp://example.com", "example.com", "", "//example.com"]) expect(webLink(bad), bad).toBeNull();
+  });
+});
+
+describe("MUPP-023-R2 a long title", () => {
+  test("MUPP-023-R2 a title over 24 characters is long, a shorter one is not", () => {
+    expect(isLongTitle("a".repeat(24))).toBe(false);
+    expect(isLongTitle("a".repeat(25))).toBe(true);
+    expect(isLongTitle("")).toBe(false);
   });
 });
