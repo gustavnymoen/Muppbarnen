@@ -56,6 +56,8 @@ test("MUPP-017-R1 a card with one kid: next, previous and the arrow keys show th
   await expect(card(page).getByRole("button", { name: /^Paxa/ })).toHaveCount(0);
   await expect(card(page).getByRole("button", { name: "Fäll ihop önskelistan" })).toBeFocused();
   await expect(status(page)).toHaveText(/^Kort 2 av \d: Alma/);
+  // Listan på det nya kortet glider upp (MUPP-016); axe läser först när den är i vila
+  await animationsDone(region(page));
   await expectNoA11yViolations(page);
 
   await page.keyboard.press("ArrowRight");

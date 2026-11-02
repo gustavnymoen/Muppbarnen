@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
 
 test.skip(!runsLocally, "needs the local test database");
 
@@ -23,6 +23,8 @@ async function openList(page: Page) {
   await page.goto("/");
   await page.getByRole("article").getByRole("button", { name: /^Önskelista/ }).click();
   await expect(region(page)).toBeVisible();
+  // Listan glider upp när den öppnas (MUPP-016); mät först när den är i vila
+  await animationsDone(region(page));
 }
 
 test("MUPP-019-R1 the info button shows and hides the explanation, and the row does not move", async ({ page }) => {
