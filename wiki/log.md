@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Fix** [MUPP-023](../specs/MUPP-023-long-wish-titles/solution.md) (follow-up): the arrow of a wish row keeps its size beside a long title (icons are `shrink-0`).
 * **Fix** [MUPP-023 Long wish titles wrap](../specs/MUPP-023-long-wish-titles/solution.md): a long wish title, also one long word, wraps inside its row and in the claim dialog, shows at most two lines with an ellipsis (the whole title when the row is opened) and gets smaller text over 24 characters.
 * **Fix** [MUPP-025 Close animation visible on iPhone](../specs/MUPP-025-ios-close-animation/solution.md): the closing copy moves in 300 ms and fades only after 40 % of it, so it is seen on a phone; a WebKit test (`npm run test:webkit`, outside the normal suite) checks it.
 * **Fix** [MUPP-024 Pictures are cached by the browser](../specs/MUPP-024-picture-cache/solution.md): picture addresses carry a version (`?v=`) and are kept privately for a year, so the small pictures are not fetched again each time a view closes; a replaced picture has a new address.

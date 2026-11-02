@@ -17,7 +17,7 @@ None. The maximum length of a title is lowered from 120 to 60 (R3): `MAX_TITLE` 
 
 ## Interface
 
-- **Wrapping (R1):** in `WishRow` (`app/components/WishList.tsx`) the title button and the span around the texts are `min-w-0`, so the flex item may shrink below the width of its longest word; the title itself is `wrap-anywhere` (`overflow-wrap: anywhere`), which breaks a single long word. `break-words` was removed from the `li`, where it did nothing. The claim dialog's list of titles uses `wrap-anywhere` too.
+- **Wrapping (R1):** in `WishRow` (`app/components/WishList.tsx`) the title button and the span around the texts are `min-w-0`, so the flex item may shrink below the width of its longest word; the title itself is `wrap-anywhere` (`overflow-wrap: anywhere`), which breaks a single long word. `break-words` was removed from the `li`, where it did nothing. The icons (`Icon` in `app/components/icons.tsx`) are `shrink-0`, so the arrow keeps its 18 px beside a long title instead of being squeezed small. The claim dialog's list of titles uses `wrap-anywhere` too.
 - **Two lines (R2):** a closed row's title is `line-clamp-2` (ellipsis after two lines); an opened row drops the clamp, so the whole title is shown there.
 - **Smaller text (R2):** `isLongTitle` in `lib/wishes.ts` is true for a title over 24 characters, and the row then uses `text-sm` (14 px instead of 16 px).
 

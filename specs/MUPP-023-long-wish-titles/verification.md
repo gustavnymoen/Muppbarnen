@@ -35,8 +35,8 @@ feature: MUPP-023
 
 - [x] Tests: all checks of the test plan done; unit and local browser tests pass
 - [x] Test suite: within the budgets (176.7 s, +6 % on 166 s)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the live checklist is not checked
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
+- [ ] Accessibility: axe passes; the live checklist is not checked (not done)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
@@ -76,6 +76,7 @@ Acceptance criteria:
 
 ## Notes
 
+- Not checked: a real iPhone and the live accessibility checklist.
 - The threshold for the smaller text is 24 characters (written in the card and in `solution.md`).
 - Existing titles longer than 60 are not changed; the server refuses them when their wish is saved again, so the administrator shortens them then.
 - A line was removed by mistake from another test while working and restored (the Christmas Eve tile's `text-overflow` check, MUPP-013-R3).

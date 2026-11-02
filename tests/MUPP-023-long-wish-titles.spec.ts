@@ -33,6 +33,8 @@ test("MUPP-023-R1 a long title wraps inside its row and in the claim dialog, at 
       const arrow = await settledBox(region(page).getByRole("button", { name: word, exact: true }).locator("svg"));
       // The row's arrow is inside the list, and neither list nor page scrolls sideways
       expect(arrow.x + arrow.width).toBeLessThanOrEqual(list.x + list.width);
+      // ...and keeps its size instead of shrinking beside a long title
+      expect(arrow.width).toBeCloseTo(18, 0);
     }
     expect(await region(page).evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     expect(await noSidewaysScroll(page)).toBe(true);
