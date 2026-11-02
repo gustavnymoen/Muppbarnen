@@ -163,11 +163,11 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
     const parent = await addParent(uniqueName("Förälder"));
     const today = swedishToday();
     // Sex barn med olika födelsedagar som räknas från idag, så att kortens ordning och antal inte hänger på datumet
-    const birthdateIn = (days: number) => {
+    const birthdate2018In = (days: number) => {
       const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
       return `2018-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
     };
-    for (const [i, name] of ["Otto", "Alma", "Vera", "Vilda", "Otis", "Ines"].entries()) await addChild(parent, name, birthdateIn(i * 40));
+    for (const [i, name] of ["Otto", "Alma", "Vera", "Vilda", "Otis", "Ines"].entries()) await addChild(parent, name, birthdate2018In(i * 40));
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
     const card = page.getByRole("article");
