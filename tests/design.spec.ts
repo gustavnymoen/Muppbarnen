@@ -719,7 +719,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       const inside = (inner: { x: number; y: number; width: number; height: number }, outer: { x: number; y: number; width: number; height: number }) =>
         inner.x >= outer.x - 0.5 && inner.y >= outer.y - 0.5 && inner.x + inner.width <= outer.x + outer.width + 0.5 && inner.y + inner.height <= outer.y + outer.height + 0.5;
 
-      // MUPP-015-R1 R4: Tillbaka is in the top left corner, 44 px, clear of the heading, the picture and the icon, with readable text
+      // MUPP-015-R1 R4: Tillbaka is in the top left corner, 44 px, clear of the heading, the picture and the icon, as an icon with readable colour
       const expectBack = async (name: string) => {
         const back = card.getByRole("button", { name });
         const [box, cardBox, heading, picture, icon] = [

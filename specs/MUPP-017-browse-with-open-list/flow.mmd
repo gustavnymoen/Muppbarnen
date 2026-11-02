@@ -1,0 +1,11 @@
+%% MUPP-017 Browse kids with the wish list open
+%% What "Föregående kort" / "Nästa kort" and the arrow keys do; labels are requirement IDs.
+flowchart TD
+    A[Arrow button or key] --> B{List open?}
+    B -- no --> C[Next or previous card, as before]
+    B -- yes --> D{Several kids on the card?}
+    D -- yes --> E[Next or previous kid on the same card, list open, marks forgotten R2]
+    D -- no --> F{Next card has one kid?}
+    F -- yes --> G[Next card with its kid's list open, marks forgotten R1]
+    F -- no --> H[Overview of the kids, no list open R1]
+    I[Swipe with a list open] --> J[Nothing happens R3]

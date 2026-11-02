@@ -53,6 +53,13 @@ export const ChevronLeftIcon = () => (
   </Icon>
 );
 
+// Pil som svänger tillbaka: Tillbaka från ett barn till alla barn
+export const ReturnIcon = () => (
+  <Icon>
+    <path d="M20 20v-7a4 4 0 0 0-4-4H4M9 14 4 9l5-5" />
+  </Icon>
+);
+
 export const ChevronRightIcon = () => (
   <Icon>
     <path d="m9 6 6 6-6 6" />
