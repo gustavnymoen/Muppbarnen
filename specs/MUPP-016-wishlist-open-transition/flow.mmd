@@ -1,0 +1,13 @@
+%% MUPP-016 Wish list open transition
+%% How the list opens and closes on the three kinds of card; labels are requirement IDs.
+flowchart TD
+    A[Visitor presses Önskelista or a kid's tile] --> B{Card with one kid?}
+    B -- yes --> C[List slides up and fades in, CSS R1]
+    B -- no --> D[Origin measured, kid's view grows from the button R3]
+    E[Visitor closes: arrow, Stäng, Tillbaka or Esc] --> F[Ghost copy of the view made, state closes at once R2 R4 R6]
+    F --> G{Card with one kid?}
+    G -- yes --> H[Ghost slides down and fades R2]
+    G -- no --> I[Ghost shrinks to the button, measured now R4]
+    H --> J[Ghost removed]
+    I --> J
+    K[Reduced motion] --> L[No ghost, no animation R5]

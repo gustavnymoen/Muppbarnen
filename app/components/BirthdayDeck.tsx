@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { MONTHS, type DeckCard, type DeckKid } from "@/lib/deck";
 import { Avatar } from "./Avatar";
 import { IconButton } from "./Button";
@@ -9,6 +9,7 @@ import { FitName } from "./FitName";
 import { ChevronLeftIcon, ChevronRightIcon, ReturnIcon } from "./icons";
 import { ChristmasBackdrop } from "./ChristmasBackdrop";
 import { SizesButton } from "./SizesButton";
+import { dropGhost, growFrom, makeGhost, originOf, shrinkTo, sinkAway, type Origin } from "./transition";
 import { WishButton, WishList } from "./WishList";
 
 // Kortleken på startsidan (MUPP-004). Korten ligger på varandra: det valda överst, nästa och
@@ -40,16 +41,21 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   const swipeStart = useRef<number | null>(null);
   // Elementet som ska få fokus när listan öppnats eller stängts (knappen som tryckts kan ha försvunnit)
   const refocus = useRef<string | null>(null);
+  // Rörelsen runt öppna och stäng (MUPP-016): varifrån barnets vy växer, och hur den stängda vyn ska röra sig
+  const origin = useRef<Origin | null>(null);
+  const leaving = useRef<"shrink" | "sink" | null>(null);
   const count = cards.length;
   // Med flera barn på kortet byter knapparna barn på kortet, så de fungerar även om leken bara har ett kort
   const openCard = openList && cards.find((c) => c.key === openList.cardKey);
   const canGo = count > 1 || (openCard?.kids.length ?? 0) > 1;
 
-  useEffect(() => {
-    if (refocus.current) {
-      document.getElementById(refocus.current)?.focus();
-      refocus.current = null;
-    }
+  useLayoutEffect(() => {
+    const target = refocus.current ? document.getElementById(refocus.current) : null;
+    if (openList && origin.current) growFrom(document.getElementById(`karta-${openList.cardKey}`), origin.current);
+    else if (leaving.current === "shrink") shrinkTo(target);
+    else if (leaving.current === "sink") sinkAway();
+    origin.current = leaving.current = refocus.current = null;
+    target?.focus();
   }, [openList]);
 
   if (count === 0) return <Card as="section" className="mt-3">Inga barn har lagts till än.</Card>;
@@ -57,6 +63,10 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   const open = (card: DeckCard, kid: DeckKid) => {
     // Önskelistans Stäng-knapp har samma id som önskelistknappen, så fokus hamnar på den när listan öppnas
     refocus.current = `lista-${card.key}-${kid.id}-knapp`;
+    dropGhost();
+    // På kort med flera barn växer vyn ur knappen eller rutan som trycktes; kortet med ett barn glider upp av sig självt (CSS)
+    const pressed = card.kids.length > 1 ? document.getElementById(`barn-${card.key}-${kid.id}`) : null;
+    origin.current = pressed && originOf(pressed);
     setOpenList({ cardKey: card.key, kidId: kid.id });
   };
 
@@ -85,8 +95,11 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   const close = () => {
     if (!openList) return;
     const card = cards.find((c) => c.key === openList.cardKey)!;
+    const multi = card.kids.length > 1;
+    makeGhost(document.getElementById(multi ? `karta-${card.key}` : `lista-${card.key}-${openList.kidId}`));
+    leaving.current = multi ? "shrink" : "sink";
     // Ett kort med flera barn går tillbaka till barnets knapp, annars stannar fokus på listknappen
-    refocus.current = card.kids.length > 1 ? `barn-${card.key}-${openList.kidId}` : `lista-${card.key}-${openList.kidId}-knapp`;
+    refocus.current = multi ? `barn-${card.key}-${openList.kidId}` : `lista-${card.key}-${openList.kidId}-knapp`;
     setOpenList(null);
   };
 
@@ -194,6 +207,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
   return (
     <Card
       as="article"
+      id={`karta-${card.key}`}
       highlight={first ? card.kids[0].color : undefined}
       className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
     >
