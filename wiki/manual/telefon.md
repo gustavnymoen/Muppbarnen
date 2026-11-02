@@ -20,6 +20,10 @@ De flesta besökare använder telefonen, så en ny version bör ses där innan d
 
 Sidan `/design` (till exempel `https://muppbarnen.vercel.app/design`) visar alla färger, texter och komponenter med påhittade barn. Använd den för att bedöma looken i telefonen: bläddra, tryck på knapparna och kortet, och prova att vrida telefonen.
 
+## Sidan står still
+
+På telefonen rör sig inte sidan själv när du drar i den, och den studsar inte; bara innehållet, till exempel en lång önskelista, rullar. Menyn finns därför alltid kvar uppe i hörnet, också efter en omladdning. Att dra ner sidan för att ladda om fungerar inte: använd webbläsarens egen omladdningsknapp.
+
 ## Lokalt på datorn
 
 `npm run dev:https` startar sajten på `https://localhost:3000`. Första gången behöver datorn `mkcert` (se [Testing on a phone](../system/phone-testing.md)). För telefonen är förhandsversionen enklare.
