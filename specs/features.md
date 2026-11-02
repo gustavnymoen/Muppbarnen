@@ -23,6 +23,7 @@ tags: [product, features]
 | [MUPP-015](MUPP-015-back-button/solution.md) | Back button on kids card | Startsida | Done |
 | [MUPP-017](MUPP-017-browse-with-open-list/solution.md) | Browse kids with the wish list open | Startsida | Review |
 | [MUPP-018](MUPP-018-description-max-length/solution.md) | Description max length | Administration | Done |
+| [MUPP-019](MUPP-019-unlimited-gifts-explained-and-sorted/solution.md) | Wish row: info button, labels and order | Barnkort | Done |
 | [MUPP-009](MUPP-009-site-password/solution.md) | Site password | Shared | Done |
 | [TECH-001](TECH-001-project-setup/solution.md) | Project setup | Shared | Done |
 | [TECH-002](TECH-002-repository-and-hosting/solution.md) | Repository and hosting | Shared | Done |

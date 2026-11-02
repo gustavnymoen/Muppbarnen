@@ -1,13 +1,13 @@
 "use client";
 
-import { useId, useRef, useState, useTransition, type ComponentProps, type CSSProperties, type FormEvent, type Ref } from "react";
+import { useEffect, useId, useRef, useState, useTransition, type ComponentProps, type CSSProperties, type FormEvent, type Ref } from "react";
 import { claimWishes } from "@/app/actions";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
 import { canClaim, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
 import { Dialog } from "./Dialog";
-import { ChevronDownIcon, ChevronUpIcon } from "./icons";
+import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from "./icons";
 
 // Knappen som öppnar en önskelista (utseende i globals.css): önskelistan är det viktigaste på sajten, så den är en tydlig knapp
 // med "Önskelista" och en pil ner; den smala varianten (small) på kort med flera barn har bara texten.
@@ -123,6 +123,48 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
   );
 }
 
+// Knappen som står där kryssrutan skulle ha stått på en rad som kan köpas flera gånger (MUPP-019-R1): förklaringen kommer som en
+// bubbla över raden, så att raderna inte flyttar sig. Den göms av ett nytt tryck, Esc eller ett tryck någon annanstans.
+function InfoBubble({ children }: { children: string }) {
+  const [shown, setShown] = useState(false);
+  const bubbleId = useId();
+  const box = useRef<HTMLDivElement>(null);
+  const bubble = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (!shown) return;
+    bubble.current?.scrollIntoView({ block: "nearest" });
+    const hide = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setShown(false);
+    };
+    document.addEventListener("pointerdown", hide);
+    return () => document.removeEventListener("pointerdown", hide);
+  }, [shown]);
+
+  return (
+    <div
+      ref={box}
+      className="shrink-0"
+      onKeyDown={(event) => {
+        // Esc göms bubblan och fäller inte ihop kortet (kortleken lyssnar på Esc)
+        if (event.key === "Escape" && shown) {
+          event.stopPropagation();
+          setShown(false);
+        }
+      }}
+    >
+      <IconButton label="Kan köpas flera gånger" aria-expanded={shown} aria-controls={bubbleId} onClick={() => setShown(!shown)}>
+        <InfoIcon />
+      </IconButton>
+      {shown && (
+        <p ref={bubble} id={bubbleId} role="status" className="absolute left-12 right-0 top-0 z-10 rounded-control border border-muted/75 bg-card p-3 text-sm shadow-card">
+          {children}
+        </p>
+      )}
+    </div>
+  );
+}
+
 // En rad: rubriken med märken, en kryssruta om den går att paxa, och detaljerna när raden är utfälld (MUPP-005-R1–R3)
 function WishRow({ wish, marked, onMark }: { wish: Wish; marked: boolean; onMark: () => void }) {
   const [open, setOpen] = useState(false);
@@ -130,17 +172,18 @@ function WishRow({ wish, marked, onMark }: { wish: Wish; marked: boolean; onMark
   const link = webLink(wish.url);
 
   return (
-    <li className="py-1 break-words">
+    <li className="relative py-1 break-words">
       <div className="flex items-center gap-1">
         {canClaim(wish) && (
           <label className="flex min-h-11 min-w-11 shrink-0 items-center justify-center">
             <input type="checkbox" checked={marked} onChange={onMark} aria-label={wish.title} className="size-6 accent-brand" />
           </label>
         )}
+        {wish.unlimited && wish.claimedBy === null && <InfoBubble>Den här presenten kan köpas flera gånger, så den går inte att paxa.</InfoBubble>}
         <button type="button" aria-expanded={open} aria-controls={detailsId} onClick={() => setOpen(!open)} className="flex min-h-11 flex-1 items-center justify-between gap-2 text-left">
           <span className="flex flex-col">
             <span>{wish.title}</span>
-            {wish.claimedBy !== null && <span className="text-sm font-semibold text-muted">Paxad</span>}
+            {wish.claimedBy !== null && <span className="text-sm font-semibold text-claimed">Paxad</span>}
             {wish.unlimited && <span className="text-sm text-muted">Kan köpas flera gånger</span>}
           </span>
           {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
@@ -149,12 +192,11 @@ function WishRow({ wish, marked, onMark }: { wish: Wish; marked: boolean; onMark
       {open && (
         <div id={detailsId} className="space-y-1 pb-2 text-sm">
           {wish.claimedBy !== null && (
-            <p>
+            <p className="text-claimed">
               Paxad av {wish.claimedBy} {wish.claimedAt}
             </p>
           )}
-          {wish.unlimited && <p>Den här presenten kan köpas flera gånger, så den går inte att paxa.</p>}
-          {wish.description && <p className="whitespace-pre-line">{wish.description}</p>}
+          {wish.description && <p className="whitespace-pre-line">Beskrivning: {wish.description}</p>}
           {wish.size && <p>Storlek: {wish.size}</p>}
           {link && (
             <p>
