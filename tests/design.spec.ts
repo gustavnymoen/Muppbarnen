@@ -623,7 +623,7 @@ test("MUPP-013-R5 MUPP-005-R6 an open wish list swaps the wish button for a smal
   }
 });
 
-test("MUPP-005-R1 R3 R4 R5 the wish rows and the claim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
+test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 the wish rows and the claim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -655,6 +655,31 @@ test("MUPP-005-R1 R3 R4 R5 the wish rows and the claim dialog: marks, targets, c
     expect(info.height).toBeGreaterThanOrEqual(44);
     const tick = await settledBox(region.getByRole("checkbox", { name: "Cykel" }).locator(".."));
     expect(Math.abs(info.x + info.width / 2 - (tick.x + tick.width / 2))).toBeLessThan(2);
+
+    // MUPP-027: the info button is the icon alone at rest, gets a round tint (the edge colour) while hovered, and does not move
+    const infoButton = region.getByRole("button", { name: "Kan köpas flera gånger", exact: true });
+    await expect(infoButton).toHaveCSS("border-top-width", "0px");
+    await expect(infoButton).toHaveCSS("box-shadow", "none");
+    await expect(infoButton).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    expect(contrast(await css(infoButton, "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+    // focus() alone does not show :focus-visible, so the focus arrives by the keyboard
+    await infoButton.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(infoButton).toHaveCSS("outline-width", "3px");
+    const beforeHover = await settledBox(infoButton);
+    await infoButton.hover();
+    await expect(infoButton).toHaveCSS("background-color", EDGE);
+    await expect(infoButton).toHaveCSS("box-shadow", "none");
+    expect(await css(infoButton, "border-top-left-radius")).not.toBe("0px");
+    expect(await settledBox(infoButton)).toEqual(beforeHover);
+    await page.mouse.move(0, 0);
+    await infoButton.hover();
+    await page.mouse.down();
+    await expect(infoButton).toHaveCSS("background-color", EDGE);
+    expect(await settledBox(infoButton)).toEqual(beforeHover);
+    await page.mouse.up();
+    await page.mouse.move(0, 0);
     const target = (locator: ReturnType<Page["locator"]>) => settledBox(locator);
     expect((await target(region.getByRole("button", { name: /^Cykel/ }))).height).toBeGreaterThanOrEqual(44);
     const tickTarget = await target(region.getByRole("checkbox", { name: "Cykel" }).locator(".."));
