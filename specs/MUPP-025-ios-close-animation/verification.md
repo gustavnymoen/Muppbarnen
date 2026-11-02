@@ -24,7 +24,7 @@ feature: MUPP-025
 
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (see above)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
 - [ ] Accessibility: no visible state added; the live checklist is not checked
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated (no manual change: the visitor sees no new function)
@@ -41,7 +41,7 @@ When a kid's view is closed the shrinking copy is more than half opaque for at l
 
 ## Notes
 
-- **Not checked on a real iPhone.** The fault was not reproduced as a missing copy; the change makes the motion longer and later to fade. After the merge: close a kid on Christmas Eve and on a card with several kids on the iPhone and see if the card is seen shrinking into its button. If not, the next step is to look at the iPhone with Safari's Web Inspector on a Mac.
+- **Checked on the user's iPhone after the merge (2026-11-02):** it looks better and the motion is seen; the user finds it very detailed (buttons and all are visible while it shrinks), which is good enough for now. Earlier: not checked on a real iPhone. The fault was not reproduced as a missing copy; the change makes the motion longer and later to fade. After the merge: close a kid on Christmas Eve and on a card with several kids on the iPhone and see if the card is seen shrinking into its button. If not, the next step is to look at the iPhone with Safari's Web Inspector on a Mac.
 
 See also: [Solution](solution.md), [Review](review.md).
 

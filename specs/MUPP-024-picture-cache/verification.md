@@ -25,7 +25,7 @@ feature: MUPP-024
 
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (see above)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
 - [ ] Accessibility: no visible state added; the live checklist is not checked
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated (no manual change: the visitor sees no new function)
