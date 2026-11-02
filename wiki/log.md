@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Fix** [MUPP-027 Info button without a frame](../specs/MUPP-027-info-button-no-frame/solution.md): the (i) button in a wish row is the icon alone, with a round `edge` tint while hovered or pressed (`IconButton` `frameless`).
 * **Fix** [MUPP-023](../specs/MUPP-023-long-wish-titles/solution.md) (follow-up): the arrow of a wish row keeps its size beside a long title (icons are `shrink-0`).
 * **Fix** [MUPP-023 Long wish titles wrap](../specs/MUPP-023-long-wish-titles/solution.md): a long wish title, also one long word, wraps inside its row and in the claim dialog, shows at most two lines with an ellipsis (the whole title when the row is opened) and gets smaller text over 24 characters.
 * **Fix** [MUPP-025 Close animation visible on iPhone](../specs/MUPP-025-ios-close-animation/solution.md): the closing copy moves in 300 ms and fades only after 40 % of it, so it is seen on a phone; a WebKit test (`npm run test:webkit`, outside the normal suite) checks it.

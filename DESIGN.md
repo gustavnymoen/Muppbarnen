@@ -63,7 +63,7 @@ Motion is only small feedback (a press, a card fading in, the wish list opening 
 
 ## Layout
 
-The page shell (`Page`, `PageContent`) fills the screen (`dvh`, with safe areas), the page itself does not scroll and only the content region does. It is a frame of at most 72 rem, centred, with side padding of 1 rem (2 rem from 640 px). Controls are at least 44 × 44 px; the exception is the 32 × 32 px icon buttons in the admin's slim rows (MUPP-010), which pass WCAG 2.2 AA (24 px). The site's name is not shown as a heading: the start page keeps it as a visually hidden `h1`.
+The page shell (`Page`, `PageContent`) fills the screen (`dvh`, with safe areas), the page itself does not scroll and only the content region does. It is a frame of at most 72 rem, centred, with side padding of 1 rem (2 rem from 640 px). Controls are at least 44 × 44 px; the info button in a wish row is frameless (just the icon, with a round `--color-edge` tint while hovered or pressed); the exception is the 32 × 32 px icon buttons in the admin's slim rows (MUPP-010), which pass WCAG 2.2 AA (24 px). The site's name is not shown as a heading: the start page keeps it as a visually hidden `h1`.
 
 ## Concept (TECH-006, step 1)
 
