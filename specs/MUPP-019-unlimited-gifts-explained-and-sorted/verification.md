@@ -21,7 +21,8 @@ feature: MUPP-019
 | Unit tests | `sortWishes` with all three groups mixed | local | Pass | 2026-11-02 |
 | Browser tests | info button (press, Esc, outside press, Enter), order, label with and without description, axe with the bubble shown and with a claimed row unfolded | local | Pass | 2026-11-02 |
 | Smoke test | not applicable: the main flow does not change | | | |
-| Accessibility | axe in the browser tests; looked at the bubble on a 375 px screenshot. The live checklist (info button name, focus, touch size, reading order) is not checked yet | local | Pass (live: not checked) | 2026-11-02 |
+| Accessibility | axe in the browser tests; looked at the bubble on a 375 px screenshot. The live checklist (info button name, focus, touch size, reading order, bubble read aloud, long title) is not checked: the live lists opened (Wilda, Arthur) have no wishes, and adding one would write to real data | local | Pass (live: not checked) | 2026-11-02 |
+| Live tests | "Live tests" run 41430693065 on merge commit f47a1e5 | live | Pass | 2026-11-02 |
 | Security | not applicable: no data or route changes | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -36,8 +37,8 @@ feature: MUPP-019
 
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the live checklist is not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41430693065 on f47a1e5
+- [ ] Accessibility: axe passes; the live checklist is not checked (no wishes on the live lists; check it once a list has an unlimited gift)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
