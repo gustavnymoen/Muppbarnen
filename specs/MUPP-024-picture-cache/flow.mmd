@@ -1,0 +1,12 @@
+%% MUPP-024 Pictures are cached by the browser
+flowchart TD
+    A[Page built] --> B["img src = /bilder/id?v=version R1"]
+    B --> C{Browser has it?}
+    C -- yes --> D[Shown from the cache, no request]
+    C -- no --> E[Request with cookie]
+    E --> F{Cookie? R2}
+    F -- no --> G[401]
+    F -- yes --> H{v matches the picture? R1}
+    H -- yes --> I[200, private max-age one year immutable]
+    H -- no --> J[200, private no-cache]
+    K[Picture replaced] --> L[New file name, new version, new address R1]

@@ -139,7 +139,7 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   await kidCard.getByLabel("Bild", { exact: true }).setInputFiles({ name: "bild.png", mimeType: "image/png", buffer: png });
   await kidCard.getByRole("button", { name: "Spara bild" }).click();
   await expect.poll(() => pictureOf(kidId)).toMatch(/\.webp$/);
-  await expect(kidCard.locator(`img[src="/bilder/${kidId}"]`)).toBeVisible();
+  await expect(kidCard.locator(`img[src^="/bilder/${kidId}?v="]`)).toBeVisible();
   expect(files()).toHaveLength(1);
 
   // With a picture the panel has a row: a thumbnail, "Bild" and a trash can that names the kid

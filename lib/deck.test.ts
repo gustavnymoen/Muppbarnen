@@ -4,7 +4,7 @@ import { buildDeck, nextOccurrence, type DeckInput, type Sizes, type Wish, type 
 const today = { year: 2026, month: 10, day: 28 };
 // Påhittade barn
 const noSizes: Sizes = { clothes: "", shoes: "", head: "", gloves: "" };
-const kid = (id: number, name: string, birthdate: string, parentId = 1, sizes: Sizes = noSizes): DeckInput => ({ id, parentId, name, birthdate, hasPicture: false, sizes });
+const kid = (id: number, name: string, birthdate: string, parentId = 1, sizes: Sizes = noSizes): DeckInput => ({ id, parentId, name, birthdate, picture: "", sizes });
 const noWishes: Wishes = new Map();
 const wish = (id: number, title: string, extra: Partial<Wish> = {}): Wish => ({ id, title, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
 
@@ -62,7 +62,7 @@ describe("MUPP-004-R6 the data for the browser", () => {
     const keys = (value: object) => Object.keys(value).sort();
     for (const card of deck) {
       expect(keys(card)).toEqual(["key", "kids", "kind", "month", "next"]);
-      expect(keys(card.kids[0])).toEqual(["age", "color", "expected", "hasPicture", "id", "name", "sizes", "wishes"]);
+      expect(keys(card.kids[0])).toEqual(["age", "color", "expected", "id", "name", "picture", "sizes", "wishes"]);
     }
     expect(JSON.stringify(deck)).not.toContain("2019-03-17");
     expect(deck.find((c) => c.kind === "birthday")).toMatchObject({ month: 3, kids: [{ age: 8 }] });

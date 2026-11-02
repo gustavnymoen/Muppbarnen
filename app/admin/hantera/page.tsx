@@ -13,6 +13,7 @@ import { childColor } from "@/lib/child-colors";
 import { isExpected } from "@/lib/deck";
 import { latestBirthdate } from "@/lib/form-input";
 import { listChildren, listParents, type Child, type Parent } from "@/lib/family";
+import { pictureUrl } from "@/lib/picture-url";
 import { requireSiteSession } from "@/lib/site-auth";
 import { removeChild, removeChildPicture, removeParent, saveChild, saveChildPicture, saveParent } from "../actions";
 
@@ -125,7 +126,7 @@ function ParentForm({ parent, submit }: { parent?: Parent; submit: string }) {
 
 function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
   const owner = parents.find((p) => p.id === child.parentId);
-  const src = child.picture ? `/bilder/${child.id}` : undefined;
+  const src = pictureUrl(child.id, child.picture);
   const edit = `barn-${child.id}`;
   const picture = `bild-${child.id}`;
   return (

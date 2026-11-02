@@ -1,4 +1,5 @@
 import { childColor, type ChildColor } from "./child-colors";
+import { pictureUrl } from "./picture-url";
 import { sortWishes } from "./wishes";
 
 // Kortleken på startsidan (MUPP-004): vilka kort som finns, i vilken ordning och vad som
@@ -6,7 +7,7 @@ import { sortWishes } from "./wishes";
 
 // Storlekarna som föräldrarna skrivit in (MUPP-010); tom text där ingen storlek finns
 export type Sizes = { clothes: string; shoes: string; head: string; gloves: string };
-export type DeckInput = { id: number; parentId: number; name: string; birthdate: string; hasPicture: boolean; sizes: Sizes };
+export type DeckInput = { id: number; parentId: number; name: string; birthdate: string; picture: string; sizes: Sizes };
 // claimedBy och claimedAt (ÅÅÅÅ-MM-DD) finns när någon har paxat önskningen (MUPP-005)
 export type Wish = {
   id: number;
@@ -23,7 +24,7 @@ type Today = { year: number; month: number; day: number };
 
 // Det som webbläsaren får: månad och ålder, aldrig dagen eller födelsedatumet (R6).
 // expected: barnet är inte fött än (MUPP-011), då finns ingen ålder. sizes: storlekarna visas för alla besökare (MUPP-014).
-export type DeckKid = { id: number; name: string; age: number | null; expected: boolean; color: ChildColor; hasPicture: boolean; sizes: Sizes; wishes: Wish[] };
+export type DeckKid = { id: number; name: string; age: number | null; expected: boolean; color: ChildColor; picture: string | undefined; sizes: Sizes; wishes: Wish[] };
 export type DeckCard = { key: string; kind: "birthday" | "christmas"; month: number | null; next: boolean; kids: DeckKid[] };
 
 export const MONTHS = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
@@ -79,7 +80,7 @@ export function buildDeck(children: DeckInput[], wishes: Wishes, today: Today): 
     age,
     expected,
     color: childColor(kid.id),
-    hasPicture: kid.hasPicture,
+    picture: pictureUrl(kid.id, kid.picture),
     sizes: { clothes: kid.sizes.clothes.trim(), shoes: kid.sizes.shoes.trim(), head: kid.sizes.head.trim(), gloves: kid.sizes.gloves.trim() },
     wishes: wishesOf(kid.id, occasion),
   });

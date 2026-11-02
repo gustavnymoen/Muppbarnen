@@ -1,5 +1,6 @@
 import { findChild } from "@/lib/family";
 import { parseId } from "@/lib/form-input";
+import { pictureVersion } from "@/lib/picture-url";
 import { readPicture } from "@/lib/pictures";
 import { hasSiteSession } from "@/lib/site-auth";
 
@@ -12,9 +13,10 @@ export async function GET(request: Request, ctx: RouteContext<"/bilder/[id]">) {
   if (!child?.picture) return new Response(null, { status: 404 });
   // Filnamnet är nytt varje gång bilden byts, så det duger som ETag: en oförändrad bild läses aldrig ur lagret igen (TECH-011).
   // 304 före readPicture är avsiktligt: ETag:en matchar bara ett namn som webbläsaren redan fått. Ändras ETag:en av en proxy (W/"…") slår jämförelsen fel och hela bilden skickas, vilket är säkert.
-  const headers = { ETag: `"${child.picture}"`, "Cache-Control": "private, no-cache" };
+  // Med rätt version i adressen (MUPP-024) sparas bilden privat för alltid; en ny bild ger ny adress. Utan version, eller med en gammal, hämtas den om vid varje visning.
+  const versioned = new URL(request.url).searchParams.get("v") === pictureVersion(child.picture);
+  const headers = { ETag: `"${child.picture}"`, "Cache-Control": versioned ? "private, max-age=31536000, immutable" : "private, no-cache" };
   if (request.headers.get("if-none-match") === headers.ETag) return new Response(null, { status: 304, headers });
   const picture = await readPicture(child.picture);
-  // no-cache: samma adress visar den nya bilden när den byts, men får sparas privat
   return picture ? new Response(picture.body, { headers: { ...headers, "Content-Type": picture.type } }) : new Response(null, { status: 404 });
 }

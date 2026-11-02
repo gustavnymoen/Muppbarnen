@@ -28,7 +28,6 @@ const TILE_AVATAR = 56; // barnen på julkortet
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${MONTHS[card.month! - 1].toLowerCase()}`);
 const ageText = (kid: DeckKid, month: number | null) => (kid.expected ? `Beräknad ${MONTHS[month! - 1].toLowerCase()}` : kid.age === null ? null : `Fyller ${kid.age} år`);
-const picture = (kid: DeckKid) => (kid.hasPicture ? `/bilder/${kid.id}` : undefined);
 
 // Vilket barns lista som är utfälld, på vilket kort
 type OpenList = { cardKey: string; kidId: number } | null;
@@ -259,7 +258,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
                   onClick={() => onOpen(kid)}
                   className="press flex h-full min-h-11 w-full flex-col items-center gap-1 rounded-control border border-edge bg-page/50 px-2 py-3 hover:bg-edge"
                 >
-                  <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={TILE_AVATAR} decorative />
+                  <Avatar name={kid.name} color={kid.color} src={kid.picture} size={TILE_AVATAR} decorative />
                   <span className="sr-only">Öppna&nbsp;</span>
                   <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </button>
@@ -267,7 +266,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
             ) : (
               // Barn med samma födelsedag ligger över varandra, var och en som en liten version av barnkortet och mitt i sin del av kortet (R1)
               <li key={kid.id} className="divider-short flex flex-1 flex-col items-center justify-center gap-0.5 text-center">
-                <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={TWIN_AVATAR} decorative />
+                <Avatar name={kid.name} color={kid.color} src={kid.picture} size={TWIN_AVATAR} decorative />
                 <h3 className="max-w-full">
                   <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </h3>
@@ -291,7 +290,7 @@ function KidFace({ cardKey, month, kid, solo, open, onToggle }: { cardKey: strin
   return (
     <>
       <div className={`flex flex-col items-center justify-center gap-2 text-center ${open ? "" : "min-h-0 flex-1"}`}>
-        <Avatar name={kid.name} color={kid.color} src={picture(kid)} size={open ? 72 : SOLO_AVATAR} decorative />
+        <Avatar name={kid.name} color={kid.color} src={kid.picture} size={open ? 72 : SOLO_AVATAR} decorative />
         <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
         {ageText(kid, month) && <p className="text-lg text-muted">{ageText(kid, month)}</p>}
         {!open && <SizesButton kid={kid} mode="text" className="mt-2" />}
