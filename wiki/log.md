@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Creation** [MUPP-017 Browse kids with the wish list open](../specs/MUPP-017-browse-with-open-list/solution.md): the arrow buttons and keys work with a wish list open (next card, or next kid within a card with several kids and on Christmas Eve), and Tillbaka is a return icon.
 * **Creation** [TECH-012 Shrink uploaded pictures](../specs/TECH-012-shrink-pictures/solution.md): a kid's picture is decoded with `sharp` when it is uploaded, turned upright, shrunk to at most 256 px and stored as WebP without metadata, so the start page loads small pictures; a broken file gives the same error message as before, and pictures stored earlier still work.
 * **Creation** [MUPP-018 Description max length](../specs/MUPP-018-description-max-length/solution.md): the description of a wish is at most 100 characters, in the form and on the server.
 

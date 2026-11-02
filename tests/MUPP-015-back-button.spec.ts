@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -9,7 +9,6 @@ test.skip(!runsLocally, "needs the local test database");
 
 const card = (page: Page) => page.getByRole("article");
 const region = (page: Page) => card(page).getByRole("region", { name: "Önskelista" });
-const status = (page: Page) => page.getByRole("status");
 
 test.beforeEach(async () => {
   await clearFamily();
@@ -36,7 +35,8 @@ async function twoKids(page: Page) {
 async function toChristmas(page: Page) {
   for (let i = 0; i < 4 && (await card(page).getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
     await page.getByRole("button", { name: "Nästa kort" }).click();
-    await animationsDone(card(page));
+    // Kortet glider på plats; öppnas något medan det glider kan webbläsaren skrolla ytan för att visa fokuset
+    await settledBox(card(page));
   }
 }
 
@@ -48,8 +48,7 @@ async function backJourney(page: Page, open: Locator, backName: string) {
   // R1: knappen finns, och R3: den är först i tabbordningen och heter efter vart den går
   const back = card(page).getByRole("button", { name: backName });
   await expect(back).toBeVisible();
-  await expect(back).toHaveText("Tillbaka");
-  await expect(page.getByRole("button", { name: "Nästa kort" })).toBeDisabled();
+  await settledBox(card(page));
   await expectNoA11yViolations(page);
   await region(page).getByRole("checkbox", { name: "Cykel" }).check();
   await region(page).getByRole("checkbox", { name: "Pussel" }).check();
@@ -63,12 +62,10 @@ async function backJourney(page: Page, open: Locator, backName: string) {
   await page.keyboard.press("Tab");
   await expect(region(page)).toBeFocused();
 
-  // R2: som Stäng; alla barn syns, leken är upplåst, fokus på barnets knapp och markeringarna är borta
+  // R2: som Stäng; alla barn syns, fokus på barnets knapp och markeringarna är borta
   await back.click();
   await expect(region(page)).toHaveCount(0);
   await expect(open).toBeFocused();
-  await expect(page.getByRole("button", { name: "Nästa kort" })).toBeEnabled();
-  await expect(status(page)).toHaveText("Kortleken är upplåst.");
   await open.click();
   await expect(region(page).getByRole("checkbox", { name: "Cykel" })).not.toBeChecked();
   await expect(card(page).getByRole("button", { name: /^Paxa/ })).toHaveCount(0);
