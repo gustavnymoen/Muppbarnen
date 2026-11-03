@@ -139,6 +139,17 @@ export async function claimWishes(rawIds: unknown, rawName: unknown, today = swe
   return notClaimed.length === 0 && missing === 0 ? { ok: true, claimed, notClaimed, missing } : { ok: false, claimed, notClaimed, missing };
 }
 
+// Ta bort en paxning (MUPP-006): vem som helst med sajtlösenordet, en önskan i taget. ok är false om den redan var
+// opaxad, inte finns eller kan köpas flera gånger; error bara när id:t är fel.
+export type UnclaimResult = { ok: boolean; error?: string };
+
+export async function unclaimWish(rawId: unknown): Promise<UnclaimResult> {
+  const id = parseId(typeof rawId === "number" ? String(rawId) : rawId);
+  if (id === null) return { ok: false, error: "Det gick inte att ta bort paxningen. Ladda om sidan och försök igen." };
+  const { changes } = await run("UPDATE wishlist_item SET claimed_by = NULL, claimed_at = NULL WHERE id = ? AND claimed_by IS NOT NULL AND unlimited = 0", [id]);
+  return { ok: changes > 0 };
+}
+
 // Huvudadministratören kan ändra allt; en förälder bara sina egna barn
 export const canManage = (actor: Parent | null, child: Pick<Child, "parentId">) =>
   actor !== null && (actor.isMasterAdmin || child.parentId === actor.id);

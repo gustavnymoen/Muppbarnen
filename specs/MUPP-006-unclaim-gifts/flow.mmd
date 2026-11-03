@@ -1,0 +1,17 @@
+%% MUPP-006 Unclaim gifts
+%% Removing one claim from the open wish list, with the error paths.
+flowchart TD
+    A[Open list: claimed row with undo arrow R1] --> B[Press the arrow]
+    B --> C[Dialog: title, who claimed it, Avbryt / Ta bort R2]
+    C -- Avbryt or Esc --> A
+    C -- Ta bort --> D{Site session? R5}
+    D -- no --> E[Error in the dialog: log in again]
+    D -- yes --> F{guardWrite ok? R5}
+    F -- no --> G[Error in the dialog: the guard's message]
+    F -- yes --> H{Valid id? R5}
+    H -- no --> I[Error in the dialog: reload and try again]
+    H -- yes --> J{Row still claimed and not unlimited? R3}
+    J -- yes --> K[Claim removed, list refreshed: Paxningen på X är borttagen R3 R4]
+    J -- no --> L[Nothing changed, list refreshed: var redan borttagen R4]
+    K --> M[Dialog closed, focus on the fold button]
+    L --> M

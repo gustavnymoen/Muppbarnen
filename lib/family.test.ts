@@ -349,4 +349,35 @@ describe("MUPP-005-R5 claiming", () => {
     const [cykel] = await wishes();
     expect(await family.claimWishes([cykel.id, cykel.id], "Moster", today)).toMatchObject({ ok: true, claimed: 1 });
   });
+
+  // Samma påhittade önskningar, så att paxningen som tas bort är gjord som på riktigt
+  describe("MUPP-006 removing a claim", () => {
+    test("MUPP-006-R3 a claimed wish loses its name and date, and can be claimed again", async () => {
+      const [cykel, pussel] = await wishes();
+      await family.claimWishes([cykel.id, pussel.id], "Moster", today);
+      expect(await family.unclaimWish(cykel.id)).toEqual({ ok: true });
+      expect(await state(cykel.id)).toEqual({ claimed_by: null, claimed_at: null });
+      expect((await state(pussel.id))!.claimed_by).toBe("Moster");
+      expect(await family.claimWishes([cykel.id], "Farmor", today)).toMatchObject({ ok: true, claimed: 1 });
+    });
+
+    test("MUPP-006-R3 R4 an unclaimed, unlimited or missing wish is not changed and is reported", async () => {
+      const [cykel, , strumpor] = await wishes();
+      // En rad som kan köpas flera gånger går inte att paxa, men skulle den ändå ha ett namn ska det stå kvar
+      await run("UPDATE wishlist_item SET claimed_by = 'Moster', claimed_at = '2026-10-30' WHERE id = ?", [strumpor.id]);
+      expect(await family.unclaimWish(cykel.id)).toEqual({ ok: false });
+      expect(await family.unclaimWish(strumpor.id)).toEqual({ ok: false });
+      expect(await family.unclaimWish(999999)).toEqual({ ok: false });
+      expect((await state(strumpor.id))!.claimed_by).toBe("Moster");
+    });
+
+    test("MUPP-006-R5 the id is checked: not a positive whole number changes nothing", async () => {
+      const [cykel] = await wishes();
+      await family.claimWishes([cykel.id], "Moster", today);
+      for (const id of [0, -1, 1.5, "x", null, [cykel.id], `${cykel.id}; DROP TABLE wishlist_item`]) {
+        expect(await family.unclaimWish(id), JSON.stringify(id)).toEqual({ ok: false, error: "Det gick inte att ta bort paxningen. Ladda om sidan och försök igen." });
+      }
+      expect((await state(cykel.id))!.claimed_by).toBe("Moster");
+    });
+  });
 });

@@ -44,6 +44,10 @@ export const claimedByOf = (title: string) =>
 export const claimDirectly = (title: string, name: string) =>
   withDb((db) => db.execute({ sql: "UPDATE wishlist_item SET claimed_by = ?, claimed_at = '2026-01-15' WHERE title = ?", args: [name, title] }));
 
+// Another visitor removes a claim while the page is open
+export const unclaimDirectly = (title: string) =>
+  withDb((db) => db.execute({ sql: "UPDATE wishlist_item SET claimed_by = NULL, claimed_at = NULL WHERE title = ?", args: [title] }));
+
 export const setMasterFlag = (parentId: number, master: boolean) =>
   withDb((db) => db.execute({ sql: "UPDATE parent SET is_master_admin = ? WHERE id = ?", args: [master ? 1 : 0, parentId] }));
 

@@ -12,7 +12,8 @@ const region = (page: Page) => card(page).getByRole("region", { name: "Önskelis
 const claimButton = (page: Page) => region(page).getByRole("button", { name: /^Paxa \(/ });
 const dialog = (page: Page) => page.getByRole("dialog");
 const row = (page: Page, title: string) => region(page).getByRole("listitem").filter({ hasText: title });
-const rowButton = (page: Page, title: string) => row(page, title).getByRole("button", { name: title });
+// Knappen som fäller ut raden; dess namn börjar med rubriken (en paxad rad har också "Ta bort paxningen på …", MUPP-006)
+const rowButton = (page: Page, title: string) => row(page, title).getByRole("button", { name: new RegExp(`^${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
 
 test.beforeEach(async () => {
   await clearFamily();

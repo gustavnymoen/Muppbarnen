@@ -80,7 +80,7 @@ test("MUPP-019-R3 R4 the description has a label, and the claimed line is orange
   await row(page, "Pussel").getByRole("button", { name: "Pussel" }).click();
   await expect(row(page, "Pussel")).not.toContainText("Beskrivning:");
 
-  await row(page, "Hoppborg").getByRole("button", { name: "Hoppborg" }).click();
+  await row(page, "Hoppborg").getByRole("button", { name: /^Hoppborg/ }).click();
   await expect(row(page, "Hoppborg")).toContainText("Paxad av Moster Lisa");
   await expectNoA11yViolations(page);
 });
