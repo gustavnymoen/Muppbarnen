@@ -7,6 +7,8 @@ feature: MUPP-022
 
 # Verification of MUPP-022
 
+R2's `data-quiet-focus` was replaced by one site-wide rule in [MUPP-032](../MUPP-032-quiet-focus-after-tap/solution.md); the test now checks `data-pointer` on `<html>`. The rows below are the history of 2026-11-02.
+
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | MUPP-022-R1 | Tests `MUPP-022-R1 …` in `tests/MUPP-022-close-animation-glitch.spec.ts` for the card with several kids and Christmas Eve: the copy's animation has `transform` and `opacity` only (no `clip-path`), it is removed within 500 ms, an animation that is cancelled or cut short by a new open leaves no copy; `MUPP-016-R3 R4 …` checks that the last frame is the button's box (also after a resize) | local | Pass | 2026-11-02 |

@@ -1,0 +1,10 @@
+%% MUPP-032 No focus ring after a tap
+%% What happens to the focus ring after a tap or a key.
+flowchart TD
+    A[Tap or click] --> B[pointerdown: data-pointer on html]
+    B --> C[Dialog opens or closes, an element gets the focus]
+    C --> D[No ring: R1]
+    D --> E{Next input}
+    E -- key, also Tab or Esc --> F[keydown: data-pointer removed, ring shown: R2]
+    E -- tap --> B
+    G[Key] --> F

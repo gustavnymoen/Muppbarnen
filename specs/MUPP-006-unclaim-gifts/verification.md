@@ -24,7 +24,7 @@ How each requirement was checked.
 | Unit tests | `lib/family.test.ts` (3 new), `lib/wishes.test.ts` (1 new), `lib/route-checks.test.ts` (covers the new action) | local | Pass | 2026-11-03 |
 | Browser tests | `tests/MUPP-006-unclaim-gifts.spec.ts` (5 new), the open-list test in `tests/design.spec.ts` extended | local | Pass | 2026-11-03 |
 | Smoke test | Not applicable: the card adds no smoke test; the start page smoke test is unchanged | — | — | — |
-| Accessibility | axe in R1, R2 and R3 (list with claimed rows, dialog, after removal) at 320 px; the checklist on the live site: not checked yet (after the deploy) | local | Pass (axe) | 2026-11-03 |
+| Accessibility | axe in R1, R2 and R3 (list with claimed rows, dialog, after removal) at 320 px; the checklist on the live site: checked by the user (reported 2026-11-03), with no per-item results given | local, live | Pass (axe); live checklist reported done | 2026-11-03 |
 | Security | Security points in the review and `/security-review` (no findings): see [review.md](review.md) | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md): passed in run 1, the two should-fix findings fixed | local | Passed | 2026-11-03 |
 | Design | Two proposals tried with the user in the running site at 320 px (2026-11-03); Impeccable critique 33/40, no finding needing a change (`.impeccable/critique/`, local only) | local | Done | 2026-11-03 |
@@ -43,7 +43,7 @@ How each requirement was checked.
 - [x] Tests: every check in the card's test plan is done (the live accessibility checklist after the deploy); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (169.5 s of 180 s, +0.5 % against TECH-010's 168.6 s; slowest 4.4 s of 5 s), and the new tests follow the quality rules in `wiki/system/testing.md`
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 41648268605 against the merge `6660ace8` passed (2026-11-03)
-- [ ] Accessibility: axe passes on the changed states; the checklist in `wiki/system/accessibility.md` on the live site (button name, the arrow's contrast, focus after the dialog, the status line): after the deploy
+- [x] Accessibility: axe passes on the changed states; the checklist in `wiki/system/accessibility.md` on the live site (button name, the arrow's contrast, focus after the dialog, the status line): checked by the user (reported 2026-11-03)
 - [x] Requirements in the card match what was built (rewritten with the user on 2026-11-03: one claim at a time with an undo arrow, "Ta bort" on the confirm button), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`, `DESIGN.md`) and `wiki/log.md` updated
 - [x] No leftovers: the prototype switch between the two proposals, its launch configuration and its database are removed
@@ -102,7 +102,7 @@ Acceptance criteria:
 
 ## Notes
 
-- After the deploy the user tried it on their phone (2026-11-03) and found it good. Two things they noticed went to a new card instead of this one: focus rings that show after a tap when a dialog opens and closes (all dialogs, not only this one), and the birthdate field in the admin that is wider than the page on iOS Safari. The accessibility checklist on the live site is not gone through item by item yet.
+- After the deploy the user tried it on their phone (2026-11-03) and found it good. Two things they noticed went to a new card instead of this one: focus rings that show after a tap when a dialog opens and closes (all dialogs, not only this one), and the birthdate field in the admin that is wider than the page on iOS Safari. The accessibility checklist on the live site was checked by the user (reported 2026-11-03); the per-item results were not given and are not recorded here.
 - The first full run had 7 failures, all in the tests: three older tests looked up a row's button by the title (`getByRole("button", { name: "Hoppborg" })`), which now also matches "Ta bort paxningen på Hoppborg", so they match the start of the name; and the new tests clicked "Önskelista" while the cards faded in, which made Playwright scroll the deck sideways (not seen with a click after the animation, nor on `main` with one), so they wait for the animation first.
 - R5: without a site cookie `proxy.ts` refuses the server action with 401 before it runs, so the action's own "Du är utloggad …" never reaches the browser; the dialog shows "Något gick fel. Ladda om sidan och försök igen." (a reload leads to the password page). R5's acceptance criterion was changed to this with the user (2026-11-03).
 - Small and related (TECH-010 leftovers, carried in this change): `specs/TECH-010-flaky-thumbnail/verification.md` records that Live tests passed against production for the merge `1accb989` (run 41642127355, 2026-11-03), and `specs/features.md` lists TECH-010 as Done (card #54 is in Done on the board).
