@@ -11,12 +11,12 @@ How each requirement was checked. Dates count in Swedish time; the unit tests ch
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| MUPP-031-R1 | Unit tests `MUPP-031-R1 …` in `lib/deck.test.ts` (the day itself, day 1, day 30, day 31, one card per kid on every day of a year, 29 February); browser test `MUPP-031-R1 R3 …` in `tests/MUPP-031-month-after.spec.ts` ("Fyllde 6 år", the date, claiming) | local | Pass | 2026-11-03 |
+| MUPP-031-R1 | Unit tests `MUPP-031-R1 …` in `lib/deck.test.ts` (the day itself, day 1, day 30, day 31, one card per kid on every day of a year, 29 February); browser test `MUPP-031-R1 R3 …` in `tests/MUPP-031-month-after.spec.ts` ("Fyllde 6 år", the date, claiming); live: a "Fyllde 2 år" card with its date was in the deck (seen, not claimed from) | local, live | Pass | 2026-11-03 |
 | MUPP-031-R2 | Unit tests `MUPP-031-R2 …` and `MUPP-031-R1 R2 one … card … on every day of a year` (25 December, 31 December, 1 January, 23 January, 24 January) | local | Pass | 2026-11-03 |
 | MUPP-031-R3 | Unit tests `MUPP-031-R3 …` (order, the next card marked, a card that resets moves); browser test `MUPP-031-R1 R3 …` (opens on "Nästa", the card one step back) | local | Pass | 2026-11-03 |
 | MUPP-031-R4 | Unit tests `MUPP-031-R4 …` in `lib/deck.test.ts` (the rule: day 30/31, an item added during the month after, Christmas Eve across the new year, the birth) and in `lib/family.test.ts` (the added date, archived items left out of the start page and the editable list, claimed in the month after, claim/unclaim/edit/remove refused); migration test `MUPP-031-R4 …` in `db/db-setup.test.ts` | local | Pass | 2026-11-03 |
 | MUPP-031-R5 | Unit tests `MUPP-031-R5 …` in `lib/family.test.ts` (groups, names, order, "Töm listan"); browser test `MUPP-031-R5 R7 …` (section, folded group, rows with "Paxad av", no dates, no edit or remove, axe) | local | Pass | 2026-11-03 |
-| MUPP-031-R6 | Unit tests `MUPP-031-R6 …` and `MUPP-011-R3 MUPP-031-R6 …` in `lib/deck.test.ts` ("Beräknad" the day before, "Född" from the birthdate (day 0) to day 30, then "Fyller 1 år", by the dates only), `MUPP-031-R4 R6 …` (the list made in advance is archived on day 31). Not in a browser test: the card plan names none | local | Pass | 2026-11-03 |
+| MUPP-031-R6 | Unit tests `MUPP-031-R6 …` and `MUPP-011-R3 MUPP-031-R6 …` in `lib/deck.test.ts` ("Beräknad" the day before, "Född" from the birthdate (day 0) to day 30, then "Fyller 1 år", by the dates only), `MUPP-031-R4 R6 …` (the list made in advance is archived on day 31). Not in a browser test: the card plan names none; live: a "Född" card with its date and an open list was in the deck | local, live | Pass | 2026-11-03 |
 | MUPP-031-R7 | Unit tests `MUPP-031-R7 …` in `lib/family.test.ts` (copy into both lists, unclaimed, added today, archive kept; refused for an item not archived, another parent, no parent, a bad list or id); browser test `MUPP-031-R5 R7 …` (dialog, Avbryt and Esc, Julafton, focus back to "+", "+" at least 24 px, axe on the dialog); `lib/route-checks.test.ts` covers the new action's check order | local | Pass | 2026-11-03 |
 
 ## The test plan
@@ -25,11 +25,33 @@ How each requirement was checked. Dates count in Swedish time; the unit tests ch
 |---|---|---|---|---|
 | Unit tests | `lib/deck.test.ts`, `lib/family.test.ts`, `db/db-setup.test.ts` (migration on a copy in memory); `npm run test:unit` 161 passed | local | Pass | 2026-11-03 |
 | Browser tests | `tests/MUPP-031-month-after.spec.ts` (2 tests), the whole suite with `npm run test:time` 112 passed | local | Pass | 2026-11-03 |
-| Smoke test | Not applicable: the card's plan names none (same pages, the existing smoke tests cover that they load) | | | |
-| Accessibility | axe (`expectNoA11yViolations`) on the card in the month after, the archive with a group open, and the copy dialog. The checklist on the live site: not checked yet (after the deploy) | local | Pass (axe); live not checked | 2026-11-03 |
+| Smoke test | Not applicable: the card's plan names none (same pages, the existing smoke tests cover that they load). The existing smoke tests ran after the deploy: Live tests on `main` at the merge commit f04aeb0 (run 41669447211) passed | live | Pass | 2026-11-03 |
+| Accessibility | axe (`expectNoA11yViolations`) on the card in the month after, the archive with a group open, and the copy dialog. Live, start page (a "Född" card and a "Fyllde 2 år" card, 375 px): per item below. Live, admin page: not checked, see below | local, live | Pass (axe); live partly checked | 2026-11-03 |
 | Security | Security points in the review; `/security-review`: no findings (see [review.md](review.md)) | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed (run 2; run 1 stopped on the birth day, resolved with the user) | 2026-11-03 |
 | Design | `/impeccable critique` (degraded, single context: no sub-agents spawned for it) on screenshots at 375 px of the "Fyllde" card and the archive; the detector found nothing; the arrow of an open group now turns up | local | Done | 2026-11-03 |
+
+## Live accessibility checks
+
+On https://muppbarnen.vercel.app, 2026-11-03, in the built-in browser at 375 px. Read-only: nothing was claimed, copied or changed.
+
+**Start page**, a "Född" card (born 30 October) and a "Fyllde 2 år" card (birthday 4 October, its last day in the month after), both still in the deck:
+
+| # | Item | Result |
+|---|---|---|
+| 1 | Keyboard | Not checked (the browser pane gives no reliable Tab order) |
+| 2 | Focus visible | Not checked |
+| 3 | Screen reader | Not checked (VoiceOver not run); the headings are H2 date and H3 name and the fold buttons have `aria-expanded` (read from the page) |
+| 4 | Zoom 200 %, 320 px | 375 px: no sideways scroll; 200 % and 320 px not checked |
+| 5 | Text spacing | Not checked |
+| 6 | Contrast | "Född" 5.53:1, date and name 11.36:1, "Önskelista" button text about 6:1 (estimated from the colours). "Fyllde 2 år" line not measured |
+| 7 | Target size | Folds 192×60 and 229×72 px, the sizes button 44×44 px: pass |
+| 8 | Hover or focus content | Not affected: no new menus or tooltips |
+| 9 | Errors and labels | Not affected: no form |
+| 10 | Title, language, images | `lang="sv"`, the title names the page; no new images |
+| 11 | Reduced motion | Not checked |
+
+**Admin page** `/admin/barn/<id>/onskelistor` (the three kids of the signed-in parent): there is no "Arkiv" on any of them, because they have no archived items yet, and the archive cannot be made without changing real data. So the Arkiv group, the fold buttons in it, the "+" label "Lägg till … igen" and its size, and focus into and out of the copy dialog are **not checked live**; they are covered by the local browser test `MUPP-031-R5 R7 …` (axe, "+" at least 24 px, focus back to "+"). They need checking when a kid first gets an archived item.
 
 ## Test suite
 
@@ -46,8 +68,8 @@ Two browser tests added (1.4 s each) and 20 unit tests. Three runs gave 178.5 s,
 
 - [x] Tests: every check in the card's test plan is done (except the live checklist, after the deploy); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (178.0 s of 180 s; TECH-015 added), total time grown by 3 %, the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: axe passes on the changed states; the checklist on the live site is not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests: run 41669447211 on `main` at f04aeb0, green)
+- [ ] Accessibility: axe passes on the changed states; the live checklist is done for the start page only in part, and not for the admin archive (see Live accessibility checks), so this stays open
 - [x] Requirements in the card match what was built (R6 updated with the user, see Notes), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers
