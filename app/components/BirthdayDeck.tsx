@@ -223,14 +223,15 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
   const single = card.kids.length === 1 ? card.kids[0] : card.kids.find((k) => k.id === openList?.kidId);
   const openKid = single && (card.kids.length > 1 || openList?.kidId === single.id) ? single : null;
   const hasBack = openKid !== null && card.kids.length > 1;
-  const nextMark = first ? (christmas ? "Nästa: Julafton" : "Nästa födelsedag") : null;
+  // En öppen lista får platsen: märket syns redan på det stängda kortet (MUPP-030-R1)
+  const nextMark = first && !openKid ? (christmas ? "Nästa: Julafton" : "Nästa födelsedag") : null;
 
   return (
     <Card
       as="article"
       id={`karta-${card.key}`}
       highlight={first ? card.kids[0].color : undefined}
-      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
+      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden ${openKid ? "px-4" : "px-6"} ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${openKid ? "pt-3" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
     >
       {christmas && <ChristmasBackdrop />}
       {/* Tillbaka till alla barn uppe till vänster, först i tabbordningen (MUPP-015); på kortet med ett barn finns inget att gå tillbaka till */}
@@ -241,9 +242,10 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       )}
       {/* Ikonen för storlekar i hörnet av varje öppen barnvy (MUPP-014-R4) */}
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
-      <header className="flex flex-col items-center gap-2 text-center">
+      {/* I en öppen barnvy står datumet på raden med hörnknapparna, mellan dem (MUPP-030-R3); kortets kant är smalare så att ett långt namn ryms (R2) */}
+      <header className={`flex items-center text-center ${openKid ? "h-11 justify-center px-10" : "flex-col gap-2"}`}>
         {/* På en smal telefon krymper datumet så att det ryms på en rad, och i en öppen barnvy också för ikonerna i hörnen */}
-        <h2 className={`font-heading font-semibold ${openKid ? "text-xl max-[23rem]:text-base" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
+        <h2 className={`font-heading font-semibold ${openKid ? "text-xl whitespace-nowrap max-[23rem]:text-sm" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
@@ -295,17 +297,29 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
   );
 }
 
-// Ett barn som hela kort: stor bild, namn, ålder och önskelistan
+// Ett barn som hela kort: stor bild, namn, ålder och önskelistan. Med listan öppen bara en liten bild och namnet på en rad (MUPP-030-R2)
 // cardKey ingår i id:na: samma barn finns på flera kort, och korten bredvid ritas också
 function KidFace({ cardKey, date, kid, solo, open, onToggle }: { cardKey: string; date: string; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
   return (
     <>
-      <div className={`flex flex-col items-center justify-center gap-2 text-center ${open ? "" : "min-h-0 flex-1"}`}>
-        <Avatar name={kid.name} color={kid.color} src={kid.picture} size={open ? 72 : SOLO_AVATAR} decorative />
-        <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
-        {ageText(kid, date) && <p className="text-lg text-muted">{ageText(kid, date)}</p>}
-        {!open && <SizesButton kid={kid} mode="text" className="mt-2" />}
-      </div>
+      {open ? (
+        <div className="flex items-center justify-center gap-2">
+          {/* Bilden får inte krympa när ett långt namn tar platsen (initialen kan annars tryckas ihop till bokstavens bredd) */}
+          <span className="flex shrink-0">
+            <Avatar name={kid.name} color={kid.color} src={kid.picture} size={40} decorative />
+          </span>
+          <h3 className="min-w-0">
+            <FitName className="font-heading text-2xl font-semibold">{kid.name}</FitName>
+          </h3>
+        </div>
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center">
+          <Avatar name={kid.name} color={kid.color} src={kid.picture} size={SOLO_AVATAR} decorative />
+          <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
+          {ageText(kid, date) && <p className="text-lg text-muted">{ageText(kid, date)}</p>}
+          <SizesButton kid={kid} mode="text" className="mt-2" />
+        </div>
+      )}
       <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />
     </>
   );

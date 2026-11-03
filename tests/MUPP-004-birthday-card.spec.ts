@@ -44,7 +44,7 @@ test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons,
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid: month, nearest mark, folded and unfolded list, browsing and the screen reader", async ({ page }) => {
+test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 MUPP-030-R1 one kid: month, nearest mark, folded and unfolded list, browsing and the screen reader", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   const parent = await addParent(uniqueName("Förälder"));
   const otto = birthdateIn(0);
@@ -78,6 +78,9 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid: month, nearest mark, f
   await expectNoA11yViolations(page);
   await list.click();
   await expect(card(page).getByText("Inga önskningar än.")).toBeVisible();
+  // MUPP-030-R1: the open list gets the room, without the mark and the age
+  const markAndAge = card(page).getByText(/^(Nästa födelsedag|Fyller 6 år)$/);
+  await expect(markAndAge).toHaveCount(0);
 
   // R9: listan är öppen och kortleken går att bläddra i (MUPP-017): knapparna är på, texten om låset finns inte mer
   // (listknappen har bytts mot pilen upp, som får fokus; MUPP-013-R5, MUPP-005-R6)
@@ -97,6 +100,7 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid: month, nearest mark, f
   await expect(list).toHaveAttribute("aria-expanded", "false");
   await expect(list).toBeFocused();
   await expect(next(page)).toBeEnabled();
+  await expect(markAndAge).toHaveText(["Nästa födelsedag", "Fyller 6 år"]);
 
   // R8 R10: nästa kort med knappen, med pil och med svep; skärmläsaren hör var man är; fokus stannar på knappen
   await next(page).click();

@@ -813,15 +813,16 @@ test("MUPP-023-R2 a wish title is on at most two lines with an ellipsis and smal
 
 // One test per phone size, to stay within the time budget of a test
 for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }]) {
-  test(`MUPP-014-R2 R3 R4 R6 MUPP-015-R1 R4 the sizes buttons and Tillbaka at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corners of an open kid view, and no scroll or overlap`, async ({ page }) => {
+  test(`MUPP-014-R2 R3 R4 R6 MUPP-015-R1 R4 MUPP-030-R1 R2 R3 the sizes buttons, Tillbaka and the top of an open kid view at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corners of an open kid view with the date between them, no chip or age, a small picture with the name on one line, and no scroll or overlap`, async ({ page }) => {
     test.skip(!runsLocally, "needs its own kids in the local test database");
     await clearFamily();
     try {
       const parent = await addParent(uniqueName("Förälder"));
       const { birthdate, date } = birthdateIn(20);
+      // The long name is first among the twins, so its open view is the one measured
+      await addChild(parent, "Maximiliana-Charlotte", birthdate);
       await addChild(parent, "Vera", birthdate);
-      await addChild(parent, "Vilda", birthdate);
-      // Ensam has a card of her own, the twins share another
+      // Ensam has a card of her own, the twins share another (the chip on the nearest card with one kid is in the MUPP-004 test)
       await addChild(parent, "Ensam", "2018-02-02");
       const card = page.getByRole("article");
       const noScroll = () => page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight && document.documentElement.scrollWidth <= window.innerWidth);
@@ -854,6 +855,32 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
         // the heading stays centred in the card
         expect(Math.abs(heading.x + heading.width / 2 - (cardBox.x + cardBox.width / 2))).toBeLessThan(1);
         expect(contrast(await css(back, "color"), await backgroundOf(back))).toBeGreaterThanOrEqual(4.5);
+      };
+
+      // MUPP-030-R1 R2 R3: no chip and no age line; a 40 px picture with the name on one line to its right, the two centred;
+      // the date centred on the row of the corner buttons and clear of them
+      const chipAndAge = card.getByText(/^(Nästa födelsedag|Nästa: Julafton|Fyller \d+ år|Beräknad .*)$/);
+      const expectOpenTop = async (name: string) => {
+        await expect(chipAndAge).toHaveCount(0);
+        const heading = card.getByRole("heading", { level: 3, name });
+        const [picture, nameBox, date, corner, cardBox] = [
+          await settledBox(card.locator(".ring-child")),
+          await settledBox(heading),
+          await settledBox(card.getByRole("heading", { level: 2 })),
+          await settledBox(card.getByRole("button", { name: "Storlekar", exact: true })),
+          await settledBox(card),
+        ];
+        const middle = (box: { y: number; height: number }) => box.y + box.height / 2;
+        expect(picture.width).toBeCloseTo(40, 0);
+        expect(nameBox.x).toBeGreaterThanOrEqual(picture.x + picture.width);
+        expect(Math.abs(middle(nameBox) - middle(picture))).toBeLessThan(2);
+        expect(Math.abs((picture.x + nameBox.x + nameBox.width) / 2 - (cardBox.x + cardBox.width / 2))).toBeLessThan(1);
+        // One line, all of it shown, inside the card
+        expect(nameBox.height).toBeLessThan(40);
+        expect(await heading.locator("span").evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+        expect(inside(nameBox, cardBox)).toBe(true);
+        expect(Math.abs(middle(date) - middle(corner))).toBeLessThan(1);
+        expect(disjoint(date, corner)).toBe(true);
       };
 
       await page.setViewportSize(viewport);
@@ -897,6 +924,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       expect(disjoint(corner, await settledBox(card.getByRole("heading", { level: 2 })))).toBe(true);
       expect(await noScroll()).toBe(true);
       await expectBack("Tillbaka till alla barn");
+      await expectOpenTop("Maximiliana-Charlotte");
       await region.getByRole("button", { name: /^Stäng/ }).click();
 
       // The single kid card: the button is between the age and the wish button
@@ -922,6 +950,8 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       expect(cardBox.x + cardBox.width - (corner.x + corner.width)).toBeLessThan(20);
       expect(corner.y - cardBox.y).toBeLessThan(20);
       expect(disjoint(corner, await settledBox(card.getByRole("heading", { level: 2 })))).toBe(true);
+      await expectOpenTop("Ensam");
+      await expectNoA11yViolations(page);
       await region.getByRole("button", { name: "Fäll ihop önskelistan" }).click();
 
       // Christmas Eve: the kid view has the corner icon, clear of the heading
@@ -933,6 +963,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       expect(disjoint(corner, await settledBox(card.getByRole("heading", { level: 2 })))).toBe(true);
       expect(await noScroll()).toBe(true);
       await expectBack("Tillbaka till Julafton");
+      await expectOpenTop("Vera");
     } finally {
       await clearFamily();
     }
