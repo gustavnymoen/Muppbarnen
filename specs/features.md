@@ -53,6 +53,7 @@ tags: [product, features]
 | [MUPP-006](MUPP-006-unclaim-gifts/solution.md) | Unclaim gifts | Startsida | Done |
 | [TECH-013](TECH-013-birthday-card-hierarchy/solution.md) | Birthday card hierarchy and small phones | Startsida | Done |
 | [MUPP-031](MUPP-031-month-after/solution.md) | Wish list stays a month after the occasion | Önskelista | Done |
+| [MUPP-007](MUPP-007-remove-claimed/solution.md) | Warning when removing claimed gifts | Administration | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

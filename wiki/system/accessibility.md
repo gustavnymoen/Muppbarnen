@@ -23,6 +23,7 @@ Every page or state that a feature adds or changes gets one call, in that featur
 | Page | States | Tests |
 |---|---|---|
 | `/design` | Phone width (and 320 px), desktop width | `tests/design.spec.ts` |
+| `/admin/barn/<id>/onskelistor` | The removal dialog with the claimed-present warning | `tests/MUPP-007-remove-claimed.spec.ts` |
 | … | (each feature adds a row for the pages and states it checks) | … |
 
 ## The manual checklist

@@ -5,14 +5,15 @@ import { Field, Form } from "@/app/components/Form";
 import { ChevronDownIcon, PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
-import type { ArchiveGroup, Child, WishlistItem } from "@/lib/family";
+import { dayAndMonth, parseDate } from "@/lib/deck";
+import type { AdminItem, ArchiveGroup, Child, WishlistItem } from "@/lib/family";
 import { MAX_DESCRIPTION, MAX_TITLE, OCCASION_NAMES, type Occasion } from "@/lib/form-input";
 import { clearList, removeItem, saveItem } from "../../actions";
 import { CopyItem } from "./CopyItem";
 
 // Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
 // Texterna skrivs ut som vanlig text (React gör om < och & till text); länken bara om den är en webbadress.
-export function WishlistSection({ child, occasion, items }: { child: Child; occasion: Occasion; items: WishlistItem[] }) {
+export function WishlistSection({ child, occasion, items }: { child: Child; occasion: Occasion; items: AdminItem[] }) {
   const listName = OCCASION_NAMES[occasion];
   const newItem = `ny-${occasion}`;
   return (
@@ -53,7 +54,14 @@ export function WishlistSection({ child, occasion, items }: { child: Child; occa
   );
 }
 
-function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion; item: WishlistItem }) {
+// Varningen när någon har paxat önskningen (MUPP-007-R1): vem och vilken dag. Arkiverade önskningar har ingen borttagningsknapp.
+function claimWarning({ title, claimedBy, claimedAt }: AdminItem) {
+  if (!claimedBy) return "";
+  const day = claimedAt ? parseDate(claimedAt) : null;
+  return `${title} är paxad av ${claimedBy}${day ? ` ${dayAndMonth(day.day, day.month)}` : ""}. Hen kan redan ha köpt den. `;
+}
+
+function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion; item: AdminItem }) {
   const edit = `onskning-${item.id}`;
   return (
     <SlimCard
@@ -70,7 +78,7 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
             label="Ta bort"
             subject={item.title}
             title={`Ta bort ”${item.title}”?`}
-            text={`”${item.title}” tas bort från listan för ${child.name}. Det går inte att ångra.`}
+            text={`${claimWarning(item)}”${item.title}” tas bort från listan för ${child.name}. Det går inte att ångra.`}
           />
         </>
       }
