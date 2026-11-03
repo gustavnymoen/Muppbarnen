@@ -1,0 +1,12 @@
+%% TECH-015 Test suite at its time budget
+%% How a merged test goes: one page load and one seed, then every check on the page, the window resized between widths.
+flowchart TD
+    A[Test starts] --> B[Seed the test data once]
+    B --> C[goto opens the page, about 300 ms until React shows it]
+    C --> D[Checks at the first width]
+    D --> E{More widths or journeys on this page?}
+    E -- yes --> F[Resize the window, or go on from where the last check left the page]
+    F --> D
+    E -- no --> G{More pages?}
+    G -- yes --> C
+    G -- no --> H[Test ends, the test cleans up its data]

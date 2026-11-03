@@ -5,7 +5,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
 import { adminSignIn, expectNoA11yViolations, goto, pickOption, runsLocally, uniqueName } from "./helpers";
-import { addChild, addParent, childIdOf, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
+import { addChild, addParent, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
 // The admin pages are tested against the local test server only: it has made-up passwords and its
@@ -580,7 +580,7 @@ test("MUPP-003-R8 every admin page works at 320, 430 and 1280 px: no sideways sc
   }
 });
 
-test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a kid", async ({ page }) => {
+test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a kid, open a form, send it and answer the confirmation", async ({ page }) => {
   const mia = uniqueName("Mia");
   const kid = uniqueName("Barn");
   await addChild(await addParent(mia), kid);
@@ -600,15 +600,8 @@ test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a ki
   await expect(open).toHaveCSS("outline-width", "3px");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
-});
 
-test("MUPP-003-R8 with the keyboard only: open a form, send it and answer the confirmation", async ({ page }) => {
-  const mia = uniqueName("Mia");
-  const kid = uniqueName("Barn");
-  await addChild(await addParent(mia), kid);
-  await adminSignIn(page, mia);
-  await goto(page, `/admin/barn/${await childIdOf(kid)}/onskelistor`);
-
+  // The kid's wish list page is open: the same journey goes on there (TECH-015)
   // A button opens the form with Enter, the form is filled in and sent with Enter in a field
   const birthday = list(page, "Födelsedag");
   await birthday.getByRole("button", { name: "Ny önskning" }).focus();
@@ -638,3 +631,4 @@ test("MUPP-003-R8 with the keyboard only: open a form, send it and answer the co
   await page.keyboard.press("Enter");
   await expect(birthday.getByRole("heading", { level: 3, name: "Pussel" })).toHaveCount(0);
 });
+

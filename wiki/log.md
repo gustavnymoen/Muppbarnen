@@ -2,6 +2,7 @@
 
 ## 2026-11-03
 
+* **Update** [TECH-015 Test suite at its time budget](../specs/TECH-015-test-suite-room/solution.md): tests that visit the same page are merged by journey and checks at several widths open the page once and resize the window, so the browser tests (114 → 100 tests) run in about 160 s instead of 178 s; every requirement keeps a test named after it.
 * **Update** [MUPP-034 Cross on single-kid wish list](../specs/MUPP-034-cross-on-single-kid-list/solution.md): the button that folds up an open wish list is the same cross on every card, also a card with one kid (it keeps its name "Fäll ihop önskelistan").
 * **Creation** [MUPP-032 No focus ring after a tap](../specs/MUPP-032-quiet-focus-after-tap/solution.md): a tap or click no longer leaves a focus ring on a dialog's first button or around the wish list when the dialog closes (iPhone); one flag on the page and one CSS rule for the whole site replace MUPP-022's special case, and the keyboard still gets the ring.
 * **Creation** [MUPP-007 Warning when removing claimed gifts](../specs/MUPP-007-remove-claimed/solution.md): removing a claimed present on the admin page now warns who claimed it and on which day, so the parent can talk to them first; "Avbryt" keeps everything.
