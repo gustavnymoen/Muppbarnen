@@ -2,12 +2,13 @@ import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { FoldButton, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Field, Form } from "@/app/components/Form";
-import { PencilIcon } from "@/app/components/icons";
+import { ChevronDownIcon, PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
-import type { Child, WishlistItem } from "@/lib/family";
+import type { ArchiveGroup, Child, WishlistItem } from "@/lib/family";
 import { MAX_DESCRIPTION, MAX_TITLE, OCCASION_NAMES, type Occasion } from "@/lib/form-input";
 import { clearList, removeItem, saveItem } from "../../actions";
+import { CopyItem } from "./CopyItem";
 
 // Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
 // Texterna skrivs ut som vanlig text (React gör om < och & till text); länken bara om den är en webbadress.
@@ -104,5 +105,53 @@ function ItemForm({ child, occasion, item, submit }: { child: Child; occasion: O
       <Field name="url" label="Länk" defaultValue={item?.url} maxLength={500} hint="Börjar med http:// eller https://" />
       <Field name="unlimited" type="checkbox" label="Obegränsad" defaultChecked={item?.unlimited} hint="Utan kryss kan önskningen paxas en gång." />
     </Form>
+  );
+}
+
+// Arkivet (MUPP-031-R5): ett hopfällt tillfälle per rad, det senaste först. De arkiverade önskningarna går inte att ändra,
+// ta bort eller paxa; det enda som går är att lägga till dem igen (R7). Ingen sektion utan arkiverade önskningar.
+export function ArchiveSection({ groups }: { groups: ArchiveGroup[] }) {
+  if (groups.length === 0) return null;
+  return (
+    <Card as="section" className="space-y-3">
+      <Heading level={2} small>
+        Arkiv
+      </Heading>
+      <ul className="space-y-2">
+        {groups.map((group) => {
+          const panel = `arkiv-${group.key}`;
+          return (
+            <li key={group.key}>
+              <SlimCard
+                title={group.name}
+                actions={
+                  // Pilen pekar upp när gruppen är öppen
+                  <span className="contents [&_[aria-expanded=true]_svg]:rotate-180">
+                    <FoldToggle id={panel} label={`Visa ${group.name}`}>
+                      <ChevronDownIcon />
+                    </FoldToggle>
+                  </span>
+                }
+              >
+                <FoldPanel id={panel}>
+                  <ul className="space-y-2">
+                    {group.items.map((item) => (
+                      <li key={item.id}>
+                        <SlimCard
+                          level={4}
+                          title={item.title}
+                          note={item.claimedBy ? `Paxad av ${item.claimedBy}` : item.unlimited ? "Obegränsad" : undefined}
+                          actions={<CopyItem itemId={item.id} title={item.title} />}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </FoldPanel>
+              </SlimCard>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }

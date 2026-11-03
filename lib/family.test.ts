@@ -4,6 +4,7 @@ import { unitTestDbFile } from "./local-db.mjs";
 // lib/db.ts väljer databasen när den läses in: enhetstesternas egen, aldrig den riktiga
 process.env.TURSO_DATABASE_URL = `file:${unitTestDbFile}`;
 const { run, get } = await import("./db");
+const { parseDate } = await import("./deck");
 const family = await import("./family");
 type Parent = import("./family").Parent;
 
@@ -25,6 +26,7 @@ async function child(owner: Parent, name = "Testbarn") {
   const { lastId } = await run("INSERT INTO child (parent_id, name, birthdate) VALUES (?, ?, '2020-05-17')", [owner.id, name]);
   return lastId;
 }
+const wishlists = async (childId: number) => family.listWishlists((await family.findChild(childId))!);
 const item = (childId: number, title: string, extra = {}) => ({
   childId: String(childId),
   occasion: "birthday",
@@ -95,11 +97,11 @@ describe("MUPP-003-R4 wish lists", () => {
   test("MUPP-003-R4 an item is added to the chosen list, which is created with the first item, and edited", async () => {
     const mia = await parent("Mia");
     const kid = await child(mia);
-    expect(await family.listWishlists(kid)).toEqual({ birthday: [], christmas: [] });
+    expect(await wishlists(kid)).toEqual({ birthday: [], christmas: [], archive: [] });
     expect(await family.saveItem(mia, item(kid, "Lego", { size: "L", description: "Stor ask", url: "https://exempel.se/lego", unlimited: true }))).toEqual({ ok: true });
     expect(await family.saveItem(mia, item(kid, "Cykel", { occasion: "christmas" }))).toEqual({ ok: true });
     expect(await family.saveItem(mia, item(kid, "Pussel"))).toEqual({ ok: true });
-    const lists = await family.listWishlists(kid);
+    const lists = await wishlists(kid);
     expect(lists.birthday.map((i) => i.title)).toEqual(["Lego", "Pussel"]);
     expect(lists.christmas.map((i) => i.title)).toEqual(["Cykel"]);
     expect(lists.birthday[0]).toMatchObject({ size: "L", description: "Stor ask", url: "https://exempel.se/lego", unlimited: true });
@@ -109,7 +111,7 @@ describe("MUPP-003-R4 wish lists", () => {
 
     const lego = lists.birthday[0];
     expect(await family.saveItem(mia, item(kid, "Lego Duplo", { itemId: String(lego.id) }))).toEqual({ ok: true });
-    expect((await family.listWishlists(kid)).birthday[0]).toMatchObject({ title: "Lego Duplo", size: "", unlimited: false });
+    expect((await wishlists(kid)).birthday[0]).toMatchObject({ title: "Lego Duplo", size: "", unlimited: false });
   });
 
   test("MUPP-003-R4 a missing name, a too long text and a bad link are refused with a message per field", async () => {
@@ -127,7 +129,7 @@ describe("MUPP-003-R4 wish lists", () => {
     });
     expect(await family.saveItem(mia, item(kid, "t".repeat(61)))).toMatchObject({ ok: false, fields: { title: "Högst 60 tecken." } });
     expect(await family.saveItem(mia, item(kid, "Ok", { occasion: "easter" }))).toMatchObject({ ok: false });
-    expect((await family.listWishlists(kid)).birthday).toEqual([]);
+    expect((await wishlists(kid)).birthday).toEqual([]);
   });
 
   test("MUPP-023-R3 a title of 60 characters is saved and one of 61 is refused", async () => {
@@ -142,14 +144,14 @@ describe("MUPP-003-R4 wish lists", () => {
     const kid = await child(mia);
     expect(await family.saveItem(mia, item(kid, "Ok", { description: "d".repeat(100) }))).toEqual({ ok: true });
     expect(await family.saveItem(mia, item(kid, "För lång", { description: "d".repeat(101) }))).toEqual({ ok: false, fields: { description: "Högst 100 tecken." } });
-    expect((await family.listWishlists(kid)).birthday).toHaveLength(1);
+    expect((await wishlists(kid)).birthday).toHaveLength(1);
   });
 
   test("MUPP-003-R4 texts are stored as given, never changed into HTML", async () => {
     const mia = await parent("Mia");
     const kid = await child(mia);
     await family.saveItem(mia, item(kid, "<b>Lego</b> & <script>x</script>"));
-    expect((await family.listWishlists(kid)).birthday[0].title).toBe("<b>Lego</b> & <script>x</script>");
+    expect((await wishlists(kid)).birthday[0].title).toBe("<b>Lego</b> & <script>x</script>");
   });
 
   test("MUPP-003-R4 an item is removed, a list is cleared, and another parent's items and lists are refused", async () => {
@@ -158,18 +160,18 @@ describe("MUPP-003-R4 wish lists", () => {
     await family.saveItem(mia, item(kid, "A"));
     await family.saveItem(mia, item(kid, "B"));
     await family.saveItem(mia, item(kid, "C", { occasion: "christmas" }));
-    const [a, b] = (await family.listWishlists(kid)).birthday;
+    const [a, b] = (await wishlists(kid)).birthday;
 
     expect(await family.removeItem(ola, String(a.id))).toMatchObject({ ok: false });
     expect(await family.saveItem(ola, item(kid, "Intrång", { itemId: String(a.id) }))).toMatchObject({ ok: false });
     expect(await family.saveItem(ola, item(kid, "Intrång"))).toMatchObject({ ok: false });
     expect(await family.clearList(ola, String(kid), "birthday")).toMatchObject({ ok: false });
-    expect((await family.listWishlists(kid)).birthday).toHaveLength(2);
+    expect((await wishlists(kid)).birthday).toHaveLength(2);
 
     expect(await family.removeItem(mia, String(a.id))).toEqual({ ok: true });
-    expect((await family.listWishlists(kid)).birthday.map((i) => i.id)).toEqual([b.id]);
+    expect((await wishlists(kid)).birthday.map((i) => i.id)).toEqual([b.id]);
     expect(await family.clearList(mia, String(kid), "birthday")).toEqual({ ok: true });
-    const lists = await family.listWishlists(kid);
+    const lists = await wishlists(kid);
     expect(lists.birthday).toEqual([]);
     expect(lists.christmas).toHaveLength(1);
   });
@@ -298,8 +300,9 @@ describe("MUPP-005-R5 claiming", () => {
   async function wishes(childName = "Testbarn") {
     const owner = await parent("Förälder", true);
     const childId = await child(owner, childName);
-    for (const [title, unlimited] of [["Cykel", false], ["Pussel", false], ["Strumpor", true]] as const) await family.saveItem(owner, item(childId, title, { unlimited }));
-    return (await family.listWishlists(childId)).birthday;
+    // Tillagda samma dag som de paxas, så att de aldrig hunnit arkiveras (MUPP-031)
+    for (const [title, unlimited] of [["Cykel", false], ["Pussel", false], ["Strumpor", true]] as const) await family.saveItem(owner, item(childId, title, { unlimited }), today);
+    return (await family.listWishlists((await family.findChild(childId))!, today)).birthday;
   }
   const state = (id: number) => get<{ claimed_by: string | null; claimed_at: string | null }>("SELECT claimed_by, claimed_at FROM wishlist_item WHERE id = ?", [id]);
 
@@ -379,5 +382,132 @@ describe("MUPP-005-R5 claiming", () => {
       }
       expect((await state(cykel.id))!.claimed_by).toBe("Moster");
     });
+  });
+});
+
+describe("MUPP-031 the month after and the archive", () => {
+  // Alma fyller år den 17 mars; månaden efter är 18 mars–16 april och den 17 april arkiveras listan. Påhittade datum.
+  const on = parseDate;
+  async function alma(owner: Parent) {
+    const { lastId } = await run("INSERT INTO child (parent_id, name, birthdate) VALUES (?, 'Alma', '2019-03-17')", [owner.id]);
+    return lastId;
+  }
+  const lists = async (kid: number, date: string) => family.listWishlists((await family.findChild(kid))!, on(date));
+  const deckWishes = async (kid: number, date: string) => (await family.listDeckInput(on(date))).wishes.get(kid);
+  const titles = (items: { title: string }[] | undefined) => (items ?? []).map((i) => i.title);
+  const row = (id: number) => get<Record<string, unknown>>("SELECT title, claimed_by, added_at FROM wishlist_item WHERE id = ?", [id]);
+
+  test("MUPP-031-R4 an item gets the day it was added", async () => {
+    const mia = await parent("Mia");
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Cykel"), on("2026-03-01"));
+    const [cykel] = (await lists(kid, "2026-03-01")).birthday;
+    expect(await row(cykel.id)).toMatchObject({ added_at: "2026-03-01" });
+  });
+
+  test("MUPP-031-R4 the list stays to day 30, also with what was added and claimed after the birthday, and all of it is archived on day 31", async () => {
+    const mia = await parent("Mia");
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Cykel"), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Strumpor", { unlimited: true }), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Pussel"), on("2026-04-10"));
+    const [cykel] = (await lists(kid, "2026-04-10")).birthday;
+    expect(await family.claimWishes([cykel.id], "Moster Lisa", on("2026-04-10"))).toMatchObject({ ok: true, claimed: 1 });
+
+    expect(titles((await deckWishes(kid, "2026-04-16"))?.birthday)).toEqual(["Cykel", "Strumpor", "Pussel"]);
+    expect(await lists(kid, "2026-04-16")).toMatchObject({ archive: [] });
+    expect(titles((await lists(kid, "2026-04-16")).birthday)).toEqual(["Cykel", "Strumpor", "Pussel"]);
+
+    expect(titles((await deckWishes(kid, "2026-04-17"))?.birthday)).toEqual([]);
+    const after = await lists(kid, "2026-04-17");
+    expect(after.birthday).toEqual([]);
+    expect(after.archive).toMatchObject([
+      {
+        name: "Födelsedag 2026",
+        items: [
+          { title: "Cykel", claimedBy: "Moster Lisa" },
+          { title: "Strumpor", unlimited: true, claimedBy: null },
+          { title: "Pussel", claimedBy: null },
+        ],
+      },
+    ]);
+  });
+
+  test("MUPP-031-R4 an archived item cannot be claimed, unclaimed, edited or removed", async () => {
+    const mia = await parent("Mia", true);
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Cykel"), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Lego"), on("2026-03-01"));
+    const [cykel, lego] = (await lists(kid, "2026-03-01")).birthday;
+    await family.claimWishes([lego.id], "Moster Lisa", on("2026-03-02"));
+    const day31 = on("2026-04-17");
+
+    expect(await family.claimWishes([cykel.id], "Sen gäst", day31)).toEqual({ ok: false, claimed: 0, notClaimed: [], missing: 1 });
+    expect(await family.unclaimWish(lego.id, day31)).toEqual({ ok: false });
+    expect(await family.saveItem(mia, item(kid, "Ändrad", { itemId: String(cykel.id) }), day31)).toMatchObject({ ok: false });
+    expect(await family.removeItem(mia, String(cykel.id), day31)).toMatchObject({ ok: false });
+    expect(await row(cykel.id)).toEqual({ title: "Cykel", claimed_by: null, added_at: "2026-03-01" });
+    expect(await row(lego.id)).toMatchObject({ claimed_by: "Moster Lisa" });
+  });
+
+  test("MUPP-031-R5 the archive has one group per occasion and year, newest first; Christmas Eve is named by its own year", async () => {
+    const mia = await parent("Mia");
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Docka"), on("2025-03-01"));
+    await family.saveItem(mia, item(kid, "Cykel"), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Pulka", { occasion: "christmas" }), on("2026-12-01"));
+    await family.saveItem(mia, item(kid, "Skridskor", { occasion: "christmas" }), on("2027-01-10"));
+    const { archive } = await lists(kid, "2027-01-24");
+    expect(archive.map((g) => [g.name, titles(g.items)])).toEqual([
+      ["Julafton 2026", ["Pulka", "Skridskor"]],
+      ["Födelsedag 2026", ["Cykel"]],
+      ["Födelsedag 2025", ["Docka"]],
+    ]);
+  });
+
+  test("MUPP-031-R5 Töm listan removes only the items that are not archived", async () => {
+    const mia = await parent("Mia");
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Gammal"), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Ny"), on("2026-04-17"));
+    expect(await family.clearList(mia, String(kid), "birthday", on("2026-04-17"))).toEqual({ ok: true });
+    const after = await lists(kid, "2026-04-17");
+    expect(after.birthday).toEqual([]);
+    expect(after.archive.flatMap((g) => titles(g.items))).toEqual(["Gammal"]);
+  });
+
+  test("MUPP-031-R7 copying an archived item gives an unclaimed copy, added today, and leaves the archive as it was", async () => {
+    const mia = await parent("Mia");
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Cykel", { size: "20 tum", description: "Blå", url: "https://exempel.se/cykel", unlimited: false }), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Strumpor", { unlimited: true }), on("2026-03-01"));
+    const [cykel, strumpor] = (await lists(kid, "2026-03-01")).birthday;
+    await family.claimWishes([cykel.id], "Moster Lisa", on("2026-03-02"));
+    const day31 = on("2026-04-17");
+
+    expect(await family.copyArchivedItem(mia, String(cykel.id), "christmas", day31)).toEqual({ ok: true });
+    expect(await family.copyArchivedItem(mia, String(strumpor.id), "birthday", day31)).toEqual({ ok: true });
+    const after = await lists(kid, "2026-04-17");
+    expect(after.christmas).toMatchObject([{ title: "Cykel", size: "20 tum", description: "Blå", url: "https://exempel.se/cykel", unlimited: false }]);
+    expect(after.birthday).toMatchObject([{ title: "Strumpor", unlimited: true }]);
+    expect(await row(after.christmas[0].id)).toEqual({ title: "Cykel", claimed_by: null, added_at: "2026-04-17" });
+    expect(after.archive).toMatchObject([{ items: [{ id: cykel.id, claimedBy: "Moster Lisa" }, { id: strumpor.id }] }]);
+  });
+
+  test("MUPP-031-R7 copying is refused for an item that is not archived, another parent's kid, and a bad list or id", async () => {
+    const [mia, ola] = [await parent("Mia"), await parent("Ola")];
+    const kid = await alma(mia);
+    await family.saveItem(mia, item(kid, "Gammal"), on("2026-03-01"));
+    await family.saveItem(mia, item(kid, "Ny"), on("2026-04-17"));
+    const { birthday, archive } = await lists(kid, "2026-04-17");
+    const day31 = on("2026-04-17");
+    const count = async () => (await get<{ n: number }>("SELECT COUNT(*) AS n FROM wishlist_item"))!.n;
+
+    expect(await family.copyArchivedItem(mia, String(birthday[0].id), "christmas", day31)).toMatchObject({ ok: false });
+    expect(await family.copyArchivedItem(ola, String(archive[0].items[0].id), "christmas", day31)).toMatchObject({ ok: false });
+    expect(await family.copyArchivedItem(null, String(archive[0].items[0].id), "christmas", day31)).toMatchObject({ ok: false });
+    expect(await family.copyArchivedItem(mia, String(archive[0].items[0].id), "easter", day31)).toMatchObject({ ok: false });
+    for (const id of ["1 OR 1=1", "", "999999", "-1"]) expect(await family.copyArchivedItem(mia, id, "christmas", day31), id).toMatchObject({ ok: false });
+    expect(await count()).toBe(2);
   });
 });

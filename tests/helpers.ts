@@ -9,12 +9,16 @@ import { adminSessionFile } from "./site-session";
 // can't be undone run only locally.
 export const runsLocally = (process.env.BASE_URL ?? "").startsWith("http://localhost");
 
-// A birth date so that the birthday comes in `days` days; the age is then 6; date is the card heading, "17 mars".
-export function birthdateIn(days: number) {
+// The date `days` days from today in Swedish time (negative: ago), as text, ÅÅÅÅ-MM-DD
+export function dateIn(days: number) {
   const today = swedishToday();
-  const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
-  const nextYear = date.getUTCFullYear();
-  return { birthdate: `${nextYear - 6}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`, date: dayAndMonth(date.getUTCDate(), date.getUTCMonth() + 1) };
+  return new Date(Date.UTC(today.year, today.month - 1, today.day + days)).toISOString().slice(0, 10);
+}
+
+// A birth date so that the birthday comes in `days` days (negative: was, MUPP-031); the age is then 6; date is the card heading, "17 mars".
+export function birthdateIn(days: number) {
+  const [year, month, day] = dateIn(days).split("-").map(Number);
+  return { birthdate: `${year - 6}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`, date: dayAndMonth(day, month) };
 }
 
 // A name no one else uses, so tests can create data without clashing with

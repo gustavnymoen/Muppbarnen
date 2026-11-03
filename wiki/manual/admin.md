@@ -48,7 +48,9 @@ Tryck checklistan **Önskelistor för …** vid barnet: sidan har bara önskelis
 - **Lägg till:** tryck **Ny önskning**, fyll i **Namn** (måste finnas, högst 60 tecken; ett äldre längre namn måste kortas när du ändrar önskningen), och om du vill **Storlek**, **Beskrivning** (högst 100 tecken) och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
 - **Se mer och ändra:** tryck pennan **Ändra …** vid önskningen. Då syns storlek, beskrivning och länk, och formuläret. Ändra och tryck **Spara**.
 - **Ta bort:** tryck papperskorgen **Ta bort …**. Du får en fråga som nämner önskningen; svara **Ta bort** eller **Avbryt**.
-- **Töm listan:** papperskorgen vid rubriken tar bort alla önskningar i en lista, efter en fråga som nämner listan och barnet.
+- **Töm listan:** papperskorgen vid rubriken tar bort alla önskningar i en lista, efter en fråga som nämner listan och barnet. Arkivet tas inte bort.
+- **En månad efter:** önskningar du lägger till upp till 30 dagar efter födelsedagen (eller julafton) hör till den dag som just varit och syns på startsidan på det kortet. Efter 30 dagar flyttas hela listan, paxat och inte paxat, till arkivet, och listan är tom inför nästa gång.
+- **Arkiv:** under listorna finns **Arkiv** om barnet har gamla önskningar, en rad per tillfälle, till exempel "Födelsedag 2025" eller "Julafton 2026", det senaste först. Tryck pilen för att se önskningarna och vem som paxade dem. De går inte att ändra eller ta bort. Vill du önska samma sak igen trycker du **+** vid önskningen och väljer **Födelsedag** eller **Julafton**; en kopia, inte paxad, läggs i den listan och arkivet är kvar som det var. **Avbryt** (eller Esc) gör ingenting.
 
 Fel visas bredvid fältet, och det du skrivit finns kvar så att du kan rätta det.
 
