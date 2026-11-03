@@ -131,7 +131,7 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid: month, nearest mark, f
   await expect(items.nth(1)).toHaveText("<b>Fet</b> tröja");
   await expect(card(page).locator("li b")).toHaveCount(0);
   const region = card(page).getByRole("region", { name: "Önskelista" });
-  expect(await region.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  expect(await region.getByRole("group", { name: "Önskningar" }).evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
   expect(await pageDoesNotScroll(page)).toBe(true);
 
   // R6: sidan innehåller varken födelsedatum eller dag för barnen

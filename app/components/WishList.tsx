@@ -7,7 +7,7 @@ import type { Wish } from "@/lib/deck";
 import { canClaim, isLongTitle, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
 import { Dialog } from "./Dialog";
-import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from "./icons";
+import { ChevronDownIcon, ChevronUpIcon, CrossIcon, InfoIcon } from "./icons";
 
 // Knappen som öppnar en önskelista (utseende i globals.css): önskelistan är det viktigaste på sajten, så den är en tydlig knapp
 // med "Önskelista" och en pil ner; den smala varianten (small) på kort med flera barn har bara texten.
@@ -44,8 +44,8 @@ export function WishButton({
 
 // Önskelistan på ett barnkort (MUPP-004-R7): knappen fäller ut listan med varje önskan som en rad (MUPP-005).
 // Listan scrollar inuti kortet. Är den öppen styr kortleken, som låser sig då (R9); knappen byts då mot en
-// knapp som ligger kvar mitt i botten av listan: en pil upp på ett kort med ett barn (solo), annars en liten
-// Stäng som tar tillbaka till kortet med flera barn eller Julafton (MUPP-013-R5, MUPP-005-R6, -R7).
+// knapp mitt på listans nederkant (MUPP-028): en pil upp på ett kort med ett barn (solo), annars ett kryss
+// som tar tillbaka till kortet med flera barn eller Julafton (MUPP-013-R5, MUPP-005-R6, -R7).
 export function WishList({
   id,
   wishes,
@@ -85,39 +85,45 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
   };
 
   return (
-    // Platsen finns bara medan listan är öppen; den går att scrolla med tangentbordet
-    <div id={id} tabIndex={0} aria-label="Önskelista" role="region" className={`${solo ? "wish-slide" : ""} flex min-h-0 flex-1 flex-col overflow-y-auto rounded-control border border-edge bg-page/40 px-3 py-1`}>
-      {wishes.length === 0 ? (
-        <p className="py-2 text-muted">Inga önskningar än.</p>
-      ) : (
-        <ul className="divide-y divide-edge">
-          {wishes.map((wish) => (
-            <WishRow key={wish.id} wish={wish} marked={marked.includes(wish.id)} onMark={() => toggle(wish.id)} />
-          ))}
-        </ul>
-      )}
-      {notice && (
-        <p role="status" className="py-2 text-sm">
-          {notice}
-        </p>
-      )}
-      {/* Sitter kvar nere i mitten medan listan scrollar, så att den går att stänga var man än är i den; fokus hamnar här när listan öppnas */}
-      <div className="sticky bottom-1 mt-auto flex items-center justify-center gap-3 pt-2">
-        {marked.length > 0 && (
+    // Platsen finns bara medan listan är öppen. Raderna scrollar i en inre ruta som går att scrolla med tangentbordet; den slutar
+    // ovanför knappen på kanten (pb-5), så att knappen aldrig ligger över en rad (MUPP-028-R1). mb-2 ger fokusringen plats i kortet.
+    <div id={id} aria-label="Önskelista" role="region" className={`${solo ? "wish-slide" : ""} relative mb-2 flex min-h-0 flex-1 flex-col rounded-control border border-edge bg-page/40 pb-5`}>
+      <div tabIndex={0} role="group" aria-label="Önskningar" className="min-h-0 flex-1 overflow-y-auto px-3 py-1">
+        {wishes.length === 0 ? (
+          <p className="py-2 text-muted">Inga önskningar än.</p>
+        ) : (
+          <ul className="divide-y divide-edge">
+            {wishes.map((wish) => (
+              <WishRow key={wish.id} wish={wish} marked={marked.includes(wish.id)} onMark={() => toggle(wish.id)} />
+            ))}
+          </ul>
+        )}
+        {notice && (
+          <p role="status" className="py-2 text-sm">
+            {notice}
+          </p>
+        )}
+      </div>
+      {/* Paxa ligger fast under raderna, ovanför knappen, så att den syns direkt även när man kryssar högst upp i en lång lista (MUPP-028-R3) */}
+      {marked.length > 0 && (
+        <div className="flex justify-center pt-2">
           <Button onClick={() => dialog.current?.showModal()} className="text-sm">
             Paxa ({marked.length})
           </Button>
-        )}
-        {solo ? (
-          <IconButton id={`${id}-knapp`} label="Fäll ihop önskelistan" onClick={onToggle}>
-            <ChevronUpIcon />
-          </IconButton>
-        ) : (
-          <Button id={`${id}-knapp`} variant="secondary" onClick={onToggle} className="px-4 text-sm">
-            Stäng<span className="sr-only"> önskelistan</span>
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
+      {/* Mitt på boxens nederkant, halvt utanför, så att den går att stänga var man än är i listan; fokus hamnar här när listan öppnas.
+          32 px rund, med en osynlig träffyta på 44 px (before:, räknat från insidan av ramen) (MUPP-028-R2). En pil upp på kortet med ett barn, annars ett kryss. */}
+      <IconButton
+        id={`${id}-knapp`}
+        compact
+        round
+        label={solo ? "Fäll ihop önskelistan" : "Stäng önskelistan"}
+        onClick={onToggle}
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 before:absolute before:-inset-[7px]"
+      >
+        {solo ? <ChevronUpIcon /> : <CrossIcon />}
+      </IconButton>
       <ClaimDialog ref={dialog} wishes={wishes.filter((w) => marked.includes(w.id))} onDone={claimed} />
     </div>
   );

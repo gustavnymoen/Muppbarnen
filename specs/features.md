@@ -45,6 +45,7 @@ tags: [product, features]
 | [TECH-011](TECH-011-ponytail-audit/solution.md) | Ponytail audit and tidy-up | Shared | Review |
 | [MUPP-027](MUPP-027-info-button-no-frame/solution.md) | Info button without a frame | Startsida | Review |
 | [TECH-012](TECH-012-shrink-pictures/solution.md) | Shrink uploaded pictures | Shared | Review |
+| [MUPP-028](MUPP-028-close-button-on-line/solution.md) | Wish list close button on the line | Önskelista | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

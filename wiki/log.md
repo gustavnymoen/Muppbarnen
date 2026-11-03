@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-03
+
+* **Fix** [MUPP-028 Wish list close button on the line](../specs/MUPP-028-close-button-on-line/solution.md): the button that folds up an open wish list is a 32 px circle (an arrow up, or a cross instead of "Stäng") on the bottom line of the list box, so it no longer covers the last rows; "Paxa (n)" is a fixed row above it, seen at once also in a long list.
+
 ## 2026-11-02
 
 * **Creation** [MUPP-020 Birthday day on the cards](../specs/MUPP-020-birthday-day-on-cards/solution.md): a birthday card's heading shows the day and the month ("17 mars", "Beräknad 17 mars" for an expected kid); the birthdate and the birth year are still never sent, and the privacy rule is now stated in `specs/rules.md`.
