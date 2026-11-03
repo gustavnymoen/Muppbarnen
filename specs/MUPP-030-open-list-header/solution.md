@@ -26,6 +26,7 @@ No texts change; two are left out in an open kid view. All of it is in `app/comp
 ## Decisions
 
 - **`FitName` instead of wrapping.** It already keeps names on one line on the cards with several kids and Christmas Eve (MUPP-013-R3); in a flex row the `h3` needs `min-w-0` so that it can be narrower than the name, which is what makes `FitName` shrink it. A very long name at 320 px ends near the 12 px floor of `FitName`; the requirement chose shrinking over wrapping.
+- **The picture is held at 40 px.** A picture-less avatar (the initial) is a flex item whose smallest size is the letter's width, so a long name squeezed it to 37 px at 320 px in CI. A `shrink-0` wrapper in the open row keeps it at 40 px; `Avatar` itself is left as it is, so the closed cards are unchanged.
 - **`text-2xl` for the name.** Next to a 40 px picture the old `text-3xl` was taller than the picture; 24 px sits beside it and is still larger than the date.
 - **The date row is set by padding, not by moving the buttons.** The corner buttons stay absolutely placed as in MUPP-014 and MUPP-015; only the header's height and padding match them, so nothing about the buttons' tab order or tests changes.
 - **The motion is untouched.** MUPP-029's `growScale` and `shrinkTo` animate the list box only; the header above it changes at once, as the 72 px picture did before.

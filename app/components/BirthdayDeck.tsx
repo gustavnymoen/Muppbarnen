@@ -304,7 +304,10 @@ function KidFace({ cardKey, date, kid, solo, open, onToggle }: { cardKey: string
     <>
       {open ? (
         <div className="flex items-center justify-center gap-2">
-          <Avatar name={kid.name} color={kid.color} src={kid.picture} size={40} decorative />
+          {/* Bilden får inte krympa när ett långt namn tar platsen (initialen kan annars tryckas ihop till bokstavens bredd) */}
+          <span className="flex shrink-0">
+            <Avatar name={kid.name} color={kid.color} src={kid.picture} size={40} decorative />
+          </span>
           <h3 className="min-w-0">
             <FitName className="font-heading text-2xl font-semibold">{kid.name}</FitName>
           </h3>
