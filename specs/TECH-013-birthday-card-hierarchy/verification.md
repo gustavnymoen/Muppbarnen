@@ -50,7 +50,7 @@ Two browser tests added (1.9 s each); the total is within the 3 min budget and g
 
 - [x] Tests: every check in the card's test plan is done (except the live and real-phone checks, below); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 2 %, and the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41655959512 against the merge `66a2031` passed (2026-11-03)
 - [ ] Accessibility: axe passes on the changed states; the checklist items on the live site are not checked yet (after the deploy)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated; `DESIGN.md` has the rule
