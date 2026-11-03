@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -29,7 +29,7 @@ async function seed(page: Page, kids: string[]) {
     await addWish(ids[0], "christmas", title);
   }
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
 }
 const oneKid = (page: Page) => seed(page, ["Vera"]);
@@ -95,6 +95,7 @@ test("MUPP-016-R2 the single kid list slides down when closed, and can be opened
   await expect(open).toBeFocused();
   await expect(ghost(page)).toHaveCount(1);
   expect(await ghost(page).evaluate((el) => el.getAnimations().length)).toBe(2); // rörelsen och tonandet (MUPP-025)
+  await pageAnimationsDone(page);
   await expect(ghost(page)).toHaveCount(0);
   await expectNoA11yViolations(page);
 
@@ -138,15 +139,17 @@ for (const kind of ["birthday", "christmas"] as const) {
       () => card(page).getByRole("button", { name: /^Tillbaka/ }).click(),
       () => page.keyboard.press("Escape"),
     ];
-    for (const closeView of closers) {
+    for (const [i, closeView] of closers.entries()) {
       const view = await settledBox(card(page));
       await closeView();
       await expect(region(page)).toHaveCount(0);
       await expect(open).toBeFocused();
       await expect(ghost(page)).toHaveCount(1);
       await shrunkTo(ghost(page), button, view);
+      await pageAnimationsDone(page);
       await expect(ghost(page)).toHaveCount(0);
-      await expectNoA11yViolations(page);
+      // Det stängda läget är detsamma efter alla tre, så axe körs en gång (TECH-014)
+      if (i === 0) await expectNoA11yViolations(page);
       await open.click();
       await animationsDone(card(page));
     }
@@ -201,6 +204,7 @@ test("MUPP-016-R6 the transitions never get in the way: double press and press d
   // Två snabba tryck: det andra träffar det som ligger under, som utan rörelse (pilen som fäller ihop ligger där knappen låg).
   // Listan är öppen eller stängd, aldrig två gånger eller halvvägs, och inget ligger kvar när rörelsen är slut
   await open.dblclick();
+  await pageAnimationsDone(page);
   await expect(ghost(page)).toHaveCount(0);
   await animationsDone(card(page));
   expect((await region(page).count()) + (await open.count())).toBe(1);
@@ -213,6 +217,7 @@ test("MUPP-016-R6 the transitions never get in the way: double press and press d
   await page.keyboard.press("Escape");
   await page.keyboard.press("Escape");
   await expect(region(page)).toHaveCount(0);
+  await pageAnimationsDone(page);
   await expect(ghost(page)).toHaveCount(0);
   await expect(open).toBeFocused();
 
@@ -227,6 +232,7 @@ test("MUPP-016-R6 the transitions never get in the way: double press and press d
   await expect(region(page)).toHaveCount(0);
   await expect(vera).toBeFocused();
   await expect(card(page).getByRole("heading", { level: 3, name: "Vilda" })).toBeVisible();
+  await pageAnimationsDone(page);
   await expect(ghost(page)).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Nästa kort" })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminSignIn } from "./helpers";
+import { adminSignIn, goto } from "./helpers";
 import { testIp } from "./site-session";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
@@ -22,7 +22,7 @@ test("MUPP-023-R1 a long title wraps inside its row and in the claim dialog, at 
   await addWish(vera, "birthday", newWord);
   await addWish(vera, "birthday", oneWord);
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await page.getByRole("article").getByRole("button", { name: /^Önskelista/ }).click();
   await animationsDone(region(page));
 
@@ -59,7 +59,7 @@ test("MUPP-023-R3 the title field stops at 60 characters, and the server refuses
   const mia = uniqueName("Mia");
   const kid = await addChild(await addParent(mia, true), uniqueName("Barn"));
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${kid}/onskelistor`);
+  await goto(page, `/admin/barn/${kid}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag", exact: true }) });
   await birthday.getByRole("button", { name: "Ny önskning" }).click();
 

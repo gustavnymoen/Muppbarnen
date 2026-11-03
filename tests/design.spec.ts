@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, PAGE, runsLocally, SHADOW, settledBox, uniqueName } from "./helpers";
+import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, goto, PAGE, runsLocally, settledBox, SHADOW, uniqueName } from "./helpers";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -13,7 +13,7 @@ test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone: fonts, cards, controls, shell 
   await page.setViewportSize({ width: 390, height: 844 });
   const hosts = new Set<string>();
   page.on("request", (request) => hosts.add(new URL(request.url()).host));
-  await page.goto("/design");
+  await goto(page, "/design");
   const baseHost = new URL(page.url()).host;
 
   // R8: sidan visar alltid samma sak, har en h1 och rubriker i ordning, och inga axe-fel
@@ -99,7 +99,7 @@ test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone: fonts, cards, controls, shell 
 
 test("MUPP-001-R5 R8 /design on a desktop: a wide centred frame with the same look", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto("/design");
+  await goto(page, "/design");
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   const frame = page.getByRole("main").locator("..");
   const box = await settledBox(frame);
@@ -112,7 +112,7 @@ test("MUPP-001-R5 R8 /design on a desktop: a wide centred frame with the same lo
 
 test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades in, nothing moves with reduced motion", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/design");
+  await goto(page, "/design");
   const pressable = page.getByRole("button", { name: "Tryckbart kort" });
   await pressable.scrollIntoViewIfNeeded();
   const box = await settledBox(pressable);
@@ -150,7 +150,7 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
 
 test("MUPP-002-R1 the start page: a header without border", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await goto(page, "/");
   const header = page.getByRole("banner");
   for (const side of ["top", "right", "bottom", "left"]) await expect(header).toHaveCSS(`border-${side}-width`, "0px");
   await expect(header).toHaveCSS("box-shadow", "none");
@@ -169,7 +169,7 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
     };
     for (const [i, name] of ["Otto", "Alma", "Vera", "Vilda", "Otis", "Ines"].entries()) await addChild(parent, name, birthdate2018In(i * 40));
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(page.locator(".deck-card").first());
     await animationsDone(card);
@@ -232,7 +232,7 @@ test("MUPP-009-R1 the password page: a card with the name, a labelled field, a b
   // Utan inloggning (sidan syns bara då), på en telefon, med ett eget "IP-nummer" för försöksgränsen
   const context = await newVisitor(browser, baseURL, { width: 390, height: 844 });
   const page = await context.newPage();
-  await page.goto("/losenord");
+  await goto(page, "/losenord");
 
   // Namnet i Fredoka, ett kort med kant, och fältet och knappen minst 44 px höga
   await page.evaluate(() => document.fonts.ready);
@@ -273,7 +273,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
   await addChild(await addParent(mia), kid);
   try {
     // The menu: "Admin" in the muted text colour, still readable, "Start" in the normal one
-    await page.goto("/");
+    await goto(page, "/");
     await page.getByRole("button", { name: "Meny" }).click();
     const admin = page.getByRole("link", { name: "Admin" });
     await animationsDone(page.getByRole("navigation", { name: "Huvudmeny" }));
@@ -282,7 +282,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     expect(contrast(MUTED, await backgroundOf(admin))).toBeGreaterThanOrEqual(4.5);
 
     // Sign-in: the name of the page in Fredoka, a card, a field and a button as on the password page
-    await page.goto("/admin");
+    await goto(page, "/admin");
     await page.evaluate(() => document.fonts.ready);
     expect(await css(page.getByRole("heading", { level: 1, name: "Admin" }), "font-family")).toMatch(/Fredoka/);
     const field = page.getByLabel("Adminlösenord");
@@ -445,7 +445,7 @@ test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big
     await addChild(parent, "Vera", twins);
     await addChild(parent, "Vilda", twins);
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(card);
 
@@ -503,7 +503,7 @@ test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear l
     await addChild(parent, "Vera", twins);
     // A tall phone, where there is room to spread the kids out
     await page.setViewportSize({ width: 375, height: 844 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(card);
 
@@ -550,7 +550,7 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
     await addChild(parent, longName);
     await addChild(parent, "Vera");
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(card);
     for (let i = 0; i < 3 && (await card.getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
@@ -583,7 +583,7 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish
     await addChild(parent, "Alma", twins);
     await addChild(parent, "Alva", twins);
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(card);
     const wishButton = card.getByRole("button", { name: /^Önskelista/ });
@@ -682,7 +682,7 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 the wish rows and the c
     await addWish(child, "birthday", "Strumpor", { unlimited: true });
     await addWish(child, "birthday", "Hoppborg", { claimedBy: "Moster Lisa" });
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(card);
     await card.getByRole("button", { name: /^Önskelista/ }).click();
@@ -785,7 +785,7 @@ test("MUPP-023-R2 a wish title is on at most two lines with an ellipsis and smal
     await addWish(child, "birthday", "Cykel");
     await addWish(child, "birthday", long);
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     await animationsDone(card);
     await card.getByRole("button", { name: /^Önskelista/ }).click();
@@ -857,7 +857,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       };
 
       await page.setViewportSize(viewport);
-      await page.goto("/");
+      await goto(page, "/");
       await animationsDone(card);
 
       // The twins' card: the wish button takes 70-80 % of the two buttons together, both 44 px high, on one line
@@ -950,7 +950,7 @@ test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit
     await addChild(parent, "Alva", "2018-09-29");
     await addChild(parent, "Väntad", due);
     await page.setViewportSize({ width: 320, height: 568 });
-    await page.goto("/");
+    await goto(page, "/");
     const card = page.getByRole("article");
     const seen: string[] = [];
     for (let i = 0; i < 3; i++) {

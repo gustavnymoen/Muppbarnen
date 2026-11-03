@@ -1,11 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoA11yViolations, settledBox } from "./helpers";
+import { expectNoA11yViolations, goto, settledBox } from "./helpers";
 
 const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
 test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await goto(page, "/");
 
   // R1 (changed by TECH-006): namnet syns inte som rubrik; det finns kvar som en dold h1, den enda, och sidtiteln är densamma (sidhuvudets utseende: tests/design.spec.ts)
   const name = page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" });
@@ -68,7 +68,7 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await expect(page.getByLabel("Adminlösenord")).toBeVisible();
 
   // R2: "Start" visar startsidan (här från en annan sida, så att valet syns)
-  await page.goto("/design");
+  await goto(page, "/design");
   await page.getByRole("button", { name: "Meny" }).click();
   await page.getByRole("link", { name: "Start" }).click();
   await expect(page).toHaveURL(/\/$/);
@@ -78,7 +78,7 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
 
 test("MUPP-002-R1 R4 the fixed header on a phone, also at 320 px", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await goto(page, "/");
   expect(await hasHorizontalScroll(page)).toBe(false);
 
   // R1: sidhuvudet står kvar när innehållet scrollar och bara innehållsytan scrollar

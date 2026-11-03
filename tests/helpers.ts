@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { dayAndMonth, swedishToday } from "../lib/deck";
+import { adminSessionFile } from "./site-session";
 
 // True when the tests run against the local test server (npm run test:local),
 // false against the live site. Tests that change shared data in a way that
@@ -21,12 +23,26 @@ export function uniqueName(prefix: string) {
   return `E2E ${prefix} ${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
 }
 
-// Signs in on /admin with the admin password and, when a parent is named, chooses
-// who you are. The password is the made-up one playwright.config.ts gives the local test server.
+// Opens a page and waits until its content is shown. Every page streams its content
+// (Suspense), and React shows it about 300 ms after the page has loaded; an expect
+// after page.goto would see it only after Playwright's backoff, at 770 ms.
+// waitForFunction checks on every frame instead (TECH-014). The pages are in the
+// shell [data-page]; the password page has none, and streams only its form. Content
+// not yet shown lies in a hidden element, so checkVisibility() is false until React
+// shows it; a visible form before the shell, or a shell outside Suspense, would end
+// the wait too early.
+export async function goto(page: Page, path: string) {
+  const response = await page.goto(path);
+  await page.waitForFunction(() => document.querySelector("[data-page], form")?.checkVisibility());
+  return response;
+}
+
+// Signs in on /admin with the admin cookie that tests/global-setup.ts got through the form
+// once (TECH-014), and, when a parent is named, chooses who you are. The tests of the
+// sign-in itself use the form instead.
 export async function adminSignIn(page: Page, parentName?: string) {
-  await page.goto("/admin");
-  await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
-  await page.getByRole("button", { name: "Logga in" }).click();
+  await page.context().addCookies(JSON.parse(readFileSync(adminSessionFile, "utf8")).cookies);
+  await goto(page, "/admin");
   if (parentName) {
     await page.getByRole("button", { name: parentName, exact: true }).click();
     // The choice is stored when the page shows "Byt förälder"; a page opened before that has no parent
@@ -91,6 +107,15 @@ export async function animationsDone(locator: Locator) {
   await locator.evaluate((el) => Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 
+// Waits until every animation and transition on the page has finished, also those of
+// elements that are removed when they end (the copy that moves when a view closes). An
+// expect that waits for the end of an animation is otherwise checked again only after
+// Playwright's backoff (0, 20, 70, 170, 270, then 770 ms), so a 300 ms animation cost
+// 770 ms (TECH-014).
+export async function pageAnimationsDone(page: Page) {
+  await page.evaluate(() => Promise.allSettled(document.getAnimations().map((a) => a.finished)));
+}
+
 // The box of an element once it has settled: visible, and the same in two reads
 // in a row. A bare boundingBox() is read at once, so it can catch an element
 // mid-animation (a height of 43.99 instead of 44) or one the page is just
@@ -121,7 +146,7 @@ export async function settledBox(locator: Locator) {
 export async function expectNoA11yViolations(page: Page) {
   // Elements that fade in are partly see-through while they move, which axe
   // reads as low contrast: wait for running animations first
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+  await pageAnimationsDone(page);
   // The title is streamed in with the page, so it can be missing for a
   // moment (axe rule document-title)
   await expect(page).toHaveTitle(/.+/);

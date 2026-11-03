@@ -2,6 +2,7 @@
 
 ## 2026-11-03
 
+* **Update** [TECH-014 Test suite over its time budget](../specs/TECH-014-test-time/solution.md): the browser tests reuse one admin sign-in, open pages with `goto()` and wait for animations before checking that they ended, so they no longer sit in Playwright's retry backoff; the suite is back under its budget.
 * **Fix** [MUPP-028 Wish list close button on the line](../specs/MUPP-028-close-button-on-line/solution.md): the button that folds up an open wish list is a 32 px circle (an arrow up, or a cross instead of "Stäng") on the bottom line of the list box, so it no longer covers the last rows; "Paxa (n)" is a fixed row above it, seen at once also in a long list.
 
 ## 2026-11-02

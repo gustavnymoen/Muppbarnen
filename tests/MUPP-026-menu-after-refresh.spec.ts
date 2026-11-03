@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { expectNoA11yViolations } from "./helpers";
+import { expectNoA11yViolations, goto } from "./helpers";
 
 test.use({ viewport: { width: 390, height: 664 } });
 
 test("MUPP-026-R1 the menu button is inside the visible area after a reload, also after a drag", async ({ page }) => {
-  await page.goto("/design");
+  await goto(page, "/design");
   // A scroll position left over from before the reload must not hide the menu
   await page.evaluate(() => window.scrollTo(0, 40));
   await page.reload();
@@ -17,7 +17,7 @@ test("MUPP-026-R1 the menu button is inside the visible area after a reload, als
 });
 
 test("MUPP-026-R2 the page itself does not scroll or bounce, and its content still scrolls to the end", async ({ page }) => {
-  await page.goto("/design");
+  await goto(page, "/design");
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).overscrollBehaviorY)).toBe("none");
   // The document cannot be scrolled and is as tall as the screen
   await page.evaluate(() => window.scrollTo(0, 500));

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
+import { birthdateIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -35,7 +35,7 @@ test.afterAll(async () => {
 
 test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons, no scrolling page", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await expect(page.getByText("Inga barn har lagts till än.")).toBeVisible();
   await expect(page.getByText("Exempel")).toHaveCount(0);
   await expect(next(page)).toHaveCount(0);
@@ -54,7 +54,7 @@ test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 one kid: month, nearest mark, f
   const almaId = await addChild(parent, "Alma", alma.birthdate);
   await addChild(parent, "Vera", vera.birthdate);
   for (const title of ["Cykel", "<b>Fet</b> tröja", "Lego", ...Array.from({ length: 12 }, (_, i) => `Önskning ${i + 1}`)]) await addWish(almaId, "birthday", title);
-  await page.goto("/");
+  await goto(page, "/");
 
   // R10: kortleken är en grupp med ett namn och en roll, och bara det översta kortet går att nå
   const deck = page.getByRole("group", { name: "Födelsedagskort" });
@@ -147,7 +147,7 @@ test("MUPP-004-R2 R4 R5 R7 R9 MUPP-020-R1 several kids on one card, then Christm
   await addChild(parent, "Vilda", twins.birthdate);
   await addWish(vera, "birthday", "Dockhus");
   await addWish(vera, "christmas", "Julpussel");
-  await page.goto("/");
+  await goto(page, "/");
 
   // R4: ett kort med två barn: ett litet kort per barn, äldst först (här i ordning efter id), utan att några listor är öppna
   await showCard(page, twins.date);
@@ -190,7 +190,7 @@ test("MUPP-004-R2 R4 R5 R7 R9 MUPP-020-R1 several kids on one card, then Christm
 
 test("MUPP-004-R2 a birthday on Christmas Eve comes before the Christmas Eve card", async ({ page }) => {
   await addChild(await addParent(uniqueName("Förälder")), "Jul", "2020-12-24");
-  await page.goto("/");
+  await goto(page, "/");
   await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("24 december");
   await expect(card(page).getByText("Nästa födelsedag")).toBeVisible();
   await next(page).click();
