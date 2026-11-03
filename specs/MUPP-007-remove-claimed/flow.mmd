@@ -1,0 +1,9 @@
+%% MUPP-007 Warning when removing claimed gifts
+flowchart TD
+    A[Parent presses Ta bort on an item in the admin list] --> B{Item claimed?}
+    B -- no, or unlimited --> C[Usual dialog - R3]
+    B -- yes --> D[Dialog says who claimed it and when, plus the usual text - R1]
+    C --> E{Avbryt, Esc or Ta bort?}
+    D --> E
+    E -- Avbryt or Esc --> F[Item and claim stay - R2]
+    E -- Ta bort --> G[Item removed as before - R2]

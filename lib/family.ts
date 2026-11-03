@@ -17,8 +17,10 @@ export type Child = {
   sizes: Sizes;
 };
 export type WishlistItem = { id: number; title: string; description: string; size: string; url: string; unlimited: boolean };
+// En önskning på adminsidan, med vem som paxat den och när (MUPP-007)
+export type AdminItem = WishlistItem & { claimedBy: string | null; claimedAt: string | null };
 // Ett tillfälle i arkivet (MUPP-031-R5): "Födelsedag 2025" och önskningarna, med vem som paxat dem
-export type ArchiveGroup = { key: string; date: string; name: string; items: (WishlistItem & { claimedBy: string | null })[] };
+export type ArchiveGroup = { key: string; date: string; name: string; items: AdminItem[] };
 
 // ok: det gick bra; annars ett meddelande för hela formuläret och/eller per fält
 export type Outcome<T = object> = ({ ok: true } & T) | { ok: false; error?: string; fields?: Record<string, string> };
@@ -77,29 +79,30 @@ export async function listChildren(parentId?: number) {
 
 type ItemRow = { id: number; title: string; description: string; size: string; url: string; unlimited: number };
 const toItem = (row: ItemRow): WishlistItem => ({ id: row.id, title: row.title, description: row.description, size: row.size, url: row.url, unlimited: row.unlimited === 1 });
+const toAdminItem = (row: ItemRow & { claimed_by: string | null; claimed_at: string | null }): AdminItem => ({ ...toItem(row), claimedBy: row.claimed_by, claimedAt: row.claimed_at });
 
 const ARCHIVE_NAMES: Record<Occasion, string> = { birthday: "Födelsedag", christmas: "Julafton" };
 
 // Barnets två listor, utan det som är arkiverat, och arkivet: ett tillfälle per grupp, det senaste först (MUPP-031-R4, R5).
 // Julafton heter efter sitt eget år, också när den arkiveras i januari.
 export async function listWishlists(child: Child, today = swedishToday()) {
-  const rows = await all<{ occasion: Occasion; added_at: string; claimed_by: string | null } & ItemRow>(
-    `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by
+  const rows = await all<{ occasion: Occasion; added_at: string; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
+    `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id
      WHERE w.child_id = ? ORDER BY i.id`,
     [child.id],
   );
-  const lists: Record<Occasion, WishlistItem[]> = { birthday: [], christmas: [] };
+  const lists: Record<Occasion, AdminItem[]> = { birthday: [], christmas: [] };
   const archive = new Map<string, ArchiveGroup>();
   for (const row of rows) {
     if (!isArchived(child, row.occasion, row.added_at, today)) {
-      lists[row.occasion].push(toItem(row));
+      lists[row.occasion].push(toAdminItem(row));
       continue;
     }
     const date = isoDate(occasionOf(child, row.occasion, parseDate(row.added_at)));
     const key = `${row.occasion}-${date}`;
     const group = archive.get(key) ?? { key, date, name: `${ARCHIVE_NAMES[row.occasion]} ${date.slice(0, 4)}`, items: [] };
-    group.items.push({ ...toItem(row), claimedBy: row.claimed_by });
+    group.items.push(toAdminItem(row));
     archive.set(key, group);
   }
   return { ...lists, archive: [...archive.values()].sort((a, b) => b.date.localeCompare(a.date) || a.key.localeCompare(b.key)) };

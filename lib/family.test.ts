@@ -385,6 +385,23 @@ describe("MUPP-005-R5 claiming", () => {
   });
 });
 
+describe("MUPP-007-R1 who claimed what, for the admin page", () => {
+  test("MUPP-007-R1 the lists give who claimed an item and when, and null for a free one", async () => {
+    const owner = await parent("Mia");
+    const kid = await child(owner);
+    const today = { year: 2026, month: 10, day: 30 };
+    await family.saveItem(owner, item(kid, "Cykel"), today);
+    await family.saveItem(owner, item(kid, "Pussel"), today);
+    const [cykel] = (await family.listWishlists((await family.findChild(kid))!, today)).birthday;
+    await family.claimWishes([cykel.id], "Moster Lisa", today);
+    const lists = (await family.listWishlists((await family.findChild(kid))!, today)).birthday;
+    expect(lists.map(({ title, claimedBy, claimedAt }) => ({ title, claimedBy, claimedAt }))).toEqual([
+      { title: "Cykel", claimedBy: "Moster Lisa", claimedAt: "2026-10-30" },
+      { title: "Pussel", claimedBy: null, claimedAt: null },
+    ]);
+  });
+});
+
 describe("MUPP-031 the month after and the archive", () => {
   // Alma fyller år den 17 mars; månaden efter är 18 mars–16 april och den 17 april arkiveras listan. Påhittade datum.
   const on = parseDate;
