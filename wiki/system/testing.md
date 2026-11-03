@@ -98,7 +98,7 @@ The pipeline itself (workflows, events, secrets and the branch protection) is de
 
 The test suite is checked with every change, so that it doesn't grow slower and weaker as the site grows.
 
-- **No flaky tests.** Tests are not retried. A test that sometimes fails is fixed (or the bug in the site is), never retried or skipped.
+- **No flaky tests.** Tests are not retried. A test that sometimes fails is fixed (or the bug in the site is), never retried or skipped. [TECH-010](../../specs/TECH-010-flaky-thumbnail/solution.md) shows one way to look for a flake: `--repeat-each 20` while busy processes keep the CPUs busy, on the current code and the code where it failed.
 - **No fixed waits.** Tests wait for what the user sees (`expect`, `toBeVisible`), never for a time (`waitForTimeout`).
 - **Each test checks behaviour** named in its requirement, not only CSS or markup, unless the requirement is about the look.
 - **No duplicates.** A behaviour already checked by another feature's test is not tested again; a test that a later change made redundant is removed.

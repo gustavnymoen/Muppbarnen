@@ -1,0 +1,13 @@
+%% TECH-010 Flaky picture thumbnail in MUPP-010-R4
+%% How a flake is handled: looked for under load, fixed only when its cause is known.
+flowchart TD
+    A[A test failed now and then] --> B[Run it 20 times under load, on the current code and the code where it failed]
+    B --> C{Reproduced? R1}
+    C -- yes --> D[The trace shows the late step]
+    D --> E{Does the site behave correctly?}
+    E -- yes --> F[Longer timeout on that one expect, with a comment R2]
+    E -- no --> G[Fix the site R2]
+    C -- no --> H[Change nothing; record the runs R2]
+    F --> I[Four spec files, 20 times, under load, three runs in a row R3]
+    G --> I
+    H --> I
