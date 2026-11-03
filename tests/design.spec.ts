@@ -569,7 +569,7 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
   }
 });
 
-test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish button for a 32 px button on the bottom line of the list, an arrow up or a cross, that covers no row and closes the list", async ({ page }) => {
+test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 MUPP-034-R1 an open wish list swaps the wish button for a 32 px button on the bottom line of the list, a cross on every card, that covers no row and closes the list", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -592,7 +592,7 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish
     await expect(wishButton.locator("svg")).toHaveCount(1);
     await wishButton.click();
 
-    // The wish button is gone and the arrow up has the focus
+    // The wish button is gone and the cross has the focus
     let region = card.getByRole("region", { name: "Önskelista" });
     const close = region.getByRole("button", { name: "Fäll ihop önskelistan" });
     const rows = region.getByRole("group", { name: "Önskningar" });
@@ -618,6 +618,8 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish
     };
     expect(await rows.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
     const before = await onTheLine(close);
+    // MUPP-034-R1: the cross, also on this card with one kid, which keeps its name "Fäll ihop önskelistan"
+    const soloCross = await close.locator("path").getAttribute("d");
     await expectNoA11yViolations(page);
 
     // It stays in place when the list is scrolled, and at the end the last row is fully visible and can be pressed
@@ -655,7 +657,7 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish
     await expect(wishButton).toBeFocused();
     await expect(page.getByRole("button", { name: "Nästa kort" })).toBeEnabled();
 
-    // On the twins' card the button is a cross in the same place and size, and its focus ring fits the card too
+    // On the twins' card the button is the same cross in the same place and size, and its focus ring fits the card too
     await page.getByRole("button", { name: "Nästa kort" }).click();
     await animationsDone(card);
     await card.getByRole("button", { name: /^Önskelista för Alma/ }).click();
@@ -663,7 +665,7 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish
     await animationsDone(card);
     const cross = region.getByRole("button", { name: "Stäng önskelistan" });
     const crossBox = await onTheLine(cross);
-    expect(await cross.locator("path").getAttribute("d")).toBe("M6 6l12 12M18 6 6 18");
+    expect(await cross.locator("path").getAttribute("d")).toBe(soloCross);
     const twinsBox = await settledBox(card);
     expect(crossBox.y + crossBox.height + 6).toBeLessThanOrEqual(twinsBox.y + twinsBox.height);
     await expectNoA11yViolations(page);
