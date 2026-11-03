@@ -128,6 +128,26 @@ test("MUPP-003-R1 R2 a changed, expired or foreign cookie is refused, a signed o
   await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
 });
 
+test("MUPP-003-R1 the sixth wrong password blocks the address, and then even the right one is refused", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, storageState: "playwright/.auth/site.json", extraHTTPHeaders: { "x-real-ip": testIp() } });
+  // Six wrong at once, so that the second a wrong password costs is paid once (as in TECH-005-R3)
+  const pages = await Promise.all(Array.from({ length: 6 }, () => context.newPage()));
+  for (const page of pages) await goto(page, "/admin");
+  for (const page of pages) {
+    await page.getByLabel("Adminlösenord").fill("fel lösenord");
+    await page.getByRole("button", { name: "Logga in" }).click();
+  }
+  for (const page of pages) await expect(page.getByRole("alert").filter({ hasText: "Fel lösenord." })).toHaveText("Fel lösenord.");
+
+  const page = pages[0];
+  await goto(page, "/admin");
+  await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
+  await page.getByRole("button", { name: "Logga in" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "För många försök. Försök igen om en stund." })).toHaveText("För många försök. Försök igen om en stund.");
+  expect((await context.cookies()).filter((c) => c.name === ADMIN_COOKIE)).toEqual([]);
+  await context.close();
+});
+
 test("MUPP-003-R2 R8 with no parent the page offers one form, Skapa huvudadministratör, with Gustav filled in", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await adminSignIn(page);
@@ -631,4 +651,3 @@ test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a ki
   await page.keyboard.press("Enter");
   await expect(birthday.getByRole("heading", { level: 3, name: "Pussel" })).toHaveCount(0);
 });
-
