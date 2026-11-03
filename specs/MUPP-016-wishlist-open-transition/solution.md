@@ -36,5 +36,6 @@ None.
 
 - The card's checks and review: [Verification](verification.md), [Review](review.md); the flow: [flow.mmd](flow.mmd).
 - Documentation: [Start page](../../wiki/system/start-page.md), [Design](../../wiki/system/design.md), `DESIGN.md`, [Start page manual](../../wiki/manual/startsidan.md).
+- **Changed later by [MUPP-029](../MUPP-029-single-kid-close-motion/solution.md):** on a card with one kid the list now grows out of the button (`growScale`) and shrinks back into it (`shrinkTo`); `sinkAway` and `.wish-slide` are gone.
 
 [Specifications](../index.md)

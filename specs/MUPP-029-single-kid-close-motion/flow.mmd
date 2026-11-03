@@ -1,0 +1,16 @@
+%% MUPP-029 Single-kid wish list close motion
+%% Opening and closing the list on a card with one kid.
+flowchart TD
+    A[Closed card, Önskelista button] -->|press| B[Button measured, list opens - R1]
+    B --> C{Reduced motion?}
+    C -- yes --> D[List in place at once - R3]
+    C -- no --> E[growScale: list moved and scaled from the button box, fades in, 300 ms - R1 R2]
+    E --> F[Open list, focus on Fäll ihop önskelistan]
+    D --> F
+    F -->|fold-up arrow or Esc| G[Ghost copy made, real list closed at once, button back with focus]
+    G --> H{Reduced motion?}
+    H -- yes --> I[No copy, closed at once - R3]
+    H -- no --> J[shrinkTo: copy moved and scaled onto the button, fades, 300 ms - R1 R2]
+    J --> K[Copy removed, nothing left]
+    J -->|press Önskelista during the motion| L[Copy removed at once, list opens - R1]
+    L --> E

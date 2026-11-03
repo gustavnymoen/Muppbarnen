@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, settledBox, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, type Box, expectNoA11yViolations, expectOnto, ghost, goto, pageAnimationsDone, runsLocally, settledBox, transformsOf, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -9,8 +9,6 @@ test.skip(!runsLocally, "needs the local test database");
 
 const card = (page: Page) => page.getByRole("article");
 const region = (page: Page) => card(page).getByRole("region", { name: "Önskelista" });
-// Kopian som rör sig när en lista stängs (transition.ts): ligger i body, inert och dold för skärmläsare
-const ghost = (page: Page) => page.locator("body > [inert][aria-hidden=true]");
 
 test.beforeEach(async () => {
   await clearFamily();
@@ -55,60 +53,10 @@ function cutOut(clipPath: string, width: number, height: number) {
   return { x: left, y: top, width: width - left - right, height: height - top - bottom };
 }
 // Utsnittet ska ligga där knappen satt (båda i sidans koordinater), med kortets övre vänstra hörn som nollpunkt
-type Box = { x: number; y: number; width: number; height: number };
 function expectCutOut(clipPath: string, size: { width: number; height: number }, button: Box, cardBox: Box) {
   const cut = cutOut(clipPath, size.width, size.height);
   for (const [got, want] of [[cut.x, button.x - cardBox.x], [cut.y, button.y - cardBox.y], [cut.width, button.width], [cut.height, button.height]]) expect(got).toBeCloseTo(want, 0);
 }
-
-// Den stängda vyn krymper (MUPP-022): sista bildrutan flyttar och skalar kopian från vyns ruta till knappens
-async function shrunkTo(el: Locator, button: Box, view: Box) {
-  const transform = await el.evaluate((node) => String(node.getAnimations().flatMap((a) => (a.effect as KeyframeEffect).getKeyframes()).findLast((k) => k.transform)?.transform));
-  const [dx, dy, sx, sy] = (transform.match(/-?[\d.]+(?=px|,|\))/g) ?? []).map(Number);
-  for (const [got, want] of [[dx, button.x - view.x], [dy, button.y - view.y], [sx, button.width / view.width], [sy, button.height / view.height]]) expect(got).toBeCloseTo(want, 1);
-}
-
-test("MUPP-016-R1 the single kid list slides up, ends in place and is usable", async ({ page }) => {
-  await oneKid(page);
-  await card(page).getByRole("button", { name: "Önskelista", exact: true }).click();
-  // Glider upp och tonar in, och den gamla utrullningen uppifrån används inte längre
-  const names = await region(page).evaluate((el) => el.getAnimations().map((a) => (a as CSSAnimation).animationName));
-  expect(names).toEqual(["wish-slide"]);
-  await animationsDone(card(page));
-  await expect(region(page)).toBeVisible();
-  await expect(region(page).getByRole("button", { name: "Cykel" })).toBeVisible();
-  await expect(card(page).getByRole("button", { name: "Fäll ihop önskelistan" })).toBeFocused();
-  expect(await region(page).evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).isIdentity)).toBe(true);
-  await region(page).getByRole("button", { name: "Cykel" }).click();
-  await expect(region(page).getByText("Beskrivning").or(region(page).getByRole("button", { name: "Cykel", expanded: true }))).toBeVisible();
-  await expectNoA11yViolations(page);
-});
-
-test("MUPP-016-R2 the single kid list slides down when closed, and can be opened again at once", async ({ page }) => {
-  await oneKid(page);
-  const open = card(page).getByRole("button", { name: "Önskelista", exact: true });
-  await open.click();
-  await animationsDone(card(page));
-  await card(page).getByRole("button", { name: "Fäll ihop önskelistan" }).click();
-  // Listan är stängd och knappen är tillbaka med fokus; det som glider ner är en kopia
-  await expect(region(page)).toHaveCount(0);
-  await expect(open).toBeFocused();
-  await expect(ghost(page)).toHaveCount(1);
-  expect(await ghost(page).evaluate((el) => el.getAnimations().length)).toBe(2); // rörelsen och tonandet (MUPP-025)
-  await pageAnimationsDone(page);
-  await expect(ghost(page)).toHaveCount(0);
-  await expectNoA11yViolations(page);
-
-  // Esc stänger på samma sätt, och ett nytt tryck medan den glider ner öppnar listan igen
-  await open.click();
-  await animationsDone(card(page));
-  await page.keyboard.press("Escape");
-  await expect(ghost(page)).toHaveCount(1);
-  await open.click();
-  await expect(ghost(page)).toHaveCount(0);
-  await expect(region(page)).toBeVisible();
-  await expect(region(page)).toHaveCount(1);
-});
 
 for (const kind of ["birthday", "christmas"] as const) {
   const name = kind === "birthday" ? "the card with several kids" : "the Christmas card";
@@ -145,7 +93,7 @@ for (const kind of ["birthday", "christmas"] as const) {
       await expect(region(page)).toHaveCount(0);
       await expect(open).toBeFocused();
       await expect(ghost(page)).toHaveCount(1);
-      await shrunkTo(ghost(page), button, view);
+      expectOnto((await transformsOf(ghost(page))).at(-1)!, view, button);
       await pageAnimationsDone(page);
       await expect(ghost(page)).toHaveCount(0);
       // Det stängda läget är detsamma efter alla tre, så axe körs en gång (TECH-014)
@@ -159,7 +107,7 @@ for (const kind of ["birthday", "christmas"] as const) {
     await animationsDone(card(page));
     const moved = await settledBox(card(page));
     await page.keyboard.press("Escape");
-    await shrunkTo(ghost(page), await settledBox(open), moved);
+    expectOnto((await transformsOf(ghost(page))).at(-1)!, moved, await settledBox(open));
     await expect(ghost(page)).toHaveCount(0);
   });
 }
@@ -168,17 +116,6 @@ test.describe("with reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   // Övergångar av färg (ett tryck som mörknar knappen) är ingen rörelse; det som inte får finnas är animationer
   const noMotion = (page: Page) => page.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSTransition)).map((a) => (a as CSSAnimation).animationName ?? "web-animation"));
-
-  test("MUPP-016-R5 the single kid list opens and closes at once, without movement", async ({ page }) => {
-    await oneKid(page);
-    await card(page).getByRole("button", { name: "Önskelista", exact: true }).click();
-    await expect(region(page)).toBeVisible();
-    expect(await noMotion(page)).toEqual([]);
-    await card(page).getByRole("button", { name: "Fäll ihop önskelistan" }).click();
-    await expect(region(page)).toHaveCount(0);
-    await expect(ghost(page)).toHaveCount(0);
-    expect(await noMotion(page)).toEqual([]);
-  });
 
   for (const kind of ["birthday", "christmas"] as const) {
     test(`MUPP-016-R5 the kid's view on the ${kind} card opens and closes at once, without movement`, async ({ page }) => {
