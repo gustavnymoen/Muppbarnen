@@ -398,7 +398,8 @@ export async function clearList(actor: Parent | null, rawChildId: unknown, rawOc
   const occasion = parseOccasion(rawOccasion);
   if (!child || !occasion) return NOT_ALLOWED;
   const ids = (await listWishlists(child, today))[occasion].map((item) => item.id);
-  if (ids.length > 0) await run(`DELETE FROM wishlist_item WHERE id IN (${ids.map(() => "?").join(", ")})`, ids);
+  // Id:na som en JSON-lista i en parameter, så att frågan är samma text oavsett hur många de är
+  await run("DELETE FROM wishlist_item WHERE id IN (SELECT value FROM json_each(?))", [JSON.stringify(ids)]);
   return { ok: true };
 }
 

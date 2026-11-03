@@ -12,7 +12,7 @@ feature: MUPP-031
 **Result:** Passed
 **Date:** 2026-11-03, review run 2
 **Summary:** The must-fix from run 1 is resolved: the user decided R6 by the dates only ("Beräknad" before the birthdate, "Född" from day 0 to day 30, then "Fyller 1 år"), the card says so and notes the change to MUPP-011-R3, and the card, code, tests, solution, verification and wiki agree. No `child.added_at` is left.
-**Security:** Passed. Unchanged since run 1; migration 004 now only adds `wishlist_item.added_at`, shown on a copy to change nothing else.
+**Security:** Passed. Unchanged since run 1; migration 004 now only adds `wishlist_item.added_at`, shown on a copy to change nothing else. After the review, CI's Semgrep rule `sql-built-from-text` blocked the `IN (?, …)` that `clearList` built from text; it now passes the ids as one JSON parameter (`json_each(?)`), so the query is fixed text.
 
 ### Must fix
 
