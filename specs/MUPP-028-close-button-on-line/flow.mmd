@@ -1,0 +1,13 @@
+%% MUPP-028 Wish list close button on the line
+%% The open list and its fold-up button.
+flowchart TD
+    A[Visitor opens the wish list] --> B[List box with the button on its bottom line, focus on the button - R1 R2]
+    B --> C{One kid on the card?}
+    C -- yes --> D[Arrow up: Fäll ihop önskelistan]
+    C -- no --> E[Cross: Stäng önskelistan]
+    B --> F{Wishes marked?}
+    F -- yes --> G[Paxa n as the last row - R3]
+    F -- no --> H[No Paxa row]
+    G --> I[Claim dialog - MUPP-005]
+    D --> J[List folded up, focus on Önskelista]
+    E --> K[Back to the kids or Julafton, focus on the kid's button]

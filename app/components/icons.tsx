@@ -78,6 +78,12 @@ export const ChevronUpIcon = () => (
   </Icon>
 );
 
+export const CrossIcon = () => (
+  <Icon>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </Icon>
+);
+
 // Ett "i" i en cirkel: förklaringen till en rad
 export const InfoIcon = () => (
   <Icon>

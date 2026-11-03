@@ -59,8 +59,9 @@ async function backJourney(page: Page, open: Locator, backName: string) {
   await expect(back).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(card(page).getByRole("button", { name: "Storlekar", exact: true })).toBeFocused();
+  // sedan rutan med listans rader, som går att scrolla med tangentbordet (MUPP-028)
   await page.keyboard.press("Tab");
-  await expect(region(page)).toBeFocused();
+  await expect(region(page).getByRole("group", { name: "Önskningar" })).toBeFocused();
 
   // R2: som Stäng; alla barn syns, fokus på barnets knapp och markeringarna är borta
   await back.click();

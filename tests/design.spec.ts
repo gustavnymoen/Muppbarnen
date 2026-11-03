@@ -569,16 +569,19 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
   }
 });
 
-test("MUPP-013-R5 MUPP-005-R6 an open wish list swaps the wish button for a small arrow button, centred at the bottom of the list, that stays there when the list scrolls and closes the list", async ({ page }) => {
+test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish button for a 32 px button on the bottom line of the list, an arrow up or a cross, that covers no row and closes the list", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
     const parent = await addParent(uniqueName("Förälder"));
-    // Born in 20 days, so that the birthday card is the next one whatever the date is
+    // Born in 20 days, so that the birthday card is the next one whatever the date is; the twins' card comes after it
     const today = swedishToday();
     const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
     const child = await addChild(parent, "Vera", `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`);
     for (let i = 1; i <= 30; i++) await addWish(child, "birthday", `Önskning ${i}`);
+    const twins = birthdateIn(40).birthdate;
+    await addChild(parent, "Alma", twins);
+    await addChild(parent, "Alva", twins);
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
     const card = page.getByRole("article");
@@ -590,40 +593,86 @@ test("MUPP-013-R5 MUPP-005-R6 an open wish list swaps the wish button for a smal
     await wishButton.click();
 
     // The wish button is gone and the arrow up has the focus
-    const region = card.getByRole("region", { name: "Önskelista" });
+    let region = card.getByRole("region", { name: "Önskelista" });
     const close = region.getByRole("button", { name: "Fäll ihop önskelistan" });
+    const rows = region.getByRole("group", { name: "Önskningar" });
     await expect(wishButton).toHaveCount(0);
     await expect(close).toBeFocused();
-    const corner = async () => {
-      const [regionBox, closeBox] = await Promise.all([settledBox(region), settledBox(close)]);
-      return { middle: closeBox.x + closeBox.width / 2 - (regionBox.x + regionBox.width / 2), bottom: regionBox.y + regionBox.height - (closeBox.y + closeBox.height), width: closeBox.width, height: closeBox.height };
+    await animationsDone(region);
+
+    // MUPP-028-R1 R2: a 32 px circle, centred on the bottom edge line of the box, with a 44 px target, and the rows end above it
+    const onTheLine = async (button: typeof close) => {
+      const [box, rowsBox, buttonBox] = await Promise.all([settledBox(region), settledBox(rows), settledBox(button)]);
+      expect(buttonBox.width).toBe(32);
+      expect(buttonBox.height).toBe(32);
+      expect(parseFloat(await css(button, "border-top-left-radius"))).toBeGreaterThanOrEqual(16);
+      expect(Math.abs(buttonBox.x + buttonBox.width / 2 - (box.x + box.width / 2))).toBeLessThan(1);
+      expect(Math.abs(buttonBox.y + buttonBox.height / 2 - (box.y + box.height))).toBeLessThan(1.5);
+      expect(rowsBox.y + rowsBox.height).toBeLessThanOrEqual(buttonBox.y + 0.5);
+      // The target reaches 22 px from the centre in every direction
+      const [cx, cy] = [buttonBox.x + 16, buttonBox.y + 16];
+      for (const [dx, dy] of [[-21, 0], [21, 0], [0, -21], [0, 21]]) {
+        expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest("button")?.id, [cx + dx, cy + dy])).toBe(await button.getAttribute("id"));
+      }
+      return buttonBox;
     };
-    // The list is long enough to scroll, and the button is small, 44 px high and centred at the bottom
-    expect(await region.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
-    const before = await corner();
-    expect(Math.abs(before.middle)).toBeLessThan(2);
-    expect(before.bottom).toBeLessThan(20);
-    expect(before.height).toBeGreaterThanOrEqual(44);
-    expect(before.width).toBeLessThan(120);
+    expect(await rows.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    const before = await onTheLine(close);
     await expectNoA11yViolations(page);
 
-    // It stays in place when the list is scrolled
-    await region.evaluate((el) => el.scrollTo(0, el.scrollHeight / 2));
-    const scrolled = await corner();
-    expect(Math.abs(scrolled.bottom - before.bottom)).toBeLessThan(1);
-    expect(Math.abs(scrolled.middle - before.middle)).toBeLessThan(1);
+    // It stays in place when the list is scrolled, and at the end the last row is fully visible and can be pressed
+    await rows.evaluate((el) => el.scrollTo(0, el.scrollHeight / 2));
+    expect(await onTheLine(close)).toEqual(before);
+    await rows.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    const last = region.getByRole("button", { name: "Önskning 30" });
+    const [lastBox, rowsBox] = [await settledBox(last), await settledBox(rows)];
+    expect(lastBox.y + lastBox.height).toBeLessThanOrEqual(rowsBox.y + rowsBox.height + 0.5);
+    await last.click();
+    await expect(last).toHaveAttribute("aria-expanded", "true");
+
+    // The focus ring from the keyboard is drawn in full: 3 px out from the button, inside the card
+    await close.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(close).toHaveCSS("outline-width", "3px");
+    const cardBox = await settledBox(card);
+    expect(before.y + before.height + 6).toBeLessThanOrEqual(cardBox.y + cardBox.height);
+
+    // MUPP-028-R3: marking the top wish of a long list shows "Paxa (1)" at once, in a fixed row under the rows, and it stays when the list scrolls
+    await rows.evaluate((el) => el.scrollTo(0, 0));
+    await region.getByRole("checkbox", { name: "Önskning 1", exact: true }).check();
+    const claim = region.getByRole("button", { name: /^Paxa \(/ });
+    await expect(claim).toBeInViewport({ ratio: 1 });
+    const claimAt = await settledBox(claim);
+    expect((await settledBox(rows)).y + (await settledBox(rows)).height).toBeLessThanOrEqual(claimAt.y + 0.5);
+    await rows.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    expect(await settledBox(claim)).toEqual(claimAt);
+    expect(await onTheLine(close)).toEqual(before);
 
     // It closes the list and unlocks the deck, with the focus back on the wish button
     await close.click();
     await expect(region).toHaveCount(0);
     await expect(wishButton).toBeFocused();
     await expect(page.getByRole("button", { name: "Nästa kort" })).toBeEnabled();
+
+    // On the twins' card the button is a cross in the same place and size, and its focus ring fits the card too
+    await page.getByRole("button", { name: "Nästa kort" }).click();
+    await animationsDone(card);
+    await card.getByRole("button", { name: /^Önskelista för Alma/ }).click();
+    region = card.getByRole("region", { name: "Önskelista" });
+    await animationsDone(card);
+    const cross = region.getByRole("button", { name: "Stäng önskelistan" });
+    const crossBox = await onTheLine(cross);
+    expect(await cross.locator("path").getAttribute("d")).toBe("M6 6l12 12M18 6 6 18");
+    const twinsBox = await settledBox(card);
+    expect(crossBox.y + crossBox.height + 6).toBeLessThanOrEqual(twinsBox.y + twinsBox.height);
+    await expectNoA11yViolations(page);
   } finally {
     await clearFamily();
   }
 });
 
-test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 the wish rows and the claim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
+test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 the wish rows and the claim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -686,12 +735,20 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 the wish rows and the claim dialog:
     expect(tickTarget.width).toBeGreaterThanOrEqual(44);
     expect(tickTarget.height).toBeGreaterThanOrEqual(44);
 
-    // "Paxa" is a main button of 44 px next to the arrow button, both centred at the bottom of the list
-    await region.getByRole("checkbox", { name: "Cykel" }).check();
+    // MUPP-028-R3: "Paxa" is a main button of 44 px, centred under the rows and above the arrow button, only while something is marked
     const claim = region.getByRole("button", { name: /^Paxa \(/ });
-    const [claimBox, closeBox] = [await target(claim), await target(region.getByRole("button", { name: "Fäll ihop önskelistan" }))];
+    await expect(claim).toHaveCount(0);
+    await region.getByRole("checkbox", { name: "Cykel" }).check();
+    const [claimBox, closeBox, rowsBox, regionBox] = [
+      await target(claim),
+      await target(region.getByRole("button", { name: "Fäll ihop önskelistan" })),
+      await target(region.getByRole("group", { name: "Önskningar" })),
+      await target(region),
+    ];
     expect(claimBox.height).toBeGreaterThanOrEqual(44);
-    expect(Math.abs(claimBox.y + claimBox.height / 2 - (closeBox.y + closeBox.height / 2))).toBeLessThan(2);
+    expect(claimBox.y).toBeGreaterThanOrEqual(rowsBox.y + rowsBox.height - 0.5);
+    expect(Math.abs(claimBox.x + claimBox.width / 2 - (regionBox.x + regionBox.width / 2))).toBeLessThan(1);
+    expect(claimBox.y + claimBox.height).toBeLessThanOrEqual(closeBox.y + 0.5);
     await expect(claim).toHaveCSS("background-color", BRAND);
 
     // The dialog: a card on a dark backdrop, fits the phone, the name field has the focus ring, the error is red text
