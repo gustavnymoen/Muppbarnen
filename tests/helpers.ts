@@ -140,6 +140,22 @@ export async function settledBox(locator: Locator) {
   return box!;
 }
 
+// The copy that moves when a wish list or a kid's view closes (transition.ts): in body, inert and hidden from screen readers
+export const GHOST = "body > [inert][aria-hidden=true]";
+export const ghost = (page: Page) => page.locator(GHOST);
+
+// The transforms in the keyframes of the animations running on an element, in order
+export const transformsOf = (el: Locator) =>
+  el.evaluate((node) => node.getAnimations().flatMap((a) => (a.effect as KeyframeEffect).getKeyframes()).flatMap((k) => (k.transform ? [String(k.transform)] : [])));
+
+// A wish list that grows or shrinks as a whole (transition.ts, MUPP-022, MUPP-029): `transform`
+// (translate and scale from the top left corner) moves and scales the box `from` so that it covers `to`
+export type Box = { x: number; y: number; width: number; height: number };
+export function expectOnto(transform: string, from: Box, to: Box) {
+  const [dx, dy, sx, sy] = (transform.match(/-?[\d.]+(?=px|,|\))/g) ?? []).map(Number);
+  for (const [got, want] of [[dx, to.x - from.x], [dy, to.y - from.y], [sx, to.width / from.width], [sy, to.height / from.height]]) expect(got).toBeCloseTo(want, 1);
+}
+
 // Runs axe on the page as it looks right now and requires that it breaks no
 // WCAG 2.x level A or AA rule. axe finds only some of the
 // problems; the rest is checked by hand.

@@ -116,6 +116,7 @@ Acceptance criteria:
 
 - The card was changed while building (after MUPP-017 landed on `main`, R6 no longer says the deck stays locked, since the arrows now work with an open list): R2 (the press during closing removes the ghost copy and opens; the real list is already closed), R5 (a colour change on a pressed button is not movement) and R6 (two quick presses on a single-kid card: the second lands on the fold-up arrow that sits where the button was, as before; the list is open or closed, never twice or half open).
 - The check that `reveal` is gone is in the R1 test, not in `tests/design.spec.ts` as the plan said: it reads the running animation's name, which the R1 test already has.
+- **Changed later by [MUPP-029](../MUPP-029-single-kid-close-motion/verification.md):** R1 and R2 (the single-kid list slides up and down) are replaced by MUPP-029-R1: the list grows out of the "Önskelista" button and shrinks back into it, as the view on the other cards does. Their tests, and the single-kid test of R5, moved to `tests/MUPP-029-single-kid-close-motion.spec.ts` (MUPP-029-R1 R2, MUPP-029-R3); `.wish-slide` and `sinkAway` are gone.
 
 See also: [Solution](solution.md), [Review](review.md).
 

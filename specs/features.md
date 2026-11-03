@@ -47,6 +47,7 @@ tags: [product, features]
 | [TECH-012](TECH-012-shrink-pictures/solution.md) | Shrink uploaded pictures | Shared | Review |
 | [MUPP-028](MUPP-028-close-button-on-line/solution.md) | Wish list close button on the line | Önskelista | Done |
 | [TECH-014](TECH-014-test-time/solution.md) | Test suite over its time budget | Shared | Review |
+| [MUPP-029](MUPP-029-single-kid-close-motion/solution.md) | Single-kid wish list close motion | Startsida | Ongoing |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

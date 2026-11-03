@@ -23,7 +23,7 @@ How each requirement was checked.
 | Unit tests | None new; `npm run test:unit`: 137 passed | local | Pass | 2026-11-03 |
 | Browser tests | The existing suite; `npm run test:local` passes (104 tests). One test split (MUPP-003-R1 R2 cookies, 5.2 s), two pairs merged (MUPP-022-R1 per card) | local | Pass | 2026-11-03 |
 | R1 coverage | `npx playwright test --list` before and after: 101 requirement IDs each, none missing | local | Pass | 2026-11-03 |
-| Smoke test | Unchanged (`tests/smoke.spec.ts` is not touched); Preview tests and Live tests run on the pull request and after the merge | preview, live | Not checked yet | 2026-11-03 |
+| Smoke test | Unchanged (`tests/smoke.spec.ts` is not touched); Live tests passed against production for the merge `3814d9e` (run 41611939784) | preview, live | Pass | 2026-11-03 |
 | Accessibility | Not applicable for the live checklist: no page changes. axe still runs on every page and state it ran on before; MUPP-016-R3 R4 runs it once on the closed state, which was checked three times before | local | Pass | 2026-11-03 |
 | Security | `/security-review` not needed (card): no site code changes. The admin cookie saved for the tests is made with the made-up local password and lives in `playwright/.auth/`, which Git ignores | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
@@ -45,7 +45,7 @@ The margin below 165 s is small, 2–4 s, and runs on the same code vary by abou
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (163.0 s and 161.1 s, slowest 4.5 s), and the changed tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41611939784 for `3814d9e`, 2026-11-03
 - [x] Accessibility: not applicable, visitors see no change; axe still runs on every page and state
 - [x] Requirements in the card match what was built (the two waits added to Scope with the user), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual: not applicable, nothing changes for users. System docs (`wiki/system/testing.md`) and `wiki/log.md` updated

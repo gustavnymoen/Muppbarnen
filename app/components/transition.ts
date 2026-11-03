@@ -1,4 +1,4 @@
-// Rörelsen när en önskelista öppnas och stängs (MUPP-016, MUPP-022). Bara clip-path (när en vy växer), transform och opacity, så att inget i layouten flyttar sig
+// Rörelsen när en önskelista öppnas och stängs (MUPP-016, MUPP-022, MUPP-029). Bara clip-path (när en vy växer), transform och opacity, så att inget i layouten flyttar sig
 // medan det rör sig. Med minskad rörelse görs ingenting alls.
 // Web Animations tar inte var(), så kurvan är samma som --ease-out-soft i globals.css.
 
@@ -18,11 +18,27 @@ const inset = (box: DOMRect, part: DOMRect, radius: string) =>
 export type Origin = { rect: DOMRect; radius: string };
 export const originOf = (el: Element): Origin => ({ rect: el.getBoundingClientRect(), radius: radiusOf(el) });
 
+// Flyttar och skalar en ruta `box` så att den täcker `to` (med transform-origin top left)
+const onto = (box: DOMRect, to: DOMRect) => `translate(${to.left - box.left}px, ${to.top - box.top}px) scale(${to.width / box.width}, ${to.height / box.height})`;
+
 // Barnets vy växer från knappen till hela kortet
 export function growFrom(card: HTMLElement | null, from: Origin) {
   if (!card || calm()) return;
   const full = `inset(0px round ${radiusOf(card)})`;
   card.animate({ clipPath: [inset(card.getBoundingClientRect(), from.rect, from.radius), full] }, { duration: OPEN_MS, easing: EASE });
+}
+
+// Listan på kortet med ett barn växer hel ur knappen och tonar in: samma rörelse som shrinkTo, baklänges (MUPP-029)
+export function growScale(list: HTMLElement | null, from: Origin) {
+  if (!list || calm()) return;
+  const start = onto(list.getBoundingClientRect(), from.rect);
+  list.animate(
+    [
+      { transformOrigin: "top left", transform: start, opacity: 0 },
+      { transformOrigin: "top left", transform: "none", opacity: 1 },
+    ],
+    { duration: OPEN_MS, easing: EASE },
+  );
 }
 
 // När listan stängs är det riktiga elementet borta direkt (fokus och läge är som vanligt); det som rör sig är en kopia som
@@ -69,18 +85,12 @@ function play(copy: HTMLElement, transform: string) {
   setTimeout(() => remove(copy), CLOSE_MS + 300);
 }
 
-// Barnets vy krymper hel tillbaka till knappen den kom från och tonar bort (mäts nu, så att den hamnar rätt även om sidan har scrollats
+// Barnets vy, eller listan på kortet med ett barn, krymper hel tillbaka till knappen den kom från och tonar bort (mäts nu, så att den hamnar rätt även om sidan har scrollats
 // eller bytt storlek). Bara transform och opacity: clip-path ritas om på huvudtråden och hackade på en telefon, och visade bara ett utsnitt.
 export function shrinkTo(button: HTMLElement | null) {
   const copy = ghost;
   if (!copy) return;
   if (!button) return remove(copy);
-  const [box, to] = [copy.getBoundingClientRect(), button.getBoundingClientRect()];
   copy.style.transformOrigin = "top left";
-  play(copy, `translate(${to.left - box.left}px, ${to.top - box.top}px) scale(${to.width / box.width}, ${to.height / box.height})`);
-}
-
-// Listan på kortet med ett barn glider ner mot knappen och tonar bort
-export function sinkAway() {
-  if (ghost) play(ghost, "translateY(1.5rem)");
+  play(copy, onto(copy.getBoundingClientRect(), button.getBoundingClientRect()));
 }

@@ -87,7 +87,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
   return (
     // Platsen finns bara medan listan är öppen. Raderna scrollar i en inre ruta som går att scrolla med tangentbordet; den slutar
     // ovanför knappen på kanten (pb-5), så att knappen aldrig ligger över en rad (MUPP-028-R1). mb-2 ger fokusringen plats i kortet.
-    <div id={id} aria-label="Önskelista" role="region" className={`${solo ? "wish-slide" : ""} relative mb-2 flex min-h-0 flex-1 flex-col rounded-control border border-edge bg-page/40 pb-5`}>
+    <div id={id} aria-label="Önskelista" role="region" className="relative mb-2 flex min-h-0 flex-1 flex-col rounded-control border border-edge bg-page/40 pb-5">
       <div tabIndex={0} role="group" aria-label="Önskningar" className="min-h-0 flex-1 overflow-y-auto px-3 py-1">
         {wishes.length === 0 ? (
           <p className="py-2 text-muted">Inga önskningar än.</p>

@@ -113,12 +113,5 @@ body {
 .divider-short:not(:first-child) { padding-top: 0.75rem; }
 .divider-short:not(:first-child)::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 1px; background: color-mix(in srgb, var(--color-muted) 45%, transparent); }
 
-/* Listan på kortet med ett barn glider upp när den öppnas (MUPP-016); på kort med flera barn växer hela vyn i stället */
-@keyframes wish-slide { from { transform: translateY(1.5rem); opacity: 0; } }
-.wish-slide { animation: wish-slide 250ms var(--ease-out-soft) backwards; }
-@media (prefers-reduced-motion: reduce) {
-  .wish-slide { animation: none; }
-}
-
 /* Julkortet: grön kant; bakgrunden ritas av ChristmasBackdrop */
 .christmas-card { border-color: color-mix(in srgb, var(--color-christmas-green) 55%, var(--color-edge)); }

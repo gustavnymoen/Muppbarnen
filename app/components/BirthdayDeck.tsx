@@ -9,7 +9,7 @@ import { FitName } from "./FitName";
 import { ChevronLeftIcon, ChevronRightIcon, ReturnIcon } from "./icons";
 import { ChristmasBackdrop } from "./ChristmasBackdrop";
 import { SizesButton } from "./SizesButton";
-import { dropGhost, growFrom, makeGhost, originOf, shrinkTo, sinkAway, type Origin } from "./transition";
+import { dropGhost, growFrom, growScale, makeGhost, originOf, shrinkTo } from "./transition";
 import { WishButton, WishList } from "./WishList";
 
 // Kortleken på startsidan (MUPP-004). Korten ligger på varandra: det valda överst, nästa och
@@ -41,9 +41,9 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   const swipeStart = useRef<number | null>(null);
   // Elementet som ska få fokus när listan öppnats eller stängts (knappen som tryckts kan ha försvunnit)
   const refocus = useRef<string | null>(null);
-  // Rörelsen runt öppna och stäng (MUPP-016): varifrån barnets vy växer, och hur den stängda vyn ska röra sig
-  const origin = useRef<Origin | null>(null);
-  const leaving = useRef<"shrink" | "sink" | null>(null);
+  // Rörelsen runt öppna och stäng (MUPP-016, MUPP-029): hur det som öppnas ska växa, och om det stängda ska krympa till knappen
+  const growing = useRef<(() => void) | null>(null);
+  const leaving = useRef(false);
   // Om det senaste som hände var en tangent eller ett tryck (MUPP-022)
   const byKeyboard = useRef(false);
   const count = cards.length;
@@ -53,10 +53,10 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
 
   useLayoutEffect(() => {
     const target = refocus.current ? document.getElementById(refocus.current) : null;
-    if (openList && origin.current) growFrom(document.getElementById(`karta-${openList.cardKey}`), origin.current);
-    else if (leaving.current === "shrink") shrinkTo(target);
-    else if (leaving.current === "sink") sinkAway();
-    origin.current = leaving.current = refocus.current = null;
+    if (openList) growing.current?.();
+    else if (leaving.current) shrinkTo(target);
+    growing.current = refocus.current = null;
+    leaving.current = false;
     // Utan preventScroll scrollar webbläsaren leken åt sidan för att visa ett kort som ännu glider in
     target?.focus({ preventScroll: true });
     // Efter en stängning med finger eller mus ska ringen inte ligga kvar runt knappen (iOS visar den annars); tangentbordet får den som vanligt
@@ -68,13 +68,22 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
 
   if (count === 0) return <Card as="section" className="mt-3">Inga barn har lagts till än.</Card>;
 
-  const open = (card: DeckCard, kid: DeckKid) => {
+  // pressed: öppnades med en knapp på kortet (inte genom att bläddra), så att det finns något att växa ur
+  const open = (card: DeckCard, kid: DeckKid, pressed = true) => {
     // Önskelistans Stäng-knapp har samma id som önskelistknappen, så fokus hamnar på den när listan öppnas
     refocus.current = `lista-${card.key}-${kid.id}-knapp`;
     dropGhost();
-    // På kort med flera barn växer vyn ur knappen eller rutan som trycktes; kortet med ett barn glider upp av sig självt (CSS)
-    const pressed = card.kids.length > 1 ? document.getElementById(`barn-${card.key}-${kid.id}`) : null;
-    origin.current = pressed && originOf(pressed);
+    // På kort med flera barn växer hela vyn ur knappen eller rutan som trycktes, på kortet med ett barn listan ur önskelistknappen.
+    // Knappen mäts nu: när vyn har ritats finns den inte kvar
+    const multi = card.kids.length > 1;
+    const button = pressed ? document.getElementById(multi ? `barn-${card.key}-${kid.id}` : refocus.current) : null;
+    const from = button && originOf(button);
+    growing.current =
+      from &&
+      (() => {
+        if (multi) growFrom(document.getElementById(`karta-${card.key}`), from);
+        else growScale(document.getElementById(`lista-${card.key}-${kid.id}`), from);
+      });
     setOpenList({ cardKey: card.key, kidId: kid.id });
   };
 
@@ -94,7 +103,7 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
     setAnnouncement(`Kort ${next + 1} av ${count}: ${cardLabel(card)}`);
     if (!openList) return;
     // Med en lista öppen visas nästa kort med sitt barns lista öppen, eller som översikt om det har flera barn (fokus till första barnet, listan där är borta)
-    if (card.kids.length === 1) open(card, card.kids[0]);
+    if (card.kids.length === 1) open(card, card.kids[0], false);
     else {
       refocus.current = `barn-${card.key}-${card.kids[0].id}`;
       setOpenList(null);
@@ -105,7 +114,7 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
     const card = cards.find((c) => c.key === openList.cardKey)!;
     const multi = card.kids.length > 1;
     makeGhost(document.getElementById(multi ? `karta-${card.key}` : `lista-${card.key}-${openList.kidId}`));
-    leaving.current = multi ? "shrink" : "sink";
+    leaving.current = true;
     // Ett kort med flera barn går tillbaka till barnets knapp, annars stannar fokus på listknappen
     refocus.current = multi ? `barn-${card.key}-${openList.kidId}` : `lista-${card.key}-${openList.kidId}-knapp`;
     setOpenList(null);

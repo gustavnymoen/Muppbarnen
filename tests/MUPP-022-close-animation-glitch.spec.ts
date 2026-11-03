@@ -1,14 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, ghost, goto, pageAnimationsDone, runsLocally, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
 
 const card = (page: Page) => page.getByRole("article");
 const region = (page: Page) => card(page).getByRole("region", { name: "Önskelista" });
-// Kopian som rör sig när en vy stängs (transition.ts)
-const ghost = (page: Page) => page.locator("body > [inert][aria-hidden=true]");
 
 test.beforeEach(async () => {
   await clearFamily();
