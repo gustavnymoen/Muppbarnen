@@ -1,0 +1,12 @@
+%% TECH-013 Birthday card hierarchy and small phones
+%% How the closed card with one kid and the arrows adapt to the phone's size.
+flowchart TD
+    A[Closed card with one kid] --> B[Date as a text-xl label, name text-3xl - R1]
+    A --> C[Picture box takes the height left, 72-192 px, size = its shortest side, so round - R3 R4]
+    A --> D{Narrower than 23rem?}
+    D -- yes --> E[Chip text-sm on one line - R2; arrows at the deck's edge - R5]
+    D -- no --> F[Chip and arrows as before - R7]
+    A --> G{600 px high or lower?}
+    G -- yes --> H[Less padding and gaps, Storlekar clear of Önskelista - R3]
+    G -- no --> I[Spacing as before - R7]
+    J[FitName] -->|its box or the screen changes size| K[Fit again: grows back if it fits - R6]
