@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
+import { InputModality } from "./components/InputModality";
 import "./globals.css";
 
 // Typsnitten hämtas vid bygget och serveras från vår egen server
@@ -17,7 +18,10 @@ export const viewport: Viewport = { viewportFit: "cover" };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="sv" className={`${fredoka.variable} ${nunito.variable}`}>
-      <body>{children}</body>
+      <body>
+        <InputModality />
+        {children}
+      </body>
     </html>
   );
 }

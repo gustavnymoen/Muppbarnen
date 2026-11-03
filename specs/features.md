@@ -54,6 +54,7 @@ tags: [product, features]
 | [TECH-013](TECH-013-birthday-card-hierarchy/solution.md) | Birthday card hierarchy and small phones | Startsida | Done |
 | [MUPP-031](MUPP-031-month-after/solution.md) | Wish list stays a month after the occasion | Önskelista | Done |
 | [MUPP-007](MUPP-007-remove-claimed/solution.md) | Warning when removing claimed gifts | Administration | Done |
+| [MUPP-032](MUPP-032-quiet-focus-after-tap/solution.md) | No focus ring after a tap | Shared | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

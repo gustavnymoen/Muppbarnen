@@ -23,6 +23,8 @@ None.
 
 ## Decisions
 
+- **Replaced by MUPP-032.** The ring special case (`byKeyboard`, `data-quiet-focus`) was replaced by one site-wide rule ([MUPP-032](../MUPP-032-quiet-focus-after-tap/solution.md)); the rest of this page still holds.
+
 - **Cause of the motion fault.** `clip-path` on a copy of the whole card showed a shrinking cut-out of the big view, not the view itself shrunk (the picture was not whole), and `clip-path` is repainted on the main thread on every frame, which stutters on a phone. `transform` and `opacity` run on the compositor. The opening motion still uses `clip-path` (not reported, and it reveals a view that grows, which reads right); it can be changed the same way if it turns out to stutter.
 - **Scaled non-uniformly.** The copy is scaled to the exact box of the button (different scale in x and y), so it lands on the button; the content is distorted a little for 200 ms while it fades, which is hardly visible.
 - **Cause of the ring.** It is the site's own focus ring (`:focus-visible`, 3 px) on the tile that gets the focus when the view closes (MUPP-013), cut off at the top and right by the tile list's `overflow-y-auto`. iOS Safari shows it after a touch where Chrome does not, so it can only be seen on a phone. The fix is on the site's side: the ring is only for the keyboard (WCAG 2.4.7 still holds, the focus is moved and the ring shows for keys). Chromium shows no ring after a click, so the test checks the attribute that hides it as well as the computed outline.

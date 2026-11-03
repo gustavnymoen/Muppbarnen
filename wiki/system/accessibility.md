@@ -26,6 +26,10 @@ Every page or state that a feature adds or changes gets one call, in that featur
 | `/admin/barn/<id>/onskelistor` | The removal dialog with the claimed-present warning | `tests/MUPP-007-remove-claimed.spec.ts` |
 | … | (each feature adds a row for the pages and states it checks) | … |
 
+## The focus ring after a tap
+
+The focus ring (`:focus-visible`, 3 px, brand colour) is for the keyboard. WebKit on a phone also draws it on an element that got the focus from a tap, for example the first button of a dialog opened with `showModal()` or the scroll box that gets the focus when a dialog closes, where Chromium doesn't. So `InputModality` (`app/components/InputModality.tsx`, in the root layout) sets `data-pointer` on `<html>` at every `pointerdown` and removes it at every `keydown`, and `html[data-pointer] :focus-visible { outline: none }` in `app/globals.css` hides the ring while the last input was a pointer. Where the focus goes is not changed. Any key shows the ring again, also Tab and Escape. Assistive technology that activates a control without a key or pointer event counts as a pointer, so the ring stays hidden for it until the next key. Only WebKit shows the fault, so it is tested in `tests/MUPP-032-quiet-focus-after-tap.webkit.spec.ts` (`npm run test:webkit`); a new dialog needs no extra work ([MUPP-032](../../specs/MUPP-032-quiet-focus-after-tap/solution.md)).
+
 ## The manual checklist
 
 | # | Check | WCAG | How |

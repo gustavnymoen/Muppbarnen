@@ -58,8 +58,9 @@ body {
   outline: 3px solid var(--color-brand);
   outline-offset: 3px;
 }
-/* Knappen som fick fokus av att en vy stängdes med ett finger eller en mus (MUPP-022): ringen behövs bara för tangentbordet */
-[data-quiet-focus]:focus-visible { outline: none; }
+/* Efter ett tryck eller klick (InputModality sätter data-pointer på html tills nästa tangent) behövs ingen ring: iOS ger den annars
+   till dialogens första knapp och till rutan som får fokus när dialogen stängs (MUPP-032, tidigare MUPP-022) */
+html[data-pointer] :focus-visible { outline: none; }
 
 /* Kort som tonar in: bara transform och opacity, högst 300 ms */
 @keyframes enter {

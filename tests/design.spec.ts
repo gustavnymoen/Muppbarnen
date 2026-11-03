@@ -751,7 +751,7 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 MUPP-006-R1 R2 the wish
     expect(claimBox.y + claimBox.height).toBeLessThanOrEqual(closeBox.y + 0.5);
     await expect(claim).toHaveCSS("background-color", BRAND);
 
-    // The dialog: a card on a dark backdrop, fits the phone, the name field has the focus ring, the error is red text
+    // The dialog: a card on a dark backdrop, fits the phone, the name field has no focus ring after a tap and the ring after a key, the error is red text
     await claim.click();
     const dialog = page.getByRole("dialog");
     await animationsDone(dialog);
@@ -763,6 +763,8 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 MUPP-006-R1 R2 the wish
     expect(box.y + box.height).toBeLessThanOrEqual(667);
     const name = dialog.getByLabel("Ditt namn");
     await expect(name).toBeFocused();
+    await expect(name).toHaveCSS("outline-style", "none");
+    await page.keyboard.press("Shift");
     await expect(name).toHaveCSS("outline-width", "3px");
     await expect(name).toHaveCSS("outline-color", BRAND);
     expect((await target(name)).height).toBeGreaterThanOrEqual(44);

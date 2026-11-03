@@ -82,8 +82,8 @@ for (const { name, prepare, open } of cards) {
     await twoKids(page);
     await prepare(page);
     const outline = () => open(page).evaluate((node) => getComputedStyle(node).outlineStyle);
-    // Chromium visar ändå ingen ring efter ett tryck (iOS gör det), så märket som döljer ringen kontrolleras också
-    const quiet = (on: boolean) => (on ? expect(open(page)).toHaveAttribute("data-quiet-focus", "") : expect(open(page)).not.toHaveAttribute("data-quiet-focus"));
+    // Chromium visar ändå ingen ring efter ett tryck (iOS gör det), så märket som döljer ringen (MUPP-032) kontrolleras också
+    const quiet = (on: boolean) => (on ? expect(page.locator("html")).toHaveAttribute("data-pointer", "") : expect(page.locator("html")).not.toHaveAttribute("data-pointer"));
 
     // Med musen eller fingret: Stäng och Tillbaka lämnar knappen fokuserad men utan ring
     for (const button of [/^Tillbaka/, /^Stäng/]) {

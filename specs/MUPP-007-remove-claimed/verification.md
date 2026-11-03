@@ -22,7 +22,7 @@ How each requirement was checked.
 | Unit tests | `lib/family.test.ts`; `npm run test:unit` 162 passed. No helper is exported, so no test of the text itself (see solution.md) | local | Pass | 2026-11-03 |
 | Browser tests | `tests/MUPP-007-remove-claimed.spec.ts` (2 tests); `npm run test:time` 114 passed | local | Pass | 2026-11-03 |
 | Smoke test | Not applicable: admin only, the card names none | | | |
-| Accessibility | axe on the dialog with the warning; the checklist on the live site: **not checked** (after the deploy) | local | Pass (axe); live not checked | 2026-11-03 |
+| Accessibility | axe on the dialog with the warning; the checklist on the live site for the dialog with the warning: checked by the user (reported 2026-11-03), with no per-item results given | local, live | Pass (axe); live checklist reported done | 2026-11-03 |
 | Security | Security points in the review; `/security-review`: no findings | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
 
@@ -37,10 +37,10 @@ Two browser tests (about 1 s each) and one unit test added; within the 180 s bud
 
 ## Definition of Done
 
-- [x] Tests: every check in the card's test plan is done (except the live checklist); `npm run test:unit` and `npm run test:local` pass
+- [x] Tests: every check in the card's test plan is done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, after the merge
-- [ ] Accessibility: axe passes; the live checklist is not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41710903767 on `main` at the merge commit `3364019` succeeded (2026-11-03)
+- [x] Accessibility: axe passes; the live checklist for the dialog is checked by the user (reported 2026-11-03)
 - [x] Requirements in the card match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
