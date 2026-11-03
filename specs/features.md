@@ -50,7 +50,7 @@ tags: [product, features]
 | [TECH-014](TECH-014-test-time/solution.md) | Test suite over its time budget | Shared | Review |
 | [MUPP-029](MUPP-029-single-kid-close-motion/solution.md) | Single-kid wish list close motion | Startsida | Done |
 | [MUPP-030](MUPP-030-open-list-header/solution.md) | Open wish list gets the room | Startsida | Done |
-| [MUPP-006](MUPP-006-unclaim-gifts/solution.md) | Unclaim gifts | Startsida | Ongoing |
+| [MUPP-006](MUPP-006-unclaim-gifts/solution.md) | Unclaim gifts | Startsida | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 
