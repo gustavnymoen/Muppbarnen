@@ -23,7 +23,7 @@ How each requirement was checked.
 | Unit tests | Not applicable: no logic (the card says none); `npm run test:unit` passes, 137 tests | local | Pass | 2026-11-03 |
 | Browser tests | As above, in `tests/design.spec.ts` at 375 × 667 and 320 × 568 for the three open views, and in MUPP-004; the whole `npm run test:local` passes, 103 tests | local | Pass | 2026-11-03 |
 | Smoke test | Not needed: no page or flow is added | – | – | – |
-| Accessibility | `expectNoA11yViolations` on the open single-kid view in the design test (both sizes), and on the open twins' and Christmas views in MUPP-004; the name is still the view's `h3`. The checklist in `wiki/system/accessibility.md` on the live site and the check on a phone: not checked yet (after the merge) | local | Pass (local); live not checked | 2026-11-03 |
+| Accessibility | `expectNoA11yViolations` on the open single-kid view in the design test (both sizes), and on the open twins' and Christmas views in MUPP-004; the name is still the view's `h3`. The check on a phone: done by the user (live, 2026-11-03). The checklist in `wiki/system/accessibility.md` on the live site: not checked yet | local, live | Pass (local, phone); checklist live not checked | 2026-11-03 |
 | Security | Security points in the review: passed; `/security-review` not needed (presentation only) | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
 
@@ -40,10 +40,10 @@ No new test: the checks are added to the existing per-size test of the open kid 
 
 ## Definition of Done
 
-- [x] Tests: every check in the card's test plan is done (the phone check is after the merge, below); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
+- [x] Tests: every check in the card's test plan is done (the phone check by hand is the user's, below); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (162.8 s, slowest 4.3 s), and the new checks follow the quality rules in `wiki/system/testing.md` (`settledBox`, `animationsDone`, no fixed waits)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes on the changed states; the checklist items on the live site and the phone check are after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41625212488 against the merge `c70e6749`, passed (2026-11-03)
+- [ ] Accessibility: axe passes on the changed states; the phone check is done (the user, 2026-11-03); the checklist items on the live site are not checked yet
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`, `DESIGN.md`) and `wiki/log.md` updated
 - [x] No leftovers: the 72 px picture and the open view's age line and chip are gone; nothing else became unused

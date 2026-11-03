@@ -23,7 +23,7 @@ How each requirement was checked.
 | Unit tests | None: no logic that can be tested alone (`growScale` and `onto` measure the page); `npm run test:unit`: 137 passed | local | Pass | 2026-11-03 |
 | Browser tests | `tests/MUPP-029-single-kid-close-motion.spec.ts` (2 tests). They replace MUPP-016's single-kid tests (R1, R2 and the single-kid R5), which tested the slide this card removes. `expectOnto`, `transformsOf`, `GHOST`/`ghost` and `Box` moved to `tests/helpers.ts` and are shared with the MUPP-016, MUPP-022 and MUPP-025 tests. The WebKit test of MUPP-025 got a MUPP-029-R2 test, run by hand: `npm run test:webkit`, 2 passed | local | Pass | 2026-11-03 |
 | Smoke test | Not needed (card): no page or flow is added or changed | – | Not applicable | 2026-11-03 |
-| Accessibility | `expectNoA11yViolations` on the closed card after the motion (MUPP-029-R1 R2); focus ends on the same element as before (fold-up arrow when opened, "Önskelista" when closed). The phone check by hand: done by the user on their iPhone (live, 2026-11-03). The checklist item 11 (reduced motion) on the live site: not checked yet | local, live | Pass (local, phone); item 11 live not checked | 2026-11-03 |
+| Accessibility | `expectNoA11yViolations` on the closed card after the motion (MUPP-029-R1 R2); focus ends on the same element as before (fold-up arrow when opened, "Önskelista" when closed). The phone check by hand: done by the user on their iPhone (live, 2026-11-03). The checklist item 11 (reduced motion) on the live site: checked by the user (2026-11-03) | local, live | Pass | 2026-11-03 |
 | Security | Security points in the review; `/security-review` not needed (card): presentation only | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
 | Design | Impeccable critique on the running site at 375 px (one context, not two sub-agents): detector clean, frozen frames of the opening and the closing; see [solution.md](solution.md) | local | Pass | 2026-11-03 |
@@ -44,7 +44,7 @@ Three MUPP-016 single-kid tests became two MUPP-029 tests, so the suite is one t
 - [x] Tests: every check in the card's test plan is done (the phone check by hand is the user's, below); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (161.6 s, slowest 4.2 s), and the new tests follow the quality rules in `wiki/system/testing.md` (`goto`, `animationsDone`, `pageAnimationsDone`, no fixed waits)
 - [x] Deployed, and the smoke tests pass against production (Live tests): Live tests run 41614915709 for the merge `f144028`, passed (2026-11-03)
-- [ ] Accessibility: axe passes on the changed state; the phone check on the live site is done (the user, 2026-11-03); the checklist item 11 on reduced motion on the live site is not checked yet
+- [x] Accessibility: axe passes on the changed state; the phone check on the live site is done (the user, 2026-11-03); the checklist item 11 on reduced motion on the live site is checked (the user, 2026-11-03)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`, `wiki/system/design.md`, `DESIGN.md`) and `wiki/log.md` updated
 - [x] No leftovers: `sinkAway`, `.wish-slide` and its class are removed, and the copied test helpers are shared
