@@ -42,7 +42,7 @@ How each requirement was checked.
 
 - [x] Tests: every check in the card's test plan is done (the live accessibility checklist after the deploy); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (169.5 s of 180 s, +0.5 % against TECH-010's 168.6 s; slowest 4.4 s of 5 s), and the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41648268605 against the merge `6660ace8` passed (2026-11-03)
 - [ ] Accessibility: axe passes on the changed states; the checklist in `wiki/system/accessibility.md` on the live site (button name, the arrow's contrast, focus after the dialog, the status line): after the deploy
 - [x] Requirements in the card match what was built (rewritten with the user on 2026-11-03: one claim at a time with an undo arrow, "Ta bort" on the confirm button), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`, `DESIGN.md`) and `wiki/log.md` updated
@@ -102,6 +102,7 @@ Acceptance criteria:
 
 ## Notes
 
+- After the deploy the user tried it on their phone (2026-11-03) and found it good. Two things they noticed went to a new card instead of this one: focus rings that show after a tap when a dialog opens and closes (all dialogs, not only this one), and the birthdate field in the admin that is wider than the page on iOS Safari. The accessibility checklist on the live site is not gone through item by item yet.
 - The first full run had 7 failures, all in the tests: three older tests looked up a row's button by the title (`getByRole("button", { name: "Hoppborg" })`), which now also matches "Ta bort paxningen på Hoppborg", so they match the start of the name; and the new tests clicked "Önskelista" while the cards faded in, which made Playwright scroll the deck sideways (not seen with a click after the animation, nor on `main` with one), so they wait for the animation first.
 - R5: without a site cookie `proxy.ts` refuses the server action with 401 before it runs, so the action's own "Du är utloggad …" never reaches the browser; the dialog shows "Något gick fel. Ladda om sidan och försök igen." (a reload leads to the password page). R5's acceptance criterion was changed to this with the user (2026-11-03).
 - Small and related (TECH-010 leftovers, carried in this change): `specs/TECH-010-flaky-thumbnail/verification.md` records that Live tests passed against production for the merge `1accb989` (run 41642127355, 2026-11-03), and `specs/features.md` lists TECH-010 as Done (card #54 is in Done on the board).
