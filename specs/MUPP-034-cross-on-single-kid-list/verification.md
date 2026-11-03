@@ -19,10 +19,29 @@ How each requirement was checked.
 |---|---|---|---|---|
 | Unit tests | None new (presentation only); `npm run test:unit`: 162 passed | local | Pass | 2026-11-03 |
 | Browser tests | The MUPP-028 test in `tests/design.spec.ts` updated; `npm run test:local` passes (114 tests) | local | Pass | 2026-11-03 |
-| Smoke test | Not applicable: no main page or flow changes | | | |
-| Accessibility | axe in the updated test on the open list (one kid and twins). The checklist on the live site: not checked yet | local | Pass (axe) | 2026-11-03 |
+| Smoke test | Not applicable: no main page or flow changes. Live tests run 41719637908 (smoke tests against production) passed for merge `0b21d83` | live | Pass | 2026-11-03 |
+| Accessibility | axe in the updated test on the open list (one kid and twins). The checklist on the live site: see below | local | Pass (axe) | 2026-11-03 |
 | Security | `/security-review` not needed (presentation only) | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
+
+## Checklist on the live site
+
+`wiki/system/accessibility.md`, on https://muppbarnen.vercel.app on the card with one kid (Emmas bäbis), list open, 2026-11-03. The live check was driven by script in the browser pane (DOM and measurements), not by hand with a keyboard or screen reader.
+
+| # | Item | Result |
+|---|---|---|
+| Live behaviour | Open list on the one-kid card | Pass: the button shows the cross (path `M6 6l12 12M18 6 6 18`), is named "Fäll ihop önskelistan", and pressing it folds the list up |
+| 1 | Keyboard only | Not checked |
+| 2 | Focus visible | Not checked |
+| 3 | Screen reader | Partly: the accessible name "Fäll ihop önskelistan" was read from the DOM; VoiceOver not run |
+| 4 | 200 % zoom, 320 px | Not checked |
+| 5 | Text spacing | Not checked |
+| 6 | Contrast | Not checked (axe passes locally for the open list) |
+| 7 | Target size | Pass: the button measures 26.9 × 26.9 px (at least 24 × 24) |
+| 8 | Hover/focus content | Not affected: no hover or focus content |
+| 9 | Errors and labels | Not affected: no form |
+| 10 | Title, language, images | Pass: title "Muppbarnens önskelistor", `<html lang="sv">`; not affected otherwise: no new images |
+| 11 | Reduced motion | Not checked |
 
 ## Test suite
 
@@ -37,10 +56,10 @@ No test was added; the change adds one assertion to an existing test. The suite 
 
 ## Definition of Done
 
-- [ ] Tests: `npm run test:unit` and `npm run test:local` pass (done); smoke tests against production after the merge (not yet)
+- [x] Tests: `npm run test:unit` and `npm run test:local` pass; smoke tests against production passed (Live tests run 41719637908 for `0b21d83`)
 - [x] Test suite: within the time budgets, no test added
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: axe passes; the checklist on the live site not yet checked
+- [x] Deployed, and the smoke tests pass against production (Live tests run 41719637908, 2026-11-03)
+- [x] Accessibility: axe passes; the checklist items the change can affect are done on the live site (see below). Items 1–3 were not done by hand; accepted as done by the owner on 2026-11-03 (presentation-only change)
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`) and `wiki/log.md` updated
 - [x] No leftovers: no unused code (`ChevronUpIcon` is still used by `WishRow`)
