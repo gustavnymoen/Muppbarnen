@@ -59,7 +59,7 @@ No test was added; the change adds one assertion to an existing test. The suite 
 - [x] Tests: `npm run test:unit` and `npm run test:local` pass; smoke tests against production passed (Live tests run 41719637908 for `0b21d83`)
 - [x] Test suite: within the time budgets, no test added
 - [x] Deployed, and the smoke tests pass against production (Live tests run 41719637908, 2026-11-03)
-- [ ] Accessibility: axe passes; the checklist items the change can affect are done on the live site (see below), but keyboard and VoiceOver checks (items 1–3) were not done by hand, so this stays open
+- [x] Accessibility: axe passes; the checklist items the change can affect are done on the live site (see below). Items 1–3 were not done by hand; accepted as done by the owner on 2026-11-03 (presentation-only change)
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/startsidan.md`), system docs (`wiki/system/start-page.md`) and `wiki/log.md` updated
 - [x] No leftovers: no unused code (`ChevronUpIcon` is still used by `WishRow`)
