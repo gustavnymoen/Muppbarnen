@@ -19,7 +19,7 @@ None.
 
 No texts change; two are left out in an open kid view. All of it is in `app/components/BirthdayDeck.tsx`:
 
-- `DeckCardView`: with a kid open (`openKid`) the card's top padding is `pt-3`, the same as the corner buttons' `top-3`, and the header is one row, `h-11` (the buttons' 44 px) with `px-9`, so the date (`h2`) is centred vertically with the buttons and kept clear of them sideways (the buttons end 56 px in, the row's text starts at 24 + 36 px) (R3). `nextMark` is `null` with a kid open (R1).
+- `DeckCardView`: with a kid open (`openKid`) the card's top padding is `pt-3`, the same as the corner buttons' `top-3`, and the header is one row, `h-11` (the buttons' 44 px) with `px-10`, so the date (`h2`) is centred vertically with the buttons and kept clear of them sideways (the buttons end 56 px in, the row's text starts at 16 + 40 px) (R3). The date never wraps (`whitespace-nowrap`) and is `text-sm` under 23rem, where about 108 px are left between the buttons. The card's side padding is `px-4` instead of `px-6` with a kid open, which gives the name row and the list 16 px more (R2). `nextMark` is `null` with a kid open (R1).
 - `KidFace`: with the list open it renders a row instead of the column: a 40 px `Avatar` and the name `h3` (`min-w-0`) holding a `FitName` in `text-2xl`, centred together with `justify-center` (R2). The age line and the "Storlekar" text button belong to the closed column only (R1; the sizes icon is in the corner since MUPP-014).
 - The closed cards take the same branches as before, so they are unchanged (R4).
 
@@ -27,6 +27,7 @@ No texts change; two are left out in an open kid view. All of it is in `app/comp
 
 - **`FitName` instead of wrapping.** It already keeps names on one line on the cards with several kids and Christmas Eve (MUPP-013-R3); in a flex row the `h3` needs `min-w-0` so that it can be narrower than the name, which is what makes `FitName` shrink it. A very long name at 320 px ends near the 12 px floor of `FitName`; the requirement chose shrinking over wrapping.
 - **The picture is held at 40 px.** A picture-less avatar (the initial) is a flex item whose smallest size is the letter's width, so a long name squeezed it to 37 px at 320 px in CI. A `shrink-0` wrapper in the open row keeps it at 40 px; `Avatar` itself is left as it is, so the closed cards are unchanged.
+- **Room for a long name at 320 px.** At 320 px the card is 224 px wide; with `px-6` the name had 128 px, and "Maximiliana-Charlotte" needs 121 px at `FitName`'s 12 px floor on a Mac and more on Linux, so CI cut it with "…" and wrapped "23 november". `px-4` gives the name 144 px, and the date gets `text-sm` and no wrapping there.
 - **`text-2xl` for the name.** Next to a 40 px picture the old `text-3xl` was taller than the picture; 24 px sits beside it and is still larger than the date.
 - **The date row is set by padding, not by moving the buttons.** The corner buttons stay absolutely placed as in MUPP-014 and MUPP-015; only the header's height and padding match them, so nothing about the buttons' tab order or tests changes.
 - **The motion is untouched.** MUPP-029's `growScale` and `shrinkTo` animate the list box only; the header above it changes at once, as the 72 px picture did before.

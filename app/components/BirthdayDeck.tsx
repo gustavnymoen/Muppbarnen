@@ -231,7 +231,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       as="article"
       id={`karta-${card.key}`}
       highlight={first ? card.kids[0].color : undefined}
-      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden px-6 ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${openKid ? "pt-3" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
+      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden ${openKid ? "px-4" : "px-6"} ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${openKid ? "pt-3" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
     >
       {christmas && <ChristmasBackdrop />}
       {/* Tillbaka till alla barn uppe till vänster, först i tabbordningen (MUPP-015); på kortet med ett barn finns inget att gå tillbaka till */}
@@ -242,10 +242,10 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       )}
       {/* Ikonen för storlekar i hörnet av varje öppen barnvy (MUPP-014-R4) */}
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
-      {/* I en öppen barnvy står datumet på raden med hörnknapparna, mellan dem (MUPP-030-R3) */}
-      <header className={`flex items-center text-center ${openKid ? "h-11 justify-center px-9" : "flex-col gap-2"}`}>
+      {/* I en öppen barnvy står datumet på raden med hörnknapparna, mellan dem (MUPP-030-R3); kortets kant är smalare så att ett långt namn ryms (R2) */}
+      <header className={`flex items-center text-center ${openKid ? "h-11 justify-center px-10" : "flex-col gap-2"}`}>
         {/* På en smal telefon krymper datumet så att det ryms på en rad, och i en öppen barnvy också för ikonerna i hörnen */}
-        <h2 className={`font-heading font-semibold ${openKid ? "text-xl max-[23rem]:text-base" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
+        <h2 className={`font-heading font-semibold ${openKid ? "text-xl whitespace-nowrap max-[23rem]:text-sm" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
