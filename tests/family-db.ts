@@ -1,5 +1,6 @@
 import { createClient } from "@libsql/client";
 import { testDbFile } from "../lib/local-db.mjs";
+import { dateIn } from "./helpers";
 
 // The admin tests make their data straight in the local test database (the one
 // scripts/test-server.mjs rebuilds on every run, never the user's own) and remove it again.
@@ -21,15 +22,16 @@ export const addChild = (parentId: number, name: string, birthdate = "2020-05-17
     Number((await db.execute({ sql: "INSERT INTO child (parent_id, name, birthdate) VALUES (?, ?, ?)", args: [parentId, name, birthdate] })).lastInsertRowid),
   );
 
-type WishDetails = { description?: string; size?: string; url?: string; unlimited?: boolean; claimedBy?: string };
+// addedAt: the day the wish was added (MUPP-031-R4), today unless the test says otherwise
+type WishDetails = { description?: string; size?: string; url?: string; unlimited?: boolean; claimedBy?: string; addedAt?: string };
 
 export const addWish = (childId: number, occasion: "birthday" | "christmas", title: string, details: WishDetails = {}) =>
   withDb(async (db) => {
     await db.execute({ sql: "INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", args: [childId, occasion] });
     const list = await db.execute({ sql: "SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", args: [childId, occasion] });
     await db.execute({
-      sql: "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, claimed_by, claimed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      args: [list.rows[0].id, title, details.description ?? "", details.size ?? "", details.url ?? "", details.unlimited ? 1 : 0, details.claimedBy ?? null, details.claimedBy ? "2026-01-15" : null],
+      sql: "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, claimed_by, claimed_at, added_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      args: [list.rows[0].id, title, details.description ?? "", details.size ?? "", details.url ?? "", details.unlimited ? 1 : 0, details.claimedBy ?? null, details.claimedBy ? "2026-01-15" : null, details.addedAt ?? dateIn(0)],
     });
   });
 

@@ -1,6 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
-import { isoDate, swedishToday, type DeckInput, type Sizes, type Wishes } from "./deck";
+import { isArchived, isoDate, occasionOf, parseDate, swedishToday, type DeckInput, type Sizes, type Today, type Wishes } from "./deck";
 import { MAX_DESCRIPTION, MAX_TITLE, collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
@@ -17,6 +17,8 @@ export type Child = {
   sizes: Sizes;
 };
 export type WishlistItem = { id: number; title: string; description: string; size: string; url: string; unlimited: boolean };
+// Ett tillfälle i arkivet (MUPP-031-R5): "Födelsedag 2025" och önskningarna, med vem som paxat dem
+export type ArchiveGroup = { key: string; date: string; name: string; items: (WishlistItem & { claimedBy: string | null })[] };
 
 // ok: det gick bra; annars ett meddelande för hela formuläret och/eller per fält
 export type Outcome<T = object> = ({ ok: true } & T) | { ok: false; error?: string; fields?: Record<string, string> };
@@ -76,29 +78,45 @@ export async function listChildren(parentId?: number) {
 type ItemRow = { id: number; title: string; description: string; size: string; url: string; unlimited: number };
 const toItem = (row: ItemRow): WishlistItem => ({ id: row.id, title: row.title, description: row.description, size: row.size, url: row.url, unlimited: row.unlimited === 1 });
 
-export async function listWishlists(childId: number) {
-  const rows = await all<{ occasion: Occasion } & ItemRow>(
-    `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited
+const ARCHIVE_NAMES: Record<Occasion, string> = { birthday: "Födelsedag", christmas: "Julafton" };
+
+// Barnets två listor, utan det som är arkiverat, och arkivet: ett tillfälle per grupp, det senaste först (MUPP-031-R4, R5).
+// Julafton heter efter sitt eget år, också när den arkiveras i januari.
+export async function listWishlists(child: Child, today = swedishToday()) {
+  const rows = await all<{ occasion: Occasion; added_at: string; claimed_by: string | null } & ItemRow>(
+    `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id
      WHERE w.child_id = ? ORDER BY i.id`,
-    [childId],
+    [child.id],
   );
   const lists: Record<Occasion, WishlistItem[]> = { birthday: [], christmas: [] };
+  const archive = new Map<string, ArchiveGroup>();
   for (const row of rows) {
-    lists[row.occasion].push(toItem(row));
+    if (!isArchived(child, row.occasion, row.added_at, today)) {
+      lists[row.occasion].push(toItem(row));
+      continue;
+    }
+    const date = isoDate(occasionOf(child, row.occasion, parseDate(row.added_at)));
+    const key = `${row.occasion}-${date}`;
+    const group = archive.get(key) ?? { key, date, name: `${ARCHIVE_NAMES[row.occasion]} ${date.slice(0, 4)}`, items: [] };
+    group.items.push({ ...toItem(row), claimedBy: row.claimed_by });
+    archive.set(key, group);
   }
-  return lists;
+  return { ...lists, archive: [...archive.values()].sort((a, b) => b.date.localeCompare(a.date) || a.key.localeCompare(b.key)) };
 }
 
-// Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning
-export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: Wishes }> {
+// Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning;
+// det arkiverade kommer inte med (MUPP-031-R4)
+export async function listDeckInput(today = swedishToday()): Promise<{ children: DeckInput[]; wishes: Wishes }> {
   const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, picture: c.picture, sizes: c.sizes }));
-  const rows = await all<{ child_id: number; occasion: Occasion; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
-    `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.claimed_by, i.claimed_at
+  const kids = new Map(children.map((c) => [c.id, c]));
+  const rows = await all<{ child_id: number; occasion: Occasion; added_at: string; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
+    `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,
   );
   const wishes: Wishes = new Map();
   for (const row of rows) {
+    if (isArchived(kids.get(row.child_id)!, row.occasion, row.added_at, today)) continue;
     const lists = wishes.get(row.child_id) ?? { birthday: [], christmas: [] };
     lists[row.occasion].push({ ...toItem(row), claimedBy: row.claimed_by, claimedAt: row.claimed_at });
     wishes.set(row.child_id, lists);
@@ -106,12 +124,28 @@ export async function listDeckInput(): Promise<{ children: DeckInput[]; wishes: 
   return { children, wishes };
 }
 
+// En önskning med det som avgör om den är arkiverad: listans tillfälle och barnets födelsedatum (MUPP-031-R4)
+type ItemFacts = ItemRow & { occasion: Occasion; added_at: string; child_id: number; birthdate: string };
+
+async function findItem(rawId: unknown) {
+  const id = parseId(typeof rawId === "number" ? String(rawId) : rawId);
+  return id === null
+    ? undefined
+    : get<ItemFacts>(
+        `SELECT i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, w.occasion, w.child_id, c.birthdate
+         FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id JOIN child c ON c.id = w.child_id WHERE i.id = ?`,
+        [id],
+      );
+}
+
+const archived = (item: ItemFacts, today: Today) => isArchived(item, item.occasion, item.added_at, today);
+
 // ---- Paxa (MUPP-005): vem som helst med sajtlösenordet
 
 const MAX_CLAIMS = 50;
 
 // claimed: hur många som paxades; notClaimed: rubrikerna på de som inte gick att paxa (redan paxade, kan köpas flera gånger),
-// och missing: hur många som inte fanns
+// och missing: hur många som inte fanns (eller är arkiverade, MUPP-031-R4)
 export type ClaimResult = { ok: boolean; error?: string; claimed: number; notClaimed: string[]; missing: number };
 
 // Varje önskan paxas med ett eget UPDATE som bara träffar en som är ledig, så att två som paxar samma önskan samtidigt
@@ -127,25 +161,27 @@ export async function claimWishes(rawIds: unknown, rawName: unknown, today = swe
   const notClaimed: string[] = [];
   let missing = 0;
   for (const id of ids as number[]) {
-    const { changes } = await run("UPDATE wishlist_item SET claimed_by = ?, claimed_at = ? WHERE id = ? AND claimed_by IS NULL AND unlimited = 0", [name.value, claimedAt, id]);
-    if (changes > 0) {
-      claimed++;
+    const item = await findItem(id);
+    if (!item || archived(item, today)) {
+      missing++;
       continue;
     }
-    const item = await get<{ title: string }>("SELECT title FROM wishlist_item WHERE id = ?", [id]);
-    if (item) notClaimed.push(item.title);
-    else missing++;
+    const { changes } = await run("UPDATE wishlist_item SET claimed_by = ?, claimed_at = ? WHERE id = ? AND claimed_by IS NULL AND unlimited = 0", [name.value, claimedAt, id]);
+    if (changes > 0) claimed++;
+    else notClaimed.push(item.title);
   }
   return notClaimed.length === 0 && missing === 0 ? { ok: true, claimed, notClaimed, missing } : { ok: false, claimed, notClaimed, missing };
 }
 
 // Ta bort en paxning (MUPP-006): vem som helst med sajtlösenordet, en önskan i taget. ok är false om den redan var
-// opaxad, inte finns eller kan köpas flera gånger; error bara när id:t är fel.
+// opaxad, inte finns, är arkiverad (MUPP-031-R4) eller kan köpas flera gånger; error bara när id:t är fel.
 export type UnclaimResult = { ok: boolean; error?: string };
 
-export async function unclaimWish(rawId: unknown): Promise<UnclaimResult> {
+export async function unclaimWish(rawId: unknown, today = swedishToday()): Promise<UnclaimResult> {
   const id = parseId(typeof rawId === "number" ? String(rawId) : rawId);
   if (id === null) return { ok: false, error: "Det gick inte att ta bort paxningen. Ladda om sidan och försök igen." };
+  const item = await findItem(id);
+  if (!item || archived(item, today)) return { ok: false };
   const { changes } = await run("UPDATE wishlist_item SET claimed_by = NULL, claimed_at = NULL WHERE id = ? AND claimed_by IS NOT NULL AND unlimited = 0", [id]);
   return { ok: changes > 0 };
 }
@@ -304,6 +340,7 @@ export async function saveSizes(
 export async function saveItem(
   actor: Parent | null,
   input: { childId: unknown; occasion: unknown; itemId?: unknown; title: unknown; size: unknown; description: unknown; url: unknown; unlimited: boolean },
+  today = swedishToday(),
 ): Promise<Outcome> {
   const occasion = parseOccasion(input.occasion);
   const checked = collect({
@@ -317,21 +354,11 @@ export async function saveItem(
     const child = await manageableChild(actor, input.childId);
     if (!child || !occasion) return NOT_ALLOWED;
     if (!checked.ok) return { ok: false, fields: checked.errors };
-    const { title, size, description, url } = checked.values;
-    await withTransaction(async (tx) => {
-      // Listan skapas när första önskningen läggs till
-      await run("INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", [child.id, occasion], tx);
-      const list = await get<{ id: number }>("SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", [child.id, occasion], tx);
-      await run(
-        "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited) VALUES (?, ?, ?, ?, ?, ?)",
-        [list!.id, title, description, size, url, input.unlimited ? 1 : 0],
-        tx,
-      );
-    });
+    await addItem(child.id, occasion, { ...checked.values, unlimited: input.unlimited }, today);
     return { ok: true };
   }
 
-  const item = await manageableItem(actor, input.itemId);
+  const item = await manageableItem(actor, input.itemId, today);
   if (!item) return NOT_ALLOWED;
   if (!checked.ok) return { ok: false, fields: checked.errors };
   const { title, size, description, url } = checked.values;
@@ -339,33 +366,49 @@ export async function saveItem(
   return { ok: true };
 }
 
-// Önskningen om aktören får ändra barnets lista
-async function manageableItem(actor: Parent | null, rawId: unknown) {
-  const id = parseId(rawId);
-  const row =
-    id === null
-      ? undefined
-      : await get<{ id: number; child_id: number }>(
-          "SELECT i.id, w.child_id FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id WHERE i.id = ?",
-          [id],
-        );
-  return row && (await manageableChild(actor, String(row.child_id))) ? row : undefined;
+// En ny önskning i barnets lista, tillagd idag; listan skapas när första önskningen läggs till
+async function addItem(childId: number, occasion: Occasion, item: Omit<WishlistItem, "id">, today: Today) {
+  await withTransaction(async (tx) => {
+    await run("INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", [childId, occasion], tx);
+    const list = await get<{ id: number }>("SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", [childId, occasion], tx);
+    await run(
+      "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [list!.id, item.title, item.description, item.size, item.url, item.unlimited ? 1 : 0, isoDate(today)],
+      tx,
+    );
+  });
 }
 
-export async function removeItem(actor: Parent | null, rawId: unknown): Promise<Outcome> {
-  const item = await manageableItem(actor, rawId);
+// Önskningen om aktören får ändra barnets lista och den inte är arkiverad (MUPP-031-R4)
+async function manageableItem(actor: Parent | null, rawId: unknown, today: Today) {
+  const item = await findItem(rawId);
+  return item && !archived(item, today) && (await manageableChild(actor, String(item.child_id))) ? item : undefined;
+}
+
+export async function removeItem(actor: Parent | null, rawId: unknown, today = swedishToday()): Promise<Outcome> {
+  const item = await manageableItem(actor, rawId, today);
   if (!item) return NOT_ALLOWED;
   await run("DELETE FROM wishlist_item WHERE id = ?", [item.id]);
   return { ok: true };
 }
 
-export async function clearList(actor: Parent | null, rawChildId: unknown, rawOccasion: unknown): Promise<Outcome> {
+// Tömmer listan men lämnar det arkiverade (MUPP-031-R5)
+export async function clearList(actor: Parent | null, rawChildId: unknown, rawOccasion: unknown, today = swedishToday()): Promise<Outcome> {
   const child = await manageableChild(actor, rawChildId);
   const occasion = parseOccasion(rawOccasion);
   if (!child || !occasion) return NOT_ALLOWED;
-  await run(
-    "DELETE FROM wishlist_item WHERE wishlist_id IN (SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?)",
-    [child.id, occasion],
-  );
+  const ids = (await listWishlists(child, today))[occasion].map((item) => item.id);
+  // Id:na som en JSON-lista i en parameter, så att frågan är samma text oavsett hur många de är
+  await run("DELETE FROM wishlist_item WHERE id IN (SELECT value FROM json_each(?))", [JSON.stringify(ids)]);
+  return { ok: true };
+}
+
+// Lägger en kopia av en arkiverad önskning i en av barnets listor (MUPP-031-R7). Kopian är opaxad och tillagd idag;
+// arkivet behåller sin. Bara en önskning som är arkiverad, och bara för den som får ändra barnet.
+export async function copyArchivedItem(actor: Parent | null, rawItemId: unknown, rawOccasion: unknown, today = swedishToday()): Promise<Outcome> {
+  const occasion = parseOccasion(rawOccasion);
+  const item = await findItem(rawItemId);
+  if (!occasion || !item || !archived(item, today) || !(await manageableChild(actor, String(item.child_id)))) return NOT_ALLOWED;
+  await addItem(item.child_id, occasion, toItem(item), today);
   return { ok: true };
 }

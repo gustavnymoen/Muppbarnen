@@ -1,0 +1,16 @@
+%% MUPP-031 Wish list stays a month after the occasion
+%% Which occasion a card and an item belong to, and what happens on day 31.
+flowchart TD
+    A[Start page or admin page is shown, today in Swedish time] --> B{Occasion 1-30 days ago?}
+    B -- yes --> C[Card for that occasion, after: Fyllde / Född / Christmas Eve, one step before Nästa - R1 R2 R3 R6]
+    B -- no --> D[Card for the next occasion, Fyller / Beräknad - R1 R2]
+    C --> E{Item added for an earlier occasion?}
+    D --> E
+    E -- no --> F[Shown on the card and in the editable list; can be claimed - R4]
+    E -- yes --> G[Archived: not on the card, not editable, not claimable - R4]
+    G --> H[Admin: Arkiv, one folded group per occasion and year - R5]
+    H --> I[+ then Födelsedag or Julafton]
+    I --> J{Parent may manage the kid and item archived?}
+    J -- yes --> K[Unclaimed copy added today to that list; archive unchanged - R7]
+    J -- no --> L[Du kan inte göra det här.]
+    I -- Avbryt or Esc --> M[Nothing changes, focus back on + - R7]

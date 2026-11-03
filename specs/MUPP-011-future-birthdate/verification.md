@@ -63,7 +63,7 @@ On the start page the birthday card of a child whose birthdate is after today sh
 
 ### MUPP-011-R3 The age is never below 1
 
-A child whose birthdate is today or earlier is never shown with age 0: the next birthday is the first one. An expected child turns into an ordinary one on the day, without any change by an administrator.
+A child whose birthdate is today or earlier is never shown with age 0: the next birthday is the first one. (Changed by [MUPP-031](../MUPP-031-month-after/verification.md)-R6: from the birthdate to 30 days after, the card says "Född".) An expected child turns into an ordinary one on the day, without any change by an administrator.
 
 ### MUPP-011-R4 The admin list shows who is expected
 

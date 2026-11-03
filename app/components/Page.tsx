@@ -20,8 +20,8 @@ export function PageContent({ children }: { children: ReactNode }) {
 }
 
 // small: de mindre rubrikerna i adminen (MUPP-010-R6)
-export function Heading({ level = 2, small, children }: { level?: 1 | 2 | 3; small?: boolean; children: ReactNode }) {
+export function Heading({ level = 2, small, children }: { level?: 1 | 2 | 3 | 4; small?: boolean; children: ReactNode }) {
   const Tag = `h${level}` as const;
-  const size = (small ? { 1: "text-2xl", 2: "text-xl", 3: "text-base" } : { 1: "text-3xl", 2: "text-2xl", 3: "text-xl" })[level];
+  const size = (small ? { 1: "text-2xl", 2: "text-xl", 3: "text-base", 4: "text-base" } : { 1: "text-3xl", 2: "text-2xl", 3: "text-xl", 4: "text-base" })[level];
   return <Tag className={`font-heading font-semibold ${size}`}>{children}</Tag>;
 }

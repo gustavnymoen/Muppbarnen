@@ -78,6 +78,12 @@ export const ChevronUpIcon = () => (
   </Icon>
 );
 
+export const PlusIcon = () => (
+  <Icon>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+
 export const CrossIcon = () => (
   <Icon>
     <path d="M6 6l12 12M18 6 6 18" />

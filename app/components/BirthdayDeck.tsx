@@ -25,14 +25,16 @@ const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
 const TILE_AVATAR = 56; // barnen på julkortet
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${dayAndMonth(card.day!, card.month!)}`);
-// Datumet står i kortets rubrik; på miniatyrerna (utan date) står bara "Beräknad"
-const ageText = (kid: DeckKid, date = "") => (kid.expected ? `Beräknad ${date}`.trim() : kid.age === null ? null : `Fyller ${kid.age} år`);
+// Datumet står i kortets rubrik; på miniatyrerna (utan date) står bara "Beräknad". Under månaden efter "Fyllde", och "Född" om tillfället var födseln (MUPP-031-R1, R6)
+const ageText = (kid: DeckKid, after: boolean, date = "") =>
+  kid.expected ? `Beräknad ${date}`.trim() : kid.age === null ? null : kid.age === 0 ? "Född" : `${after ? "Fyllde" : "Fyller"} ${kid.age} år`;
 
 // Vilket barns lista som är utfälld, på vilket kort
 type OpenList = { cardKey: string; kidId: number } | null;
 
 export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
-  const [index, setIndex] = useState(0);
+  // Leken öppnar på det första kommande kortet; korten i månaden efter ligger före det (MUPP-031-R3)
+  const [index, setIndex] = useState(() => Math.max(0, cards.findIndex((card) => card.next)));
   const [openList, setOpenList] = useState<OpenList>(null);
   const [announcement, setAnnouncement] = useState("");
   const [dx, setDx] = useState(0);
@@ -254,6 +256,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
         <KidFace
           key={single.id}
           cardKey={card.key}
+          after={card.after}
           date={date}
           kid={single}
           solo={card.kids.length === 1}
@@ -284,7 +287,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
                 <h3 className="max-w-full">
                   <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
                 </h3>
-                {ageText(kid) && <p className="text-muted">{ageText(kid)}</p>}
+                {ageText(kid, card.after) && <p className="text-muted">{ageText(kid, card.after)}</p>}
                 <div className="mt-2 flex w-full max-w-48 gap-1.5">
                   <WishButton id={`barn-${card.key}-${kid.id}`} color={kid.color} small forKid={kid.name} onClick={() => onOpen(kid)} className="min-w-0 flex-1" />
                   <SizesButton kid={kid} mode="icon" forKid />
@@ -300,7 +303,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
 
 // Ett barn som hela kort: stor bild, namn, ålder och önskelistan. Med listan öppen bara en liten bild och namnet på en rad (MUPP-030-R2)
 // cardKey ingår i id:na: samma barn finns på flera kort, och korten bredvid ritas också
-function KidFace({ cardKey, date, kid, solo, open, onToggle }: { cardKey: string; date: string; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
+function KidFace({ cardKey, after, date, kid, solo, open, onToggle }: { cardKey: string; after: boolean; date: string; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
   return (
     <>
       {open ? (
@@ -321,7 +324,7 @@ function KidFace({ cardKey, date, kid, solo, open, onToggle }: { cardKey: string
             <Avatar name={kid.name} color={kid.color} src={kid.picture} size="100cqmin" decorative />
           </div>
           <h3 className="mt-2 font-heading text-3xl font-semibold break-words [@media(max-height:600px)]:mt-0">{kid.name}</h3>
-          {ageText(kid, date) && <p className="text-lg text-muted">{ageText(kid, date)}</p>}
+          {ageText(kid, after, date) && <p className="text-lg text-muted">{ageText(kid, after, date)}</p>}
           <SizesButton kid={kid} mode="text" className="mt-2 [@media(max-height:600px)]:mt-0" />
         </div>
       )}

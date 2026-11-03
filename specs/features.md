@@ -52,6 +52,7 @@ tags: [product, features]
 | [MUPP-030](MUPP-030-open-list-header/solution.md) | Open wish list gets the room | Startsida | Done |
 | [MUPP-006](MUPP-006-unclaim-gifts/solution.md) | Unclaim gifts | Startsida | Done |
 | [TECH-013](TECH-013-birthday-card-hierarchy/solution.md) | Birthday card hierarchy and small phones | Startsida | Done |
+| [MUPP-031](MUPP-031-month-after/solution.md) | Wish list stays a month after the occasion | Önskelista | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

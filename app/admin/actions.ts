@@ -107,6 +107,15 @@ export async function clearList(_previous: FormState, formData: FormData): Promi
   return answer(formData, await family.clearList(parent, text(formData, "childId"), text(formData, "occasion")));
 }
 
+// Lägger en arkiverad önskning i barnets födelsedags- eller jullista igen (MUPP-031-R7); listan är knappen som trycktes
+export async function copyArchivedItem(_previous: FormState, formData: FormData): Promise<FormState> {
+  await requireSiteSession();
+  const { parent } = await requireAdminSession();
+  const guard = await guardWrite();
+  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  return answer(formData, await family.copyArchivedItem(parent, text(formData, "itemId"), text(formData, "occasion")));
+}
+
 // ---- Föräldrar, barn och bilder (huvudadministratören)
 
 export async function saveParent(_previous: FormState, formData: FormData): Promise<FormState> {
