@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addChild, addParent, clearFamily, pictureOf } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -30,7 +30,7 @@ test("MUPP-010-R1 R2 R6 Hantera starts folded: two headings, slim cards, and ico
   await addChild(chefId, kid);
   await page.setViewportSize({ width: 375, height: 667 });
   await adminSignIn(page, chef);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
 
   // R1: the headings, one slim card per parent and kid, nothing unfolded, no form field in sight
   await expect(page.getByRole("heading", { level: 2, name: "Föräldrar" })).toBeVisible();
@@ -77,7 +77,7 @@ test("MUPP-010-R1 R3 a card unfolds with its form, one panel is open at a time, 
   await addChild(chefId, first, "2019-03-09");
   await addChild(chefId, second);
   await adminSignIn(page, chef);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
   const [one, two] = [card(page, first), card(page, second)];
   const pencil = one.getByRole("button", { name: `Ändra ${first}` });
 
@@ -127,7 +127,7 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   const kid = uniqueName("Barn");
   const kidId = await addChild(await addParent(chef, true), kid);
   await adminSignIn(page, chef);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
   const kidCard = card(page, kid);
   const pictureButton = kidCard.getByRole("button", { name: `Bild för ${kid}` });
   const files = () => readdirSync(testPicturesDir).filter((f) => f.startsWith(`barn-${kidId}-`));
@@ -176,7 +176,7 @@ test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page on
   await adminSignIn(page, mia);
 
   // R5: the sizes page has the sizes and nothing of the wish lists
-  await page.goto(`/admin/barn/${kidId}/storlekar`);
+  await goto(page, `/admin/barn/${kidId}/storlekar`);
   await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "Storlekar" })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Födelsedag|Jul/ })).toHaveCount(0);
@@ -187,7 +187,7 @@ test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page on
   await expectNoA11yViolations(page);
 
   // R5: the wish list page has Födelsedag and Jul as separate cards and no sizes
-  await page.goto(`/admin/barn/${kidId}/onskelistor`);
+  await goto(page, `/admin/barn/${kidId}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
   const christmas = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Jul" }) });
   await expect(birthday).toBeVisible();
@@ -225,7 +225,7 @@ test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) 
   for (const [width, height] of [[375, 667], [430, 932]]) {
     await page.setViewportSize({ width, height });
     // The parent's own page: all five kids are inside the screen, the page itself does not scroll
-    await page.goto("/admin");
+    await goto(page, "/admin");
     await expect(page.getByRole("heading", { level: 2 }).first()).toBeVisible();
     const kids = page.getByRole("article");
     await expect(kids).toHaveCount(5);
@@ -243,16 +243,16 @@ test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll 
 
   for (const [width, height] of [[320, 568], [430, 932]]) {
     await page.setViewportSize({ width, height });
-    await page.goto("/admin/hantera");
+    await goto(page, "/admin/hantera");
     const first = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^Bild för / }) }).first();
     await first.getByRole("button", { name: /^Ändra / }).click();
     expect(await hasHorizontalScroll(page), `edit at ${width}`).toBe(false);
     await first.getByRole("button", { name: /^Bild för / }).click();
     expect(await hasHorizontalScroll(page), `picture at ${width}`).toBe(false);
-    await page.goto(`/admin/barn/${kidId}/storlekar`);
+    await goto(page, `/admin/barn/${kidId}/storlekar`);
     expect(await hasHorizontalScroll(page), `sizes at ${width}`).toBe(false);
     await expectNoA11yViolations(page);
-    await page.goto(`/admin/barn/${kidId}/onskelistor`);
+    await goto(page, `/admin/barn/${kidId}/onskelistor`);
     expect(await hasHorizontalScroll(page), `lists at ${width}`).toBe(false);
     await expectNoA11yViolations(page);
   }
@@ -263,7 +263,7 @@ test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc fo
   const kid = uniqueName("Barn");
   await addChild(await addParent(chef, true), kid);
   await adminSignIn(page, chef);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
   await page.waitForLoadState("networkidle");
   const kidCard = card(page, kid);
   const pencil = kidCard.getByRole("button", { name: `Ändra ${kid}` });
@@ -300,7 +300,7 @@ test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape to a page w
   await page.getByRole("link", { name: "Storlekar för Otis" }).click();
   await expect(page.getByLabel("Kläder")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Födelsedag" })).toHaveCount(0);
-  await page.goto("/admin");
+  await goto(page, "/admin");
   await page.getByRole("link", { name: "Önskelistor för Otis" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Födelsedag" })).toBeVisible();
   await expect(page.getByLabel("Kläder")).toHaveCount(0);

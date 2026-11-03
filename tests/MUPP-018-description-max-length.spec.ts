@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { adminSignIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, clearFamily } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -15,7 +15,7 @@ test("MUPP-018-R1 the description field stops at 100 characters, and the server 
   const mia = uniqueName("Mia");
   const kid = await addChild(await addParent(mia, true), uniqueName("Barn"));
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${kid}/onskelistor`);
+  await goto(page, `/admin/barn/${kid}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag", exact: true }) });
   await birthday.getByRole("button", { name: "Ny önskning" }).click();
   await birthday.getByLabel("Namn").fill("Pussel");

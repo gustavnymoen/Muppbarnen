@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily, setSizes } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -27,7 +27,7 @@ async function twoKids(page: Page, sizes = { clothes: "122", shoes: "30" }) {
   await setSizes(vera, sizes);
   await addWish(vera, "birthday", "Cykel");
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
   return { vera, vilda };
 }
@@ -37,7 +37,7 @@ test("MUPP-014-R2 R5 the single kid card: a Storlekar button opens the sizes wit
   const vera = await addChild(parent, "Vera", birthdateIn(20).birthdate);
   await setSizes(vera, { clothes: "122", shoes: "30" });
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
 
   const button = card(page).getByRole("button", { name: "Storlekar" });
@@ -68,7 +68,7 @@ test("MUPP-014-R5 a kid with no sizes still has the button, and the dialog says 
   const parent = await addParent(uniqueName("Förälder"));
   await addChild(parent, "Vera", birthdateIn(20).birthdate);
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await card(page).getByRole("button", { name: "Storlekar" }).click();
   await expect(dialog(page).getByText("Inga storlekar inlagda än.")).toBeVisible();
   await expect(dialog(page).getByRole("term")).toHaveCount(0);
@@ -81,7 +81,7 @@ test("MUPP-014-R4 R5 the open list on the single kid card has the icon in the co
   await setSizes(vera, { clothes: "122" });
   await addWish(vera, "birthday", "Cykel");
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
   await expect(card(page).getByRole("button", { name: "Storlekar", exact: true })).toHaveCount(1);
@@ -137,7 +137,7 @@ test("MUPP-014-R5 the dialog keeps the focus inside, shows long values as plain 
   const long = "<b>x</b>".repeat(5);
   await setSizes(vera, { clothes: long, shoes: "1".repeat(40) });
   await page.setViewportSize({ width: 320, height: 568 });
-  await page.goto("/");
+  await goto(page, "/");
   await card(page).getByRole("button", { name: "Storlekar" }).click();
   await expect(dialog(page).getByText(long)).toBeVisible();
   await expect(dialog(page).locator("b")).toHaveCount(0);

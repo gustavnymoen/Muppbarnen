@@ -3,6 +3,9 @@ import type { Browser } from "@playwright/test";
 // Var inloggningen med sajtlösenordet sparas (av tests/global-setup.ts), så att
 // testerna slipper logga in en gång var. Mappen ignoreras av Git.
 export const siteSessionFile = "playwright/.auth/site.json";
+// Samma för adminlösenordet (bara mot den lokala testservern), utan vald förälder. Testerna
+// av själva admininloggningen använder den inte utan loggar in genom formuläret.
+export const adminSessionFile = "playwright/.auth/admin.json";
 
 // Ett eget "IP-nummer" per test, så att spärren efter fel lösenord och gränsen för
 // skrivande anrop inte delas mellan testerna. Sajten läser det ur x-real-ip.

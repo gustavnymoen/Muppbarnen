@@ -1,0 +1,13 @@
+%% TECH-014 Test suite over its time budget
+%% How a browser test gets the admin cookie now: the form once per run, the saved cookie in every test.
+flowchart TD
+    A[npm run test:local starts] --> B[global-setup.ts signs in with the site password]
+    B --> C{Local test server?}
+    C -- yes --> D[Signs in on /admin through the form, saves playwright/.auth/admin.json]
+    C -- no --> E[Only the site cookie is saved]
+    D --> F[Test calls adminSignIn]
+    F --> G[Adds the saved admin cookie, opens /admin]
+    G --> H{Parent named?}
+    H -- yes --> I[Chooses the parent on the page]
+    H -- no --> J[Goes on from the admin start]
+    K[Tests of the sign-in itself] --> L[Start without the admin cookie, sign in through the form]

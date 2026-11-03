@@ -2,7 +2,7 @@ import { expect, test, type Locator } from "@playwright/test";
 import { dayAndMonth, swedishToday } from "../lib/deck";
 import { latestBirthdate } from "../lib/form-input";
 import { addParent, clearFamily } from "./family-db";
-import { adminSignIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
 import { testIp } from "./site-session";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
@@ -57,7 +57,7 @@ test("MUPP-011-R1 R2 R4 MUPP-020-R2 an expected child is added, listed and shown
   await expectNoA11yViolations(page);
 
   // R2: the card has the name and "Beräknad {dag och månad}" and no age
-  await page.goto("/");
+  await goto(page, "/");
   const date = dayAndMonth(due.getUTCDate(), due.getUTCMonth() + 1);
   for (let i = 0; i < 3 && !(await page.getByRole("heading", { level: 3, name }).isVisible()); i++) await page.getByRole("button", { name: "Nästa kort" }).click();
   await expect(page.getByRole("heading", { level: 3, name })).toBeVisible();

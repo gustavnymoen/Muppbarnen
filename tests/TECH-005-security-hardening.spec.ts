@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoA11yViolations, runsLocally } from "./helpers";
+import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { newVisitor } from "./site-session";
 
 // Alla tester här börjar utan inloggning
@@ -19,13 +19,13 @@ test("TECH-005-R3 the sixth wrong password blocks the address, and then even the
   // Sex fel samtidigt, så att väntan på en sekund per fel bara tas en gång. Alla sex får
   // pröva, men det sjätte felet spärrar adressen. Att rätta lösenord inte räknas är ett enhetstest.
   const pages = await Promise.all(Array.from({ length: 6 }, () => context.newPage()));
-  for (const page of pages) await page.goto("/losenord");
+  for (const page of pages) await goto(page, "/losenord");
   for (const page of pages) await signInWith(page, "fel lösenord");
   for (const page of pages) await expect(page.locator("#losenord-fel")).toHaveText("Fel lösenord.");
 
   // Därefter nekas allt, också rätt lösenord, och besökaren ser fortfarande lösenordssidan
   const page = pages[0];
-  await page.goto("/losenord");
+  await goto(page, "/losenord");
   await signInWith(page, password);
   await expect(page.locator("#losenord-fel")).toHaveText("För många försök. Försök igen om en stund.");
   await expect(page).toHaveURL(/\/losenord/);
@@ -43,7 +43,7 @@ test("TECH-005-R4 the Content-Security-Policy limits everything to the site itse
     if (message.text().includes("Content Security Policy")) violations.push(message.text());
   });
 
-  const response = await page.goto("/losenord");
+  const response = await goto(page, "/losenord");
   const csp = response!.headers()["content-security-policy"];
   const directive = (name: string) => csp.split("; ").find((d) => d.startsWith(`${name} `));
   for (const name of ["default-src", "script-src", "style-src", "img-src", "font-src", "connect-src"]) {
@@ -60,7 +60,7 @@ test("TECH-005-R4 the Content-Security-Policy limits everything to the site itse
   await signInWith(page, password);
   await expect(page).toHaveURL((url) => url.pathname === "/");
   await expect(page.getByRole("main")).toBeVisible();
-  await page.goto("/design");
+  await goto(page, "/design");
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   expect(violations).toEqual([]);
 
@@ -82,7 +82,7 @@ test("TECH-005-R4 the Content-Security-Policy limits everything to the site itse
 test("TECH-005-R4 the session cookie has the __Host- prefix: secure, no Domain, path /", async ({ browser, baseURL }) => {
   const context = await newVisitor(browser, baseURL);
   const page = await context.newPage();
-  await page.goto("/losenord");
+  await goto(page, "/losenord");
   await signInWith(page, password);
   await expect(page).toHaveURL((url) => url.pathname === "/");
   const cookies = await context.cookies();

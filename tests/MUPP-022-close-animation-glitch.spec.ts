@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -25,7 +25,7 @@ async function twoKids(page: Page) {
   await addWish(vera, "birthday", "Cykel");
   await addWish(vera, "christmas", "Cykel");
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
 }
 
@@ -42,7 +42,7 @@ const cards = [
 ];
 
 for (const { name, prepare, open } of cards) {
-  test(`MUPP-022-R1 ${name}: the closed view shrinks as a whole, with transform and opacity only, and the copy is always removed`, async ({ page }) => {
+  test(`MUPP-022-R1 ${name}: the closed view shrinks as a whole, with transform and opacity only, and the copy is always removed, also when cut short or interrupted`, async ({ page }) => {
     await twoKids(page);
     await prepare(page);
     await open(page).click();
@@ -61,11 +61,8 @@ for (const { name, prepare, open } of cards) {
     await expect(open(page)).toBeFocused();
     expect(await page.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSTransition) && a.effect instanceof KeyframeEffect && a.playState === "running").length)).toBe(0);
     await expectNoA11yViolations(page);
-  });
 
-  test(`MUPP-022-R1 ${name}: a copy that is cut short or interrupted does not stay`, async ({ page }) => {
-    await twoKids(page);
-    await prepare(page);
+    // En kopia som avbryts eller klipps av ligger inte heller kvar (samma kort och läge, så samma test, TECH-014)
     await open(page).click();
     await animationsDone(card(page));
     await page.keyboard.press("Escape");
@@ -98,6 +95,7 @@ for (const { name, prepare, open } of cards) {
       await expect(open(page)).toBeFocused();
       expect(await outline()).toBe("none");
       await quiet(true);
+      await pageAnimationsDone(page);
       await expect(ghost(page)).toHaveCount(0);
     }
 
@@ -116,6 +114,7 @@ for (const { name, prepare, open } of cards) {
     await expect(open(page)).toBeFocused();
     expect(await outline()).toBe("solid");
     await quiet(false);
+    await pageAnimationsDone(page);
     await expect(ghost(page)).toHaveCount(0);
 
     // Lämnar man knappen och kommer tillbaka med tangentbordet visas ringen igen

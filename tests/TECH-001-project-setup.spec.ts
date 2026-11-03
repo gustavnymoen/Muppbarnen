@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { expectNoA11yViolations } from "./helpers";
+import { expectNoA11yViolations, goto } from "./helpers";
 
 test("TECH-001-R4 the start page has its heading, language and title, and no a11y violations", async ({ page }) => {
-  await page.goto("/");
+  await goto(page, "/");
   await expect(page.getByRole("heading", { name: "Muppbarnens önskelistor", level: 1 })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "sv");
   await expect(page).toHaveTitle("Muppbarnens önskelistor");

@@ -4,7 +4,7 @@ import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, pickOption, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, childIdOf, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -41,7 +41,7 @@ async function opened(scope: Locator, name: string) {
 const dialog = (page: Page) => page.getByRole("alertdialog");
 
 test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anything below it leads there, and actions are refused", async ({ page, request }) => {
-  await page.goto("/admin");
+  await goto(page, "/admin");
   await expect(page.getByRole("heading", { level: 1, name: "Admin" })).toBeVisible();
   const field = page.getByLabel("Adminlösenord");
   await expect(field).toHaveAttribute("type", "password");
@@ -52,7 +52,7 @@ test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anythi
   await expectNoA11yViolations(page);
 
   for (const path of ["/admin/hantera", "/admin/barn/1/storlekar", "/admin/barn/1/onskelistor", "/admin/finns-inte"]) {
-    await page.goto(path);
+    await goto(page, path);
     await expect(page, path).toHaveURL(/\/admin$/);
     await expect(page.getByLabel("Adminlösenord")).toBeVisible();
     const response = await request.get(path, { maxRedirects: 0 });
@@ -67,7 +67,7 @@ test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anythi
 });
 
 test("MUPP-003-R1 R8 a wrong password is answered after a second next to the field, the right one sets a session cookie", async ({ page, context }) => {
-  await page.goto("/admin");
+  await goto(page, "/admin");
   const field = page.getByLabel("Adminlösenord");
   await field.fill("fel lösenord");
   const started = Date.now();
@@ -95,20 +95,18 @@ test("MUPP-003-R1 R8 a wrong password is answered after a second next to the fie
   expect(cookie.value).not.toContain(process.env.ADMIN_PASSWORD ?? "?");
 });
 
-test("MUPP-003-R1 R2 a changed, expired or foreign cookie is refused, a signed one is accepted, and a removed parent drops the choice", async ({ page, context, baseURL }) => {
+// Puts the admin cookie with this value in the context and opens /admin
+async function withCookie(page: Page, baseURL: string | undefined, value: string) {
+  await page.context().clearCookies({ name: ADMIN_COOKIE });
+  await page.context().addCookies([{ name: ADMIN_COOKIE, value, domain: new URL(baseURL!).hostname, path: "/", secure: true }]);
+  await goto(page, "/admin");
+}
+
+// The refused cookies are a test of their own, so that neither test goes over 5 s (TECH-014)
+test("MUPP-003-R1 a changed, expired or foreign cookie is refused", async ({ page, baseURL }) => {
   const mia = await addParent(uniqueName("Mia"));
   const soon = Math.floor(Date.now() / 1000) + 600;
-  const withCookie = async (value: string) => {
-    await context.clearCookies({ name: ADMIN_COOKIE });
-    await context.addCookies([{ name: ADMIN_COOKIE, value, domain: new URL(baseURL!).hostname, path: "/", secure: true }]);
-    await page.goto("/admin");
-  };
-
-  const good = createAdminSession(secret, 0, soon);
-  await withCookie(good);
-  await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
-
-  const [expires, parent, signature] = good.split(".");
+  const [expires, parent, signature] = createAdminSession(secret, 0, soon).split(".");
   const refused = {
     expired: createAdminSession(secret, 0, Math.floor(Date.now() / 1000) - 10),
     "8 hours old": createAdminSession(secret, 0, Math.floor(Date.now() / 1000) - 1),
@@ -118,13 +116,20 @@ test("MUPP-003-R1 R2 a changed, expired or foreign cookie is refused, a signed o
     junk: "skräp",
   };
   for (const [what, value] of Object.entries(refused)) {
-    await withCookie(value);
+    await withCookie(page, baseURL, value);
     await expect(page.getByLabel("Adminlösenord"), what).toBeVisible();
     await expect(page.getByRole("heading", { level: 2 }), what).toHaveCount(0);
   }
+});
+
+test("MUPP-003-R1 R2 a signed cookie is accepted, and a removed parent drops the choice", async ({ page, baseURL }) => {
+  const mia = await addParent(uniqueName("Mia"));
+  const soon = Math.floor(Date.now() / 1000) + 600;
+  await withCookie(page, baseURL, createAdminSession(secret, 0, soon));
+  await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
 
   // R2: a signed cookie for a parent that has been removed: the choice is dropped and the list shown
-  await withCookie(createAdminSession(secret, mia + 1000, soon));
+  await withCookie(page, baseURL, createAdminSession(secret, mia + 1000, soon));
   await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
 });
 
@@ -132,7 +137,7 @@ test("MUPP-003-R1 the sixth wrong password blocks the address, and then even the
   const context = await browser.newContext({ baseURL, storageState: "playwright/.auth/site.json", extraHTTPHeaders: { "x-real-ip": testIp() } });
   // Six wrong at once, so that the second a wrong password costs is paid once (as in TECH-005-R3)
   const pages = await Promise.all(Array.from({ length: 6 }, () => context.newPage()));
-  for (const page of pages) await page.goto("/admin");
+  for (const page of pages) await goto(page, "/admin");
   for (const page of pages) {
     await page.getByLabel("Adminlösenord").fill("fel lösenord");
     await page.getByRole("button", { name: "Logga in" }).click();
@@ -140,7 +145,7 @@ test("MUPP-003-R1 the sixth wrong password blocks the address, and then even the
   for (const page of pages) await expect(page.getByRole("alert").filter({ hasText: "Fel lösenord." })).toHaveText("Fel lösenord.");
 
   const page = pages[0];
-  await page.goto("/admin");
+  await goto(page, "/admin");
   await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
   await page.getByRole("button", { name: "Logga in" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "För många försök. Försök igen om en stund." })).toHaveText("För många försök. Försök igen om en stund.");
@@ -211,13 +216,13 @@ test("MUPP-003-R2 R3 choose who you are, change, and see only your own kids; the
   await page.reload();
   await expect(page.getByText("Barn som tillhör")).toContainText(chef);
   await expect(page.getByRole("heading", { name: "Hantera" })).toHaveCount(0);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
   await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Föräldrar" })).toHaveCount(0);
 
   // The chosen parent is removed: the choice is dropped and the list shown
   await removeParentRow(chefId);
-  await page.goto("/admin");
+  await goto(page, "/admin");
   await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
 });
 
@@ -265,7 +270,7 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
 
   // Another parent's kid, and an id that is no number: the page does not exist for Mia
   for (const id of [String(olaKid), "abc"]) {
-    await page.goto(`/admin/barn/${id}/storlekar`);
+    await goto(page, `/admin/barn/${id}/storlekar`);
     await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" }), id).toBeVisible();
     await expect(page.getByLabel("Kläder"), id).toHaveCount(0);
   }
@@ -441,7 +446,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   const noPicture = await addChild(chefId, uniqueName("Utan bild"));
 
   await adminSignIn(page, chef);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
   const row = page.getByRole("article").filter({ hasText: kid });
   const upload = async (file: { name: string; mimeType: string; buffer: Buffer }) => {
     const form = await opened(row, `Bild för ${kid}`);
@@ -538,17 +543,17 @@ test("MUPP-003-R5 R6 a parent who is not the master admin has no Hantera and no 
   await expect(page.getByRole("heading", { level: 2, name: kid })).toBeVisible();
   await expect(page.getByRole("link", { name: /Hantera/ })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Hantera" })).toHaveCount(0);
-  await page.goto("/admin/hantera");
+  await goto(page, "/admin/hantera");
   await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" })).toBeVisible();
   // The kid's own page has no picture upload or kid form either
-  await page.goto("/admin");
+  await goto(page, "/admin");
   await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
   await expect(page.getByLabel("Bild")).toHaveCount(0);
   await expect(page.getByLabel("Födelsedatum")).toHaveCount(0);
 });
 
 test("MUPP-003-R8 the menu ends with a quiet Admin link, nothing else points to /admin, and the pages are noindex", async ({ page, request }) => {
-  await page.goto("/");
+  await goto(page, "/");
   await expect(page.locator('a[href^="/admin"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Meny" }).click();
   const links = page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("link");
@@ -557,7 +562,7 @@ test("MUPP-003-R8 the menu ends with a quiet Admin link, nothing else points to 
   await expect(page.locator('a[href^="/admin"]')).toHaveCount(1);
 
   // noindex: in the page and in the header, also for the redirect-free sign-in page and its sub-pages
-  const response = await page.goto("/admin");
+  const response = await goto(page, "/admin");
   expect(response!.headers()["x-robots-tag"]).toContain("noindex");
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   expect((await request.get("/admin/hantera", { maxRedirects: 0 })).headers()["x-robots-tag"]).toContain("noindex");
@@ -574,7 +579,7 @@ for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
   await addParent(chef);
   const kid = await addChild(miaId, uniqueName("Barn"));
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${kid}/onskelistor`);
+  await goto(page, `/admin/barn/${kid}/onskelistor`);
   const form = await opened(list(page, "Födelsedag"), "Ny önskning");
   await form.getByLabel("Namn").fill("Pussel");
   await form.getByRole("button", { name: "Lägg till" }).click();
@@ -582,7 +587,7 @@ for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
 
   await page.setViewportSize({ width, height });
   for (const path of ["/admin", `/admin/barn/${kid}/storlekar`, `/admin/barn/${kid}/onskelistor`, "/admin/hantera"]) {
-    await page.goto(path);
+    await goto(page, path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await hasHorizontalScroll(page), `${path} at ${width}`).toBe(false);
     // Every button, link and field is at least 44 × 44 px (a checkbox sits in a row that high),
@@ -603,7 +608,7 @@ test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a ki
   const mia = uniqueName("Mia");
   const kid = uniqueName("Barn");
   await addChild(await addParent(mia), kid);
-  await page.goto("/admin");
+  await goto(page, "/admin");
   // Wait until the page's script is running, so that Enter in the field is sent by the page
   await page.waitForLoadState("networkidle");
   await page.getByLabel("Adminlösenord").focus();
@@ -626,7 +631,7 @@ test("MUPP-003-R8 with the keyboard only: open a form, send it and answer the co
   const kid = uniqueName("Barn");
   await addChild(await addParent(mia), kid);
   await adminSignIn(page, mia);
-  await page.goto(`/admin/barn/${await childIdOf(kid)}/onskelistor`);
+  await goto(page, `/admin/barn/${await childIdOf(kid)}/onskelistor`);
 
   // A button opens the form with Enter, the form is filled in and sent with Enter in a field
   const birthday = list(page, "Födelsedag");

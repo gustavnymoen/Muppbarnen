@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, claimDirectly, claimedByOf, clearFamily } from "./family-db";
-import { birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
+import { birthdateIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -34,7 +34,7 @@ async function openVerasList(page: Page) {
   await addWish(vera, "birthday", "Lego");
   await addWish(vera, "birthday", "Bil");
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
   await expect(region(page)).toBeVisible();
 }

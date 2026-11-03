@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -28,7 +28,7 @@ async function twoKids(page: Page) {
     await addWish(vera, "christmas", title);
   }
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
 }
 
@@ -99,7 +99,7 @@ test("MUPP-015-R1 the single kid card has no Tillbaka button, open or folded", a
   const vera = await addChild(parent, "Vera", birthdateIn(20).birthdate);
   await addWish(vera, "birthday", "Cykel");
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/");
+  await goto(page, "/");
   await animationsDone(card(page));
   await expect(card(page).getByRole("button", { name: /^Tillbaka/ })).toHaveCount(0);
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
