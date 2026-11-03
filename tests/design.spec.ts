@@ -1,5 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, EDGE, expectNoA11yViolations, expectTextMessage, goto, PAGE, runsLocally, settledBox, SHADOW, uniqueName } from "./helpers";
+import { expect, test, type Locator, type Page } from "@playwright/test";
+import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -854,16 +854,6 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       await addChild(parent, "Ensam", "2018-02-02");
       const card = page.getByRole("article");
       const noScroll = () => page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight && document.documentElement.scrollWidth <= window.innerWidth);
-      const toCard = async (heading: string) => {
-        for (let i = 0; i < 4 && (await card.getByRole("heading", { level: 2 }).innerText()) !== heading; i++) {
-          await page.getByRole("button", { name: "Nästa kort" }).click();
-          await animationsDone(card);
-        }
-      };
-      const disjoint = (a: { x: number; y: number; width: number; height: number }, b: { x: number; y: number; width: number; height: number }) =>
-        a.x + a.width <= b.x + 0.5 || b.x + b.width <= a.x + 0.5 || a.y + a.height <= b.y + 0.5 || b.y + b.height <= a.y + 0.5;
-      const inside = (inner: { x: number; y: number; width: number; height: number }, outer: { x: number; y: number; width: number; height: number }) =>
-        inner.x >= outer.x - 0.5 && inner.y >= outer.y - 0.5 && inner.x + inner.width <= outer.x + outer.width + 0.5 && inner.y + inner.height <= outer.y + outer.height + 0.5;
 
       // MUPP-015-R1 R4: Tillbaka is in the top left corner, 44 px, clear of the heading, the picture and the icon, as an icon with readable colour
       const expectBack = async (name: string) => {
@@ -916,7 +906,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       await animationsDone(card);
 
       // The twins' card: the wish button takes 70-80 % of the two buttons together, both 44 px high, on one line
-      await toCard(date);
+      await toCard(page, date);
       const wishButtons = card.getByRole("button", { name: /^Önskelista för / });
       for (let i = 0; i < 2; i++) {
         const wish = await settledBox(wishButtons.nth(i));
@@ -956,7 +946,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       await region.getByRole("button", { name: /^Stäng/ }).click();
 
       // The single kid card: the button is between the age and the wish button
-      await toCard("2 februari");
+      await toCard(page, "2 februari");
       const age = await settledBox(card.getByText(/^Fyller \d+ år$/));
       const sizes = await settledBox(card.getByRole("button", { name: "Storlekar" }));
       const wish = await settledBox(card.getByRole("button", { name: /^Önskelista/ }));
@@ -983,7 +973,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       await region.getByRole("button", { name: "Fäll ihop önskelistan" }).click();
 
       // Christmas Eve: the kid view has the corner icon, clear of the heading
-      await toCard("Julafton");
+      await toCard(page, "Julafton");
       await card.getByRole("button", { name: /^Öppna Vera/ }).click();
       await expect(card.getByRole("region", { name: "Önskelista" })).toBeVisible();
       corner = await settledBox(card.getByRole("button", { name: "Storlekar" }));
@@ -992,6 +982,80 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
       expect(await noScroll()).toBe(true);
       await expectBack("Tillbaka till Julafton");
       await expectOpenTop("Vera");
+    } finally {
+      await clearFamily();
+    }
+  });
+}
+
+// One test per phone size, as above
+for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }]) {
+  test(`TECH-013-R1 R2 R3 R4 R5 R6 the closed cards at ${viewport.width} × ${viewport.height}: the name leads over a smaller date, a one-line chip, a round picture, Storlekar clear of the wish button, arrows clear of three kids' buttons, and a shrunk name that grows back`, async ({ page }) => {
+    test.skip(!runsLocally, "needs its own kids in the local test database");
+    await clearFamily();
+    try {
+      const parent = await addParent(uniqueName("Förälder"));
+      // Ensam has the nearest card, with the chip; the twins (one with a long name) and three kids share a card each
+      const ensam = birthdateIn(0);
+      await addChild(parent, "Ensam", ensam.birthdate);
+      const twins = birthdateIn(20);
+      for (const name of ["Maximiliana-Charlotte", "Vera"]) await addChild(parent, name, twins.birthdate);
+      const three = birthdateIn(40);
+      for (const name of ["Alva", "Bo", "Cilla"]) await addChild(parent, name, three.birthdate);
+      const card = page.getByRole("article");
+      const fontSize = async (locator: Locator) => parseFloat(await css(locator, "font-size"));
+      await page.setViewportSize(viewport);
+      await goto(page, "/");
+      await animationsDone(card);
+
+      // R1: on the closed card with one kid the name leads (text-3xl) and the date above it is a smaller label
+      const nameSize = await fontSize(card.getByRole("heading", { level: 3 }));
+      expect(nameSize).toBe(30);
+      expect(await fontSize(card.getByRole("heading", { level: 2 }))).toBeLessThan(nameSize);
+      // R2 R4: the chip is on one line with both stars, clear of the picture, and the picture is round
+      const chip = card.getByText("Nästa födelsedag").locator("..");
+      const [chipBox, picture] = [await settledBox(chip), await settledBox(card.locator(".ring-child"))];
+      expect(chipBox.height).toBeLessThan(40);
+      await expect(chip.getByText("✦")).toHaveCount(2);
+      expect(disjoint(chipBox, picture)).toBe(true);
+      expect(Math.abs(picture.width - picture.height)).toBeLessThanOrEqual(1);
+      // R3: Storlekar and the wish button are clear of each other, 44 px high and inside the card
+      const [sizes, wish, cardBox] = [await settledBox(card.getByRole("button", { name: "Storlekar" })), await settledBox(card.getByRole("button", { name: /^Önskelista/ })), await settledBox(card)];
+      for (const button of [sizes, wish]) {
+        expect(button.height).toBeGreaterThanOrEqual(44);
+        expect(inside(button, cardBox)).toBe(true);
+      }
+      expect(disjoint(sizes, wish)).toBe(true);
+      if (viewport.width === 320) await expectNoA11yViolations(page);
+
+      // R6: the long name has shrunk at 320 px, and grows back to its full size on a wider screen (the phone turned)
+      if (viewport.width === 320) {
+        await toCard(page, twins.date);
+        const longName = card.getByText("Maximiliana-Charlotte", { exact: true });
+        expect(await fontSize(longName)).toBeLessThan(18);
+        await page.setViewportSize({ width: 568, height: 320 });
+        await expect.poll(() => fontSize(longName)).toBe(18);
+        expect(await longName.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+        await page.setViewportSize(viewport);
+      }
+
+      // R5: on the card with three kids the arrows, 44 px and on the screen, are clear of every kid's buttons
+      await toCard(page, three.date);
+      const arrows = [await settledBox(page.getByRole("button", { name: "Föregående kort" })), await settledBox(page.getByRole("button", { name: "Nästa kort" }))];
+      for (const arrow of arrows) {
+        expect(arrow.width).toBeGreaterThanOrEqual(44);
+        expect(arrow.x).toBeGreaterThanOrEqual(0);
+        expect(arrow.x + arrow.width).toBeLessThanOrEqual(viewport.width);
+      }
+      for (let i = 0; i < 3; i++) {
+        const buttons = [card.getByRole("button", { name: /^Önskelista för / }).nth(i), card.getByRole("button", { name: /^Storlekar för / }).nth(i)];
+        await buttons[0].scrollIntoViewIfNeeded();
+        for (const button of buttons) {
+          const box = await settledBox(button);
+          for (const arrow of arrows) expect(disjoint(box, arrow)).toBe(true);
+        }
+      }
+      if (viewport.width === 320) await expectNoA11yViolations(page);
     } finally {
       await clearFamily();
     }

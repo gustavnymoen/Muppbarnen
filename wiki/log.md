@@ -2,6 +2,7 @@
 
 ## 2026-11-03
 
+* **Update** [TECH-013 Birthday card hierarchy and small phones](../specs/TECH-013-birthday-card-hierarchy/solution.md): on the closed card with one kid the name leads over a smaller date and the picture is always round; at 320 × 568 the "Nästa födelsedag" chip stays on one line, "Storlekar" is clear of the wish list button and the browse arrows are clear of the buttons on a card with three kids; a name shrunk to fit grows back when the phone is turned.
 * **Creation** [MUPP-006 Unclaim gifts](../specs/MUPP-006-unclaim-gifts/solution.md): a claimed row has an undo arrow in the checkbox column; after a confirmation ("Avbryt" / "Ta bort") anyone with the site password can remove the claim, one gift at a time, and the gift can be claimed again.
 * **Update** [TECH-010 Flaky picture thumbnail in MUPP-010-R4](../specs/TECH-010-flaky-thumbnail/solution.md): the thumbnail check that failed under load in TECH-009 was looked for on the current and the old code and not reproduced in 80 runs, so nothing was changed; a flake is fixed only once its cause is shown.
 * **Update** [MUPP-030 Open wish list gets the room](../specs/MUPP-030-open-list-header/solution.md): with a wish list open, the date moves up between the corner buttons, the kid is a 40 px picture with the name on one line beside it, and the "Nästa" chip and the age are left out, so the list gets most of the card.

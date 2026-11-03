@@ -17,9 +17,11 @@ export function FitName({ children, className = "" }: { children: string; classN
       while (el.scrollWidth > el.clientWidth && size > MIN_SIZE) el.style.fontSize = `${--size}px`;
     };
     fit();
-    // Bredden ändras när skärmen vrids eller teckensnittet laddats klart
+    // Bredden ändras när skärmen vrids eller teckensnittet laddats klart. Skärmen bevakas också: i en förälder
+    // som är lika bred som namnet ändras inte namnets bredd när det får mer plats, så det växte inte tillbaka (TECH-013-R6)
     const observer = new ResizeObserver(fit);
     observer.observe(el);
+    observer.observe(document.documentElement);
     let mounted = true;
     document.fonts.ready.then(() => mounted && fit());
     return () => {

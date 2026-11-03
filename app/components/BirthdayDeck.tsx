@@ -22,8 +22,6 @@ const SIDE_OFFSET = 94; // % av kortets bredd som korten på sidorna ligger vid 
 const SIDE_SCALE = 0.84;
 // Bilden på kort med flera barn växer med skärmens höjd: 72 px på en låg telefon (667 px), upp till 104 px
 const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
-// Bilden på kortet med ett barn: 192 px på en hög telefon, och krymper med skärmens höjd så att knappen Storlekar får plats (96 px på 568 px)
-const SOLO_AVATAR = "clamp(96px, calc(100dvh - 527px), 192px)";
 const TILE_AVATAR = 56; // barnen på julkortet
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${dayAndMonth(card.day!, card.month!)}`);
@@ -187,12 +185,13 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
             );
           })}
         </div>
-        <div className="absolute inset-y-0 left-2 z-10 flex items-center pointer-events-none">
+        {/* På en smal telefon sitter pilarna närmare skärmens kant, så att de inte täcker knapparna på kortet (TECH-013-R5) */}
+        <div className="absolute inset-y-0 left-2 max-[23rem]:left-0 z-10 flex items-center pointer-events-none">
           <IconButton className="pointer-events-auto" label="Föregående kort" disabled={!canGo} onClick={() => go(-1)}>
             <ChevronLeftIcon />
           </IconButton>
         </div>
-        <div className="absolute inset-y-0 right-2 z-10 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 right-2 max-[23rem]:right-0 z-10 flex items-center pointer-events-none">
           <IconButton className="pointer-events-auto" label="Nästa kort" disabled={!canGo} onClick={() => go(1)}>
             <ChevronRightIcon />
           </IconButton>
@@ -205,10 +204,11 @@ export function BirthdayDeck({ cards }: { cards: DeckCard[] }) {
   );
 }
 
-// Märket på det närmaste kortet, med en stjärna på var sida; alltid gult, oavsett barnets färg (MUPP-013-R4)
+// Märket på det närmaste kortet, med en stjärna på var sida; alltid gult, oavsett barnets färg (MUPP-013-R4).
+// På en smal telefon är texten mindre, så att märket ryms på en rad (TECH-013-R2)
 function NextMark({ children }: { children: string }) {
   return (
-    <span className="chip-child inline-flex items-center gap-2 rounded-full px-4 py-1 font-heading text-base font-semibold" style={{ "--child": "var(--color-child-sun)" } as CSSProperties}>
+    <span className="chip-child inline-flex items-center gap-2 rounded-full px-4 py-1 font-heading text-base font-semibold whitespace-nowrap max-[23rem]:gap-1.5 max-[23rem]:px-3 max-[23rem]:text-sm" style={{ "--child": "var(--color-child-sun)" } as CSSProperties}>
       <span aria-hidden="true">✦</span>
       <span>{children}</span>
       <span aria-hidden="true">✦</span>
@@ -231,7 +231,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       as="article"
       id={`karta-${card.key}`}
       highlight={first ? card.kids[0].color : undefined}
-      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden ${openKid ? "px-4" : "px-6"} ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${openKid ? "pt-3" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"}`}
+      className={`relative isolate flex h-full flex-col gap-4 overflow-hidden ${openKid ? "px-4" : "px-6"} ${christmas ? "christmas-card pb-8" : single ? "pb-8" : "pb-4"} ${openKid ? "pt-3" : christmas ? "pt-12" : single ? "pt-8" : "pt-4"} ${single && !openKid ? "[@media(max-height:600px)]:py-6" : ""}`}
     >
       {christmas && <ChristmasBackdrop />}
       {/* Tillbaka till alla barn uppe till vänster, först i tabbordningen (MUPP-015); på kortet med ett barn finns inget att gå tillbaka till */}
@@ -244,8 +244,9 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
       {openKid && <SizesButton kid={openKid} mode="corner" className="absolute right-3 top-3 z-10" />}
       {/* I en öppen barnvy står datumet på raden med hörnknapparna, mellan dem (MUPP-030-R3); kortets kant är smalare så att ett långt namn ryms (R2) */}
       <header className={`flex items-center text-center ${openKid ? "h-11 justify-center px-10" : "flex-col gap-2"}`}>
-        {/* På en smal telefon krymper datumet så att det ryms på en rad, och i en öppen barnvy också för ikonerna i hörnen */}
-        <h2 className={`font-heading font-semibold ${openKid ? "text-xl whitespace-nowrap max-[23rem]:text-sm" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
+        {/* På en smal telefon krymper datumet så att det ryms på en rad, och i en öppen barnvy också för ikonerna i hörnen.
+            På kortet med ett barn leder namnet och datumet är en mindre etikett (TECH-013-R1) */}
+        <h2 className={`font-heading font-semibold ${openKid ? "text-xl whitespace-nowrap max-[23rem]:text-sm" : single ? "text-xl" : "text-3xl max-[23rem]:text-2xl"}`}>{christmas ? "Julafton" : date}</h2>
         {nextMark && <NextMark>{nextMark}</NextMark>}
       </header>
 
@@ -313,11 +314,15 @@ function KidFace({ cardKey, date, kid, solo, open, onToggle }: { cardKey: string
           </h3>
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center">
-          <Avatar name={kid.name} color={kid.color} src={kid.picture} size={SOLO_AVATAR} decorative />
-          <h3 className="mt-2 font-heading text-3xl font-semibold break-words">{kid.name}</h3>
+        // På en låg telefon är luften mindre (här och runt kortet), så att knappen Storlekar inte hamnar under önskelistknappen (TECH-013-R3)
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center [@media(max-height:600px)]:gap-1">
+          {/* Bilden tar höjden som blir över, mellan 72 och 192 px, och är alltid rund: storleken är rutans kortaste sida (TECH-013-R3, R4) */}
+          <div className="flex min-h-18 max-h-48 w-full flex-1 basis-0 justify-center [container-type:size]">
+            <Avatar name={kid.name} color={kid.color} src={kid.picture} size="100cqmin" decorative />
+          </div>
+          <h3 className="mt-2 font-heading text-3xl font-semibold break-words [@media(max-height:600px)]:mt-0">{kid.name}</h3>
           {ageText(kid, date) && <p className="text-lg text-muted">{ageText(kid, date)}</p>}
-          <SizesButton kid={kid} mode="text" className="mt-2" />
+          <SizesButton kid={kid} mode="text" className="mt-2 [@media(max-height:600px)]:mt-0" />
         </div>
       )}
       <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />

@@ -51,6 +51,7 @@ tags: [product, features]
 | [MUPP-029](MUPP-029-single-kid-close-motion/solution.md) | Single-kid wish list close motion | Startsida | Done |
 | [MUPP-030](MUPP-030-open-list-header/solution.md) | Open wish list gets the room | Startsida | Done |
 | [MUPP-006](MUPP-006-unclaim-gifts/solution.md) | Unclaim gifts | Startsida | Ongoing |
+| [TECH-013](TECH-013-birthday-card-hierarchy/solution.md) | Birthday card hierarchy and small phones | Startsida | Ongoing |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

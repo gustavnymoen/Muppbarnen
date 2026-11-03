@@ -107,6 +107,15 @@ export async function animationsDone(locator: Locator) {
   await locator.evaluate((el) => Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 
+// Browses the deck with "Nästa kort" until the card with this heading (a date or "Julafton") is in the middle
+export async function toCard(page: Page, heading: string) {
+  const card = page.getByRole("article");
+  for (let i = 0; i < 4 && (await card.getByRole("heading", { level: 2 }).innerText()) !== heading; i++) {
+    await page.getByRole("button", { name: "Nästa kort" }).click();
+    await animationsDone(card);
+  }
+}
+
 // Waits until every animation and transition on the page has finished, also those of
 // elements that are removed when they end (the copy that moves when a view closes). An
 // expect that waits for the end of an animation is otherwise checked again only after
@@ -151,6 +160,10 @@ export const transformsOf = (el: Locator) =>
 // A wish list that grows or shrinks as a whole (transition.ts, MUPP-022, MUPP-029): `transform`
 // (translate and scale from the top left corner) moves and scales the box `from` so that it covers `to`
 export type Box = { x: number; y: number; width: number; height: number };
+// Two boxes that do not overlap, and a box inside another (half a pixel's margin for rounding)
+export const disjoint = (a: Box, b: Box) => a.x + a.width <= b.x + 0.5 || b.x + b.width <= a.x + 0.5 || a.y + a.height <= b.y + 0.5 || b.y + b.height <= a.y + 0.5;
+export const inside = (inner: Box, outer: Box) =>
+  inner.x >= outer.x - 0.5 && inner.y >= outer.y - 0.5 && inner.x + inner.width <= outer.x + outer.width + 0.5 && inner.y + inner.height <= outer.y + outer.height + 0.5;
 export function expectOnto(transform: string, from: Box, to: Box) {
   const [dx, dy, sx, sy] = (transform.match(/-?[\d.]+(?=px|,|\))/g) ?? []).map(Number);
   for (const [got, want] of [[dx, to.x - from.x], [dy, to.y - from.y], [sx, to.width / from.width], [sy, to.height / from.height]]) expect(got).toBeCloseTo(want, 1);
