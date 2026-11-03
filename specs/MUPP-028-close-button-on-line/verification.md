@@ -7,6 +7,8 @@ feature: MUPP-028
 
 # Verification of MUPP-028
 
+The checks in the tables below were run locally on 2026-11-03. After the deploy (PR #99), Live tests passed on `main` (run 41601189668 on `830e4d3`), the user tried the list on a phone against production, and the relevant checklist items were gone through on the live site, see "Live accessibility checklist".
+
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | MUPP-028-R1 | Test `MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 …` in `tests/design.spec.ts`: the button's centre on the box's bottom line, the rows' box ends above it, unchanged when scrolled, last row fully visible and pressable at the end; on a card with one kid and on the twins' card | local | Pass | 2026-11-03 |
@@ -19,8 +21,8 @@ feature: MUPP-028
 |---|---|---|---|---|
 | Unit tests | Not applicable: no logic | | | |
 | Browser tests | As above; the existing tests of opening, folding up and focus (MUPP-004, -005, -015, -016, -017, -021, -022, -023) pass. Two changed only where they reach the list's scrolling box, which is now inside the region (`MUPP-004-R7` scroll check, `MUPP-015` tab order) | local | Pass | 2026-11-03 |
-| Smoke test | Not needed: no page or flow added or changed | | | |
-| Accessibility | `expectNoA11yViolations` on the open list for one kid and for the twins; screenshots at 375 × 667 of the arrow, the cross with the keyboard focus ring and the Paxa row looked at. Impeccable critique (single context, on those screenshots; detector in regex mode, no findings): the button reads as the list's handle and covers no row; noted that "Paxa (n)" was out of view in a long list until scrolled to; the user then changed R3 so that it sits in a fixed row above the button (screenshot looked at). The scrolling box is a group named "Önskningar" (review). On a phone on the live site: not checked yet | local | Pass | 2026-11-03 |
+| Smoke test | Not needed: no page or flow added or changed. The existing smoke tests passed against production (Live tests, run 41601189668) | live | Pass | 2026-11-03 |
+| Accessibility | `expectNoA11yViolations` on the open list for one kid and for the twins; screenshots at 375 × 667 of the arrow, the cross with the keyboard focus ring and the Paxa row looked at. Impeccable critique (single context, on those screenshots; detector in regex mode, no findings): the button reads as the list's handle and covers no row; noted that "Paxa (n)" was out of view in a long list until scrolled to; the user then changed R3 so that it sits in a fixed row above the button (screenshot looked at). The scrolling box is a group named "Önskningar" (review). On the live site: the user's check on a phone, and the checklist below | local, live | Pass | 2026-11-03 |
 | Security | `/security-review` not needed (no sign-in, API, data) | | | |
 | Code review | [review.md](review.md): no must-fix, two should-fix fixed | local | Passed | 2026-11-03 |
 
@@ -39,14 +41,32 @@ The suite was already over its budget on `main`, and this change does not move i
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: within the time budgets (over on `main` already; task added), the new checks follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: axe passes; the phone check on the live site is not done yet
+- [x] Deployed (PR #99), and the smoke tests pass against production (Live tests, run 41601189668 on `main`)
+- [x] Accessibility: axe passes; the user checked it on a phone against production, and the relevant checklist items were gone through on the live site (below). Not checked: VoiceOver itself, 320 px, text spacing (item 5), reduced motion (item 11)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the sticky button row and the text button "Stäng" are gone
 - [x] Clean code: reuses `IconButton`; `npm run lint`, `npm run typecheck` and `npm run build` pass
 - [x] Code review done, no must-fix findings left; see [review.md](review.md)
 - [x] Technical tasks for larger improvements noticed along the way added to the board
+
+## Live accessibility checklist
+
+Checked on https://muppbarnen.vercel.app on 2026-11-03 in the built-in browser (Chromium, 375 × 812), reading only, on the open kid view of the two-kid November card (cross button, no wishes yet). The user also looked at it on a phone against production and found it good. Items are from [accessibility.md](../../wiki/system/accessibility.md).
+
+| # | Item | Result |
+|---|---|---|
+| 1 | Keyboard | Pass. Opening the list puts the focus on "Stäng önskelistan"; Shift+Tab goes to the rows' box "Önskningar" (focusable) and Tab back; Escape closes the list |
+| 2 | Focus visible | Pass. 3 px solid ring (`rgb(154, 169, 224)`) on the button, drawn in full: 27 px of card below the button |
+| 3 | Screen reader | Partly. The accessibility tree names the button "Stäng önskelistan" and the rows' box "Önskningar". VoiceOver itself was not run: not checked |
+| 4 | 320 px and 400 % zoom | Not checked on the live site (the local test at 375 × 667 only); no sideways scroll at 375 px |
+| 5 | Text spacing | Not checked |
+| 6 | Contrast | Pass. The icon `rgb(200, 208, 220)` on the button's `rgb(20, 25, 32)` is 11.4:1 |
+| 7 | Target size | Pass. Drawn 32 × 32 px, round; a point 21 px from the centre in each direction hits the button (44 × 44 px target) |
+| 8 | Hover and focus content | Not affected |
+| 9 | Errors and labels | Not affected: no form changed |
+| 10 | Title, language, images | Not affected |
+| 11 | Reduced motion | Not checked |
 
 ## Requirements as built
 
