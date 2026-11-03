@@ -39,7 +39,7 @@ How each requirement was checked. All runs below were under load: 12 `yes` proce
 
 - [x] Tests: every check in the card's test plan is done; every requirement is checked (R1 and R3 by runs under load, R2 by code review); `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (168.6 s of 180 s, slowest 4.7 s of 5 s); no test was added or changed
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41642127355 against the merge `1accb989` passed (2026-11-03)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built (R1 and R2 reworded with the user, 2026-11-03, since the failure was not reproduced), no open questions left; copied below as built; `solution.md` describes what was done
 - [x] Manual: not applicable (nothing to use); system docs (`wiki/system/testing.md`) and `wiki/log.md` updated

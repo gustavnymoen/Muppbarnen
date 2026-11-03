@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { Wish } from "./deck";
-import { canClaim, isLongTitle, sortWishes, webLink } from "./wishes";
+import { canClaim, canUnclaim, isLongTitle, sortWishes, webLink } from "./wishes";
 
 // Påhittade önskningar
 const wish = (id: number, extra: Partial<Wish> = {}): Wish => ({ id, title: `Önskan ${id}`, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
@@ -28,6 +28,14 @@ describe("MUPP-005-R3 what can be marked", () => {
     expect(canClaim(wish(1))).toBe(true);
     expect(canClaim(wish(2, claimed))).toBe(false);
     expect(canClaim(wish(3, { unlimited: true }))).toBe(false);
+  });
+});
+
+describe("MUPP-006-R1 which rows get the undo button", () => {
+  test("MUPP-006-R1 only a claimed wish that is not unlimited", () => {
+    expect(canUnclaim(wish(1, claimed))).toBe(true);
+    expect(canUnclaim(wish(2))).toBe(false);
+    expect(canUnclaim(wish(3, { ...claimed, unlimited: true }))).toBe(false);
   });
 });
 

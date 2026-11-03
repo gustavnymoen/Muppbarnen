@@ -672,7 +672,7 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 an open wish list swaps the wish
   }
 });
 
-test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 the wish rows and the claim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
+test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 MUPP-006-R1 R2 the wish rows, the claim dialog and the unclaim dialog: marks, targets, contrast, focus and fit on a phone", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -695,7 +695,7 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 the wish rows and the c
     expect(contrast(await css(region.getByText("Kan köpas flera gånger", { exact: true }), "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
     // MUPP-019: the "Paxad" mark and the "Paxad av" line are orange-like (red above green and blue), and the info button is a 44 px target in the checkbox column
     expect(await css(claimedMark, "color")).toBe("rgb(227, 161, 95)");
-    await region.getByRole("button", { name: "Hoppborg" }).click();
+    await region.getByRole("button", { name: /^Hoppborg/ }).click();
     const claimedBy = region.getByText("Paxad av Moster Lisa");
     expect(await css(claimedBy, "color")).toBe("rgb(227, 161, 95)");
     expect(contrast(await css(claimedBy, "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
@@ -771,6 +771,34 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 the wish rows and the c
     await expectTextMessage(dialog.getByRole("alert"), DANGER);
     expect(contrast(DANGER, CARD)).toBeGreaterThanOrEqual(4.5);
     await expectNoA11yViolations(page);
+    await page.keyboard.press("Escape");
+
+    // MUPP-006-R1: the undo arrow on the claimed row is frameless like the info button, in the checkbox column, orange and readable
+    const undo = region.getByRole("button", { name: "Ta bort paxningen på Hoppborg" });
+    const undoBox = await target(undo);
+    expect(undoBox.width).toBeGreaterThanOrEqual(44);
+    expect(undoBox.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(undoBox.x + undoBox.width / 2 - (tick.x + tick.width / 2))).toBeLessThan(2);
+    await expect(undo).toHaveCSS("border-top-width", "0px");
+    await expect(undo).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    const arrowColour = await css(undo.locator("svg"), "color");
+    expect(arrowColour).toBe("rgb(227, 161, 95)");
+    expect(contrast(arrowColour, await backgroundOf(region))).toBeGreaterThanOrEqual(3);
+
+    // MUPP-006-R2: on the narrowest phone the dialog fits and "Avbryt" and "Ta bort" stand side by side
+    await page.setViewportSize({ width: 320, height: 640 });
+    await undo.click();
+    const unclaim = page.getByRole("alertdialog");
+    await animationsDone(unclaim);
+    await expect(unclaim).toHaveCSS("background-color", CARD);
+    const unclaimBox = await settledBox(unclaim);
+    expect(unclaimBox.x).toBeGreaterThanOrEqual(0);
+    expect(unclaimBox.x + unclaimBox.width).toBeLessThanOrEqual(320);
+    const [cancel, remove] = [await target(unclaim.getByRole("button", { name: "Avbryt" })), await target(unclaim.getByRole("button", { name: "Ta bort" }))];
+    expect(cancel.height).toBeGreaterThanOrEqual(44);
+    expect(remove.y).toBe(cancel.y);
+    expect(remove.x).toBeGreaterThan(cancel.x + cancel.width);
+    await expect(unclaim.getByRole("button", { name: "Ta bort" })).toHaveCSS("background-color", BRAND);
   } finally {
     await clearFamily();
   }

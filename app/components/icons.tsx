@@ -91,3 +91,11 @@ export const InfoIcon = () => (
     <path d="M12 11v5M12 8h.01" />
   </Icon>
 );
+
+// En pil som går runt bakåt: ångra, på den paxade raden (MUPP-006)
+export const UndoIcon = () => (
+  <Icon>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+  </Icon>
+);

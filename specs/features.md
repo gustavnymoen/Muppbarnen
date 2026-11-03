@@ -42,7 +42,7 @@ tags: [product, features]
 | [TECH-007](TECH-007-flaky-admin-tests/solution.md) | Flaky admin tests | Shared | Done |
 | [TECH-008](TECH-008-flaky-box-measurements/solution.md) | Flaky box measurements | Shared | Done |
 | [TECH-009](TECH-009-settled-boxes-in-feature-tests/solution.md) | Settled boxes in the feature tests | Shared | Done |
-| [TECH-010](TECH-010-flaky-thumbnail/solution.md) | Flaky picture thumbnail in MUPP-010-R4 | Shared | Review |
+| [TECH-010](TECH-010-flaky-thumbnail/solution.md) | Flaky picture thumbnail in MUPP-010-R4 | Shared | Done |
 | [TECH-011](TECH-011-ponytail-audit/solution.md) | Ponytail audit and tidy-up | Shared | Review |
 | [MUPP-027](MUPP-027-info-button-no-frame/solution.md) | Info button without a frame | Startsida | Review |
 | [TECH-012](TECH-012-shrink-pictures/solution.md) | Shrink uploaded pictures | Shared | Review |
@@ -50,6 +50,7 @@ tags: [product, features]
 | [TECH-014](TECH-014-test-time/solution.md) | Test suite over its time budget | Shared | Review |
 | [MUPP-029](MUPP-029-single-kid-close-motion/solution.md) | Single-kid wish list close motion | Startsida | Done |
 | [MUPP-030](MUPP-030-open-list-header/solution.md) | Open wish list gets the room | Startsida | Done |
+| [MUPP-006](MUPP-006-unclaim-gifts/solution.md) | Unclaim gifts | Startsida | Ongoing |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

@@ -2,6 +2,7 @@
 
 ## 2026-11-03
 
+* **Creation** [MUPP-006 Unclaim gifts](../specs/MUPP-006-unclaim-gifts/solution.md): a claimed row has an undo arrow in the checkbox column; after a confirmation ("Avbryt" / "Ta bort") anyone with the site password can remove the claim, one gift at a time, and the gift can be claimed again.
 * **Update** [TECH-010 Flaky picture thumbnail in MUPP-010-R4](../specs/TECH-010-flaky-thumbnail/solution.md): the thumbnail check that failed under load in TECH-009 was looked for on the current and the old code and not reproduced in 80 runs, so nothing was changed; a flake is fixed only once its cause is shown.
 * **Update** [MUPP-030 Open wish list gets the room](../specs/MUPP-030-open-list-header/solution.md): with a wish list open, the date moves up between the corner buttons, the kid is a 40 px picture with the name on one line beside it, and the "Nästa" chip and the age are left out, so the list gets most of the card.
 * **Update** [MUPP-029 Single-kid wish list close motion](../specs/MUPP-029-single-kid-close-motion/solution.md): on a card with one kid the wish list grows out of the "Önskelista" button and shrinks back into it, like the view on the other cards, instead of sliding up and down.
