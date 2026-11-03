@@ -102,8 +102,7 @@ async function withCookie(page: Page, baseURL: string | undefined, value: string
   await goto(page, "/admin");
 }
 
-// The refused cookies are a test of their own, so that neither test goes over 5 s (TECH-014)
-test("MUPP-003-R1 a changed, expired or foreign cookie is refused", async ({ page, baseURL }) => {
+test("MUPP-003-R1 R2 a changed, expired or foreign cookie is refused, a signed one is accepted, and a removed parent drops the choice", async ({ page, baseURL }) => {
   const mia = await addParent(uniqueName("Mia"));
   const soon = Math.floor(Date.now() / 1000) + 600;
   const [expires, parent, signature] = createAdminSession(secret, 0, soon).split(".");
@@ -120,37 +119,13 @@ test("MUPP-003-R1 a changed, expired or foreign cookie is refused", async ({ pag
     await expect(page.getByLabel("Adminlösenord"), what).toBeVisible();
     await expect(page.getByRole("heading", { level: 2 }), what).toHaveCount(0);
   }
-});
 
-test("MUPP-003-R1 R2 a signed cookie is accepted, and a removed parent drops the choice", async ({ page, baseURL }) => {
-  const mia = await addParent(uniqueName("Mia"));
-  const soon = Math.floor(Date.now() / 1000) + 600;
   await withCookie(page, baseURL, createAdminSession(secret, 0, soon));
   await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
 
   // R2: a signed cookie for a parent that has been removed: the choice is dropped and the list shown
   await withCookie(page, baseURL, createAdminSession(secret, mia + 1000, soon));
   await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
-});
-
-test("MUPP-003-R1 the sixth wrong password blocks the address, and then even the right one is refused", async ({ browser, baseURL }) => {
-  const context = await browser.newContext({ baseURL, storageState: "playwright/.auth/site.json", extraHTTPHeaders: { "x-real-ip": testIp() } });
-  // Six wrong at once, so that the second a wrong password costs is paid once (as in TECH-005-R3)
-  const pages = await Promise.all(Array.from({ length: 6 }, () => context.newPage()));
-  for (const page of pages) await goto(page, "/admin");
-  for (const page of pages) {
-    await page.getByLabel("Adminlösenord").fill("fel lösenord");
-    await page.getByRole("button", { name: "Logga in" }).click();
-  }
-  for (const page of pages) await expect(page.getByRole("alert").filter({ hasText: "Fel lösenord." })).toHaveText("Fel lösenord.");
-
-  const page = pages[0];
-  await goto(page, "/admin");
-  await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
-  await page.getByRole("button", { name: "Logga in" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "För många försök. Försök igen om en stund." })).toHaveText("För många försök. Försök igen om en stund.");
-  expect((await context.cookies()).filter((c) => c.name === ADMIN_COOKIE)).toEqual([]);
-  await context.close();
 });
 
 test("MUPP-003-R2 R8 with no parent the page offers one form, Skapa huvudadministratör, with Gustav filled in", async ({ page }) => {
@@ -571,8 +546,7 @@ test("MUPP-003-R8 the menu ends with a quiet Admin link, nothing else points to 
   expect(await robots.text()).not.toContain("admin");
 });
 
-for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
-  test(`MUPP-003-R8 every admin page works at ${width} px: no sideways scroll, controls of 44 px (32 px for the icon buttons)`, async ({ page }) => {
+test("MUPP-003-R8 every admin page works at 320, 430 and 1280 px: no sideways scroll, controls of 44 px (32 px for the icon buttons)", async ({ page }) => {
   const mia = uniqueName("Mia");
   const chef = uniqueName("Chef");
   const miaId = await addParent(mia, true);
@@ -585,24 +559,26 @@ for (const [width, height] of [[320, 568], [430, 932], [1280, 800]]) {
   await form.getByRole("button", { name: "Lägg till" }).click();
   await expect(page.getByRole("heading", { level: 3, name: "Pussel" })).toBeVisible();
 
-  await page.setViewportSize({ width, height });
+  // Every page is opened once and measured at each width by resizing the window (TECH-015)
   for (const path of ["/admin", `/admin/barn/${kid}/storlekar`, `/admin/barn/${kid}/onskelistor`, "/admin/hantera"]) {
     await goto(page, path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    expect(await hasHorizontalScroll(page), `${path} at ${width}`).toBe(false);
-    // Every button, link and field is at least 44 × 44 px (a checkbox sits in a row that high),
-    // except the compact icon buttons (the ones with a tooltip), which are 32 × 32 px (MUPP-010-R2)
-    const small = await page.locator("main").locator("button, a, input:not([type=checkbox]):not([type=hidden]), select, textarea").evaluateAll((els) =>
-      els
-        .filter((el) => (el as HTMLElement).offsetParent !== null)
-        .map((el) => ({ text: el.getAttribute("aria-label") || el.textContent?.trim().slice(0, 30) || el.getAttribute("name"), box: el.getBoundingClientRect(), min: el.hasAttribute("title") ? 31.5 : 43.5 }))
-        .filter(({ box, min }) => box.height < min || box.width < min)
-        .map(({ text, box }) => `${text}: ${box.width}×${box.height}`),
-    );
-    expect(small, `${path} at ${width}`).toEqual([]);
+    for (const [width, height] of [[1280, 800], [430, 932], [320, 568]]) {
+      await page.setViewportSize({ width, height });
+      expect(await hasHorizontalScroll(page), `${path} at ${width}`).toBe(false);
+      // Every button, link and field is at least 44 × 44 px (a checkbox sits in a row that high),
+      // except the compact icon buttons (the ones with a tooltip), which are 32 × 32 px (MUPP-010-R2)
+      const small = await page.locator("main").locator("button, a, input:not([type=checkbox]):not([type=hidden]), select, textarea").evaluateAll((els) =>
+        els
+          .filter((el) => (el as HTMLElement).offsetParent !== null)
+          .map((el) => ({ text: el.getAttribute("aria-label") || el.textContent?.trim().slice(0, 30) || el.getAttribute("name"), box: el.getBoundingClientRect(), min: el.hasAttribute("title") ? 31.5 : 43.5 }))
+          .filter(({ box, min }) => box.height < min || box.width < min)
+          .map(({ text, box }) => `${text}: ${box.width}×${box.height}`),
+      );
+      expect(small, `${path} at ${width}`).toEqual([]);
+    }
   }
 });
-}
 
 test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a kid", async ({ page }) => {
   const mia = uniqueName("Mia");

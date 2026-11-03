@@ -25,8 +25,18 @@ async function openVerasList(page: Page) {
   await goto(page, `/admin/barn/${vera}/onskelistor`);
 }
 
-test("MUPP-007-R1 R2 removing a claimed present warns who claimed it and when; Avbryt keeps it, confirming removes it", async ({ page }) => {
+// R3 först, eftersom den inte ändrar något; samma lista i hela testet (TECH-015)
+test("MUPP-007-R1 R2 R3 removing a claimed present warns who claimed it and when; Avbryt keeps it, confirming removes it; a free or unlimited present has the usual dialog, without a warning", async ({ page }) => {
   await openVerasList(page);
+  // R3
+  for (const title of ["Pussel", "Strumpor"]) {
+    await page.getByRole("button", { name: `Ta bort ${title}` }).click();
+    await expect(dialog(page)).toContainText(`”${title}” tas bort från listan för Vera. Det går inte att ångra.`);
+    await expect(dialog(page)).not.toContainText("paxad");
+    await dialog(page).getByRole("button", { name: "Avbryt" }).click();
+  }
+
+  // R1 R2
   await page.getByRole("button", { name: "Ta bort Cykel" }).click();
   await expect(dialog(page)).toContainText("Cykel är paxad av Moster Lisa 15 januari. Hen kan redan ha köpt den.");
   await expect(dialog(page)).toContainText("Det går inte att ångra.");
@@ -48,14 +58,4 @@ test("MUPP-007-R1 R2 removing a claimed present warns who claimed it and when; A
   await expect(page.getByRole("button", { name: "Ta bort Cykel" })).toHaveCount(0);
   expect(await claimedByOf("Cykel")).toBeUndefined();
   expect(await countRows("wishlist_item")).toBe(2);
-});
-
-test("MUPP-007-R3 a free or unlimited present has the usual dialog, without a warning", async ({ page }) => {
-  await openVerasList(page);
-  for (const title of ["Pussel", "Strumpor"]) {
-    await page.getByRole("button", { name: `Ta bort ${title}` }).click();
-    await expect(dialog(page)).toContainText(`”${title}” tas bort från listan för Vera. Det går inte att ångra.`);
-    await expect(dialog(page)).not.toContainText("paxad");
-    await dialog(page).getByRole("button", { name: "Avbryt" }).click();
-  }
 });

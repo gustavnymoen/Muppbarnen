@@ -222,13 +222,14 @@ test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) 
   for (const name of ["Alva", "Bo", "Cleo", "Dan", "Eli"]) await addChild(chefId, name);
   await adminSignIn(page, chef);
 
+  // The page is opened once and measured at each width by resizing the window (TECH-015)
+  await goto(page, "/admin");
+  await expect(page.getByRole("heading", { level: 2 }).first()).toBeVisible();
+  const kids = page.getByRole("article");
+  await expect(kids).toHaveCount(5);
   for (const [width, height] of [[375, 667], [430, 932]]) {
     await page.setViewportSize({ width, height });
     // The parent's own page: all five kids are inside the screen, the page itself does not scroll
-    await goto(page, "/admin");
-    await expect(page.getByRole("heading", { level: 2 }).first()).toBeVisible();
-    const kids = page.getByRole("article");
-    await expect(kids).toHaveCount(5);
     for (const index of [0, 4]) {
       const box = await settledBox(kids.nth(index));
       expect(box.y + box.height, `kid ${index} at ${width}`).toBeLessThanOrEqual(height);
@@ -241,21 +242,26 @@ test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll 
   const kidId = await addChild(await addParent(chef, true), uniqueName("Barn"));
   await adminSignIn(page, chef);
 
-  for (const [width, height] of [[320, 568], [430, 932]]) {
-    await page.setViewportSize({ width, height });
-    await goto(page, "/admin/hantera");
-    const first = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^Bild för / }) }).first();
-    await first.getByRole("button", { name: /^Ändra / }).click();
-    expect(await hasHorizontalScroll(page), `edit at ${width}`).toBe(false);
-    await first.getByRole("button", { name: /^Bild för / }).click();
-    expect(await hasHorizontalScroll(page), `picture at ${width}`).toBe(false);
-    await goto(page, `/admin/barn/${kidId}/storlekar`);
-    expect(await hasHorizontalScroll(page), `sizes at ${width}`).toBe(false);
-    await expectNoA11yViolations(page);
-    await goto(page, `/admin/barn/${kidId}/onskelistor`);
-    expect(await hasHorizontalScroll(page), `lists at ${width}`).toBe(false);
-    await expectNoA11yViolations(page);
-  }
+  // Each page is opened once and checked at each width by resizing the window (TECH-015)
+  const widths = [[320, 568], [430, 932]];
+  const noSidewaysScroll = async (what: string) => {
+    for (const [width, height] of widths) {
+      await page.setViewportSize({ width, height });
+      expect(await hasHorizontalScroll(page), `${what} at ${width}`).toBe(false);
+    }
+  };
+  await goto(page, "/admin/hantera");
+  const first = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^Bild för / }) }).first();
+  await first.getByRole("button", { name: /^Ändra / }).click();
+  await noSidewaysScroll("edit");
+  await first.getByRole("button", { name: /^Bild för / }).click();
+  await noSidewaysScroll("picture");
+  await goto(page, `/admin/barn/${kidId}/storlekar`);
+  await noSidewaysScroll("sizes");
+  await expectNoA11yViolations(page);
+  await goto(page, `/admin/barn/${kidId}/onskelistor`);
+  await noSidewaysScroll("lists");
+  await expectNoA11yViolations(page);
 });
 
 test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc folds, and Tab reaches the trash can and the confirmation", async ({ page }) => {

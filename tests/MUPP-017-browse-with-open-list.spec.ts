@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -153,19 +153,20 @@ test("MUPP-017-R3 swiping does nothing, the arrow keys stay in the claim dialog,
   await expect(kidName(page)).toHaveText("Otto");
 });
 
-for (const width of [320, 375]) {
-  test(`MUPP-017-R4 Tillbaka is only an icon, named after where it goes, 44 px, and works as before at ${width} px`, async ({ page }) => {
-    await threeKids(page);
+test("MUPP-017-R4 Tillbaka is only an icon, named after where it goes, 44 px, and works as before at 320 and 375 px", async ({ page }) => {
+  await threeKids(page);
+  // Samma sida i båda bredderna, fönstret ändras (TECH-015)
+  for (const width of [320, 375]) {
     await page.setViewportSize({ width, height: 667 });
     const open = card(page).getByRole("button", { name: /^Önskelista för Vera/ });
     await open.click();
     const back = card(page).getByRole("button", { name: "Tillbaka till alla barn" });
     await expect(back).toBeVisible();
     await expect(back).toHaveText("");
-    const box = (await back.boundingBox())!;
-    expect(box.width).toBeGreaterThanOrEqual(44);
-    expect(box.height).toBeGreaterThanOrEqual(44);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const box = await settledBox(back);
+    expect(box.width, `at ${width}`).toBeGreaterThanOrEqual(44);
+    expect(box.height, `at ${width}`).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `at ${width}`).toBe(true);
     await expectNoA11yViolations(page);
 
     await region(page).getByRole("checkbox", { name: "Cykel åt Vera" }).check();
@@ -174,5 +175,8 @@ for (const width of [320, 375]) {
     await expect(open).toBeFocused();
     await open.click();
     await expect(region(page).getByRole("checkbox", { name: "Cykel åt Vera" })).not.toBeChecked();
-  });
-}
+    // Vyn stängs igen, så att nästa bredd börjar som den här
+    await back.click();
+    await expect(region(page)).toHaveCount(0);
+  }
+});
