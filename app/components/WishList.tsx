@@ -44,8 +44,8 @@ export function WishButton({
 
 // Önskelistan på ett barnkort (MUPP-004-R7): knappen fäller ut listan med varje önskan som en rad (MUPP-005).
 // Listan scrollar inuti kortet. Är den öppen styr kortleken, som låser sig då (R9); knappen byts då mot en
-// knapp mitt på listans nederkant (MUPP-028): en pil upp på ett kort med ett barn (solo), annars ett kryss
-// som tar tillbaka till kortet med flera barn eller Julafton (MUPP-013-R5, MUPP-005-R6, -R7).
+// knapp mitt på listans nederkant (MUPP-028): ett kryss (MUPP-034), som heter "Fäll ihop önskelistan" på ett kort med ett barn (solo)
+// och "Stäng önskelistan" annars; den tar tillbaka till kortet med flera barn eller Julafton (MUPP-013-R5, MUPP-005-R6, -R7).
 export function WishList({
   id,
   wishes,
@@ -122,7 +122,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
         </div>
       )}
       {/* Mitt på boxens nederkant, halvt utanför, så att den går att stänga var man än är i listan; fokus hamnar här när listan öppnas.
-          32 px rund, med en osynlig träffyta på 44 px (before:, räknat från insidan av ramen) (MUPP-028-R2). En pil upp på kortet med ett barn, annars ett kryss. */}
+          32 px rund, med en osynlig träffyta på 44 px (before:, räknat från insidan av ramen) (MUPP-028-R2). Alltid ett kryss (MUPP-034); namnet följer kortet. */}
       <IconButton
         id={`${id}-knapp`}
         compact
@@ -131,7 +131,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
         onClick={onToggle}
         className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 before:absolute before:-inset-[7px]"
       >
-        {solo ? <ChevronUpIcon /> : <CrossIcon />}
+        <CrossIcon />
       </IconButton>
       <ClaimDialog ref={dialog} wishes={wishes.filter((w) => marked.includes(w.id))} onDone={claimed} />
       <UnclaimDialog ref={unclaimDialog} wish={unclaiming} onDone={(message) => done(message, unclaimDialog.current)} />

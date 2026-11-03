@@ -1,0 +1,8 @@
+%% MUPP-034 Cross on single-kid wish list
+%% The button of an open list on each kind of card.
+flowchart TD
+    A[Wish list opened] --> B{Card with one kid?}
+    B -- yes --> C[Cross, named Fäll ihop önskelistan: R1]
+    B -- no --> D[Cross, named Stäng önskelistan: R1]
+    C --> E[Press: the list folds up]
+    D --> E

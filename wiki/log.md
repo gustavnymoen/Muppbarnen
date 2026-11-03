@@ -2,6 +2,7 @@
 
 ## 2026-11-03
 
+* **Update** [MUPP-034 Cross on single-kid wish list](../specs/MUPP-034-cross-on-single-kid-list/solution.md): the button that folds up an open wish list is the same cross on every card, also a card with one kid (it keeps its name "Fäll ihop önskelistan").
 * **Creation** [MUPP-032 No focus ring after a tap](../specs/MUPP-032-quiet-focus-after-tap/solution.md): a tap or click no longer leaves a focus ring on a dialog's first button or around the wish list when the dialog closes (iPhone); one flag on the page and one CSS rule for the whole site replace MUPP-022's special case, and the keyboard still gets the ring.
 * **Creation** [MUPP-007 Warning when removing claimed gifts](../specs/MUPP-007-remove-claimed/solution.md): removing a claimed present on the admin page now warns who claimed it and on which day, so the parent can talk to them first; "Avbryt" keeps everything.
 * **Creation** [MUPP-031 Wish list stays a month after the occasion](../specs/MUPP-031-month-after/solution.md): a birthday card ("Fyllde X år", or "Född" from the birthdate to day 30) and the Christmas Eve card stay with their lists for 30 days after the day, just before the next card; then the whole list is archived, and the admin page shows an "Arkiv" per kid, grouped by occasion and year, with a "+" that copies an item back into a list. Migration 004 dates items.
