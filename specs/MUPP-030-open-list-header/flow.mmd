@@ -1,0 +1,9 @@
+%% MUPP-030 Open wish list gets the room
+%% What the top of a kid's card shows with the list closed and open.
+flowchart TD
+    A[Closed card: date, chip on the nearest card, big picture, name, age, Storlekar, Önskelista] -->|Önskelista, a kid's button or tile| B[Open kid view]
+    B --> C[Date on the corner buttons' row, between them - R3]
+    B --> D[40 px picture with the name on one line beside it, centred - R2]
+    B --> E[No chip, no age line - R1]
+    C & D & E --> F[The list gets the rest of the card]
+    F -->|fold up, Tillbaka or Esc| A
