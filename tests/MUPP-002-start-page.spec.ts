@@ -3,9 +3,19 @@ import { expectNoA11yViolations, goto, settledBox } from "./helpers";
 
 const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
-test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
+test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await goto(page, "/");
+  expect(await hasHorizontalScroll(page)).toBe(false);
+
+  // R1: sidhuvudet står kvar när innehållet scrollar och bara innehållsytan scrollar
+  const header = page.getByRole("banner");
+  const before = await settledBox(header);
+  const main = page.getByRole("main");
+  await main.evaluate((el) => el.scrollTo(0, 40));
+  const after = await settledBox(header);
+  expect(after.y).toBe(before.y);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
 
   // R1 (changed by TECH-006): namnet syns inte som rubrik; det finns kvar som en dold h1, den enda, och sidtiteln är densamma (sidhuvudets utseende: tests/design.spec.ts)
   const name = page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" });
@@ -74,27 +84,11 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
   await expect(menu).toHaveAttribute("aria-expanded", "false");
-});
-
-test("MUPP-002-R1 R4 the fixed header on a phone, also at 320 px", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await goto(page, "/");
-  expect(await hasHorizontalScroll(page)).toBe(false);
-
-  // R1: sidhuvudet står kvar när innehållet scrollar och bara innehållsytan scrollar
-  const header = page.getByRole("banner");
-  const before = await settledBox(header);
-  const main = page.getByRole("main");
-  await main.evaluate((el) => el.scrollTo(0, 40));
-  const after = await settledBox(header);
-  expect(after.y).toBe(before.y);
-  expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
 
   // R4: på 320 × 568 px fungerar sidhuvud och meny utan sidled scroll (fönstret ändras mitt i testet)
   await page.setViewportSize({ width: 320, height: 568 });
   expect(await hasHorizontalScroll(page)).toBe(false);
   await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
-  const menu = page.getByRole("button", { name: "Meny" });
   const menuBox = await settledBox(menu);
   expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(320);
   await menu.click();

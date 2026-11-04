@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -93,12 +93,13 @@ test("MUPP-017-R1 a card with several kids next is shown as the overview, with n
   await expectNoA11yViolations(page);
 });
 
-for (const [name, open, occasion] of [
-  ["the card with several kids", /^Önskelista för Vera/, "Cykel åt"],
-  ["Christmas Eve", /^Öppna Vera/, "Pussel åt"],
-] as const) {
-  test(`MUPP-017-R2 ${name}: next and previous change kid on the same card, wrap around, forget the marks and are announced`, async ({ page }) => {
-    await threeKids(page);
+// Samma sida för båda korten: först kortet med flera barn, sedan bläddras det till Julafton (TECH-015)
+test("MUPP-017-R2 the card with several kids and Christmas Eve: next and previous change kid on the same card, wrap around, forget the marks and are announced", async ({ page }) => {
+  await threeKids(page);
+  for (const [open, occasion] of [
+    [/^Önskelista för Vera/, "Cykel åt"],
+    [/^Öppna Vera/, "Pussel åt"],
+  ] as const) {
     if (occasion === "Pussel åt") {
       while ((await card(page).getByRole("heading", { level: 2 }).innerText()) !== "Julafton") await next(page).click();
     }
@@ -120,8 +121,13 @@ for (const [name, open, occasion] of [
     await previous(page).click();
     await expect(region(page).getByRole("checkbox", { name: `${occasion} Vilma` })).toBeVisible();
     await expect(status(page)).toHaveText(/Vilma/);
-  });
-}
+
+    // Vyn stängs så att nästa kort visas som vanligt
+    await card(page).getByRole("button", { name: /^Tillbaka/ }).click();
+    await expect(region(page)).toHaveCount(0);
+    await pageAnimationsDone(page);
+  }
+});
 
 test("MUPP-017-R3 swiping does nothing, the arrow keys stay in the claim dialog, and the old text is gone", async ({ page }) => {
   await threeCards(page);
