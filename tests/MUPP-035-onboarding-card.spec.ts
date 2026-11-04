@@ -14,7 +14,7 @@ async function newcomer(browser: Browser, baseURL: string | undefined) {
   });
 }
 
-test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 the dialog opens by itself once, has two tabs with the texts, closes with OK and is opened again from the menu", async ({ browser, baseURL }) => {
+test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 the dialog opens by itself once, has two tabs with the texts, closes with OK and is opened again from the menu", async ({ browser, baseURL }) => {
   const context = await newcomer(browser, baseURL);
   const page = await context.newPage();
   await goto(page, "/");
@@ -25,6 +25,10 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 the dialog opens by itself once, has two tab
   expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null)).toBe(true);
   // The page behind a modal dialog cannot be pressed
   await expect(page.getByRole("button", { name: "Meny" }).click({ trial: true, timeout: 500 })).rejects.toThrow();
+
+  // MUPP-036-R1 R2: one button to close with, no cross; the text fits here, so it is OK and not the arrow
+  await expect(dialog.getByRole("button", { name: "Stäng" })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Läs vidare" })).toHaveCount(0);
 
   // R4 R6: the visitor tab is shown first, with the site's own words
   const tabs = dialog.getByRole("tablist", { name: "Läs som" });
@@ -76,9 +80,8 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 the dialog opens by itself once, has two tab
   await context.close();
 });
 
-test("MUPP-035-R1 R2 every way of closing the dialog sets the cookie, and the dialog is not on the password page", async ({ browser, baseURL }) => {
+test("MUPP-035-R1 R2 Esc and a press outside also set the cookie, and the dialog is not on the password page", async ({ browser, baseURL }) => {
   const ways = {
-    Stäng: (page: Page) => page.getByRole("button", { name: "Stäng" }).click(),
     Esc: (page: Page) => page.keyboard.press("Escape"),
     "a press outside": (page: Page) => page.mouse.click(2, 2),
   };
