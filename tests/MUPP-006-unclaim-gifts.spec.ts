@@ -19,13 +19,15 @@ test.afterAll(async () => {
 });
 
 // Vera har ett kort för sig själv, med påhittade önskningar; telefonen först (320 px)
-async function openVerasList(page: Page) {
+async function openVerasList(page: Page, withThirdClaim = false) {
   const parent = await addParent(uniqueName("Förälder"));
   const vera = await addChild(parent, "Vera", birthdateIn(20).birthdate);
   await addWish(vera, "birthday", "Cykel");
   await addWish(vera, "birthday", "Strumpor", { unlimited: true });
   await addWish(vera, "birthday", "Hoppborg", { claimedBy: "Moster Lisa" });
   await addWish(vera, "birthday", "Lego", { claimedBy: "Anna" });
+  // En paxning till, som varken R3 eller R4 ska röra
+  if (withThirdClaim) await addWish(vera, "birthday", "Kamera", { claimedBy: "Faster Olle" });
   await page.setViewportSize({ width: 320, height: 640 });
   await goto(page, "/");
   // Ett klick medan korten tonas in får Playwright att scrolla kortleken i sidled
@@ -76,7 +78,7 @@ test("MUPP-006-R1 R2 R5 claimed rows have an undo button, the dialog asks first,
 });
 
 test("MUPP-006-R3 R4 a claim someone else removed meanwhile is told so, and confirming removes the claim, also after a reload, and says so", async ({ page }) => {
-  await openVerasList(page);
+  await openVerasList(page, true);
   // R4: någon annan har redan tagit bort paxningen på Lego; de andra paxningarna rörs inte
   await undo(page, "Lego").click();
   await unclaimDirectly("Lego");
@@ -85,6 +87,7 @@ test("MUPP-006-R3 R4 a claim someone else removed meanwhile is told so, and conf
   await expect(region(page).getByRole("status")).toHaveText("Paxningen på Lego var redan borttagen. Listan är uppdaterad.");
   await expect(region(page).getByRole("checkbox", { name: "Lego" })).toBeVisible();
   expect(await claimedByOf("Hoppborg")).toBe("Moster Lisa");
+  expect(await claimedByOf("Kamera")).toBe("Faster Olle");
 
   // R3 R4
   await undo(page, "Hoppborg").click();
@@ -105,4 +108,6 @@ test("MUPP-006-R3 R4 a claim someone else removed meanwhile is told so, and conf
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
   await expect(region(page).getByRole("checkbox", { name: "Hoppborg" })).toBeVisible();
   await expect(region(page).getByRole("checkbox", { name: "Lego" })).toBeVisible();
+  await expect(undo(page, "Kamera")).toBeVisible();
+  expect(await claimedByOf("Kamera")).toBe("Faster Olle");
 });
