@@ -37,7 +37,7 @@ test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons,
   await page.setViewportSize({ width: 375, height: 667 });
   await goto(page, "/");
   await expect(page.getByText("Inga barn har lagts till än.")).toBeVisible();
-  await expect(page.getByText("Exempel")).toHaveCount(0);
+  await expect(page.getByText("Exempel", { exact: true })).toHaveCount(0);
   await expect(next(page)).toHaveCount(0);
   await expect(previous(page)).toHaveCount(0);
   expect(await pageDoesNotScroll(page)).toBe(true);

@@ -56,7 +56,9 @@ tags: [product, features]
 | [MUPP-007](MUPP-007-remove-claimed/solution.md) | Warning when removing claimed gifts | Administration | Done |
 | [MUPP-032](MUPP-032-quiet-focus-after-tap/solution.md) | No focus ring after a tap | Shared | Done |
 | [MUPP-034](MUPP-034-cross-on-single-kid-list/solution.md) | Cross on single-kid wish list | Startsida | Done |
+| [MUPP-035](MUPP-035-onboarding-card/solution.md) | Onboarding card | Startsida | Review |
 | [MUPP-033](MUPP-033-birthdate-field-width/solution.md) | Birthdate field fits on a phone | Administration | Review |
+| [MUPP-036](MUPP-036-onboarding-scroll/solution.md) | Onboarding dialog: one button and a scroll cue | Startsida | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
