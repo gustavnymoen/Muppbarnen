@@ -21,7 +21,7 @@ feature: MUPP-033
 | Smoke test | Not applicable: the admin page needs sign-in | | | |
 | Accessibility | axe in the extended R6 test (unchanged); phone check of reach and label: not checked yet | local | Pass (axe) | 2026-11-04 |
 | Security | Not needed: CSS only | | | |
-| Code review | [review.md](review.md) | local | Not done yet | |
+| Code review | [review.md](review.md) | local | Passed | 2026-11-04 |
 
 ## Test suite
 
