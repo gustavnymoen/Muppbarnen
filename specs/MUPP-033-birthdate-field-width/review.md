@@ -1,35 +1,33 @@
 ---
 type: Review
-title: "MUPP-000 Short name of the feature: review"
-description: "The code review of Short name of the feature: findings, decisions and result."
-feature: MUPP-000
+title: "MUPP-033 Birthdate field fits on a phone: review"
+description: "Code review of MUPP-033: passed, no must-fix findings."
+feature: MUPP-033
 ---
 
-# Code review of MUPP-000
+# Review of MUPP-033
 
-**Result:** Passed | Stopped (n must fix)
-**Date:** YYYY-MM-DD, review run 1
-**Summary:** One or two sentences.
-**Security:** The security points of the review: passed, or the findings below. `/security-review`: run, with its result, or not needed and why (see `wiki/system/code-review.md`).
+**Result:** Passed. **Security:** Passed (CSS only; `/security-review` not needed, as the card says).
 
-How the review works: `wiki/system/code-review.md`. A later run is added at the top as "Review run 2".
+Date inputs in `Field` get `block min-w-0 max-w-full appearance-none text-left`; documented, and the MUPP-010-R6 test extended to 375 px with a date-field-inside-form check. No tests were run by the reviewer.
 
 ## Must fix
 
-- `file:line` What is wrong and why. **Done:** how it was fixed.
+None.
 
 ## Should fix
 
-- `file:line` What and why. **Done:** fixed in this change, or added to the board as TECH-00n.
+- `verification.md`: the iPhone (Safari) check, the Definition of Done and the code-review row were still open when reviewed. They are done on the preview before the pull request is merged.
 
 ## Suggestions
 
-- `file:line` What could be learned. **Done:** fixed, or left as it is and why.
+- The new Chromium assertion passes with or without the fix (neither Chromium nor WebKit reproduces the fault); it guards against regressions. The manual iPhone check is the real evidence.
+- `appearance-none` on iOS date inputs can make the field look empty or collapse; `min-h-11` covers the height. Look at the empty state in the iPhone check.
 
 ## Outside the change
 
-- Candidate for the backlog, and whether it was added.
+None.
 
-See also: [Solution](solution.md), [Verification](verification.md).
+See also: [Verification](verification.md), [Solution](solution.md).
 
 [Specifications](../index.md)
