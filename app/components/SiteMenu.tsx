@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./Button";
+import { OnboardingDialog } from "./OnboardingDialog";
 
 const item = "press flex min-h-11 w-full items-center rounded-control px-3 text-left font-heading font-medium hover:bg-edge";
 
 // Hamburgermenyn: en riktig knapp som öppnar en lista. "Admin" är sist och i dämpad färg:
 // länken ska finnas men inte dra uppmärksamhet.
-export function SiteMenu() {
+export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
+  const onboardingDialog = useRef<HTMLDialogElement>(null);
 
   // Stänger och lämnar fokus på menyknappen, så att tangentbordsanvändaren inte tappar bort sig
   function close() {
@@ -57,6 +59,19 @@ export function SiteMenu() {
               </Link>
             </li>
             <li>
+              <button
+                type="button"
+                className={item}
+                onClick={() => {
+                  // Fokus går till menyknappen först, så att rutan lämnar den dit när den stängs (MUPP-035-R3)
+                  close();
+                  onboardingDialog.current?.showModal();
+                }}
+              >
+                Så funkar sajten
+              </button>
+            </li>
+            <li>
               <Link href="/admin" className={`${item} text-muted hover:text-text`} onClick={close}>
                 Admin
               </Link>
@@ -64,6 +79,7 @@ export function SiteMenu() {
           </ul>
         </nav>
       )}
+      <OnboardingDialog ref={onboardingDialog} autoOpen={onboarding} />
     </div>
   );
 }

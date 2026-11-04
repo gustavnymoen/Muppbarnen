@@ -1,0 +1,10 @@
+%% MUPP-035 Onboarding card
+flowchart TD
+    A[Signed-in visitor opens the start page] --> B{Onboarding cookie?}
+    B -- no --> C[Dialog Så funkar sajten opens, R1]
+    B -- yes --> D[Deck only]
+    C --> E[Closed with OK, Stäng, Esc or a press outside, R2]
+    E --> F[markOnboardingSeen sets the cookie, R7]
+    F --> D
+    D --> G[Menu: Så funkar sajten, R3]
+    G --> H[Dialog on Besökare, closed again, focus back on the menu button]

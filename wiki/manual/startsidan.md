@@ -36,10 +36,11 @@ Under det ligger en **karusell med kort** med barnens födelsedagar och julafton
 Knappen med tre streck uppe till höger öppnar menyn, på alla skärmstorlekar.
 
 - **Start** tar dig till startsidan.
-- **Admin** gör ingenting än. Den blir en länk till administrationssidan senare.
+- **Så funkar sajten** öppnar en ruta som förklarar hur sajten används, med två flikar: **Besökare** och **Förälder**. Rutan öppnas av sig själv första gången du kommer in på startsidan; tryck **OK** (eller **Stäng**, Esc eller utanför rutan) så öppnas den inte av sig själv igen i den webbläsaren. Rutan finns kvar här i menyn.
+- **Admin** tar dig till [administrationssidan](admin.md).
 
 Menyn stängs när du väljer något, trycker på Esc eller trycker utanför den. Med tangentbordet öppnar du menyn med Enter eller mellanslag och går igenom den med Tab.
 
-Byggd av [MUPP-002](../../specs/MUPP-002-start-page/solution.md), [MUPP-004](../../specs/MUPP-004-birthday-card/solution.md), [MUPP-005](../../specs/MUPP-005-kid-card-and-claiming/solution.md) och [MUPP-006](../../specs/MUPP-006-unclaim-gifts/solution.md); den tekniska beskrivningen är [Start page and menu](../system/start-page.md).
+Byggd av [MUPP-002](../../specs/MUPP-002-start-page/solution.md), [MUPP-004](../../specs/MUPP-004-birthday-card/solution.md), [MUPP-005](../../specs/MUPP-005-kid-card-and-claiming/solution.md) och [MUPP-006](../../specs/MUPP-006-unclaim-gifts/solution.md) och [MUPP-035](../../specs/MUPP-035-onboarding-card/solution.md); den tekniska beskrivningen är [Start page and menu](../system/start-page.md).
 
 [Manual](index.md)

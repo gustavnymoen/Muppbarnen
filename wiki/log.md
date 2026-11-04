@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-04
+
+* **Creation** [MUPP-035 Onboarding card](../specs/MUPP-035-onboarding-card/solution.md): the dialog "Så funkar sajten" with the tabs "Besökare" and "Förälder" opens by itself on the start page until OK is pressed (a one-year cookie), and from a new menu item.
+
 ## 2026-11-03
 
 * **Update** [TECH-015 Test suite at its time budget](../specs/TECH-015-test-suite-room/solution.md): tests that visit the same page are merged by journey and checks at several widths open the page once and resize the window, so the browser tests (114 → 97 tests) run in about 166 s instead of 178 s (goal 170 s); every requirement keeps a test named after it.
