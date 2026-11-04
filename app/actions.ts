@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { claimWishes as claim, unclaimWish as unclaim, type ClaimResult, type UnclaimResult } from "@/lib/family";
 import { guardMessage, guardWrite } from "@/lib/request-guard";
+import { ONBOARDING_COOKIE, onboardingCookieOptions } from "@/lib/onboarding";
 import { hasSiteSession } from "@/lib/site-auth";
 
 const REFUSED: ClaimResult = { ok: false, claimed: 0, notClaimed: [], missing: 0 };
@@ -29,4 +31,11 @@ export async function unclaimWish(id: number): Promise<UnclaimResult> {
   // Listan ska visa läget nu, också när någon annan hann ta bort paxningen
   if (!result.error) revalidatePath("/");
   return result;
+}
+
+// Minns att besökaren har sett rutan "Så funkar sajten" (MUPP-035-R7). Tar ingen indata: kakans värde är fast.
+export async function markOnboardingSeen(): Promise<void> {
+  if (!(await hasSiteSession())) return;
+  if ((await guardWrite()) !== "ok") return;
+  (await cookies()).set(ONBOARDING_COOKIE, "1", onboardingCookieOptions());
 }

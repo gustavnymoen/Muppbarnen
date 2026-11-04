@@ -1108,3 +1108,26 @@ test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit
     await clearFamily();
   }
 });
+
+test("MUPP-035-R6 the dialog Så funkar sajten on the narrowest phone: it fits, its panel scrolls inside it and the buttons are 44 px", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await goto(page, "/");
+  // The signed-in test visitor has the cookie, so the dialog is opened from the menu
+  await page.getByRole("button", { name: "Meny" }).click();
+  await page.getByRole("button", { name: "Så funkar sajten" }).click();
+  const dialog = page.getByRole("dialog", { name: "Så funkar sajten" });
+  await expect(dialog).toBeVisible();
+  const box = (await dialog.boundingBox())!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(320);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(568);
+  for (const name of ["Besökare", "Förälder", "OK", "Stäng"]) {
+    const button = dialog.getByRole(name === "Besökare" || name === "Förälder" ? "tab" : "button", { name });
+    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  // The panel is what scrolls when the text does not fit
+  const panel = dialog.getByRole("tabpanel");
+  expect(await panel.evaluate((el) => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === "auto")).toBe(true);
+  await expectNoA11yViolations(page);
+});
