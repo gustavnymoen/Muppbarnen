@@ -1,0 +1,7 @@
+%% MUPP-036 Onboarding dialog: one button and a scroll cue
+flowchart TD
+    A[Dialog opens or the tab changes] --> B{More text below the visible part?}
+    B -- yes --> C[Arrow Läs vidare, R2]
+    C -- pressed --> D[Panel scrolls down] --> B
+    B -- no --> E[OK, R1]
+    E -- pressed, or Esc, or a press outside --> F[Dialog closes]

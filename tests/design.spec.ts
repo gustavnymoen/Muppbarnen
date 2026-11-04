@@ -1109,7 +1109,7 @@ test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit
   }
 });
 
-test("MUPP-035-R6 the dialog Så funkar sajten on the narrowest phone: it fits, its panel scrolls inside it and the buttons are 44 px", async ({ page }) => {
+test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar sajten on the narrowest phone: it fits, its panel scrolls inside it, an arrow shows there is more until the end, and the buttons are 44 px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await goto(page, "/");
   // The signed-in test visitor has the cookie, so the dialog is opened from the menu
@@ -1122,12 +1122,22 @@ test("MUPP-035-R6 the dialog Så funkar sajten on the narrowest phone: it fits, 
   expect(box.x + box.width).toBeLessThanOrEqual(320);
   expect(box.y).toBeGreaterThanOrEqual(0);
   expect(box.y + box.height).toBeLessThanOrEqual(568);
-  for (const name of ["Besökare", "Förälder", "OK", "Stäng"]) {
-    const button = dialog.getByRole(name === "Besökare" || name === "Förälder" ? "tab" : "button", { name });
+  for (const name of ["Besökare", "Förälder", "Läs vidare"]) {
+    const button = dialog.getByRole(name === "Läs vidare" ? "button" : "tab", { name });
     expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   }
   // The panel is what scrolls when the text does not fit
   const panel = dialog.getByRole("tabpanel");
   expect(await panel.evaluate((el) => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === "auto")).toBe(true);
   await expectNoA11yViolations(page);
+  // MUPP-036-R2: the arrow stands in for OK while there is more text, and the last scroll turns it into OK
+  await expect(dialog.getByRole("button", { name: "OK" })).toHaveCount(0);
+  await expect(async () => {
+    const arrow = dialog.getByRole("button", { name: "Läs vidare" });
+    if (await arrow.count()) await arrow.click();
+    await expect(dialog.getByRole("button", { name: "OK" })).toBeVisible({ timeout: 500 });
+  }).toPass();
+  // Another tab starts at the top again
+  await dialog.getByRole("tab", { name: "Förälder" }).click();
+  expect(await panel.evaluate((el) => el.scrollTop)).toBe(0);
 });

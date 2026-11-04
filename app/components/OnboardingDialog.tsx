@@ -2,9 +2,9 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode, type Ref } from "react";
 import { markOnboardingSeen } from "@/app/actions";
-import { Button, IconButton } from "./Button";
+import { Button } from "./Button";
 import { Dialog } from "./Dialog";
-import { CrossIcon } from "./icons";
+import { ChevronDownIcon } from "./icons";
 
 // Rutan "Så funkar sajten" (MUPP-035): två flikar med korta texter. Texterna är fasta och godkända på kortet.
 const TABS = [
@@ -45,13 +45,16 @@ const TABS = [
   },
 ] satisfies { id: string; label: string; intro: string; parts: [string, ReactNode][] }[];
 
-// Öppnas av SiteMenu (ref) och, om autoOpen, av sig själv första gången. Varje sätt att stänga (OK, Stäng, Esc, tryck utanför)
+// Öppnas av SiteMenu (ref) och, om autoOpen, av sig själv första gången. Varje sätt att stänga (OK, Esc, tryck utanför)
 // ger onClose, som då minns att rutan är sedd. <dialog> med showModal() håller fokus inne och lämnar tillbaka det när den stängs.
 export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement>; autoOpen?: boolean }) {
   const id = useId();
   const [tab, setTab] = useState(0);
   // Trycket började på bakgrunden: ett tryck inne i rutan som släpps utanför (markera text) ska inte stänga den
   const pressedBackdrop = useRef(false);
+  const panel = useRef<HTMLDivElement>(null);
+  // Finns det mer text under det som syns? Då är knappen längst ner en pil (MUPP-036), annars OK
+  const [more, setMore] = useState(false);
   const [node, setNode] = useState<HTMLDialogElement | null>(null);
 
   useEffect(() => {
@@ -59,6 +62,26 @@ export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement
     if (autoOpen && node && !node.open) node.showModal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [node]);
+
+  function checkMore() {
+    const el = panel.current;
+    if (el) setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 2);
+  }
+
+  // Rutan är dold tills den öppnas: ResizeObserver ger besked när panelen får sin storlek (och vid vridning av telefonen)
+  useEffect(() => {
+    const el = panel.current;
+    if (!el) return;
+    const observer = new ResizeObserver(checkMore);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [node]);
+
+  // En ny flik börjar överst
+  useEffect(() => {
+    panel.current?.scrollTo(0, 0);
+    checkMore();
+  }, [tab]);
 
   function arrow(event: KeyboardEvent) {
     const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
@@ -90,14 +113,9 @@ export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement
         if (pressedBackdrop.current && (x < box.left || x > box.right || y < box.top || y > box.bottom)) event.currentTarget.close();
       }}
     >
-      <div className="flex items-center justify-between gap-3">
-        <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
-          Så funkar sajten
-        </h2>
-        <IconButton label="Stäng" onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
-          <CrossIcon />
-        </IconButton>
-      </div>
+      <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
+        Så funkar sajten
+      </h2>
       <div role="tablist" aria-label="Läs som" className="mt-3 flex gap-2" onKeyDown={arrow}>
         {TABS.map((t, i) => (
           <Button
@@ -114,7 +132,7 @@ export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement
           </Button>
         ))}
       </div>
-      <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${current.id}`} tabIndex={0} className="mt-4 min-h-0 space-y-3 overflow-y-auto">
+      <div ref={panel} onScroll={checkMore} id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${current.id}`} tabIndex={0} className="mt-4 min-h-0 space-y-3 overflow-y-auto">
         <p>{current.intro}</p>
         {current.parts.map(([title, text]) => (
           <section key={title}>
@@ -123,8 +141,17 @@ export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement
           </section>
         ))}
       </div>
-      <Button className="mt-4 self-start" onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
-        OK
+      {/* En pil tills slutet syns: iPhones scrollist är dold, så annars ser texten avkapad ut. Samma knapp blir OK. */}
+      <Button
+        className="mt-4 self-start"
+        aria-label={more ? "Läs vidare" : undefined}
+        onClick={(event) => {
+          if (!more) return event.currentTarget.closest("dialog")?.close();
+          const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+          panel.current?.scrollBy({ top: panel.current.clientHeight * 0.8, behavior: smooth ? "smooth" : "auto" });
+        }}
+      >
+        {more ? <ChevronDownIcon /> : "OK"}
       </Button>
     </Dialog>
   );
