@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-04
+
+* **Creation** [MUPP-033 Birthdate field fits on a phone](../specs/MUPP-033-birthdate-field-width/solution.md): the date field in the admin forms is no wider than its form on an iPhone, so Hantera no longer scrolls sideways.
+
 ## 2026-11-03
 
 * **Update** [TECH-015 Test suite at its time budget](../specs/TECH-015-test-suite-room/solution.md): tests that visit the same page are merged by journey and checks at several widths open the page once and resize the window, so the browser tests (114 → 97 tests) run in about 166 s instead of 178 s (goal 170 s); every requirement keeps a test named after it.
