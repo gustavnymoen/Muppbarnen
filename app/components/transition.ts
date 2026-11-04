@@ -7,6 +7,8 @@ const OPEN_MS = 300;
 const CLOSE_MS = 300;
 // Hur stor del av stängningen kopian är helt synlig innan den börjar tona
 const FADE_AFTER = 0.4;
+// Så snabbt tonar innehållet i kopian bort, så att bara ytan skalas ihop (MUPP-037)
+const CONTENT_FADE_MS = 100;
 
 const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const radiusOf = (el: Element) => getComputedStyle(el).borderTopLeftRadius;
@@ -74,12 +76,15 @@ export function makeGhost(el: HTMLElement | null) {
 }
 
 // Spelar upp kopians rörelse och tar bort kopian när den är slut. Kopian får aldrig bli kvar: den tas också bort om animationen avbryts,
-// och efter en säkerhetstid om webbläsaren (iOS) aldrig skickar finish. Rörelsen och tonandet är två animationer: rörelsen mjuk och snabb i början,
+// och efter en säkerhetstid om webbläsaren (iOS) aldrig skickar finish. Rörelsen och tonandet är två animationer (plus en kort tonin för varje barn i kopian, MUPP-037): rörelsen mjuk och snabb i början,
 // tonandet först när kopian är på väg (MUPP-025). Med en gemensam kurva var kopian nästan osynlig efter 100 ms och rörelsen syntes inte alls på en telefon.
 function play(copy: HTMLElement, transform: string) {
   const options = { duration: CLOSE_MS, fill: "forwards" } as const;
   const move = copy.animate([{ transform: "none" }, { transform }], { ...options, easing: EASE });
   copy.animate([{ opacity: 1 }, { opacity: 1, offset: FADE_AFTER }, { opacity: 0 }], { ...options, easing: "linear" });
+  // Innehållet (rader, kryssrutor, knappar, bilder) tonar bort först; när ytan skalas ihop ska inget som liknar knappar och fält synas (MUPP-037)
+  // Bara kopians direkta barn: det räcker för både listan och barnets vy, men en ny inpackning måste tonas för sig
+  for (const child of copy.children) child.animate({ opacity: [1, 0] }, { duration: CONTENT_FADE_MS, fill: "forwards", easing: "linear" });
   // Det är rörelsen som städar: tonandet är lika långt, och säkerhetstiden tar det som blir över
   move.onfinish = move.oncancel = () => remove(copy);
   setTimeout(() => remove(copy), CLOSE_MS + 300);
