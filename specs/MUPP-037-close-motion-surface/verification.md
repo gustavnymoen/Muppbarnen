@@ -11,7 +11,7 @@ How each requirement was checked.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| MUPP-037-R1 | Tests `MUPP-037-R1 on a single-kid card …` and `… on a card with several kids …` in `tests/MUPP-037-close-motion-surface.spec.ts`: after the close every direct child of the copy has an opacity animation of at most 100 ms, and the copy is removed at the end. The test also checks that the content ends fully transparent. Christmas Eve uses the same code (`makeGhost`, `play`) but has its own markup and was not tested separately for this card (its close motion is tested by MUPP-022-R1). Interrupting the motion and reduced motion (no copy) are tested by MUPP-022-R1, MUPP-016-R6, MUPP-016-R5 and MUPP-029-R3, which still pass | local | Pass | 2026-11-04 |
+| MUPP-037-R1 | Tests `MUPP-037-R1 on a single-kid card …`, `… on a card with several kids …` and `… on the Christmas card …` in `tests/MUPP-037-close-motion-surface.spec.ts`: after the close every direct child of the copy has an opacity animation of at most 100 ms, and the copy is removed at the end. The test also checks that the content ends fully transparent. Interrupting the motion and reduced motion (no copy) are tested by MUPP-022-R1, MUPP-016-R6, MUPP-016-R5 and MUPP-029-R3, which still pass | local | Pass | 2026-11-04 |
 | MUPP-037-R2 | Manual: the user tried A and B in the iOS simulator and on desktop, found them almost identical and chose A (the motion is a feeling that can't be measured) | local (iOS simulator) | Pass | 2026-11-04 |
 
 ## The test plan
