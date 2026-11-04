@@ -237,22 +237,35 @@ test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) 
   }
 });
 
-test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll at 320 and 430 px, and pass axe", async ({ page }) => {
+test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll at 320, 375 and 430 px, and pass axe", async ({ page }) => {
   const chef = uniqueName("Chef");
   const kidId = await addChild(await addParent(chef, true), uniqueName("Barn"));
   await adminSignIn(page, chef);
 
   // Each page is opened once and checked at each width by resizing the window (TECH-015)
-  const widths = [[320, 568], [430, 932]];
+  const widths = [[320, 568], [375, 667], [430, 932]];
   const noSidewaysScroll = async (what: string) => {
     for (const [width, height] of widths) {
       await page.setViewportSize({ width, height });
       expect(await hasHorizontalScroll(page), `${what} at ${width}`).toBe(false);
     }
   };
+  // MUPP-033-R1: the birthdate field ends inside its form, in the add form and in an edit form
+  const dateInsideForm = async (form: Locator, what: string) => {
+    for (const [width, height] of widths) {
+      await page.setViewportSize({ width, height });
+      const date = await form.getByLabel("Födelsedatum").boundingBox();
+      const box = await form.boundingBox();
+      expect(date!.x + date!.width, `${what} date field at ${width}`).toBeLessThanOrEqual(box!.x + box!.width + 0.5);
+    }
+  };
   await goto(page, "/admin/hantera");
+  await page.getByRole("button", { name: "Nytt barn" }).click();
+  await dateInsideForm(page.locator("form").filter({ has: page.getByLabel("Födelsedatum") }).first(), "add");
+  await noSidewaysScroll("add");
   const first = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^Bild för / }) }).first();
   await first.getByRole("button", { name: /^Ändra / }).click();
+  await dateInsideForm(first.locator("form").filter({ has: page.getByLabel("Födelsedatum") }), "edit");
   await noSidewaysScroll("edit");
   await first.getByRole("button", { name: /^Bild för / }).click();
   await noSidewaysScroll("picture");

@@ -3,6 +3,7 @@
 ## 2026-11-04
 
 * **Creation** [MUPP-035 Onboarding card](../specs/MUPP-035-onboarding-card/solution.md): the dialog "Så funkar sajten" with the tabs "Besökare" and "Förälder" opens by itself on the start page until OK is pressed (a one-year cookie), and from a new menu item.
+* **Creation** [MUPP-033 Birthdate field fits on a phone](../specs/MUPP-033-birthdate-field-width/solution.md): the date field in the admin forms is no wider than its form on an iPhone, so Hantera no longer scrolls sideways.
 
 ## 2026-11-03
 
