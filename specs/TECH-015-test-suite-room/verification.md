@@ -22,7 +22,7 @@ How each requirement was checked. This is a change to the tests only; the site i
 |---|---|---|---|---|
 | Unit tests | None new; `npm run test:unit` 162 passed | local | Pass | 2026-11-03 |
 | Browser tests | The existing suite, changed only by merging and sharing page loads; `npm run test:local` 97 passed. Requirement IDs compared with `npx playwright test --list` (R1) | local | Pass | 2026-11-03 |
-| Smoke test | Unchanged (`tests/smoke.spec.ts` is not touched) | | Live tests after the merge: not yet run | |
+| Smoke test | Unchanged (`tests/smoke.spec.ts` is not touched); Live tests run 41805927238 on `main` at `257d569` succeeded | live | Pass | 2026-11-04 |
 | Accessibility | No page changes. axe still runs on every page and state it ran on before, except MUPP-010-R6, which now runs axe once per page (at 430 px) where it ran at both widths | local | Pass | 2026-11-03 |
 | Security | Not needed: no site code changes (the card's plan) | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
@@ -44,7 +44,7 @@ The browser tests are 17 fewer (merged, none dropped) and about 12 s shorter (7 
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested (names unchanged in the sense of IDs); `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the 180 s budget (164.3 and 167.6 s in the final two runs, under the card's 170 s goal) and no test over 5 s; the changed tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 41805927238 on `main` at the merge commit `257d569` succeeded (2026-11-04)
 - [x] Accessibility: not applicable to visitors (no page changes); axe still runs on every page and state, see the test plan
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`) has nothing to change (nothing a visitor does is different); `wiki/system/testing.md` and `wiki/log.md` updated
@@ -80,7 +80,7 @@ No fixed waits, retries or skips; merged tests are named after every requirement
 - The admin "sixth wrong password" test was deleted by mistake in an early version and restored after the code review.
 - A merge of the two MUPP-022-R1 tests (card with several kids and Christmas card) was tried and dropped: 6.0 s for the merged test against 5.1 s for the two.
 - MUPP-017-R4 and MUPP-021-R1 changed a little in what they walk through: the second width starts with the view closed again, and the several-kids card is reached from the one-kid card's open list instead of from the first card's. The behaviour checked is the same.
-- Live tests (the smoke tests) are not changed and run after the merge.
+- Live tests (the smoke tests) are not changed; they passed after the merge.
 - R2: the goal moved from 165 s to 170 s with the user (2026-11-04), since further cuts need tests of different pages in one test, or a change of what the tests run under (reduced motion, parallel workers), which the card puts out of scope.
 
 See also: [Solution](solution.md), [Review](review.md).
