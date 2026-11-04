@@ -2,6 +2,7 @@
 
 ## 2026-11-04
 
+* **Update** [MUPP-037 Clean close motion of the wish list](../specs/MUPP-037-close-motion-surface/solution.md): when a wish list closes, its content fades out in 100 ms and only the surface folds into the button, so no squashed buttons or fields are seen (all three card types).
 * **Update** [MUPP-036 Onboarding dialog: one button and a scroll cue](../specs/MUPP-036-onboarding-scroll/solution.md): the dialog "Så funkar sajten" lost its cross; the button at the bottom is a down arrow while there is more text to read and becomes "OK" at the end.
 * **Creation** [MUPP-035 Onboarding card](../specs/MUPP-035-onboarding-card/solution.md): the dialog "Så funkar sajten" with the tabs "Besökare" and "Förälder" opens by itself on the start page until OK is pressed (a one-year cookie), and from a new menu item.
 * **Creation** [MUPP-033 Birthdate field fits on a phone](../specs/MUPP-033-birthdate-field-width/solution.md): the date field in the admin forms is no wider than its form on an iPhone, so Hantera no longer scrolls sideways.

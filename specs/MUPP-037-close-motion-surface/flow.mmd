@@ -1,0 +1,10 @@
+%% MUPP-037 Clean close motion of the wish list
+flowchart TD
+    A[Visitor closes the wish list] --> B{Reduced motion?}
+    B -- yes --> C[Closed at once, no copy]
+    B -- no --> D[Copy of the open view over the page]
+    D --> E[Content of the copy fades out in 100 ms - R1]
+    D --> F[Surface shrinks onto the button and fades in 300 ms]
+    E --> G[Copy removed]
+    F --> G
+    D -. new press .-> G
