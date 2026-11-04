@@ -9,7 +9,7 @@ import type { FormAction, FormState } from "./form-state";
 const FormStateContext = createContext<FormState>(null);
 
 // iOS Safari ger datumfältet en egen minimibredd; utan det här krymper det inte till formulärets bredd (MUPP-033)
-const dateFit = "block min-w-0 max-w-full appearance-none text-left";
+const dateFit = "flex items-center min-w-0 max-w-full appearance-none text-left";
 const control = "min-h-11 w-full rounded-control border border-muted/75 bg-page px-4 text-text";
 
 // Ett formulär som körs av en serveråtgärd (useActionState), så att det också går att skicka
