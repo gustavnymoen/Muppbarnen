@@ -19,13 +19,15 @@ test.afterAll(async () => {
 });
 
 // Vera har ett kort för sig själv, med påhittade önskningar; telefonen först (320 px)
-async function openVerasList(page: Page) {
+async function openVerasList(page: Page, withThirdClaim = false) {
   const parent = await addParent(uniqueName("Förälder"));
   const vera = await addChild(parent, "Vera", birthdateIn(20).birthdate);
   await addWish(vera, "birthday", "Cykel");
   await addWish(vera, "birthday", "Strumpor", { unlimited: true });
   await addWish(vera, "birthday", "Hoppborg", { claimedBy: "Moster Lisa" });
   await addWish(vera, "birthday", "Lego", { claimedBy: "Anna" });
+  // En paxning till, som varken R3 eller R4 ska röra
+  if (withThirdClaim) await addWish(vera, "birthday", "Kamera", { claimedBy: "Faster Olle" });
   await page.setViewportSize({ width: 320, height: 640 });
   await goto(page, "/");
   // Ett klick medan korten tonas in får Playwright att scrolla kortleken i sidled
@@ -34,19 +36,19 @@ async function openVerasList(page: Page) {
   await expect(region(page)).toBeVisible();
 }
 
-test("MUPP-006-R1 claimed rows have an undo button, the others do not", async ({ page }) => {
+// Samma lista i hela testet, så att den bara byggs och öppnas en gång (TECH-015); R5 sist, eftersom den tar bort sessionen
+test("MUPP-006-R1 R2 R5 claimed rows have an undo button, the dialog asks first, and without a site session nothing is removed", async ({ page }) => {
   await openVerasList(page);
+
+  // R1
   await expect(region(page).getByRole("button", { name: /^Ta bort paxningen på/ })).toHaveCount(2);
   await expect(row(page, "Hoppborg").getByRole("checkbox")).toHaveCount(0);
   await expect(row(page, "Cykel").getByRole("button", { name: /^Ta bort paxningen/ })).toHaveCount(0);
   await expect(row(page, "Strumpor").getByRole("button", { name: /^Ta bort paxningen/ })).toHaveCount(0);
   await expectNoA11yViolations(page);
-});
 
-test("MUPP-006-R2 the dialog asks first: focus on Avbryt, Escape and Avbryt change nothing", async ({ page }) => {
-  await openVerasList(page);
+  // R2
   await region(page).getByRole("checkbox", { name: "Cykel" }).check();
-
   await undo(page, "Hoppborg").click();
   await expect(dialog(page)).toBeVisible();
   await expect(dialog(page)).toHaveAccessibleName("Ta bort paxningen");
@@ -65,10 +67,29 @@ test("MUPP-006-R2 the dialog asks first: focus on Avbryt, Escape and Avbryt chan
   // Raden för paxning är fortfarande markerad, och ingenting ändrades
   await expect(region(page).getByRole("checkbox", { name: "Cykel" })).toBeChecked();
   expect(await claimedByOf("Hoppborg")).toBe("Moster Lisa");
+
+  // R5
+  await undo(page, "Hoppborg").click();
+  await page.context().clearCookies();
+  await dialog(page).getByRole("button", { name: "Ta bort" }).click();
+  await expect(dialog(page).getByRole("alert")).toHaveText("Något gick fel. Ladda om sidan och försök igen.");
+  await expect(dialog(page)).toBeVisible();
+  expect(await claimedByOf("Hoppborg")).toBe("Moster Lisa");
 });
 
-test("MUPP-006-R3 R4 confirming removes the claim, also after a reload, and says so", async ({ page }) => {
-  await openVerasList(page);
+test("MUPP-006-R3 R4 a claim someone else removed meanwhile is told so, and confirming removes the claim, also after a reload, and says so", async ({ page }) => {
+  await openVerasList(page, true);
+  // R4: någon annan har redan tagit bort paxningen på Lego; de andra paxningarna rörs inte
+  await undo(page, "Lego").click();
+  await unclaimDirectly("Lego");
+  await dialog(page).getByRole("button", { name: "Ta bort" }).click();
+  await expect(dialog(page)).toHaveCount(0);
+  await expect(region(page).getByRole("status")).toHaveText("Paxningen på Lego var redan borttagen. Listan är uppdaterad.");
+  await expect(region(page).getByRole("checkbox", { name: "Lego" })).toBeVisible();
+  expect(await claimedByOf("Hoppborg")).toBe("Moster Lisa");
+  expect(await claimedByOf("Kamera")).toBe("Faster Olle");
+
+  // R3 R4
   await undo(page, "Hoppborg").click();
   await dialog(page).getByRole("button", { name: "Ta bort" }).click();
 
@@ -86,28 +107,7 @@ test("MUPP-006-R3 R4 confirming removes the claim, also after a reload, and says
   await animationsDone(card(page));
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
   await expect(region(page).getByRole("checkbox", { name: "Hoppborg" })).toBeVisible();
-  await expect(undo(page, "Lego")).toBeVisible();
-});
-
-test("MUPP-006-R4 a claim someone else removed meanwhile: told so, and the list is updated", async ({ page }) => {
-  await openVerasList(page);
-  await undo(page, "Lego").click();
-  await unclaimDirectly("Lego");
-  await dialog(page).getByRole("button", { name: "Ta bort" }).click();
-
-  await expect(dialog(page)).toHaveCount(0);
-  await expect(region(page).getByRole("status")).toHaveText("Paxningen på Lego var redan borttagen. Listan är uppdaterad.");
   await expect(region(page).getByRole("checkbox", { name: "Lego" })).toBeVisible();
-  expect(await claimedByOf("Hoppborg")).toBe("Moster Lisa");
-});
-
-test("MUPP-006-R5 without a site session nothing is removed and the visitor is told to reload the page", async ({ page }) => {
-  await openVerasList(page);
-  await undo(page, "Hoppborg").click();
-  await page.context().clearCookies();
-  await dialog(page).getByRole("button", { name: "Ta bort" }).click();
-
-  await expect(dialog(page).getByRole("alert")).toHaveText("Något gick fel. Ladda om sidan och försök igen.");
-  await expect(dialog(page)).toBeVisible();
-  expect(await claimedByOf("Hoppborg")).toBe("Moster Lisa");
+  await expect(undo(page, "Kamera")).toBeVisible();
+  expect(await claimedByOf("Kamera")).toBe("Faster Olle");
 });

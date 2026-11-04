@@ -27,8 +27,16 @@ async function openList(page: Page) {
   await animationsDone(region(page));
 }
 
-test("MUPP-019-R1 the info button shows and hides the explanation, and the row does not move", async ({ page }) => {
+// Samma lista i hela testet (TECH-015): ordningen först, eftersom raderna då är hopfällda
+test("MUPP-019-R1 R2 R3 R4 the order, the info button shows and hides the explanation and the row does not move, the description has a label, and the claimed line is orange-like", async ({ page }) => {
   await openList(page);
+
+  // R2
+  await expect(rows(page)).toHaveCount(4);
+  const titles = await rows(page).evaluateAll((items) => items.map((item) => item.querySelector("button[aria-controls]:not([aria-label])")?.textContent ?? ""));
+  expect(titles.map((t) => t.replace(/Paxad|Kan köpas flera gånger/, ""))).toEqual(["Cykel", "Pussel", "Strumpor", "Hoppborg"]);
+
+  // R1
   await expect(row(page, "Strumpor")).toContainText("Kan köpas flera gånger");
   await expect(row(page, "Strumpor").getByRole("checkbox")).toHaveCount(0);
   await expect(page.getByText(explanation)).toHaveCount(0);
@@ -58,17 +66,8 @@ test("MUPP-019-R1 the info button shows and hides the explanation, and the row d
   // The sentence is not in the unfolded details
   await row(page, "Strumpor").getByRole("button", { name: "Strumpor" }).click();
   await expect(page.getByText(explanation)).toHaveCount(0);
-});
 
-test("MUPP-019-R2 the order: claimable, then bought several times, then claimed", async ({ page }) => {
-  await openList(page);
-  await expect(rows(page)).toHaveCount(4);
-  const titles = await rows(page).evaluateAll((items) => items.map((item) => item.querySelector("button[aria-controls]:not([aria-label])")?.textContent ?? ""));
-  expect(titles.map((t) => t.replace(/Paxad|Kan köpas flera gånger/, ""))).toEqual(["Cykel", "Pussel", "Strumpor", "Hoppborg"]);
-});
-
-test("MUPP-019-R3 R4 the description has a label, and the claimed line is orange-like", async ({ page }) => {
-  await openList(page);
+  // R3 R4
   await row(page, "Cykel").getByRole("button", { name: "Cykel" }).click();
   const details = row(page, "Cykel");
   await expect(details).toContainText("Beskrivning: Röd,\nmed korg");

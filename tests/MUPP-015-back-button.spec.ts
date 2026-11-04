@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, settledBox, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -81,17 +81,13 @@ async function backJourney(page: Page, open: Locator, backName: string) {
   await expect(open).toBeFocused();
 }
 
-test("MUPP-015-R1 R2 R3 the birthday card with several kids: Tillbaka is first, named after where it goes, and does what Stäng does", async ({ page }) => {
+// Samma sida för båda korten: först kortet med flera barn, sedan bläddras det till Julafton (TECH-015)
+test("MUPP-015-R1 R2 R3 the birthday card with several kids and the Christmas card: Tillbaka is first, named after where it goes, and does what Stäng does", async ({ page }) => {
   await twoKids(page);
-  const open = card(page).getByRole("button", { name: "Önskelista för Vera" });
-  await backJourney(page, open, "Tillbaka till alla barn");
-});
-
-test("MUPP-015-R1 R2 R3 the Christmas card: Tillbaka is first, named after Julafton, and does what Stäng does", async ({ page }) => {
-  await twoKids(page);
+  await backJourney(page, card(page).getByRole("button", { name: "Önskelista för Vera" }), "Tillbaka till alla barn");
+  await pageAnimationsDone(page);
   await toChristmas(page);
-  const open = card(page).getByRole("button", { name: /^Öppna Vera/ });
-  await backJourney(page, open, "Tillbaka till Julafton");
+  await backJourney(page, card(page).getByRole("button", { name: /^Öppna Vera/ }), "Tillbaka till Julafton");
 });
 
 test("MUPP-015-R1 the single kid card has no Tillbaka button, open or folded", async ({ page }) => {

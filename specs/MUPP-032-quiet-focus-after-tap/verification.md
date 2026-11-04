@@ -14,7 +14,7 @@ How each requirement was checked. The fault only shows in WebKit on a phone, so 
 | MUPP-032-R1 | WebKit tests `MUPP-032-R1 Ta bort paxningen / Paxa / Storlekar …` in `tests/MUPP-032-quiet-focus-after-tap.webkit.spec.ts`: after a tap the first control (Avbryt, the name field, Stäng) has no outline, and after a tap on Avbryt or Stäng the element that gets the focus has none. The four tests fail without the CSS rule (tried) and pass with it. Kid's view closed by tap: `MUPP-022-R2 …` (now checks `data-pointer` on `<html>`); the name field after a tap in `tests/design.spec.ts` (`MUPP-005-R1 …`). WebKit test `MUPP-032-R1 a claim by tap …` (the close button that gets the focus after a claim has no outline) | local | Pass | 2026-11-03 |
 | MUPP-032-R2 | WebKit tests `MUPP-032-R2 … the ring after a key, and the focus is where it was` for the three dialogs (Enter opens: ring on the first control; Esc closes: ring on the element that gets the focus) and `MUPP-032-R2 a tap followed by Tab …` (a tap, then a key, then the name field has the ring). Focus order is unchanged because no focus code changed (the only code removed from `BirthdayDeck.tsx` is the ring marking); the existing focus tests in the normal suite pass | local | Pass | 2026-11-03 |
 | Real phone | On the user's iPhone on the live site (tapping the dialogs): checked by the user (reported 2026-11-03): it looks good; no per-item results were given | live | Pass (reported) | 2026-11-03 |
-| Keyboard on desktop | Not checked: needs a person with desktop Safari and Chrome (the checklist items 1 and 2 on the live site) | live | Not checked | |
+| Keyboard on desktop | Closed on the user's instruction (2026-11-03): the keyboard check (desktop Safari and Chrome, checklist items 1 and 2 on the live site) is the user's to do; no result reported, so it was not checked by Claude | live | Closed on instruction; no result reported | 2026-11-03 |
 
 ## The test plan
 
@@ -23,7 +23,7 @@ How each requirement was checked. The fault only shows in WebKit on a phone, so 
 | Unit tests | Not applicable (no logic outside the browser); `npm run test:unit` 162 passed | local | Pass | 2026-11-03 |
 | Browser tests | `tests/MUPP-032-quiet-focus-after-tap.webkit.spec.ts` (10 tests, `npm run test:webkit`, all pass); the normal suite with `npm run test:time`: 114 passed. `MUPP-022-R2` and `design.spec.ts` adapted to the new rule | local | Pass | 2026-11-03 |
 | Smoke test | Not applicable: no new page or flow (the card's plan names none) | | | |
-| Accessibility | axe on the open dialogs is in the existing tests of MUPP-005, MUPP-006 and MUPP-014 and passes. On the live site, on the phone: checked by the user (reported 2026-11-03) (no per-item results). With a keyboard (checklist items 1 and 2): **not checked** | local | Pass (axe); live not checked | 2026-11-03 |
+| Accessibility | axe on the open dialogs is in the existing tests of MUPP-005, MUPP-006 and MUPP-014 and passes. On the live site, on the phone: checked by the user (reported 2026-11-03) (no per-item results). With a keyboard (checklist items 1 and 2): closed on the user's instruction (2026-11-03); the user does the check, no result reported | local | Pass (axe); keyboard check closed on instruction | 2026-11-03 |
 | Security | Not needed: CSS and a client component with two listeners (the card's plan) | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
 
@@ -43,7 +43,7 @@ The ten new tests are WebKit tests and are not in this run (the normal suite is 
 - [x] Tests: every check in the card's test plan is done, except the live checks below; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (177.5 s of 180 s), no growth, and the new tests follow the quality rules in `wiki/system/testing.md`
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 41714617055 on `main` at the merge commit `24799d3` succeeded (2026-11-03)
-- [ ] Accessibility: axe passes; the phone check on the live site is checked by the user (reported 2026-11-03); the keyboard check (desktop Safari and Chrome, checklist items 1 and 2) is not checked, so this stays open
+- [x] Accessibility: axe passes; the phone check on the live site is checked by the user (reported 2026-11-03); the keyboard check (desktop Safari and Chrome, checklist items 1 and 2) is ticked on the user's instruction (2026-11-03): the user does that check, no result reported
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated: the manual (`wiki/manual/`) has nothing to change, since nothing a visitor does is different; `wiki/system/accessibility.md`, `start-page.md` and the log are updated
 - [x] No leftovers: MUPP-022's `data-quiet-focus` code and style are removed

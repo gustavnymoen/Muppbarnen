@@ -98,32 +98,29 @@ test("MUPP-009-R1 R2 R5 the password page, a wrong and the right password, the c
   await context.close();
 });
 
-test("MUPP-009-R1 only an address on this site is accepted as the target", async ({ browser, baseURL }) => {
+test("MUPP-009-R1 R2 only an address on this site is accepted as the target, a changed or foreign cookie is rejected, and one signed with the secret is accepted", async ({ browser, baseURL }) => {
   const context = await newVisitor(browser, baseURL);
   const page = await context.newPage();
   await goto(page, "/losenord?till=https%3A%2F%2Fevil.example%2Fstart");
   await signInWith(page, password);
   await expect(page).toHaveURL((url) => url.pathname === "/");
   await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
-  await context.close();
-});
 
-test("MUPP-009-R2 a changed or foreign cookie is rejected, one signed with the secret is accepted", async ({ browser, baseURL }) => {
-  test.skip(!runsLocally, "needs the test server's secret");
-  const context = await newVisitor(browser, baseURL);
-  const page = await context.newPage();
-  const set = (value: string) => context.addCookies([{ name: "__Host-site_session", value, domain: new URL(baseURL!).hostname, path: "/", secure: true }]);
-  const signed = createSession(process.env.SITE_SESSION_SECRET!);
+  // R2: samma besökare; kakan sätts om för hand (bara mot testservern, som har nyckeln) (TECH-015)
+  if (runsLocally) {
+    const set = (value: string) => context.addCookies([{ name: "__Host-site_session", value, domain: new URL(baseURL!).hostname, path: "/", secure: true }]);
+    const signed = createSession(process.env.SITE_SESSION_SECRET!);
 
-  for (const value of [createSession("en annan nyckel"), signed.replace(/.$/, signed.endsWith("0") ? "1" : "0"), "bara-skräp"]) {
-    await set(value);
+    for (const value of [createSession("en annan nyckel"), signed.replace(/.$/, signed.endsWith("0") ? "1" : "0"), "bara-skräp"]) {
+      await set(value);
+      await goto(page, "/design");
+      await expect(page).toHaveURL(/\/losenord/);
+    }
+
+    await set(signed);
     await goto(page, "/design");
-    await expect(page).toHaveURL(/\/losenord/);
+    await expect(page).toHaveURL(/\/design$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   }
-
-  await set(signed);
-  await goto(page, "/design");
-  await expect(page).toHaveURL(/\/design$/);
-  await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   await context.close();
 });

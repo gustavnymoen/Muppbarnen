@@ -32,10 +32,11 @@ async function twoKids(page: Page, sizes = { clothes: "122", shoes: "30" }) {
   return { vera, vilda };
 }
 
-test("MUPP-014-R2 R5 the single kid card: a Storlekar button opens the sizes with only the ones that are saved", async ({ page }) => {
+test("MUPP-014-R2 R4 R5 the single kid card: a Storlekar button opens the sizes with only the ones that are saved, and on the open list the icon is in the corner instead of the button and the dialog leaves the list and its marks alone", async ({ page }) => {
   const parent = await addParent(uniqueName("Förälder"));
   const vera = await addChild(parent, "Vera", birthdateIn(20).birthdate);
   await setSizes(vera, { clothes: "122", shoes: "30" });
+  await addWish(vera, "birthday", "Cykel");
   await page.setViewportSize({ width: 375, height: 667 });
   await goto(page, "/");
   await animationsDone(card(page));
@@ -62,6 +63,23 @@ test("MUPP-014-R2 R5 the single kid card: a Storlekar button opens the sizes wit
   await dialog(page).getByRole("button", { name: "Stäng" }).click();
   await expect(dialog(page)).toHaveCount(0);
   await expect(button).toBeFocused();
+
+  // R4 R5: the same kid with the list open (TECH-015)
+  await card(page).getByRole("button", { name: /^Önskelista/ }).click();
+  await expect(card(page).getByRole("button", { name: "Storlekar", exact: true })).toHaveCount(1);
+  await expect(card(page).getByText("Storlekar", { exact: true })).toHaveCount(0);
+
+  // A gift is marked, then the dialog is opened and closed with Esc: the list and the mark stay
+  await region(page).getByRole("checkbox", { name: "Cykel" }).check();
+  const icon = card(page).getByRole("button", { name: "Storlekar" });
+  await icon.click();
+  await expect(dialog(page).getByRole("definition")).toHaveText(["122", "30"]);
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toHaveCount(0);
+  await expect(icon).toBeFocused();
+  await expect(region(page)).toBeVisible();
+  await expect(region(page).getByRole("checkbox", { name: "Cykel" })).toBeChecked();
+  await expectNoA11yViolations(page);
 });
 
 test("MUPP-014-R5 a kid with no sizes still has the button, and the dialog says so", async ({ page }) => {
@@ -72,31 +90,6 @@ test("MUPP-014-R5 a kid with no sizes still has the button, and the dialog says 
   await card(page).getByRole("button", { name: "Storlekar" }).click();
   await expect(dialog(page).getByText("Inga storlekar inlagda än.")).toBeVisible();
   await expect(dialog(page).getByRole("term")).toHaveCount(0);
-  await expectNoA11yViolations(page);
-});
-
-test("MUPP-014-R4 R5 the open list on the single kid card has the icon in the corner instead of the button, and the dialog leaves the list and its marks alone", async ({ page }) => {
-  const parent = await addParent(uniqueName("Förälder"));
-  const vera = await addChild(parent, "Vera", birthdateIn(20).birthdate);
-  await setSizes(vera, { clothes: "122" });
-  await addWish(vera, "birthday", "Cykel");
-  await page.setViewportSize({ width: 375, height: 667 });
-  await goto(page, "/");
-  await animationsDone(card(page));
-  await card(page).getByRole("button", { name: /^Önskelista/ }).click();
-  await expect(card(page).getByRole("button", { name: "Storlekar", exact: true })).toHaveCount(1);
-  await expect(card(page).getByText("Storlekar", { exact: true })).toHaveCount(0);
-
-  // A gift is marked, then the dialog is opened and closed with Esc: the list and the mark stay
-  await region(page).getByRole("checkbox", { name: "Cykel" }).check();
-  const icon = card(page).getByRole("button", { name: "Storlekar" });
-  await icon.click();
-  await expect(dialog(page).getByRole("definition")).toHaveText(["122"]);
-  await page.keyboard.press("Escape");
-  await expect(dialog(page)).toHaveCount(0);
-  await expect(icon).toBeFocused();
-  await expect(region(page)).toBeVisible();
-  await expect(region(page).getByRole("checkbox", { name: "Cykel" })).toBeChecked();
   await expectNoA11yViolations(page);
 });
 

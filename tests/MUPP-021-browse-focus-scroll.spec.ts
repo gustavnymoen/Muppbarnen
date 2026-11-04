@@ -26,8 +26,9 @@ async function openFirstList(page: Page, others: { name: string; days: number }[
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
 }
 
-test("MUPP-021-R1 next card with a list open leaves the deck in place: a card with one kid has its list open", async ({ page }) => {
-  await openFirstList(page, [{ name: "Alma", days: 20 }]);
+// Ett kort med ett barn och sedan ett med flera, i samma körning (TECH-015)
+test("MUPP-021-R1 next card with a list open leaves the deck in place: a card with one kid has its list open, a card with several kids is the overview", async ({ page }) => {
+  await openFirstList(page, [{ name: "Alma", days: 20 }, { name: "Vera", days: 40 }, { name: "Vilda", days: 40 }]);
   await page.getByRole("button", { name: "Nästa kort" }).click();
   await expect(card(page).getByRole("heading", { level: 3 })).toHaveText("Alma");
   await expect(card(page).getByRole("region", { name: "Önskelista" })).toBeVisible();
@@ -35,10 +36,7 @@ test("MUPP-021-R1 next card with a list open leaves the deck in place: a card wi
   await animationsDone(card(page));
   expect(await deckScroll(page)).toBe(0);
   await expectNoA11yViolations(page);
-});
 
-test("MUPP-021-R1 next card with a list open leaves the deck in place: a card with several kids is the overview", async ({ page }) => {
-  await openFirstList(page, [{ name: "Vera", days: 40 }, { name: "Vilda", days: 40 }]);
   await page.getByRole("button", { name: "Nästa kort" }).click();
   await expect(card(page).getByRole("button", { name: "Önskelista för Vera" })).toBeFocused();
   await animationsDone(card(page));
