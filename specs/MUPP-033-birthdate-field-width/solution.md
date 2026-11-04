@@ -17,12 +17,14 @@ None.
 
 ## Interface
 
-`Field` in `app/components/Form.tsx` adds `dateFit` (`block min-w-0 max-w-full appearance-none text-left`) to inputs of type `date`. iOS Safari gives a date input a minimum width of its own; `min-w-0` and `max-w-full` let it shrink to the form, and `appearance-none` drops the native box sizing. The phone's own picker is unchanged. No new texts.
+`Field` in `app/components/Form.tsx` adds `dateFit` (`flex items-center min-w-0 max-w-full appearance-none text-left`) to inputs of type `date`. iOS Safari gives a date input a minimum width of its own; `min-w-0` and `max-w-full` let it shrink to the form, and `appearance-none` drops the native box sizing. The phone's own picker is unchanged. No new texts.
 
 ## Decisions
 
 - One shared constant for the date type, not a class on the one call site, so every date field gets the fix (the card's scope).
 - The fault shows only in Safari on iOS, which neither Chromium nor Playwright's WebKit reproduces. The automated test therefore guards the layout in Chromium; the real check is manual on an iPhone ([Verification](verification.md)).
+
+- First version used `block`; on the user's iPhone the date then sat at the top of the box instead of in the middle. `flex items-center` centres the value vertically.
 
 ## Related
 
