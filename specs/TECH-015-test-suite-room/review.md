@@ -9,7 +9,7 @@ feature: TECH-015
 
 **Result:** Passed
 **Date:** 2026-11-04, review run 2
-**Summary:** The change touches only tests, wiki and specs. Every merged test keeps the assertions of the tests it replaced, every requirement ID is still in a test name, and the tests have no new fixed waits, retries or skips. The documentation matches the 97 tests and records honestly that R2 (under 165 s in both runs) is not met reliably.
+**Summary:** The change touches only tests, wiki and specs. Every merged test keeps the assertions of the tests it replaced, every requirement ID is still in a test name, and the tests have no new fixed waits, retries or skips. The documentation matches the 97 tests and records honestly that R2 was not met against 165 s; the goal was then moved to 170 s with the user.
 **Security:** Passed. No site code, sign-in, API, database or personal data changes, so `/security-review` is not needed (the card says so).
 
 How the review works: `wiki/system/code-review.md`.
@@ -32,7 +32,7 @@ None open. Run 2 found two: the MUPP-006 point above (the "other claim stays aft
 - MUPP-009's R2 part is inside `if (runsLocally)`, so against the live site the merged test passes with R2 unchecked, where it used to show as skipped. Keep it in mind when reading live results.
 - MUPP-014: the open-list variant now expects both saved sizes (`122`, `30`); the "only the saved sizes" check is covered by the first half of the same test.
 - Other `specs/*/verification.md` files may still name old test titles (MUPP-002, -006, -010, -014, -017, -019, -021); a sweep of old test names in the specs is a candidate for the backlog.
-- R2 is not met reliably (164.3–170.3 s against under 165 s); the decision is the user's: accept a goal of about 170 s, or take the measures the card puts out of scope.
+- R2 was not met against 165 s (164.3–170.3 s); the user moved the goal to 170 s (2026-11-04) and the card and `verification.md` say so.
 
 ## Other checks
 
