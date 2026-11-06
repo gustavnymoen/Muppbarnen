@@ -7,11 +7,11 @@ feature: TECH-016
 
 # Verification of TECH-016
 
-How each requirement was checked. Dates are 2026-11-06. "Not checked" means it needs the pushed branch (Preview and Live tests, Vercel).
+How each requirement was checked. Dates are 2026-11-06. "Not checked" means the check was not done.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| TECH-016-R1 | `npm run test:unit` (163) and `npm run test:local` (103) pass unchanged. The web client against Turso (queries, transactions, a saved picture, wish list and claim): not checked, needs the Preview tests | local; preview not checked | Pass locally; preview not checked | 2026-11-06 |
+| TECH-016-R1 | `npm run test:unit` (163) and `npm run test:local` (103) pass unchanged. The web client against Turso: Preview tests (CI, PR #133) and Live tests (smoke tests against production, merge commit `b3caf16`) pass | local, preview, live | Pass (a saved picture, wish list and claim are not in the smoke tests: not checked by hand)  | 2026-11-06 |
 | TECH-016-R2 | Manual (depends on build output): `VERCEL=1` build with dummy values, then `node scripts/function-sizes.mjs`: start 2.6, `/losenord` 2.4, `/bilder/[id]` 2.8, `/admin` pages 3.1, `/admin/hantera` 22.4 MB (limits 6 and 25); no native `libsql` anywhere, `sharp` only in `/admin/hantera`. A normal build fails the script and names each function (10.6 MB, native `libsql`, `sharp`). Linux sizes on Vercel: not checked | local; Vercel not checked | Pass locally | 2026-11-06 |
 | TECH-016-R3 | Manual: the `VERCEL=1` build traces no native `libsql`; the test server (no `VERCEL`) builds with the native client and the 103 browser tests run against a database file | local | Pass | 2026-11-06 |
 | TECH-016-R4 | `lib/pictures.test.ts` (imports now from `lib/picture-upload.ts`) and the admin picture browser tests pass; the order of the checks read in `app/admin/picture-actions.ts` and in the review; `lib/route-checks.test.ts` covers the new file | local | Pass | 2026-11-06 |
@@ -22,7 +22,7 @@ How each requirement was checked. Dates are 2026-11-06. "Not checked" means it n
 |---|---|---|---|---|
 | Unit tests | `npm run test:unit`, 163 tests | local | Pass | 2026-11-06 |
 | Browser tests | `npm run test:local`, 103 tests | local | Pass | 2026-11-06 |
-| Smoke test | Preview and Live tests | preview, live | Not checked | |
+| Smoke test | Preview tests and Live tests | preview, live | Pass | 2026-11-06 |
 | Manual check on Vercel | Function sizes of the preview against the script | Vercel | Not checked | |
 | Accessibility | Not applicable: visitors see no change | | | |
 | Security | Security points in the review; `/security-review`: no findings | local | Pass | 2026-11-06 |
@@ -39,9 +39,9 @@ No test was added or removed by this change; the count and time differ from TECH
 
 ## Definition of Done
 
-- [x] Tests: the plan's local checks are done; Preview and Live tests are not checked yet
+- [x] Tests: every check in the plan is done except the function sizes on Vercel (not checked)
 - [x] Test suite: within the time budgets (177.3 s of 180 s); no new tests
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not checked
+- [x] Deployed, and the smoke tests pass against production (Live tests)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built; no open questions left; `solution.md` describes how it was built
 - [x] Manual: no change for users; system docs and `wiki/log.md` updated
