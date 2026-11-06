@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-06
+
+* **Update** [TECH-016 Smaller functions on Vercel](../specs/TECH-016-smaller-functions/solution.md): on Vercel the build uses the web database client and only `/admin/hantera` includes `sharp`, so the functions are 0.8–3.1 MB instead of 10.7–30.9 MB (`/admin/hantera` 22.4 MB); `scripts/function-sizes.mjs` measures it.
+
 ## 2026-11-04
 
 * **Update** [MUPP-037 Clean close motion of the wish list](../specs/MUPP-037-close-motion-surface/solution.md): when a wish list closes, its content fades out in 100 ms and only the surface folds into the button, so no squashed buttons or fields are seen (all three card types).

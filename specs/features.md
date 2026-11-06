@@ -61,6 +61,7 @@ tags: [product, features]
 | [MUPP-036](MUPP-036-onboarding-scroll/solution.md) | Onboarding dialog: one button and a scroll cue | Startsida | Review |
 | [MUPP-037](MUPP-037-close-motion-surface/solution.md) | Clean close motion of the wish list | Startsida | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
+| [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

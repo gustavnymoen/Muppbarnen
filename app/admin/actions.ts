@@ -1,30 +1,21 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { failed, saved, type FormState } from "@/app/components/form-state";
+import { failed, type FormState } from "@/app/components/form-state";
 import { requireAdminSession, setAdminCookie } from "@/lib/admin-auth";
 import { ADMIN_PATH } from "@/lib/admin-session";
 import * as family from "@/lib/family";
 import { parseId } from "@/lib/form-input";
-import { detectImageType, MAX_IMAGE_BYTES } from "@/lib/image-type";
-import { BadPictureError, removePicture, storePicture } from "@/lib/pictures";
+import { removePicture } from "@/lib/pictures";
 import { guardMessage, guardWrite } from "@/lib/request-guard";
 import { requireSiteSession } from "@/lib/site-auth";
+import { answer, logPictureError, text } from "./action-helpers";
 
 // Adminens serveråtgärder. Varje åtgärd gör samma tre saker först, i den här ordningen
 // (specs/rules.md): sajtkakan, adminkakan och gränsen för skrivande anrop. Därefter
 // kontrollerar reglerna i lib/family.ts rättigheten (huvudadministratör, eget barn) och indatan.
 // Vem som gör det läses ur databasen vid varje anrop, aldrig ur formuläret.
 
-// Svaret efter en ändring: sidorna läses om, och ett fel visas vid formuläret
-function answer(formData: FormData, outcome: family.Outcome): FormState {
-  if (!outcome.ok) return failed(formData, outcome);
-  revalidatePath(ADMIN_PATH, "layout");
-  return saved;
-}
-
-const text = (formData: FormData, name: string) => formData.get(name);
 const checked = (formData: FormData, name: string) => formData.get(name) === "on";
 
 // ---- Vem är jag
@@ -163,38 +154,6 @@ export async function removeChild(_previous: FormState, formData: FormData): Pro
   return answer(formData, outcome);
 }
 
-const BAD_PICTURE = "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB.";
-
-export async function saveChildPicture(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
-  const child = await family.childForPicture(parent, text(formData, "childId"));
-  if (!child) return failed(formData, { error: "Du kan inte göra det här." });
-
-  const file = formData.get("picture");
-  if (!(file instanceof File) || file.size === 0) return failed(formData, { fields: { picture: "Välj en bild." } });
-  if (file.size > MAX_IMAGE_BYTES) return failed(formData, { fields: { picture: BAD_PICTURE } });
-  // Typen avgörs av innehållet, inte av filnamnet eller den typ webbläsaren uppger
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  if (!detectImageType(bytes)) return failed(formData, { fields: { picture: BAD_PICTURE } });
-
-  let stored: string | undefined;
-  try {
-    stored = await storePicture(child.id, bytes);
-    await family.setChildPicture(child.id, stored);
-  } catch (e) {
-    if (e instanceof BadPictureError) return failed(formData, { fields: { picture: BAD_PICTURE } });
-    logPictureError(e);
-    if (stored) await removePicture(stored).catch(logPictureError);
-    return failed(formData, { error: "Bilden kunde inte sparas. Försök igen om en stund." });
-  }
-  // Den gamla bilden tas bort först när den nya sitter
-  if (child.picture) await removePicture(child.picture).catch(logPictureError);
-  return answer(formData, { ok: true });
-}
-
 export async function removeChildPicture(_previous: FormState, formData: FormData): Promise<FormState> {
   await requireSiteSession();
   const { parent } = await requireAdminSession();
@@ -204,9 +163,4 @@ export async function removeChildPicture(_previous: FormState, formData: FormDat
   // Filen tas bort först när databasen är uppdaterad
   if (outcome.ok && outcome.picture) await removePicture(outcome.picture).catch(logPictureError);
   return answer(formData, outcome);
-}
-
-// Bara meddelandet loggas, inte hela felet (det kan innehålla adresser till lagret)
-function logPictureError(e: unknown) {
-  console.error("Bildlagret svarade med ett fel:", e instanceof Error ? e.message : "okänt fel");
 }

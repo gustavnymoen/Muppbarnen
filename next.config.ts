@@ -55,6 +55,8 @@ const nextConfig: NextConfig = {
     ];
   },
   turbopack: {
+    // På Vercel pratar sajten bara med Turso över nätet; webbklienten sparar ca 8 MB per funktion (TECH-016)
+    resolveAlias: process.env.VERCEL ? { "@libsql/client": "./lib/libsql-web.ts" } : {},
     rules: {
       "*.css": {
         loaders: ["@tailwindcss/turbopack"],

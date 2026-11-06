@@ -1,0 +1,10 @@
+%% TECH-016 Smaller functions on Vercel
+%% What a function includes, depending on where the build runs and which page it serves.
+flowchart TD
+    A[next build] --> B{VERCEL set?}
+    B -- no --> C[Native libsql client: file database locally and in the tests]
+    B -- yes --> D["Alias @libsql/client to lib/libsql-web.ts: web client, queries over HTTPS (R3)"]
+    D --> E{Which function?}
+    E -- /admin/hantera --> F["Imports app/admin/picture-actions.ts, lib/picture-upload.ts and sharp: about 22 MB (R2, R4)"]
+    E -- any other page or route --> G["No sharp, no native libsql: under 6 MB (R2)"]
+    F & G --> H["scripts/function-sizes.mjs sums each .nft.json and fails over the limits (R2)"]

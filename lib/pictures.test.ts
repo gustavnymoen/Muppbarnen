@@ -24,7 +24,8 @@ const readStored = async (name: string) => {
 
 describe("MUPP-003-R6 the picture store behind one small module", () => {
   test("MUPP-003-R6 a stored picture is read back with its type, and gone after it is removed", async () => {
-    const { readPicture, removePicture, storePicture } = await import("./pictures");
+    const { readPicture, removePicture } = await import("./pictures");
+    const { storePicture } = await import("./picture-upload");
     const name = await storePicture(5, await picture(40, 40));
     expect(name).toMatch(/^barn-5-[0-9a-f-]{36}\.webp$/);
     expect((await readPicture(name))?.type).toBe("image/webp");
@@ -41,7 +42,8 @@ describe("MUPP-003-R6 the picture store behind one small module", () => {
   });
 
   test("MUPP-010-R4 removing a picture that is already gone is not an error", async () => {
-    const { removePicture, storePicture } = await import("./pictures");
+    const { removePicture } = await import("./pictures");
+    const { storePicture } = await import("./picture-upload");
     const name = await storePicture(6, await picture(40, 40));
     await removePicture(name);
     await expect(removePicture(name)).resolves.toBeUndefined();
@@ -50,7 +52,7 @@ describe("MUPP-003-R6 the picture store behind one small module", () => {
 
 describe("TECH-012 uploaded pictures are shrunk", () => {
   test("TECH-012-R1 a large picture is stored as WebP, at most 256 px on its longest side and far smaller than the original", async () => {
-    const { storePicture } = await import("./pictures");
+    const { storePicture } = await import("./picture-upload");
     const original = await picture(2000, 1000, "jpeg");
     const stored = await readStored(await storePicture(7, original));
     const info = await sharp(stored).metadata();
@@ -60,13 +62,13 @@ describe("TECH-012 uploaded pictures are shrunk", () => {
   });
 
   test("TECH-012-R1 a picture smaller than the limit is not enlarged", async () => {
-    const { storePicture } = await import("./pictures");
+    const { storePicture } = await import("./picture-upload");
     const info = await sharp(await readStored(await storePicture(8, await picture(100, 60)))).metadata();
     expect([info.width, info.height]).toEqual([100, 60]);
   });
 
   test("TECH-012-R2 a picture is turned upright by its orientation and holds no EXIF data or GPS position", async () => {
-    const { storePicture } = await import("./pictures");
+    const { storePicture } = await import("./picture-upload");
     const tagged = await sharp(await picture(600, 300, "jpeg"))
       .withMetadata({ orientation: 6, exif: { IFD3: { GPSLatitudeRef: "N", GPSLatitude: "59/1 19/1 0/1" } } })
       .toBuffer();
@@ -81,7 +83,7 @@ describe("TECH-012 uploaded pictures are shrunk", () => {
   });
 
   test("TECH-012-R3 a file that cannot be decoded is refused with BadPictureError and nothing is stored", async () => {
-    const { BadPictureError, storePicture } = await import("./pictures");
+    const { BadPictureError, storePicture } = await import("./picture-upload");
     const png = await picture(50, 50);
     const before = readdirSync(dir).length;
     // A picture's signature with broken contents, and a picture cut off halfway
@@ -92,7 +94,7 @@ describe("TECH-012 uploaded pictures are shrunk", () => {
   });
 
   test("TECH-012-R3 a picture with too many pixels is refused before it is decoded", async () => {
-    const { BadPictureError, storePicture } = await import("./pictures");
+    const { BadPictureError, storePicture } = await import("./picture-upload");
     await expect(storePicture(11, await picture(7200, 7200))).rejects.toBeInstanceOf(BadPictureError);
   });
 });

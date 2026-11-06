@@ -15,7 +15,8 @@ import { latestBirthdate } from "@/lib/form-input";
 import { listChildren, listParents, type Child, type Parent } from "@/lib/family";
 import { pictureUrl } from "@/lib/picture-url";
 import { requireSiteSession } from "@/lib/site-auth";
-import { removeChild, removeChildPicture, removeParent, saveChild, saveChildPicture, saveParent } from "../actions";
+import { removeChild, removeChildPicture, removeParent, saveChild, saveParent } from "../actions";
+import { saveChildPicture } from "../picture-actions";
 
 // Bara huvudadministratören. För andra ser sidan ut som en sida som inte finns.
 export default function ManagePage() {
