@@ -80,6 +80,10 @@ Security is checked in three places, each for what it is good at:
 
 Every feature and technical task is reviewed by the reviewer agent before it is done; the rules and levels are in [Code review](code-review.md), and the report is saved as `review.md` and posted on the pull request.
 
+## Function sizes
+
+Vercel stores every function of every deployment, and the free plan limits that storage (10 GB), so the size of the functions is checked by hand after a change to what the pages import. Build with `VERCEL=1` (the web client is only used there; a dummy `TURSO_DATABASE_URL=https://example.invalid`, dummy secrets and `NEXT_DIST_DIR=<another folder>` are enough, no network is needed) and run `node scripts/function-sizes.mjs <that folder>`. It sums the files each function traces (`.nft.json`) and fails, naming the function, when one is over 6 MB (`/admin/hantera`: 25 MB, it holds `sharp`), traces the native `libsql`, or (except `/admin/hantera`) traces `sharp`. It is not run in CI ([TECH-016](../../specs/TECH-016-smaller-functions/solution.md)).
+
 ## Where each check runs
 
 | | Locally | CI (pull request) | Preview tests | Live tests (after deploy) |
