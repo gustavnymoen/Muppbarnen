@@ -31,3 +31,15 @@ test("MUPP-003-R1 @smoke /admin and the pictures give nothing without the site c
   expect(picture.status()).toBe(401);
   expect(await picture.text()).toBe("");
 });
+
+test("MUPP-039-R1 @smoke the Secret Santa entrance is behind the site password and shows no names", async ({ page, request }) => {
+  await page.goto("/secret-santa");
+  await expect(page).toHaveURL(/\/losenord\?till=%2Fsecret-santa$/);
+  await expect(page.getByLabel("Lösenord")).toBeVisible();
+  await expect(page.getByRole("link")).toHaveCount(0);
+
+  // Inte heller den egna sidan eller inloggningen går att nå utan sajtkakan
+  const own = await request.get("/secret-santa/min-sida", { maxRedirects: 0 });
+  expect(own.status()).toBe(307);
+  expect(own.headers().location).toContain("/losenord");
+});

@@ -40,11 +40,11 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   await expect(menu).toHaveAttribute("aria-expanded", "true");
   const nav = page.getByRole("navigation", { name: "Huvudmeny" });
   // R2 (changed by MUPP-003-R8): "Admin" is a real link and the last item
-  await expect(nav.getByRole("link")).toHaveText(["Start", "Admin"]);
+  await expect(nav.getByRole("link")).toHaveText(["Start", "Secret Santa", "Admin"]);
   // MUPP-035-R3: "Så funkar sajten" is the one button, between them
   await expect(nav.getByRole("button")).toHaveText(["Så funkar sajten"]);
-  // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar (Start och Admin), och namnet är ingen länk (TECH-006)
-  await expect(page.getByRole("link")).toHaveCount(2);
+  // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar (Start, Secret Santa och Admin), och namnet är ingen länk (TECH-006)
+  await expect(page.getByRole("link")).toHaveCount(3);
   await expectNoA11yViolations(page);
 
   // R2: Escape stänger och fokus går tillbaka till knappen
@@ -62,6 +62,8 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   await expect(start).toHaveCSS("outline-width", "3px");
   await page.keyboard.press("Tab");
   await expect(nav.getByRole("button", { name: "Så funkar sajten" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(nav.getByRole("link", { name: "Secret Santa" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(nav.getByRole("link", { name: "Admin" })).toBeFocused();
   await page.keyboard.press("Escape");

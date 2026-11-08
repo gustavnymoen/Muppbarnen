@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* **Creation** [MUPP-039 Secret Santa: entrance and sign-in](../specs/MUPP-039-secret-santa-entrance/solution.md): a menu entry "Secret Santa" leads to a choice of family and name and a sign-in with the saved phone or email; a signed `__Host-` cookie remembers the person and "Byt person" removes it.
 * **Creation** [MUPP-038 Secret Santa: families and members](../specs/MUPP-038-secret-santa-families/solution.md): the admin page has a tab "Secret Santa" for the master admin, where families, their members (name, phone 07XXXXXXXX, email) and mutual per-family partners are set up; one person can be in several families.
 
 ## 2026-11-06

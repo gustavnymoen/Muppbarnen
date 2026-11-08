@@ -1,0 +1,19 @@
+%% MUPP-039 Secret Santa: entrance and sign-in
+%% A visitor picks a family and a name, signs in with phone or email and reaches only their own page.
+flowchart TD
+    A[Menu: Secret Santa: R1] --> B{Signed in already?}
+    B -- yes --> H[Own page: R5]
+    B -- no --> C{More than one family?}
+    C -- yes --> D[Choose family: R2]
+    C -- no --> E
+    D --> E[Grid of names, two per row: R3]
+    E --> F[Sign-in form, phone selected, field in focus: R4b]
+    F --> G{Phone or email matches the saved one? R4}
+    G -- no --> X{Too many wrong tries?}
+    X -- no --> Y[Det stämde inte]
+    Y --> F
+    X -- yes --> Z[Blocked for a while]
+    G -- yes --> I[Signed cookie with the person id: R5]
+    I --> H
+    H --> J[Byt person: cookie removed, back to the entrance: R5]
+    H -. no id in the address, so no one else's page: R6 .-> H

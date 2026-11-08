@@ -70,7 +70,7 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 the dialog opens by itself on
   // R3 R2: the menu has the item between Start and Admin, which opens the dialog on the first tab; Esc closes it and the focus is back on the menu button
   await page.getByRole("button", { name: "Meny" }).click();
   const items = page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("listitem");
-  await expect(items).toHaveText(["Start", "Så funkar sajten", "Admin"]);
+  await expect(items).toHaveText(["Start", "Så funkar sajten", "Secret Santa", "Admin"]);
   await items.nth(1).getByRole("button").click();
   await expect(dialog).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Besökare" })).toHaveAttribute("aria-selected", "true");
