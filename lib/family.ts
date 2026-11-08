@@ -1,7 +1,7 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
 import { isArchived, isoDate, occasionOf, parseDate, swedishToday, type DeckInput, type Sizes, type Today, type Wishes } from "./deck";
-import { MAX_DESCRIPTION, MAX_TITLE, collect, parseBirthdate, parseId, parseLink, parseOccasion, parseText, type Occasion } from "./form-input";
+import { collect, parseBirthdate, parseId, parseOccasion, parseText, parseWish, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
 // något tar emot vem som gör det (actor, läst ur databasen vid varje förfrågan) och
@@ -346,12 +346,7 @@ export async function saveItem(
   today = swedishToday(),
 ): Promise<Outcome> {
   const occasion = parseOccasion(input.occasion);
-  const checked = collect({
-    title: parseText(input.title, MAX_TITLE, true),
-    size: parseText(input.size, 40),
-    description: parseText(input.description, MAX_DESCRIPTION),
-    url: parseLink(input.url),
-  });
+  const checked = parseWish(input);
 
   if (input.itemId === undefined || input.itemId === "") {
     const child = await manageableChild(actor, input.childId);

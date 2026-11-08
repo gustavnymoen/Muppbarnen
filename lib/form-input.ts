@@ -12,6 +12,9 @@ export const OCCASION_NAMES: Record<Occasion, string> = { birthday: "Födelsedag
 export const MAX_DESCRIPTION = 100;
 // Längsta namn på en önskning (MUPP-023)
 export const MAX_TITLE = 60;
+// Längsta storlek och länk på en önskning
+export const MAX_SIZE = 40;
+export const MAX_URL = 500;
 
 const fail = (error: string): { ok: false; error: string } => ({ ok: false, error });
 // Styrtecken utom radbrytning och tabb sparas aldrig
@@ -65,7 +68,7 @@ export function parseBirthdate(raw: unknown, today = new Date()): Parsed<string>
 
 // Tom länk är tillåten; annars bara http:// eller https://
 export function parseLink(raw: unknown): Parsed<string> {
-  const text = parseText(raw, 500);
+  const text = parseText(raw, MAX_URL);
   if (!text.ok || !text.value) return text;
   const bad = fail("Länken måste börja med http:// eller https://.");
   try {
@@ -84,6 +87,15 @@ export function collect<T extends Record<string, Parsed<unknown>>>(checks: T) {
   const values = Object.fromEntries(Object.entries(checks).map(([field, result]) => [field, (result as { value: unknown }).value]));
   return { ok: true as const, values: values as { [K in keyof T]: T[K] extends Parsed<infer V> ? V : never } };
 }
+
+// De fyra fälten i en önskning, med samma gränser för barnens listor och Secret Santa-listan (MUPP-040)
+export const parseWish = (input: { title: unknown; size: unknown; description: unknown; url: unknown }) =>
+  collect({
+    title: parseText(input.title, MAX_TITLE, true),
+    size: parseText(input.size, MAX_SIZE),
+    description: parseText(input.description, MAX_DESCRIPTION),
+    url: parseLink(input.url),
+  });
 
 // Ett svenskt mobilnummer skrivet 07XXXXXXXX: tio siffror, de två första 07 (MUPP-038-R3)
 export function parsePhone(raw: unknown): Parsed<string> {
