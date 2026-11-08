@@ -1180,3 +1180,37 @@ test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar sajten on the narrowest phon
   await dialog.getByRole("tab", { name: "Förälder" }).click();
   expect(await panel.evaluate((el) => el.scrollTop)).toBe(0);
 });
+
+test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per row, all visible without scrolling and 44 px high; the sign-in form fits", async ({ page }) => {
+  test.skip(!runsLocally, "needs the local test database");
+  await clearSanta();
+  const family = await addSantaFamily("Familjen Ek");
+  for (let i = 1; i <= 8; i++) await addSantaMember(family, `Person Nummer${i}`, `070000${String(i).padStart(4, "0")}`, `person${i}@exempel.invalid`);
+  try {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await goto(page, "/secret-santa");
+    const tiles = await page.getByRole("list").getByRole("link").all();
+    expect(tiles).toHaveLength(8);
+    const boxes = [];
+    for (const tile of tiles) boxes.push(await settledBox(tile));
+    for (const box of boxes) {
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.y + box.height).toBeLessThanOrEqual(667);
+      expect(box.x + box.width).toBeLessThanOrEqual(375);
+    }
+    // Two per row: four distinct rows, two tiles side by side in each
+    expect(new Set(boxes.map((b) => Math.round(b.y))).size).toBe(4);
+    for (let i = 0; i < 8; i += 2) expect(disjoint(boxes[i], boxes[i + 1])).toBe(true);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
+
+    await tiles[0].click();
+    await expect(page.getByLabel("Ditt telefonnummer")).toBeVisible();
+    // The radio buttons are as large as their labels, and the field and button as the other forms'
+    const controls = [page.locator("label").filter({ hasText: /^Telefon$/ }), page.locator("label").filter({ hasText: /^E-post$/ }), page.getByLabel("Ditt telefonnummer"), page.getByRole("button", { name: "Logga in" })];
+    for (const control of controls) expect((await settledBox(control)).height).toBeGreaterThanOrEqual(44);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+  } finally {
+    await clearSanta();
+  }
+});

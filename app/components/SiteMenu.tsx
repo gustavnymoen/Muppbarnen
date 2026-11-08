@@ -72,6 +72,11 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
               </button>
             </li>
             <li>
+              <Link href="/secret-santa" className={item} onClick={close}>
+                Secret Santa
+              </Link>
+            </li>
+            <li>
               <Link href="/admin" className={`${item} text-muted hover:text-text`} onClick={close}>
                 Admin
               </Link>
