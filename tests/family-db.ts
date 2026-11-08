@@ -84,3 +84,23 @@ export const setSizes = (childId: number, sizes: { clothes?: string; shoes?: str
       args: [sizes.clothes ?? "", sizes.shoes ?? "", sizes.head ?? "", sizes.gloves ?? "", childId],
     }),
   );
+
+// Secret Santa (MUPP-038): made-up families and people, made straight in the test database
+export const addSantaFamily = (name: string) =>
+  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_family (name) VALUES (?)", args: [name] })).lastInsertRowid));
+
+export const addSantaMember = (familyId: number, name: string, phone: string, email: string) =>
+  withDb(async (db) => {
+    const person = await db.execute({ sql: "INSERT INTO ss_person (name, phone, email) VALUES (?, ?, ?)", args: [name, phone, email] });
+    await db.execute({ sql: "INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", args: [familyId, Number(person.lastInsertRowid)] });
+  });
+
+export const clearSanta = () =>
+  withDb(async (db) => {
+    await db.execute("DELETE FROM ss_member");
+    await db.execute("DELETE FROM ss_person");
+    await db.execute("DELETE FROM ss_family");
+  });
+
+export const countSanta = (table: "ss_family" | "ss_person" | "ss_member") =>
+  withDb(async (db) => Number((await db.execute(`SELECT COUNT(*) AS n FROM ${table}`)).rows[0].n));

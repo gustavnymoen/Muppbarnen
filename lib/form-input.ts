@@ -84,3 +84,15 @@ export function collect<T extends Record<string, Parsed<unknown>>>(checks: T) {
   const values = Object.fromEntries(Object.entries(checks).map(([field, result]) => [field, (result as { value: unknown }).value]));
   return { ok: true as const, values: values as { [K in keyof T]: T[K] extends Parsed<infer V> ? V : never } };
 }
+
+// Ett svenskt mobilnummer skrivet 07XXXXXXXX: tio siffror, de två första 07 (MUPP-038-R3)
+export function parsePhone(raw: unknown): Parsed<string> {
+  const value = typeof raw === "string" ? raw.trim() : "";
+  return /^07\d{8}$/.test(value) ? { ok: true, value } : fail("Skriv numret som 07XXXXXXXX");
+}
+
+// En e-postadress: något@domän.tld utan mellanslag, högst 254 tecken. Mer går inte att veta utan att skicka ett mail.
+export function parseEmail(raw: unknown): Parsed<string> {
+  const value = typeof raw === "string" ? raw.trim() : "";
+  return value.length <= 254 && /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(value) ? { ok: true, value } : fail("Skriv en e-postadress, till exempel namn@exempel.se");
+}

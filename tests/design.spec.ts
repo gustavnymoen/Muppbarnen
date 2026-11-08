@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addWish, clearFamily } from "./family-db";
+import { addChild, addParent, addSantaFamily, addSantaMember, addWish, clearFamily, clearSanta } from "./family-db";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
 
@@ -346,6 +346,45 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThan(2);
     await expect(dialog.getByRole("button", { name: "Ta bort" })).toHaveCSS("background-color", BRAND);
   } finally {
+    await clearFamily();
+  }
+});
+
+test("MUPP-038-R1 R2 R3 the Secret Santa tab on a phone: tabs 44 px high with the selected one marked, a family of 8 as slim rows that fit the width", async ({ page }) => {
+  test.skip(!runsLocally, "needs the admin password of the local test server");
+  await clearFamily();
+  await clearSanta();
+  const chef = uniqueName("Chef");
+  await addParent(chef, true);
+  const family = await addSantaFamily("Familjen Ek");
+  for (let i = 1; i <= 8; i++) await addSantaMember(family, `Person Nummer${i}`, `070000${String(i).padStart(4, "0")}`, `person${i}@exempel.invalid`);
+  try {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await adminSignIn(page, chef);
+    const kids = page.getByRole("tab", { name: "Barn" });
+    const santa = page.getByRole("tab", { name: "Secret Santa" });
+    // R1: both tabs at least 44 px high and side by side; the selected one has a brand underline, the other muted text
+    for (const tab of [kids, santa]) expect((await settledBox(tab)).height).toBeGreaterThanOrEqual(44);
+    const [kidsBox, santaBox] = [await settledBox(kids), await settledBox(santa)];
+    expect(disjoint(kidsBox, santaBox)).toBe(true);
+    await expect(kids).toHaveCSS("border-bottom-color", BRAND);
+    await expect(santa).toHaveCSS("border-bottom-color", "rgba(0, 0, 0, 0)");
+    expect(contrast(await css(santa, "color"), await backgroundOf(santa))).toBeGreaterThanOrEqual(4.5);
+
+    // R2 R3: the family is one slim card with eight slim member rows, nothing wider than the screen
+    await santa.click();
+    const card = page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name: "Familjen Ek" }) });
+    await expect(card.getByRole("heading", { level: 4 })).toHaveCount(8);
+    for (const row of await card.locator("article").all()) expect((await settledBox(row)).height).toBeLessThanOrEqual(56);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    const edit = card.getByRole("button", { name: "Ändra Person Nummer1 i Familjen Ek" });
+    expect((await settledBox(edit)).width).toBeGreaterThanOrEqual(32);
+    await edit.click();
+    await expect(card.getByLabel("Telefon")).toBeVisible();
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearSanta();
     await clearFamily();
   }
 });

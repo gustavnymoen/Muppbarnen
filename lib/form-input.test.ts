@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { collect, latestBirthdate, parseBirthdate, parseId, parseLink, parseOccasion, parseText } from "./form-input";
+import { collect, latestBirthdate, parseBirthdate, parseId, parseEmail, parseLink, parseOccasion, parsePhone, parseText } from "./form-input";
 
 describe("MUPP-003-R7 input is checked on the server", () => {
   test("MUPP-003-R7 ids are positive integers written with digits and nothing else", () => {
@@ -57,5 +57,22 @@ describe("MUPP-003-R7 input is checked on the server", () => {
     expect(collect({ a: parseText("x", 5), b: parseText("y", 5) })).toEqual({ ok: true, values: { a: "x", b: "y" } });
     const bad = collect({ a: parseText("", 5, true), b: parseText("y", 5), c: parseLink("nej") });
     expect(bad).toEqual({ ok: false, errors: { a: "Fyll i det här fältet.", c: "Länken måste börja med http:// eller https://." } });
+  });
+});
+
+describe("MUPP-038-R3 phone and email", () => {
+  test("MUPP-038-R3 a phone number is ten digits starting with 07, and nothing else", () => {
+    expect(parsePhone(" 0701234567 ")).toEqual({ ok: true, value: "0701234567" });
+    for (const bad of ["070 123 45 67", "+46701234567", "070-1234567", "0801234567", "070123456", "07012345678", "", null, 701234567]) {
+      expect(parsePhone(bad), String(bad)).toEqual({ ok: false, error: "Skriv numret som 07XXXXXXXX" });
+    }
+  });
+
+  test("MUPP-038-R3 an email has one @, a dotted domain, no spaces and at most 254 characters", () => {
+    expect(parseEmail(" anna@exempel.se ")).toEqual({ ok: true, value: "anna@exempel.se" });
+    expect(parseEmail("anna.berg@mail.exempel.se").ok).toBe(true);
+    for (const bad of ["anna", "anna@", "@exempel.se", "anna@exempel", "anna@@exempel.se", "an na@exempel.se", "anna@exempel..se", `${"a".repeat(250)}@e.se`, "", null]) {
+      expect(parseEmail(bad).ok, String(bad)).toBe(false);
+    }
   });
 });

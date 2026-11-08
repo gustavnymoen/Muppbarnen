@@ -8,7 +8,7 @@ tags: [admin, önskelista, bilder]
 
 # Administrationssidan
 
-På administrationssidan fyller föräldrarna i barnens storlekar och önskelistor. Gustav, som är huvudadministratör, lägger också till föräldrar och barn och laddar upp barnens bilder. Du måste först ha kommit in på sajten med [sajtlösenordet](losenord.md).
+På administrationssidan fyller föräldrarna i barnens storlekar och önskelistor. Gustav, som är huvudadministratör, lägger också till föräldrar och barn, laddar upp barnens bilder och sätter upp familjer för Secret Santa. Du måste först ha kommit in på sajten med [sajtlösenordet](losenord.md).
 
 ## Logga in
 
@@ -65,10 +65,23 @@ Om du är huvudadministratör finns **Hantera** på din sida, med knappen **Hant
 
 Bilderna syns bara för den som är inne på sajten med sajtlösenordet.
 
+## Secret Santa (bara huvudadministratören)
+
+Om du är huvudadministratör har din sida två flikar: **Barn** (som förut, med **Hantera**) och **Secret Santa**. Andra föräldrar ser ingen flik. Byt flik med musen, eller med vänster- och högerpil när en flik är vald. Lottningen, inloggningen och önskelistorna för Secret Santa kommer i senare steg; här lägger du in vilka som är med.
+
+- **Familj:** tryck **Ny familj**, skriv namnet (högst 60 tecken) och **Lägg till**. Pennan **Byt namn på …** ändrar namnet. Papperskorgen **Ta bort …** frågar först: familjen, dess medlemmar och deras önskelistor i familjen tas bort, och personer som inte är med i någon annan familj tas bort helt. Det går inte att ångra.
+- **Ny person:** tryck **Ny person** i familjen och fyll i **Namn**, **Telefon** och **E-post**. Telefonen skrivs som `07XXXXXXXX` (tio siffror som börjar på 07, utan mellanslag eller streck); annars står det "Skriv numret som 07XXXXXXXX". Två personer kan inte ha samma nummer.
+- **Lägg till känd person:** en person kan vara med i flera familjer. Tryck **Lägg till känd person**, välj personen i listan **Välj person** och **Lägg till**. Då skrivs inget in igen. Knappen finns bara när det finns någon som inte redan är med i familjen.
+- **Ändra en medlem:** pennan **Ändra … i …** visar namn, telefon, e-post och **Partner**. Namn, telefon och e-post gäller i alla familjer personen är med i.
+- **Partner:** välj en av de andra i familjen, eller **Ingen**. Länken går åt båda håll: väljer Anna Bo som partner blir Anna också Bos partner, och ändrar du eller tar bort den ändras båda. Partnern gäller bara i den familjen; samma person kan ha olika partner i olika familjer. Partnern används senare i lottningen, så att paret inte drar varandra.
+- **Ta bort en medlem:** papperskorgen vid personen frågar först. Personen försvinner ur familjen men finns kvar i de andra; tas hen bort ur den sista familjen raderas hen och hens uppgifter.
+
+Telefonnummer och e-post syns bara här, för huvudadministratören, aldrig för besökare.
+
 ## Byta adminlösenord (för den som sköter sajten)
 
 Lösenordet och nyckeln som signerar inloggningen är inställningarna `ADMIN_PASSWORD` och `ADMIN_SESSION_SECRET` i Vercel (Production och Preview) och i `.env.local`. Byt värdet och publicera om sajten; byter du nyckeln loggas alla ut. Saknas någon av dem är admin stängd.
 
-Byggd av [MUPP-003](../../specs/MUPP-003-admin-page/solution.md) och [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md); den tekniska beskrivningen är [Admin page](../system/admin.md).
+Byggd av [MUPP-003](../../specs/MUPP-003-admin-page/solution.md), [MUPP-038](../../specs/MUPP-038-secret-santa-families/solution.md) och [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md); den tekniska beskrivningen är [Admin page](../system/admin.md).
 
 [Manual](index.md)

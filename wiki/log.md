@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-08
+
+* **Creation** [MUPP-038 Secret Santa: families and members](../specs/MUPP-038-secret-santa-families/solution.md): the admin page has a tab "Secret Santa" for the master admin, where families, their members (name, phone 07XXXXXXXX, email) and mutual per-family partners are set up; one person can be in several families.
+
 ## 2026-11-06
 
 * **Update** [TECH-016 Smaller functions on Vercel](../specs/TECH-016-smaller-functions/solution.md): on Vercel the build uses the web database client and only `/admin/hantera` includes `sharp`, so the functions are 0.8–3.1 MB instead of 10.7–30.9 MB (`/admin/hantera` 22.4 MB); `scripts/function-sizes.mjs` measures it.

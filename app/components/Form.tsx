@@ -43,7 +43,7 @@ export function Form({ action, submit, children, className = "space-y-4" }: { ac
 type FieldProps = {
   name: string;
   label: string;
-  type?: "text" | "password" | "date" | "textarea" | "checkbox" | "select" | "file";
+  type?: "text" | "password" | "tel" | "email" | "date" | "textarea" | "checkbox" | "select" | "file";
   defaultValue?: string;
   defaultChecked?: boolean;
   options?: { value: string; label: string }[];
