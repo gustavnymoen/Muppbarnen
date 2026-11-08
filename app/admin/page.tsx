@@ -3,10 +3,13 @@ import { Button, LinkButton } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import { Field, Form } from "@/app/components/Form";
 import { Heading, Page, PageContent } from "@/app/components/Page";
+import { Tabs } from "@/app/components/Tabs";
 import { currentAdmin } from "@/lib/admin-auth";
 import { listChildren, listParents, type Parent } from "@/lib/family";
+import { listFamilies } from "@/lib/santa";
 import { requireSiteSession } from "@/lib/site-auth";
 import { ChildCard } from "./ChildCard";
+import { SantaTab } from "./SantaTab";
 import { chooseParent, createMaster, leaveParent } from "./actions";
 import { adminLogin } from "./login-action";
 
@@ -85,18 +88,8 @@ function ChooseParent({ parents }: { parents: Parent[] }) {
 
 async function ParentHome({ parent }: { parent: Parent }) {
   const children = await listChildren(parent.id);
-  return (
+  const kids = (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p>
-          Barn som tillhör <strong>{parent.name}</strong>.
-        </p>
-        <form action={leaveParent}>
-          <Button type="submit" variant="secondary">
-            Byt förälder
-          </Button>
-        </form>
-      </div>
       {children.length === 0 ? (
         <p className="text-muted">Inga barn ännu.</p>
       ) : (
@@ -116,6 +109,33 @@ async function ParentHome({ parent }: { parent: Parent }) {
           <p className="text-muted">Barn, föräldrar och bilder.</p>
           <LinkButton href="/admin/hantera">Hantera barn och föräldrar</LinkButton>
         </section>
+      )}
+    </>
+  );
+  // Fliken Secret Santa finns bara för huvudadministratören; för andra hämtas inget av dess innehåll
+  const santa = parent.isMasterAdmin ? await listFamilies(parent) : null;
+  return (
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p>
+          Barn som tillhör <strong>{parent.name}</strong>.
+        </p>
+        <form action={leaveParent}>
+          <Button type="submit" variant="secondary">
+            Byt förälder
+          </Button>
+        </form>
+      </div>
+      {santa ? (
+        <Tabs
+          label="Admin"
+          tabs={[
+            { id: "barn", title: "Barn", content: kids },
+            { id: "secret-santa", title: "Secret Santa", content: <SantaTab {...santa} /> },
+          ]}
+        />
+      ) : (
+        kids
       )}
     </>
   );

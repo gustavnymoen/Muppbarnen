@@ -1,0 +1,21 @@
+%% MUPP-038 Secret Santa: families and members
+%% The master admin sets up families, members and partners. Steps are labelled with requirement IDs.
+flowchart TD
+    A[Admin page] --> B{Master admin?}
+    B -- no --> C[Kids only, no Secret Santa tab, actions refused on the server: R1]
+    B -- yes --> D[Tab Secret Santa]
+    D --> E[Create, rename or delete a family: R2]
+    E --> F{Delete?}
+    F -- yes --> G[Confirm, then remove members and people in no other family: R2]
+    D --> H[Add a member to a family: R3, R4]
+    H --> I{New person or known?}
+    I -- new --> J{Valid name, phone 07XXXXXXXX, email, unused phone?}
+    J -- no --> K[Show what to fix]
+    K --> H
+    J -- yes --> L[Person and membership saved]
+    I -- known --> M[Membership saved, same person]
+    L --> N[Edit a member: details and partner: R3, R5]
+    M --> N
+    N --> O[Details change for the person in every family]
+    N --> P[Partner chosen among the others in the family, link set both ways]
+    D --> Q[Remove a member: stays in other families, deleted from the last: R3]

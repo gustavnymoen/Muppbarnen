@@ -60,6 +60,7 @@ tags: [product, features]
 | [MUPP-033](MUPP-033-birthdate-field-width/solution.md) | Birthdate field fits on a phone | Administration | Review |
 | [MUPP-036](MUPP-036-onboarding-scroll/solution.md) | Onboarding dialog: one button and a scroll cue | Startsida | Review |
 | [MUPP-037](MUPP-037-close-motion-surface/solution.md) | Clean close motion of the wish list | Startsida | Review |
+| [MUPP-038](MUPP-038-secret-santa-families/solution.md) | Secret Santa: families and members | Administration | Ongoing |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
 
