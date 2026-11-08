@@ -137,9 +137,9 @@ export async function saveMember(actor: Parent | null, input: { memberId: unknow
 
 // Först släpps de gamla paren (den här medlemmens och den nya partnerns), sedan sätts det nya åt båda håll
 async function setPartner(memberId: number, partnerId: number | null, tx: Executor) {
-  const ids = [memberId, ...(partnerId === null ? [] : [partnerId])];
-  const marks = ids.map(() => "?").join(", ");
-  await run(`UPDATE ss_member SET partner_member_id = NULL WHERE id IN (${marks}) OR partner_member_id IN (${marks})`, [...ids, ...ids], tx);
+  // Utan ny partner är det andra id:t NULL, som aldrig matchar
+  const ids = [memberId, partnerId];
+  await run("UPDATE ss_member SET partner_member_id = NULL WHERE id IN (?, ?) OR partner_member_id IN (?, ?)", [...ids, ...ids], tx);
   if (partnerId !== null) {
     await run("UPDATE ss_member SET partner_member_id = ? WHERE id = ?", [partnerId, memberId], tx);
     await run("UPDATE ss_member SET partner_member_id = ? WHERE id = ?", [memberId, partnerId], tx);
