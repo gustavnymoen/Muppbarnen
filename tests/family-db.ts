@@ -92,11 +92,28 @@ export const addSantaFamily = (name: string) =>
 export const addSantaMember = (familyId: number, name: string, phone: string, email: string) =>
   withDb(async (db) => {
     const person = await db.execute({ sql: "INSERT INTO ss_person (name, phone, email) VALUES (?, ?, ?)", args: [name, phone, email] });
-    await db.execute({ sql: "INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", args: [familyId, Number(person.lastInsertRowid)] });
+    const member = await db.execute({ sql: "INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", args: [familyId, Number(person.lastInsertRowid)] });
+    return Number(member.lastInsertRowid);
   });
+
+// The same person joins another family (a new membership, MUPP-040-R3); returns the new member id
+export const joinSantaFamily = (memberId: number, familyId: number) =>
+  withDb(async (db) => {
+    const person = await db.execute({ sql: "SELECT person_id FROM ss_member WHERE id = ?", args: [memberId] });
+    const member = await db.execute({ sql: "INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", args: [familyId, person.rows[0].person_id] });
+    return Number(member.lastInsertRowid);
+  });
+
+// Secret Santa wish lists (MUPP-040): made straight in the test database, read back as the database holds them
+export const addSantaWish = (memberId: number, title: string) =>
+  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_wish (member_id, title) VALUES (?, ?)", args: [memberId, title] })).lastInsertRowid));
+
+export const santaWishes = (memberId: number) =>
+  withDb(async (db) => (await db.execute({ sql: "SELECT title, description, size, url FROM ss_wish WHERE member_id = ? ORDER BY id", args: [memberId] })).rows.map((r) => ({ ...r })));
 
 export const clearSanta = () =>
   withDb(async (db) => {
+    await db.execute("DELETE FROM ss_wish");
     await db.execute("DELETE FROM ss_member");
     await db.execute("DELETE FROM ss_person");
     await db.execute("DELETE FROM ss_family");

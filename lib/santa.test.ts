@@ -8,6 +8,7 @@ const santa = await import("./santa");
 type Parent = import("./family").Parent;
 
 const clear = async () => {
+  await run("DELETE FROM ss_wish");
   await run("DELETE FROM ss_member");
   await run("DELETE FROM ss_person");
   await run("DELETE FROM ss_family");

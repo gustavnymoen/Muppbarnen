@@ -5,14 +5,14 @@ import { Field, Form } from "@/app/components/Form";
 import { ChevronDownIcon, PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
+import { WishDetails, WishFields } from "@/app/components/WishParts";
 import { dayAndMonth, parseDate } from "@/lib/deck";
 import type { AdminItem, ArchiveGroup, Child, WishlistItem } from "@/lib/family";
-import { MAX_DESCRIPTION, MAX_TITLE, OCCASION_NAMES, type Occasion } from "@/lib/form-input";
+import { OCCASION_NAMES, type Occasion } from "@/lib/form-input";
 import { clearList, removeItem, saveItem } from "../../actions";
 import { CopyItem } from "./CopyItem";
 
 // Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
-// Texterna skrivs ut som vanlig text (React gör om < och & till text); länken bara om den är en webbadress.
 export function WishlistSection({ child, occasion, items }: { child: Child; occasion: Occasion; items: AdminItem[] }) {
   const listName = OCCASION_NAMES[occasion];
   const newItem = `ny-${occasion}`;
@@ -84,17 +84,7 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
       }
     >
       <FoldPanel id={edit}>
-        <div className="space-y-2">
-          {item.size && <p>Storlek: {item.size}</p>}
-          {item.description && <p className="whitespace-pre-line">{item.description}</p>}
-          {/^https?:\/\//.test(item.url) && (
-            <p>
-              <a href={item.url} target="_blank" rel="noopener noreferrer" className="break-all text-brand underline">
-                {item.url}
-              </a>
-            </p>
-          )}
-        </div>
+        <WishDetails item={item} />
         <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
       </FoldPanel>
     </SlimCard>
@@ -107,10 +97,7 @@ function ItemForm({ child, occasion, item, submit }: { child: Child; occasion: O
       <input type="hidden" name="childId" value={child.id} />
       <input type="hidden" name="occasion" value={occasion} />
       {item && <input type="hidden" name="itemId" value={item.id} />}
-      <Field name="title" label="Namn" defaultValue={item?.title} maxLength={MAX_TITLE} required />
-      <Field name="size" label="Storlek" defaultValue={item?.size} maxLength={40} />
-      <Field name="description" type="textarea" label="Beskrivning" defaultValue={item?.description} maxLength={MAX_DESCRIPTION} />
-      <Field name="url" label="Länk" defaultValue={item?.url} maxLength={500} hint="Börjar med http:// eller https://" />
+      <WishFields item={item} />
       <Field name="unlimited" type="checkbox" label="Obegränsad" defaultChecked={item?.unlimited} hint="Utan kryss kan önskningen paxas en gång." />
     </Form>
   );

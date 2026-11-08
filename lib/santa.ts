@@ -66,6 +66,7 @@ export async function removeFamily(actor: Parent | null, rawId: unknown): Promis
   return withTransaction(async (tx) => {
     if (!(await get("SELECT 1 FROM ss_family WHERE id = ?", [id], tx))) return GONE;
     await run("UPDATE ss_member SET partner_member_id = NULL WHERE family_id = ?", [id], tx);
+    await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE family_id = ?)", [id], tx);
     await run("DELETE FROM ss_member WHERE family_id = ?", [id], tx);
     await run("DELETE FROM ss_family WHERE id = ?", [id], tx);
     await dropPeopleWithoutFamily(tx);
@@ -154,6 +155,7 @@ export async function removeMember(actor: Parent | null, rawId: unknown): Promis
     const member = id === null ? undefined : await memberFacts(id, tx);
     if (!member) return GONE;
     await setPartner(member.id, null, tx);
+    await run("DELETE FROM ss_wish WHERE member_id = ?", [member.id], tx);
     await run("DELETE FROM ss_member WHERE id = ?", [member.id], tx);
     await dropPeopleWithoutFamily(tx);
     return { ok: true };

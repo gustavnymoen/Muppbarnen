@@ -1,8 +1,8 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaFamily, addSantaMember, addWish, clearFamily, clearSanta } from "./family-db";
+import { addChild, addParent, addSantaFamily, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta } from "./family-db";
 import { swedishToday } from "../lib/deck";
-import { newVisitor } from "./site-session";
+import { newVisitor, testIp } from "./site-session";
 
 // Utseendet: ett test per sida och läge, så att sidan laddas en gång för många kontroller.
 // Reglerna som inte behöver en webbläsare (kontrast ur tokens, barnfärger) är enhetstester.
@@ -1210,6 +1210,39 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
     const controls = [page.locator("label").filter({ hasText: /^Telefon$/ }), page.locator("label").filter({ hasText: /^E-post$/ }), page.getByLabel("Ditt telefonnummer"), page.getByRole("button", { name: "Logga in" })];
     for (const control of controls) expect((await settledBox(control)).height).toBeGreaterThanOrEqual(44);
     expect(await hasHorizontalScroll(page)).toBe(false);
+  } finally {
+    await clearSanta();
+  }
+});
+
+test("MUPP-040-R1 R2 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the form fits the width", async ({ page }) => {
+  test.skip(!runsLocally, "needs the local test database");
+  await clearSanta();
+  const family = await addSantaFamily("Familjen Ek");
+  const member = await addSantaMember(family, "Anna Ek", "0700004444", "anna@exempel.invalid");
+  await addSantaWish(member, "En mycket lång önskning med många ord som måste radbrytas");
+  await addSantaWish(member, "Bok");
+  try {
+    await page.context().setExtraHTTPHeaders({ "x-real-ip": testIp() });
+    await page.setViewportSize({ width: 375, height: 667 });
+    await goto(page, "/secret-santa");
+    await page.getByRole("link", { name: "Anna Ek", exact: true }).click();
+    await page.getByLabel("Ditt telefonnummer").fill("0700004444");
+    await page.getByRole("button", { name: "Logga in" }).click();
+    await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" })).toBeVisible();
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    for (const name of [/^Ändra /, /^Ta bort /]) {
+      for (const button of await page.getByRole("button", { name }).all()) expect((await settledBox(button)).height).toBeGreaterThanOrEqual(32);
+    }
+    await page.getByRole("button", { name: "Ny önskning" }).click();
+    for (const field of ["Namn", "Storlek", "Beskrivning", "Länk"]) {
+      const box = await settledBox(page.getByLabel(field));
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.x + box.width).toBeLessThanOrEqual(375);
+    }
+    expect((await settledBox(page.getByRole("button", { name: "Lägg till" }))).height).toBeGreaterThanOrEqual(44);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
   } finally {
     await clearSanta();
   }

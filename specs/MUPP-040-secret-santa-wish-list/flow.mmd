@@ -1,0 +1,13 @@
+%% MUPP-040 Secret Santa: own wish list
+%% A signed-in member keeps one wish list per family on the own page; nobody else reads it.
+flowchart TD
+    A[Own page: the signed cookie names the person] --> B[One list per family the person is in: R3]
+    B --> C[Ny önskning: title required, description, size, link: R1]
+    C --> D{Server: member of the family? Limits and link ok?}
+    D -- no --> E[Error at the field, or Du kan inte göra det här]
+    D -- yes --> F[Wish saved in the list of that membership]
+    B --> G[Edit or delete a wish: R2]
+    G --> H{Server: is the wish in a list the person owns? R3}
+    H -- no --> E
+    H -- yes --> F
+    B -. no other page reads the list: R4 .-> B
