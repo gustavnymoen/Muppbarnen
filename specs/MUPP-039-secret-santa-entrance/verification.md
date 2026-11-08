@@ -39,7 +39,7 @@ How each requirement was checked. Browser tests ran locally (`npm run test:local
 | Before (MUPP-038) | 178 unit + 107 browser | 179.0 s (browser) | 4.5 s |
 | After | 187 unit + 114 browser | 191.8 s (browser), unit 0.4 s | 4.5 s |
 
-Nine unit tests and seven browser tests were added (the browser count includes the grid and smoke tests); the three tests that list the menu were updated. The browser total grew by 12.8 s (7 %, under the 25 % limit) but is over the 3 minute budget; it was already at it (179.0 s). The new tests take 0.1–4.0 s each and the browser tests were merged by journey. The cost is mainly real: every wrong sign-in takes a second by design, and each sign-in loads pages. The suite is over its budget, so a technical task for making the suite faster again is needed (see Notes).
+Nine unit tests and seven browser tests were added (the browser count includes the grid and smoke tests); the three tests that list the menu were updated. The browser total grew by 12.8 s (7 %, under the 25 % limit) but is over the 3 minute budget; it was already at it (179.0 s). The new tests take 0.1–4.0 s each and the browser tests were merged by journey. The cost is mainly real: every wrong sign-in takes a second by design, and each sign-in loads pages. The suite is over its budget, so the technical task [TECH-018](https://github.com/gustavnymoen/Muppbarnen/issues/146) is at the top of the backlog.
 
 ## Definition of Done
 
@@ -52,7 +52,7 @@ Nine unit tests and seven browser tests were added (the browser count includes t
 - [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output
 - [x] Clean code: reuses existing components and helpers; `npm run lint`, `npm run lint:docs`, `npm run typecheck` and `npm run build` pass
 - [x] Code review done, no must-fix findings left; see [review.md](review.md)
-- [ ] Technical tasks for larger improvements noticed along the way added to the board: not yet (the suite over its time budget)
+- [x] Technical tasks for larger improvements noticed along the way added to the board: TECH-018 (the suite over its time budget)
 
 ## Requirements as built
 
