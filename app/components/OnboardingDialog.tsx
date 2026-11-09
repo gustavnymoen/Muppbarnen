@@ -6,7 +6,7 @@ import { Button } from "./Button";
 import { Dialog, useCard, type DialogHandle } from "./Dialog";
 import { ChevronDownIcon } from "./icons";
 
-// Rutan "Så funkar sajten" (MUPP-035): två flikar med korta texter. Texterna är fasta och godkända på kortet.
+// Rutan "Så funkar listorna" (MUPP-035): två flikar med korta texter. Texterna är fasta och godkända på kortet.
 const TABS = [
   {
     id: "besokare",
@@ -50,7 +50,7 @@ const TABS = [
 export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<DialogHandle>; autoOpen?: boolean }) {
   // defaultOpen gäller bara vid första visningen: när kakan sätts ritas sidan om med autoOpen av, och rutan ska inte öppnas igen
   return (
-    <Dialog ref={ref} title="Så funkar sajten" backdropClose defaultOpen={autoOpen} className="max-h-[85dvh] flex-col open:flex" onClose={() => autoOpen && void markOnboardingSeen()}>
+    <Dialog ref={ref} title="Så funkar listorna" backdropClose defaultOpen={autoOpen} className="max-h-[85dvh] flex-col open:flex" onClose={() => autoOpen && void markOnboardingSeen()}>
       <OnboardingTabs />
     </Dialog>
   );

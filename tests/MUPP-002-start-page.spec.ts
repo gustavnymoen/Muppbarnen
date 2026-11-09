@@ -3,7 +3,7 @@ import { expectNoA11yViolations, goto, settledBox } from "./helpers";
 
 const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
-test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async ({ page }) => {
+test("MUPP-002-R1 R2 R4 MUPP-049-R1 R2 header, menu and a11y on a phone, also at 320 px", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await goto(page, "/");
   expect(await hasHorizontalScroll(page)).toBe(false);
@@ -40,10 +40,10 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   await expect(menu).toHaveAttribute("aria-expanded", "true");
   const nav = page.getByRole("navigation", { name: "Huvudmeny" });
   // R2 (changed by MUPP-003-R8): "Admin" is a real link and the last item
-  await expect(nav.getByRole("link")).toHaveText(["Start", "Secret Santa", "Admin"]);
-  // MUPP-035-R3: "Så funkar sajten" is the one button, between them
-  await expect(nav.getByRole("button")).toHaveText(["Så funkar sajten"]);
-  // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar (Start, Secret Santa och Admin), och namnet är ingen länk (TECH-006)
+  await expect(nav.getByRole("link")).toHaveText(["Barnens listor", "Secret Santa", "Admin"]);
+  // MUPP-035-R3: "Så funkar listorna" is the one button, after Secret Santa
+  await expect(nav.getByRole("button")).toHaveText(["Så funkar listorna"]);
+  // R2: en hamburgare, aldrig en rad med länkar: bara menyn har länkar (Barnens listor, Secret Santa och Admin), och namnet är ingen länk (TECH-006)
   await expect(page.getByRole("link")).toHaveCount(3);
   await expectNoA11yViolations(page);
 
@@ -57,13 +57,13 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   await page.keyboard.press("Enter");
   await expect(nav).toBeVisible();
   await page.keyboard.press("Tab");
-  const start = nav.getByRole("link", { name: "Start" });
+  const start = nav.getByRole("link", { name: "Barnens listor" });
   await expect(start).toBeFocused();
   await expect(start).toHaveCSS("outline-width", "3px");
   await page.keyboard.press("Tab");
-  await expect(nav.getByRole("button", { name: "Så funkar sajten" })).toBeFocused();
-  await page.keyboard.press("Tab");
   await expect(nav.getByRole("link", { name: "Secret Santa" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(nav.getByRole("button", { name: "Så funkar listorna" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(nav.getByRole("link", { name: "Admin" })).toBeFocused();
   await page.keyboard.press("Escape");
@@ -82,10 +82,10 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page.getByLabel("Adminlösenord")).toBeVisible();
 
-  // R2: "Start" visar startsidan (här från en annan sida, så att valet syns)
+  // R2: "Barnens listor" visar startsidan (här från en annan sida, så att valet syns)
   await goto(page, "/design");
   await page.getByRole("button", { name: "Meny" }).click();
-  await page.getByRole("link", { name: "Start" }).click();
+  await page.getByRole("link", { name: "Barnens listor" }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { level: 1, name: "Kusinportalen" })).toBeVisible();
   await expect(menu).toHaveAttribute("aria-expanded", "false");

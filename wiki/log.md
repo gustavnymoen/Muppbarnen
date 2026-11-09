@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* **Update** [MUPP-049 Menu names and order](../specs/MUPP-049-menu-names-and-order/solution.md): the menu reads Barnens listor, Secret Santa, Så funkar listorna, Admin; the dialog it opens is named "Så funkar listorna".
 * **Creation** [MUPP-046 Site name](../specs/MUPP-046-site-name/solution.md): the site is called Kusinportalen from one constant (page titles `<page> | Kusinportalen`, share preview, home screen name) and has a gift as its icon in the tab, on the home screen and for the mails; the icons and the manifest are the only public files.
 * **Creation** [MUPP-053 Plus buttons for adding](../specs/MUPP-053-add-buttons/solution.md): a new wish, person, kid or parent is added with a round plus button at the bottom of its list or frame (the parents and the kids on the manage page are framed), "Ny familj" is the centred text button "Ny grupp" under "Grupper", and "Byt förälder" is a swap icon beside "Inloggad som …"; `DESIGN.md` says when to use which.
 * **Creation** [MUPP-054 Toast after saving](../specs/MUPP-054-toaster/solution.md): a green band slides down from above, centred at the top of the screen after every save (red for an error), in front of open cards; it replaces the line at the top of the card.
