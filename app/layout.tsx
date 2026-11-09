@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import { InputModality } from "./components/InputModality";
+import { Toaster } from "./components/Toaster";
 import "./globals.css";
 
 // Typsnitten hämtas vid bygget och serveras från vår egen server
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <InputModality />
         {children}
+        <Toaster />
       </body>
     </html>
   );

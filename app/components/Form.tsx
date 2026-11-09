@@ -5,6 +5,7 @@ import { enterAction, FIELDS, savedMessage, type FieldKind, type Said } from "@/
 import { Button } from "./Button";
 import { useCard } from "./Dialog";
 import { ListPicker } from "./ListPicker";
+import { toast } from "./Toaster";
 import type { FormAction, FormState } from "./form-state";
 
 const FormStateContext = createContext<FormState>(null);
@@ -39,15 +40,21 @@ export function Form({ action, submit, says = "Sparat.", again, children, classN
   }, null);
 
   useEffect(() => {
-    if (!card || !state) return;
+    if (!state) return;
     if (!state.saved) {
-      // Misslyckat: första fältet med fel, annars varningen längst ner
+      // Röd ruta bara för ett fel som formuläret självt har (servern); fel vid fälten syns vid fälten
+      if (state.error) toast(state.error, true);
+      // Misslyckat i ett kort: första fältet med fel, annars varningen längst ner
       const target = form.current?.querySelector<HTMLElement>("[aria-invalid=true]") ?? form.current?.querySelector<HTMLElement>("[role=alert]:not(:empty)");
-      return target?.focus();
+      return card ? target?.focus() : undefined;
     }
     const read = (field: string) => String(sent.current?.get(field) ?? "");
+    // En ny önskning får kort titel i meddelandet, så att det får plats på en rad
+    const message = savedMessage(again && typeof says !== "string" ? { ...says, short: true } : says, read);
+    toast(message);
+    if (!card) return;
     if (!again) return card.close(savedMessage(says, read));
-    card.confirm(savedMessage(typeof says === "string" ? says : { ...says, short: true }, read));
+    card.confirm(message);
     card.focusFirst();
     // card är ett nytt objekt vid varje rendering av kortet; det är svaret som ska sätta effekten igång, inte kortet
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,7 +90,7 @@ export function Form({ action, submit, says = "Sparat.", again, children, classN
           {submit}
         </Button>
         {!card && (
-          <p role="status" className="text-muted">
+          <p role="status" className="sr-only">
             {state?.saved ? "Sparat." : ""}
           </p>
         )}

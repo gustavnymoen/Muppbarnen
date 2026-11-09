@@ -32,10 +32,14 @@ The page forms (the password pages, the admin sign-in, the Secret Santa sign-in)
 ## Inside a form card (`Form.tsx`)
 
 - **Enter** in a text, phone, e-mail, date or password field moves to the next one and sends from the last; in a text area it is a new line; a list, a checkbox and a file do what they always did; a word being composed with an input method is left alone. The decision is the pure function `enterAction` in `lib/form-card.ts`. `enterkeyhint` makes a phone's Enter key say "Nästa" and, in the last field, "Klar".
-- **A new wish** (`again`) keeps the card open: the fields are empty, focus is in the first, and "fotboll lades till" is shown at the top of the card for 3 seconds in small muted text (the status line is in the card from the start; a title over 25 characters is cut to 24 and "…", `shortTitle`; the next save replaces it). The page behind the card cannot show anything in front of it and a phone's keyboard covers the bottom, hence the top of the card.
-- **Every other save** closes the card and a screen reader hears "Otis sparades", "Otis lades till", "Storlekarna för Otis sparades" or "Bilden för Otis sparades" from a hidden status next to the card (`says` on `Form`). The typed text is only ever text, never HTML.
-- **A failed save** keeps the card and what was typed (not passwords or files), shows the message at the field or in the alert, and moves focus to the first field with an error or to the alert.
+- **A new wish** (`again`) keeps the card open: the fields are empty, focus is in the first, and a toast says "fotboll lades till" (a title over 25 characters is cut to 24 and "…", `shortTitle`; the next save replaces it). For a screen reader the card has a hidden status line with the same words.
+- **Every other save** closes the card, a toast says the same and a screen reader hears "Otis sparades", "Otis lades till", "Storlekarna för Otis sparades" or "Bilden för Otis sparades" from a hidden status next to the card (`says` on `Form`). The typed text is only ever text, never HTML.
+- **A failed save** keeps the card and what was typed (not passwords or files), shows the message at the field or in the alert (a server error also in a red toast), and moves focus to the first field with an error or to the alert.
 - **A list** (`ListPicker`) is drawn inside the card's `<dialog>`, so it is in front of the card and not behind it; Esc closes the list, not the card.
+
+## The toast (`Toaster.tsx`, MUPP-054)
+
+After every save (a card that closes, a card that stays open, a form on a page) a green band slides down from above, centred at the top of the screen, stays 2 seconds and fades out; an error of the server shows a red one with its message; a field that is missing or wrong only has its error at the field, no toast. It is a `popover` in the browser's top layer, so it is in front of an open card and always at the top of the visible screen. `toast(text, error?)` is called from `Form`, the copy dialog and the question card (errors only). It is `aria-hidden`: screen readers hear the announcements above. See [the solution](../../specs/MUPP-054-toaster/solution.md).
 
 ## Tests
 

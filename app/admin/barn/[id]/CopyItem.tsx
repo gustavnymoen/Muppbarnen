@@ -5,6 +5,8 @@ import { Button, IconButton } from "@/app/components/Button";
 import { Dialog, type DialogHandle } from "@/app/components/Dialog";
 import type { FormState } from "@/app/components/form-state";
 import { PlusIcon } from "@/app/components/icons";
+import { toast } from "@/app/components/Toaster";
+import { shortTitle } from "@/lib/form-card";
 import { copyArchivedItem } from "../../actions";
 
 // "+" på en arkiverad önskning (MUPP-031-R7): en dialog frågar vilken lista kopian ska läggas i. Listan är knappen
@@ -15,7 +17,11 @@ export function CopyItem({ itemId, title }: { itemId: number; title: string }) {
   // Stängs här och inte i en effekt: svaret "sparat" är samma objekt varje gång, så en effekt skulle bara se första kopian
   const [state, formAction, pending] = useActionState(async (previous: FormState, formData: FormData) => {
     const result = await copyArchivedItem(previous, formData);
-    if (result?.saved) dialog.current?.close();
+    if (result?.saved) {
+      const message = `${shortTitle(title)} lades till`;
+      toast(message);
+      dialog.current?.close(message);
+    } else if (result?.error) toast(result.error, true);
     return result;
   }, null);
 

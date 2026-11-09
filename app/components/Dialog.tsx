@@ -5,7 +5,7 @@ import { flushSync } from "react-dom";
 import { CONFIRMATION_MS, FIELDS } from "@/lib/form-card";
 import { IconButton } from "./Button";
 import { CrossIcon } from "./icons";
-import { calm, dropGhost, fadeAway, growFade, growScale, makeGhost, originOf, shrinkTo } from "./transition";
+import { dropGhost, fadeAway, growFade, growScale, makeGhost, originOf, shrinkTo } from "./transition";
 
 // Alla rutor och formulärkort på sajten (MUPP-045): det enda stället som öppnar och stänger dem och spelar rörelsen.
 // Ett kort växer ur knappen som trycktes och viker sig tillbaka i den (transition.ts); utan en knapp att växa ur tonar det bara.
@@ -55,7 +55,6 @@ export function Dialog({ ref, title, form, backdropClose, defaultOpen, onClose, 
   const [shown, setShown] = useState(!!defaultOpen);
   const [said, setSaid] = useState("");
   const [noted, setNoted] = useState("");
-  const [fading, setFading] = useState(false);
 
   const open = (from?: HTMLElement | null) => {
     if (el.current?.open) return;
@@ -104,20 +103,16 @@ export function Dialog({ ref, title, form, backdropClose, defaultOpen, onClose, 
     onClose?.();
   };
 
-  // Bekräftelsen överst i kortet: står kvar CONFIRMATION_MS och tonar bort de sista 300 ms (inte med minskad rörelse); en ny tar över och börjar om
+  // Bekräftelsen efter en ny önskning för skärmläsaren (den som syns är Toaster.tsx): står kvar CONFIRMATION_MS; en ny tar över och börjar om
   const confirm = (text: string) => {
     noteTimers.current.forEach(window.clearTimeout);
     setNoted(text);
-    setFading(false);
     noteTimers.current = [window.setTimeout(() => setNoted(""), CONFIRMATION_MS)];
-    if (!calm()) noteTimers.current.push(window.setTimeout(() => setFading(true), CONFIRMATION_MS - 300));
   };
 
-  // Efter en ny önskning: kortet rullas överst, så att bekräftelsen och det första fältet syns tillsammans (kortet kan ha rullats ner till "Lägg till")
+  // Efter en ny önskning: fokus tillbaka i första fältet
   const refocus = () => {
-    if (!el.current) return;
-    el.current.scrollTo({ top: 0 });
-    focusFirst(el.current);
+    if (el.current) focusFirst(el.current);
   };
 
   useImperativeHandle(ref, () => ({ open, close }));
@@ -172,7 +167,7 @@ export function Dialog({ ref, title, form, backdropClose, defaultOpen, onClose, 
               )}
             </div>
             {form && (
-              <p role="status" className={`mb-2 min-h-5 text-sm text-muted motion-safe:transition-opacity motion-safe:duration-300 ${fading ? "opacity-0" : ""}`}>
+              <p role="status" className="sr-only">
                 {noted}
               </p>
             )}

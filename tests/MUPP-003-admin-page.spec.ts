@@ -4,7 +4,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, goto, openCard, pickOption, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, animationsDone, backgroundOf, contrast, css, DANGER, expectNoA11yViolations, goto, openCard, pickOption, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -266,6 +266,12 @@ test("MUPP-003-R3 sizes are edited and saved in a card, a bad value shows a mess
   await sizes.getByLabel("Kläder").fill("999");
   await sizes.getByRole("button", { name: "Spara" }).click();
   await expect(sizes.getByRole("alert").filter({ hasText: "Du kan inte göra det här." })).toBeVisible();
+  // MUPP-054-R2: an error of the server is also a red toast
+  const toast = page.locator("[data-toast=error] p");
+  await expect(toast).toHaveText("Du kan inte göra det här.");
+  await animationsDone(toast);
+  await expect(toast).toHaveCSS("border-top-color", DANGER);
+  expect(contrast(await css(toast, "color"), await backgroundOf(toast))).toBeGreaterThanOrEqual(4.5);
 });
 
 test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, with confirmations that name them", async ({ page }) => {
