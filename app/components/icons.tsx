@@ -39,6 +39,15 @@ export const ChecklistIcon = () => (
   </Icon>
 );
 
+// Tomteluva: Secret Santa
+export const SantaHatIcon = () => (
+  <Icon>
+    <path d="M6 16C6 9 9 4 14 4c2.5 0 4 1.5 4 4v8" />
+    <rect x="3" y="16" width="18" height="4" rx="2" />
+    <circle cx="19" cy="4" r="1.5" />
+  </Icon>
+);
+
 // Måttband: storlekar
 export const MeasureIcon = () => (
   <Icon>

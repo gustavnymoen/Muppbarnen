@@ -151,3 +151,23 @@ describe("MUPP-048-R7 the migration that turns families into events", () => {
     }
   });
 });
+
+describe("MUPP-051-R1 the status of an event", () => {
+  const migration = (name: string) => readFileSync(path.join(import.meta.dirname, "migrations", name), "utf8");
+  test("MUPP-051-R1 the existing events become inactive, and a new one is inactive too", async () => {
+    const db = createClient({ url: ":memory:" });
+    try {
+      await db.execute("PRAGMA foreign_keys = ON");
+      for (const name of ["003_family.sql", "005_secret_santa.sql", "006_secret_santa_wishes.sql", "007_secret_santa_events.sql"]) await db.executeMultiple(migration(name));
+      await db.executeMultiple("INSERT INTO parent (id, name, is_master_admin) VALUES (1, 'Chef', 1); INSERT INTO ss_event (id, owner_id, name) VALUES (1, 1, 'Gammal grupp');");
+      await db.executeMultiple(migration("008_santa_event_status.sql"));
+      await db.execute("INSERT INTO ss_event (id, owner_id, name) VALUES (2, 1, 'Ny grupp')");
+      expect((await db.execute("SELECT id, status FROM ss_event ORDER BY id")).rows.map((r) => ({ ...r }))).toEqual([
+        { id: 1, status: "inactive" },
+        { id: 2, status: "inactive" },
+      ]);
+    } finally {
+      db.close();
+    }
+  });
+});

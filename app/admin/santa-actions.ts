@@ -26,6 +26,23 @@ export async function removeEvent(_previous: FormState, formData: FormData): Pro
   return answer(formData, await santa.removeEvent(parent, text(formData, "eventId")));
 }
 
+// Aktivera och avaktivera (MUPP-051): två åtgärder utan indata utöver gruppen, så att ingen status går att skicka in
+export async function activateEvent(_previous: FormState, formData: FormData): Promise<FormState> {
+  await requireSiteSession();
+  const { parent } = await requireAdminSession();
+  const guard = await guardWrite();
+  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  return answer(formData, await santa.activateEvent(parent, text(formData, "eventId")));
+}
+
+export async function deactivateEvent(_previous: FormState, formData: FormData): Promise<FormState> {
+  await requireSiteSession();
+  const { parent } = await requireAdminSession();
+  const guard = await guardWrite();
+  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  return answer(formData, await santa.deactivateEvent(parent, text(formData, "eventId")));
+}
+
 export async function addMember(_previous: FormState, formData: FormData): Promise<FormState> {
   await requireSiteSession();
   const { parent } = await requireAdminSession();

@@ -330,6 +330,7 @@ test("MUPP-045-R2 R6 R7 the Secret Santa own page: a new wish keeps the card ope
   const family = await addSantaEvent("Familjen Test");
   await addSantaMember(family, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   await signInSanta(page, "Familjen Test", "Anna Testsson", "0700001111");
+  await page.getByRole("link", { name: "Min önskelista" }).click();
   const dialog = card(page);
 
   await page.getByRole("button", { name: "Ny önskning, Familjen Test" }).click();

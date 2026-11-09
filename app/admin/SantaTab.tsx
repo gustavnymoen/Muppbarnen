@@ -4,8 +4,10 @@ import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
-import type { SantaEvent, SantaMember } from "@/lib/santa";
-import { addMember, removeEvent, removeMember, saveEvent, saveMember } from "./santa-actions";
+import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
+import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember } from "./santa-actions";
+
+const STATUS_LABEL: Record<EventStatus, string> = { inactive: "Inaktiv", preparing: "Förbereder", started: "Startad" };
 
 // Fliken "Secret Santa" (MUPP-038, MUPP-048): varje förälder ser sina egna grupper, huvudadministratören alla.
 // Vad som får ändras kontrolleras på servern i lib/santa.ts.
@@ -55,6 +57,7 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
         </>
       }
     >
+      <StatusRow event={event} />
       {event.members.length > 0 && (
         <ul className="mt-2 space-y-2">
           {event.members.map((member) => (
@@ -64,18 +67,54 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
           ))}
         </ul>
       )}
-      <div className="mt-3 pb-1">
-        <AddRow>
-          <FormCard title={`Ny person i ${event.name}`} label={`Ny person i ${event.name}`} add>
-            <Form action={addMember} submit="Lägg till" says={{ field: "name", added: true }}>
-              <input type="hidden" name="eventId" value={event.id} />
-              <ContactFields />
-            </Form>
-          </FormCard>
-        </AddRow>
-      </div>
+      {/* Medlemmarna ändras inte i en startad grupp (MUPP-051-R3) */}
+      {event.status !== "started" && (
+        <div className="mt-3 pb-1">
+          <AddRow>
+            <FormCard title={`Ny person i ${event.name}`} label={`Ny person i ${event.name}`} add>
+              <Form action={addMember} submit="Lägg till" says={{ field: "name", added: true }}>
+                <input type="hidden" name="eventId" value={event.id} />
+                <ContactFields />
+              </Form>
+            </FormCard>
+          </AddRow>
+        </div>
+      )}
     </SlimCard>
   );
+}
+
+// Statusen och knappen som byter den (MUPP-051). En startad grupp byter inte status här: dragningen stoppas först (MUPP-041).
+// En enda ConfirmAction för båda lägena, så att frågan och dess svar finns kvar när statusen har bytts.
+function StatusRow({ event }: { event: SantaEvent }) {
+  const activating = event.status === "inactive";
+  return (
+    <div className="mt-2 flex items-center justify-between gap-3">
+      <p>
+        Status: <strong>{STATUS_LABEL[event.status]}</strong>
+      </p>
+      {event.status !== "started" && (
+        <ConfirmAction
+          action={activating ? activateEvent : deactivateEvent}
+          fields={{ eventId: String(event.id) }}
+          label={activating ? "Aktivera" : "Avaktivera"}
+          buttonText={activating ? "Aktivera" : "Avaktivera"}
+          subject={event.name}
+          title="Är du säker?"
+          text={statusQuestion(event, activating)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Frågan före ett statusbyte: vad som händer och hur många som får mejl
+function statusQuestion(event: SantaEvent, activating: boolean) {
+  const count = event.members.length;
+  const mail = count === 0 ? "inga mejl skickas, för den har inga medlemmar" : `${count === 1 ? "den enda medlemmen" : `alla ${count} medlemmar`} får ett mejl om det`;
+  return activating
+    ? `Gruppen ${event.name} öppnas, så att medlemmarna kan skriva sina önskelistor, och ${mail}.`
+    : `Gruppen ${event.name} stängs och ${mail}. Önskelistorna ligger kvar och kommer tillbaka när gruppen aktiveras igen.`;
 }
 
 function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent }) {
@@ -87,29 +126,31 @@ function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent 
       title={member.name}
       note={partner ? `Partner: ${partner.name}` : undefined}
       actions={
-        <>
-          <FormCard title={`Ändra ${where}`} label={`Ändra ${where}`} icon={<PencilIcon />}>
-            <Form action={saveMember} submit="Spara" says={{ field: "name" }}>
-              <input type="hidden" name="memberId" value={member.id} />
-              <ContactFields member={member} />
-              <Field
-                name="partnerId"
-                type="select"
-                label="Partner"
-                defaultValue={member.partnerId ? String(member.partnerId) : ""}
-                options={[{ value: "", label: "Ingen" }, ...event.members.filter((m) => m.id !== member.id).map((m) => ({ value: String(m.id), label: m.name }))]}
-              />
-            </Form>
-          </FormCard>
-          <ConfirmAction
-            action={removeMember}
-            fields={{ memberId: String(member.id) }}
-            label="Ta bort"
-            subject={where}
-            title={`Ta bort ${member.name} ur ${event.name}?`}
-            text={`${member.name}, kontaktuppgifterna och önskelistan i ${event.name} tas bort. Det går inte att ångra.`}
-          />
-        </>
+        event.status === "started" ? null : (
+          <>
+            <FormCard title={`Ändra ${where}`} label={`Ändra ${where}`} icon={<PencilIcon />}>
+              <Form action={saveMember} submit="Spara" says={{ field: "name" }}>
+                <input type="hidden" name="memberId" value={member.id} />
+                <ContactFields member={member} />
+                <Field
+                  name="partnerId"
+                  type="select"
+                  label="Partner"
+                  defaultValue={member.partnerId ? String(member.partnerId) : ""}
+                  options={[{ value: "", label: "Ingen" }, ...event.members.filter((m) => m.id !== member.id).map((m) => ({ value: String(m.id), label: m.name }))]}
+                />
+              </Form>
+            </FormCard>
+            <ConfirmAction
+              action={removeMember}
+              fields={{ memberId: String(member.id) }}
+              label="Ta bort"
+              subject={where}
+              title={`Ta bort ${member.name} ur ${event.name}?`}
+              text={`${member.name}, kontaktuppgifterna och önskelistan i ${event.name} tas bort. Det går inte att ångra.`}
+            />
+          </>
+        )
       }
     />
   );

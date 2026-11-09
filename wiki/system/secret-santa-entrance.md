@@ -19,7 +19,8 @@ Secret Santa knows who a visitor is, but only lightly: nobody is expected to che
 | `app/secret-santa/SignInForm.tsx` | Radio buttons phone/email and the field with the right keyboard and focus ([MUPP-047](../../specs/MUPP-047-santa-back-button/solution.md)). |
 | `app/secret-santa/EscBack.tsx` | Esc goes where Tillbaka goes, on the names and the sign-in step ([MUPP-047](../../specs/MUPP-047-santa-back-button/solution.md), [MUPP-048](../../specs/MUPP-048-santa-events/solution.md)). |
 | `app/secret-santa/actions.ts` | `signIn` and `leave`. Site sign-in first, then `guardWrite()`. |
-| `app/secret-santa/min-sida/page.tsx` | The own page: "Hej <name>!" and the wish list of that event ([Secret Santa wish list](secret-santa-wish-list.md)). |
+| `app/secret-santa/min-sida/page.tsx` | The own page: "Hej <name>!" and what the event's status shows: a line when inactive, the two cards when preparing ([event status](secret-santa-status.md)). |
+| `app/secret-santa/min-sida/onskelista/page.tsx` | The wish list of that event, opened from the card "Min önskelista" ([Secret Santa wish list](secret-santa-wish-list.md)). |
 | `lib/santa-auth.ts` | Reads names, compares phone or email, applies the block, reads and sets the cookie. |
 | `lib/santa-session.ts` | Signs and checks the cookie value. |
 

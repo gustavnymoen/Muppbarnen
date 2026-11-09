@@ -97,14 +97,18 @@ export const setSizes = (childId: number, sizes: { clothes?: string; shoes?: str
 // An event has an owner, the parent who administers it; without one the helper makes a made-up parent that clearSanta removes again.
 const SANTA_OWNER = "Santa-testförälder";
 
-export const addSantaEvent = (name: string, ownerId?: number) =>
+// A new event is inactive in the site (MUPP-051-R1), but the tests of members and wish lists need the wish list open, so the helper
+// makes it "preparing" unless the test says otherwise.
+export type SantaStatus = "inactive" | "preparing" | "started";
+
+export const addSantaEvent = (name: string, ownerId?: number, status: SantaStatus = "preparing") =>
   withDb(async (db) => {
     let owner = ownerId;
     if (owner === undefined) {
       const found = await db.execute({ sql: "SELECT id FROM parent WHERE name = ?", args: [SANTA_OWNER] });
       owner = found.rows[0] ? Number(found.rows[0].id) : Number((await db.execute({ sql: "INSERT INTO parent (name) VALUES (?)", args: [SANTA_OWNER] })).lastInsertRowid);
     }
-    return Number((await db.execute({ sql: "INSERT INTO ss_event (owner_id, name) VALUES (?, ?)", args: [owner, name] })).lastInsertRowid);
+    return Number((await db.execute({ sql: "INSERT INTO ss_event (owner_id, name, status) VALUES (?, ?, ?)", args: [owner, name, status] })).lastInsertRowid);
   });
 
 // The Secret Santa cookie holds the member id
@@ -117,6 +121,11 @@ export const addSantaWish = (memberId: number, title: string) =>
 
 export const santaWishes = (memberId: number) =>
   withDb(async (db) => (await db.execute({ sql: "SELECT title, description, size, url FROM ss_wish WHERE member_id = ? ORDER BY id", args: [memberId] })).rows.map((r) => ({ ...r })));
+
+export const santaStatusOf = (eventId: number) =>
+  withDb(async (db) => String((await db.execute({ sql: "SELECT status FROM ss_event WHERE id = ?", args: [eventId] })).rows[0].status) as SantaStatus);
+
+export const setSantaStatus = (eventId: number, status: SantaStatus) => withDb((db) => db.execute({ sql: "UPDATE ss_event SET status = ? WHERE id = ?", args: [status, eventId] }));
 
 export const clearSanta = () =>
   withDb(async (db) => {

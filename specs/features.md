@@ -70,6 +70,7 @@ tags: [product, features]
 | [MUPP-049](MUPP-049-menu-names-and-order/solution.md) | Menu names and order | Shared | Review |
 | [MUPP-046](MUPP-046-site-name/solution.md) | Site name | Shared | Review |
 | [MUPP-048](MUPP-048-santa-events/solution.md) | Secret Santa: events created by any parent | Administration | Review |
+| [MUPP-051](MUPP-051-santa-status/solution.md) | Secret Santa: event status | Administration | Ongoing |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
 | [TECH-017](TECH-017-sending-email/solution.md) | Sending email | Shared | Review |

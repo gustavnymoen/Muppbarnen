@@ -16,14 +16,21 @@ tags: [secret-santa, inloggning, önskelista]
 
 Står det "Det stämde inte" har du valt fel namn eller skrivit något annat än det som är sparat. Efter flera felsvar i rad får du vänta en stund.
 
+## Din sida
+
+Vad du ser på din sida beror på hur långt gruppen har kommit:
+
+- **Vi har inte kört igång än:** gruppen är inte öppnad. Du får ett mejl när den öppnas, och då kan du skriva din önskelista.
+- **Två kort:** gruppen är öppen. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord.
+
 ## Din önskelista
 
-På din sida finns din önskelista i den grupp du loggade in i. Är du med i flera grupper loggar du in i var och en för sig, och listorna är skilda: det du önskar i en grupp syns inte i en annan.
+Tryck på kortet **Min önskelista** på din sida. Där finns din önskelista i den grupp du loggade in i. Är du med i flera grupper loggar du in i var och en för sig, och listorna är skilda: det du önskar i en grupp syns inte i en annan.
 
 1. Tryck plusset **Ny önskning**, skriv ett namn och tryck **Lägg till** (eller Enter i det sista fältet). Beskrivning, storlek och länk är valfria. Länken ska börja med `http://` eller `https://`. Kortet står kvar med tomma fält så att du kan skriva nästa önskning, och en grön ruta glider ner överst på skärmen ("fotboll lades till") syns i två sekunder. Tryck på krysset eller Esc när du är klar.
 2. Tryck på pennan vid en önskning för att ändra den (kortet stängs när du sparat), och på papperskorgen för att ta bort den.
 
-Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som drar dig läsa dem.
+Stängs gruppen igen ligger dina önskningar kvar och är tillbaka när den öppnas. Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som drar dig läsa dem.
 
 Är det en annan som ska använda telefonen trycker du **Byt person** på din sida.
 

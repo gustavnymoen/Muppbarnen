@@ -1,0 +1,22 @@
+%% MUPP-051 Secret Santa: event status
+%% The status of an event and what each status allows; the administrator's two moves and the refusals.
+flowchart TD
+    N[New event] -->|R1| I[Inaktiv]
+    I -->|Aktivera, Är du säker? R2| P[Förbereder]
+    P -->|Avaktivera, Är du säker? R2| I
+    P -->|the draw, MUPP-041| S[Startad]
+    S -->|stop, MUPP-041| P
+    S -. deactivate refused, R2 .-> S
+
+    I --> I1[Members added and changed, R3]
+    I --> I2[Member sees: Vi har inte kört igång än, R5]
+    I --> I3[Wish changes refused, wishes kept, R4]
+    P --> P1[Members added and changed, R3]
+    P --> P2[Member sees Min önskelista and the grey match card, R6]
+    P --> P3[Wishes added, changed, removed, R4]
+    S --> S1[Members cannot be added, changed or removed, R3]
+    S --> S3[Wishes allowed, R4]
+
+    I -->|mail to every member| M[Mail 2 on deactivation, mail 1 on activation]
+    P --> M
+    M -->|a mail fails| W[Status still changes, the administrator sees who got none]

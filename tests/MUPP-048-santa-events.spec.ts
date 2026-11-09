@@ -137,6 +137,7 @@ test("MUPP-048-R4 R5 the entrance lists every group; the same person in two grou
   await pickName(page, "Anna Testsson");
   await sendPhone(page, PHONE);
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
+  await page.getByRole("link", { name: "Min önskelista" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Eriks jul" })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Emmas jul" })).toHaveCount(0);
 });

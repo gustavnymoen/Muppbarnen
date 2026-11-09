@@ -9,7 +9,7 @@ tags: [secret-santa, wishes, security]
 
 # Secret Santa wish list
 
-A signed-in member ([Secret Santa entrance](secret-santa-entrance.md)) keeps a list of wishes in the event they signed in to, on their own page `/secret-santa/min-sida`.
+A signed-in member ([Secret Santa entrance](secret-santa-entrance.md)) keeps a list of wishes in the event they signed in to, on `/secret-santa/min-sida/onskelista`, opened from the card "Min önskelista" on their own page `/secret-santa/min-sida`. The list is open only while the event is preparing or started ([event status](secret-santa-status.md)).
 
 ## Parts
 
@@ -26,6 +26,7 @@ A signed-in member ([Secret Santa entrance](secret-santa-entrance.md)) keeps a l
 - **One list per member.** A person in two events is two members with a list each and no list is shared. Nothing is claimed ("paxat") and there is no "unlimited".
 - **Owner only, checked on the server.** The member comes from the signed cookie, never from the form. A new wish goes into the member's own list; an edit or delete is accepted only for a wish in it. Otherwise "Du kan inte göra det här.".
 - **Same limits as the kids' wishes:** title 1–60 (required), description 100, size 40, link up to 500 and only `http://` or `https://`. Texts are printed as text and the link is a link only if it is a web address.
+- **Only in the right status** ([MUPP-051](../../specs/MUPP-051-santa-status/solution.md)). `saveWish` and `removeWish` refuse with "Önskelistan är stängd just nu." while the event is inactive; the wishes stay in the database and come back when it is activated again.
 - **Nothing public.** No page but the owner's own reads `ss_wish`; reading by the person who drew you is MUPP-042.
 - **Removal.** A wish goes with its member or event; the code deletes it explicitly in `lib/santa.ts`.
 

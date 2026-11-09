@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta } from "./family-db";
+import { addChild, addParent, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaStatus } from "./family-db";
 import { santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -1330,7 +1330,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 the Secret Santa wish list on a 375 x 667 phone
   try {
     await page.setViewportSize({ width: 375, height: 667 });
     await santaSignIn(page, member);
-    await goto(page, "/secret-santa/min-sida");
+    await goto(page, "/secret-santa/min-sida/onskelista");
     await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" })).toBeVisible();
     expect(await hasHorizontalScroll(page)).toBe(false);
     for (const name of [/^Ändra /, /^Ta bort /]) {
@@ -1348,5 +1348,41 @@ test("MUPP-040-R1 R2 MUPP-053-R1 the Secret Santa wish list on a 375 x 667 phone
     await expectNoA11yViolations(page);
   } finally {
     await clearSanta();
+  }
+});
+
+test("MUPP-051-R2 R6 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, and the question of Aktivera fits the width", async ({ page }) => {
+  test.skip(!runsLocally, "needs the local test server");
+  await clearFamily();
+  await clearSanta();
+  const owner = uniqueName("Emma");
+  const ownerId = await addParent(owner);
+  const family = await addSantaEvent("Familjen Ek", ownerId, "inactive");
+  const member = await addSantaMember(family, "Anna Ek", "0700004444", "anna@exempel.invalid");
+  try {
+    await page.setViewportSize({ width: 375, height: 667 });
+    // The preparing page: two cards, the second without a link and with its reason in text and in a readable orange
+    await setSantaStatus(family, "preparing");
+    await santaSignIn(page, member);
+    await goto(page, "/secret-santa/min-sida");
+    expect((await settledBox(page.getByRole("link", { name: "Min önskelista" }))).height).toBeGreaterThanOrEqual(44);
+    const reason = page.getByText("Inte tilldelad än");
+    expect(contrast(await css(reason, "color"), await backgroundOf(reason))).toBeGreaterThanOrEqual(4.5);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+
+    // The admin: the status with its button, and the question inside the screen
+    await setSantaStatus(family, "inactive");
+    await adminSignIn(page, owner);
+    await page.getByRole("tab", { name: "Secret Santa" }).click();
+    const activate = page.getByRole("button", { name: "Aktivera Familjen Ek", exact: true });
+    expect((await settledBox(activate)).height).toBeGreaterThanOrEqual(44);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await activate.click();
+    const question = page.getByRole("alertdialog", { name: "Är du säker?" });
+    expect(inside(await settledBox(question), { x: 0, y: 0, width: 375, height: 667 })).toBe(true);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearSanta();
+    await clearFamily();
   }
 });

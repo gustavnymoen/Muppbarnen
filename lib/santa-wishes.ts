@@ -11,12 +11,21 @@ export type SantaWish = { id: number; title: string; description: string; size: 
 
 const NOT_ALLOWED = { ok: false, error: "Du kan inte göra det här." } as const;
 
+const CLOSED = { ok: false, error: "Önskelistan är stängd just nu." } as const;
+
+// Önskelistor skrivs bara när gruppen förbereder eller är startad (MUPP-051-R4); en inaktiv grupp behåller sina önskningar
+async function listIsOpen(memberId: number) {
+  const row = await get<{ status: string }>("SELECT e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [memberId]);
+  return row !== undefined && row.status !== "inactive";
+}
+
 // Medlemmens önskelista
 export const listOwn = (memberId: number) =>
   all<SantaWish>("SELECT id, title, description, size, url FROM ss_wish WHERE member_id = ? ORDER BY id", [memberId]);
 
 // Ny önskning (inget wishId) i medlemmens lista, eller ändring av en egen önskning
 export async function saveWish(memberId: number, input: { wishId?: unknown; title: unknown; size: unknown; description: unknown; url: unknown }): Promise<Outcome> {
+  if (!(await listIsOpen(memberId))) return CLOSED;
   const checked = parseWish(input);
   const isNew = input.wishId === undefined || input.wishId === "";
   const wish = isNew ? null : await ownWish(memberId, input.wishId);
@@ -29,6 +38,7 @@ export async function saveWish(memberId: number, input: { wishId?: unknown; titl
 }
 
 export async function removeWish(memberId: number, rawId: unknown): Promise<Outcome> {
+  if (!(await listIsOpen(memberId))) return CLOSED;
   const wish = await ownWish(memberId, rawId);
   if (!wish) return NOT_ALLOWED;
   await run("DELETE FROM ss_wish WHERE id = ?", [wish.id]);

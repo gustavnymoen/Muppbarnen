@@ -84,7 +84,7 @@ test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text b
 
   // R1: a participant's own wish list
   await santaSignIn(page, member);
-  await goto(page, "/secret-santa/min-sida");
+  await goto(page, "/secret-santa/min-sida/onskelista");
   await expectPlus(page, page.getByRole("button", { name: "Ny önskning, Familjen Ek" }), "Ny önskning, Familjen Ek");
   await expectNoA11yViolations(page);
 });

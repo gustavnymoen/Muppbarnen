@@ -7,7 +7,7 @@ import { TrashIcon } from "./icons";
 import { toast } from "./Toaster";
 import type { FormAction } from "./form-state";
 
-// En papperskorgsknapp som frågar innan den gör något som inte går att ångra. Frågan är ett kort (Dialog.tsx), som håller tangentbordet
+// En papperskorgsknapp (eller en textknapp, med buttonText) som frågar innan den gör något som inte går att ångra. Frågan är ett kort (Dialog.tsx), som håller tangentbordet
 // borta från sidan bakom, stängs med Esc och nämner vad det gäller. Fokus börjar på "Avbryt", så att Enter inte råkar bekräfta.
 export function ConfirmAction({
   action,
@@ -16,6 +16,7 @@ export function ConfirmAction({
   subject,
   title,
   text,
+  buttonText,
 }: {
   action: FormAction;
   fields: Record<string, string>;
@@ -23,21 +24,30 @@ export function ConfirmAction({
   subject: string;
   title: string;
   text: string;
+  buttonText?: string;
 }) {
   const id = useId();
   const dialog = useRef<DialogHandle>(null);
   const [state, formAction, pending] = useActionState(action, null);
 
   useEffect(() => {
-    if (state?.saved) dialog.current?.close();
-    else if (state?.error) toast(state.error, true);
+    if (state?.saved) {
+      dialog.current?.close();
+      if (state.notice) toast(state.notice, true);
+    } else if (state?.error) toast(state.error, true);
   }, [state]);
 
   return (
     <>
-      <IconButton compact label={`${label} ${subject}`} onClick={(event) => dialog.current?.open(event.currentTarget)}>
-        <TrashIcon />
-      </IconButton>
+      {buttonText ? (
+        <Button variant="secondary" aria-label={`${label} ${subject}`} onClick={(event) => dialog.current?.open(event.currentTarget)}>
+          {buttonText}
+        </Button>
+      ) : (
+        <IconButton compact label={`${label} ${subject}`} onClick={(event) => dialog.current?.open(event.currentTarget)}>
+          <TrashIcon />
+        </IconButton>
+      )}
       <Dialog ref={dialog} role="alertdialog" title={title} aria-describedby={`${id}-text`}>
         <form action={formAction} className="space-y-4">
           {Object.entries(fields).map(([name, value]) => (
