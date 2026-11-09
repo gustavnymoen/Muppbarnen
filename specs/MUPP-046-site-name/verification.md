@@ -10,9 +10,9 @@ feature: MUPP-046
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | MUPP-046-R1 | Unit test `MUPP-046-R1` (`app/site-name.test.ts`); browser test `MUPP-046-R1 R2 R3 every page says Kusinportalen…` and `…the password page is called Kusinportalen…` in `tests/MUPP-046-site-name.spec.ts` (titles, headings, no "Muppbarnen" in the visible text); the old name replaced in `MUPP-002`, `MUPP-003`, `MUPP-009`, `TECH-001` and `smoke` | local | Pass | 2026-11-09 |
-| MUPP-046-R2 | Browser tests (the head on every page above; the manifest as served) and unit test `MUPP-046-R2` (manifest values) | local | Pass | 2026-11-09 |
-| MUPP-046-R3 | Unit tests `MUPP-046-R3` (sizes, types, opacity, weight, no script or link in the SVG); head links in the browser test; the icon at 16, 32 and 180 px looked at as a contact sheet (gift and ribbon recognisable at 16 px) | local | Pass; the user's own look before the work is done: not checked | 2026-11-09 |
-| MUPP-046-R4 | Unit tests `MUPP-046-R4` (`proxy.test.ts`: the exact list, GET and HEAD, other methods, lookalikes); browser test `MUPP-046-R2 R3 R4 the icons and the manifest are public files…` without the cookie; `@smoke` test | local | Pass | 2026-11-09 |
+| MUPP-046-R2 | Browser tests (the head on every page above; the manifest as served) and unit test `MUPP-046-R2` (manifest values); the live manifest read with `curl` (name, short name, lang, colours and both icons as specified) | local; live: manifest only | Pass | 2026-11-09 |
+| MUPP-046-R3 | Unit tests `MUPP-046-R3` (sizes, types, opacity, weight, no script or link in the SVG); head links in the browser test; the icon at 16, 32 and 180 px looked at as a contact sheet (gift and ribbon recognisable at 16 px) | local | Pass locally; the user looked at the icon on the live site and on an iPhone home screen and found it fine (2026-11-09, said by the user; the sizes 16, 32 and 180 px were not looked at one by one) | 2026-11-09 |
+| MUPP-046-R4 | Unit tests `MUPP-046-R4` (`proxy.test.ts`: the exact list, GET and HEAD, other methods, lookalikes); browser test `MUPP-046-R2 R3 R4 the icons and the manifest are public files…` without the cookie; `@smoke` test | local; live: Live tests, and `curl` against <https://muppbarnen.vercel.app> without the cookie: `GET` and `HEAD` of the four paths gave 200 with `image/svg+xml`, `image/png`, `image/png` and `application/manifest+json`; `/`, `/icon.png/x` and `/icons/icon.png` gave 307 to the password page; `POST /icon.png` gave 401 | Pass | 2026-11-09 |
 
 ## The test plan
 
@@ -20,8 +20,8 @@ feature: MUPP-046
 |---|---|---|---|---|
 | Unit tests | `proxy.test.ts`, `app/site-name.test.ts` (15 tests) | local | Pass | 2026-11-09 |
 | Browser tests | `tests/MUPP-046-site-name.spec.ts` (3 tests); the five existing files updated; the helper `message` in `MUPP-039` now ignores Next's route announcer, which holds text once page titles differ | local | Pass | 2026-11-09 |
-| Smoke test | New `@smoke` test `MUPP-046-R4` in `tests/smoke.spec.ts`; the password-page smoke test updated | local; preview and live: not checked yet | Pass locally | 2026-11-09 |
-| Accessibility | axe on the password page and the start page; page titles (WCAG 2.4.2) read in the browser test for every page type. The checklist on the live site (titles, tab icon, iPhone home screen): not checked | local | Pass locally | 2026-11-09 |
+| Smoke test | New `@smoke` test `MUPP-046-R4` in `tests/smoke.spec.ts`; the password-page smoke test updated | local; live: Live tests run 42647279016 on the merge commit 812d831 | Pass locally; Pass live (Live tests, 2026-11-09). Preview tests passed on the pull request | 2026-11-09 |
+| Accessibility | axe on the password page and the start page; page titles (WCAG 2.4.2) read in the browser test for every page type. The checklist on the live site: the name on the start, Secret Santa and admin pages looked right to the user (2026-11-09); the password page's title (`Kusinportalen`) was read with `curl`; the style guide's title was not read separately; the iPhone home screen (Safari, Lägg till på hemskärmen) showed the name and the icon as intended, said by the user (2026-11-09) | local; live: by hand | Pass locally; live: the user reports it tested by hand, including the screen reader items (said by the user, not recorded item by item) | 2026-11-09 |
 | Security | `/security-review`: see [review.md](review.md); the exact-path list, methods and lookalikes are unit tested | local | see review | 2026-11-09 |
 | Code review | [review.md](review.md) | local | see review | 2026-11-09 |
 
@@ -40,8 +40,8 @@ The browser suite grew by 12.2 s (4 %) for 4 tests (one new file with three test
 
 - [x] Tests: every check in the plan is done locally; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: within the time budgets, total time grown by at most 25 % (grown 4 %; the budget was already exceeded before, TECH-019)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
-- [ ] Accessibility: axe passes locally; the checklist items on the live site not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 42647279016 on 812d831, success, 2026-11-09
+- [x] Accessibility: axe passes locally; the user went through the live site by hand, including the screen reader items, and reports it as tested (2026-11-09, said by the user; not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

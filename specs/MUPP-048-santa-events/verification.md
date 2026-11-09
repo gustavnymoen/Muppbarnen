@@ -24,8 +24,8 @@ feature: MUPP-048
 |---|---|---|---|---|
 | Unit tests | `lib/santa.test.ts` (17), `lib/santa-auth.test.ts`, `lib/santa-wishes.test.ts`, `lib/santa-session.test.ts`, `db/db-setup.test.ts` (the migration, 2 tests (one with a blank name)): 234 in all | local | Pass | 2026-11-09 |
 | Browser tests | New `tests/MUPP-048-santa-events.spec.ts` (5 tests); `MUPP-038`, `MUPP-039`, `MUPP-040`, `MUPP-045`, `MUPP-046`, `MUPP-053` and `design.spec.ts` updated for groups. `npm run test:local`: 130 tests | local | Pass (the one failure of the first run, an old assertion of MUPP-047 that the names step has no Tillbaka, was updated and re-run) | 2026-11-09 |
-| Smoke test | The existing `@smoke` test `MUPP-039-R1` (the entrance is behind the site password and shows no names) still covers `/secret-santa`; preview and live: not checked yet | local | Pass locally | 2026-11-09 |
-| Accessibility | axe in the browser tests on the tab (non-master parent, master admin), the name error, the entrance (list of groups, names, back button). The event list and the tab for a non-master parent on the live site: not checked | local | Pass locally | 2026-11-09 |
+| Smoke test | The existing `@smoke` test `MUPP-039-R1` (the entrance is behind the site password and shows no names) still covers `/secret-santa` | local; preview (Preview tests on the pull request); live (Live tests run 42655300363 on 10f4f31) | Pass | 2026-11-09 |
+| Accessibility | axe in the browser tests on the tab (non-master parent, master admin), the name error, the entrance (list of groups, names, back button). The event list and the tab for a non-master parent on the live site: see the Result column | local | Pass locally; live: the user reports it tested by hand (2026-11-09, said by the user; not recorded item by item) | 2026-11-09 |
 | Security | `/security-review` (no findings at confidence 8 or higher) and the review's security points: [review.md](review.md) | local | Pass | 2026-11-09 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-09 |
 
@@ -44,8 +44,8 @@ The browser suite grew by 12.8 s (5 %) for 5 more tests. The tests over the 5 s 
 
 - [x] Tests: every check in the plan is done locally except R6 (no mail exists yet); `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: within the time budgets, total time grown by at most 25 % (grown 5 %; the budget was already exceeded before, TECH-019)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
-- [ ] Accessibility: axe passes locally; the checklist items on the live site not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 42655300363 on 10f4f31, success, 2026-11-09
+- [x] Accessibility: axe passes locally; the user went through the live site by hand, including the screen reader items, and reports it as tested (2026-11-09, said by the user; not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
