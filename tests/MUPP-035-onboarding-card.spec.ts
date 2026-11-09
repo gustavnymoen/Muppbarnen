@@ -2,13 +2,13 @@ import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto } from "./helpers";
 import { newcomer, newVisitor } from "./site-session";
 
-test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 the dialog opens by itself once, has two tabs with the texts, closes with OK and is opened again from the menu", async ({ browser, baseURL }) => {
+test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog opens by itself once, has two tabs with the texts, closes with OK and is opened again from the menu", async ({ browser, baseURL }) => {
   const context = await newcomer(browser, baseURL);
   const page = await context.newPage();
   await goto(page, "/");
 
   // R1: open with focus inside it, and the deck behind it cannot be used
-  const dialog = page.getByRole("dialog", { name: "Så funkar sajten" });
+  const dialog = page.getByRole("dialog", { name: "Så funkar listorna" });
   await expect(dialog).toBeVisible();
   expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null)).toBe(true);
   // The page behind a modal dialog cannot be pressed
@@ -55,11 +55,11 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 the dialog opens by itself on
   await goto(page, "/");
   await expect(dialog).toBeHidden();
 
-  // R3 R2: the menu has the item between Start and Admin, which opens the dialog on the first tab; Esc closes it and the focus is back on the menu button
+  // R3 R2: the menu has the item between Secret Santa and Admin, which opens the dialog on the first tab; Esc closes it and the focus is back on the menu button
   await page.getByRole("button", { name: "Meny" }).click();
   const items = page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("listitem");
-  await expect(items).toHaveText(["Start", "Så funkar sajten", "Secret Santa", "Admin"]);
-  await items.nth(1).getByRole("button").click();
+  await expect(items).toHaveText(["Barnens listor", "Secret Santa", "Så funkar listorna", "Admin"]);
+  await items.nth(2).getByRole("button").click();
   await expect(dialog).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Besökare" })).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Escape");
@@ -77,7 +77,7 @@ test("MUPP-035-R1 R2 Esc and a press outside also set the cookie, and the dialog
     const context = await newcomer(browser, baseURL);
     const page = await context.newPage();
     await goto(page, "/");
-    const dialog = page.getByRole("dialog", { name: "Så funkar sajten" });
+    const dialog = page.getByRole("dialog", { name: "Så funkar listorna" });
     await expect(dialog, way).toBeVisible();
     await close(page);
     await expect(dialog, way).toBeHidden();
