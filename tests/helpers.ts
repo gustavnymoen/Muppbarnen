@@ -227,11 +227,11 @@ export async function openCard(scope: Locator, name: string | RegExp) {
 // The card (an open <dialog>) with this title, wherever it is on the page
 export const cardTitled = (page: Page, title: string | RegExp) => page.locator("dialog[open]").filter({ has: page.getByRole("heading", { level: 2, name: title }) });
 
-// Signs in as a Secret Santa member (MUPP-039): the family (when there is more than one), the name and the saved phone number
-export async function signInSanta(page: Page, family: string, name: string, phone: string) {
+// Signs in as a Secret Santa member (MUPP-039): the event (when there is more than one), the name and the saved phone number
+export async function signInSanta(page: Page, event: string, name: string, phone: string) {
   await goto(page, "/secret-santa");
-  const familyLink = page.getByRole("link", { name: family, exact: true });
-  if (await familyLink.count()) await familyLink.click();
+  const eventLink = page.getByRole("link", { name: event, exact: true });
+  if (await eventLink.count()) await eventLink.click();
   await page.getByRole("link", { name, exact: true }).click();
   await page.getByLabel("Ditt telefonnummer").fill(phone);
   await page.getByRole("button", { name: "Fortsätt" }).click();

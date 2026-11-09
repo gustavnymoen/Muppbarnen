@@ -254,6 +254,9 @@ export async function removeParent(actor: Parent | null, rawId: unknown): Promis
     if (await get("SELECT 1 FROM child WHERE parent_id = ? LIMIT 1", [current.id], tx)) {
       return { ok: false, error: "Föräldern har barn. Flytta eller ta bort barnen först." };
     }
+    if (await get("SELECT 1 FROM ss_event WHERE owner_id = ? LIMIT 1", [current.id], tx)) {
+      return { ok: false, error: "Föräldern administrerar Secret Santa-grupper. Ta bort grupperna först." };
+    }
     if (current.is_master_admin === 1 && (await otherMasters(current.id, tx)) === 0) return LAST_MASTER;
     await run("DELETE FROM parent WHERE id = ?", [current.id], tx);
     return { ok: true };

@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaFamily, addSantaMember, clearFamily, clearSanta, personOfMember } from "./family-db";
+import { addChild, addParent, addSantaEvent, addSantaMember, clearFamily, clearSanta } from "./family-db";
 import { santaSignIn } from "./santa";
 import { testIp } from "./site-session";
 
@@ -65,7 +65,7 @@ test("MUPP-053-R1 R2 R4 the admin pages: plus buttons for a new wish, parent and
 test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text button Ny grupp under Grupper, a plus for a new person and a new wish", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
-  const family = await addSantaFamily("Familjen Ek");
+  const family = await addSantaEvent("Familjen Ek");
   const member = await addSantaMember(family, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   await page.setViewportSize({ width: 360, height: 640 });
   await adminSignIn(page, chef);
@@ -83,7 +83,7 @@ test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text b
   await expectNoA11yViolations(page);
 
   // R1: a participant's own wish list
-  await santaSignIn(page, await personOfMember(member));
+  await santaSignIn(page, member);
   await goto(page, "/secret-santa/min-sida");
   await expectPlus(page, page.getByRole("button", { name: "Ny önskning, Familjen Ek" }), "Ny önskning, Familjen Ek");
   await expectNoA11yViolations(page);

@@ -7,7 +7,7 @@ import { Heading, Page, PageContent } from "@/app/components/Page";
 import { Tabs } from "@/app/components/Tabs";
 import { currentAdmin } from "@/lib/admin-auth";
 import { listChildren, listParents, type Parent } from "@/lib/family";
-import { listFamilies } from "@/lib/santa";
+import { listEvents } from "@/lib/santa";
 import { requireSiteSession } from "@/lib/site-auth";
 import { ChildCard } from "./ChildCard";
 import { SantaTab } from "./SantaTab";
@@ -113,8 +113,8 @@ async function ParentHome({ parent }: { parent: Parent }) {
       )}
     </>
   );
-  // Fliken Secret Santa finns bara för huvudadministratören; för andra hämtas inget av dess innehåll
-  const santa = parent.isMasterAdmin ? await listFamilies(parent) : null;
+  // Fliken Secret Santa finns för varje förälder, med bara hens egna grupper (alla för huvudadministratören)
+  const events = await listEvents(parent);
   return (
     <>
       <div className="flex items-center justify-between gap-3">
@@ -127,17 +127,13 @@ async function ParentHome({ parent }: { parent: Parent }) {
           </IconButton>
         </form>
       </div>
-      {santa ? (
-        <Tabs
-          label="Admin"
-          tabs={[
-            { id: "barn", title: "Barn", content: kids },
-            { id: "secret-santa", title: "Secret Santa", content: <SantaTab {...santa} /> },
-          ]}
-        />
-      ) : (
-        kids
-      )}
+      <Tabs
+        label="Admin"
+        tabs={[
+          { id: "barn", title: "Barn", content: kids },
+          { id: "secret-santa", title: "Secret Santa", content: <SantaTab events={events} adminId={parent.id} /> },
+        ]}
+      />
     </>
   );
 }

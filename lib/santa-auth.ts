@@ -10,23 +10,26 @@ import { siteSecrets } from "./site-session";
 // kontrollen av telefon eller e-post, och vem som är inloggad. Telefon och e-post läses bara här,
 // för kontrollen, och lämnar aldrig funktionen. Designen: wiki/system/secret-santa-entrance.md.
 
-export type EntranceMember = { personId: number; name: string };
-export type SantaPerson = { id: number; name: string };
+export type EntranceMember = { memberId: number; name: string };
+export type SantaMember = { id: number; name: string; eventId: number; eventName: string };
 export type SantaContact = "phone" | "email";
 
 // ---- Läsa (bara namn)
 
-export const entranceFamilies = () => all<{ id: number; name: string }>("SELECT id, name FROM ss_family ORDER BY name, id");
+export const entranceEvents = () => all<{ id: number; name: string }>("SELECT id, name FROM ss_event ORDER BY name, id");
 
-export async function entranceMembers(familyId: number): Promise<EntranceMember[]> {
-  const rows = await all<{ id: number; name: string }>(
-    "SELECT p.id, p.name FROM ss_member m JOIN ss_person p ON p.id = m.person_id WHERE m.family_id = ? ORDER BY p.name, p.id",
-    [familyId],
-  );
-  return rows.map((r) => ({ personId: r.id, name: r.name }));
+export async function entranceMembers(eventId: number): Promise<EntranceMember[]> {
+  const rows = await all<{ id: number; name: string }>("SELECT id, name FROM ss_member WHERE event_id = ? ORDER BY name, id", [eventId]);
+  return rows.map((r) => ({ memberId: r.id, name: r.name }));
 }
 
-export const findPerson = (id: number) => get<SantaPerson>("SELECT id, name FROM ss_person WHERE id = ?", [id]);
+export async function findMember(id: number): Promise<SantaMember | undefined> {
+  const row = await get<{ id: number; name: string; event_id: number; event_name: string }>(
+    "SELECT m.id, m.name, m.event_id, e.name AS event_name FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?",
+    [id],
+  );
+  return row && { id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name };
+}
 
 // ---- Jämförelsen
 
@@ -50,41 +53,41 @@ export function contactMatches(kind: SantaContact, typed: string, saved: { phone
 
 // ---- Inloggningen
 
-type Attempt = { personId: unknown; kind: unknown; value: unknown };
-type SignInResult = { result: "ok"; personId: number } | { result: "wrong" | "blocked" };
+type Attempt = { memberId: unknown; kind: unknown; value: unknown };
+type SignInResult = { result: "ok"; memberId: number } | { result: "wrong" | "blocked" };
 
 // Samma spärr som sajtlösenordet och adminlösenordet (lib/login-block.ts): försöket skrivs in först, ett fel
 // kostar en sekund (wait, 0 i enhetstesterna; testservern hoppar över den, se wrongWait) och ett rätt räknas inte. Vad som var fel sägs aldrig.
 export async function checkSantaSignIn(ip: string, input: Attempt, wait = wrongWait()): Promise<SignInResult> {
   const attempt = await beginAttempt(ip);
   if (attempt === null) return { result: "blocked" };
-  const personId = parseId(input.personId);
-  const saved = personId === null ? undefined : await get<{ phone: string; email: string }>("SELECT phone, email FROM ss_person WHERE id = ?", [personId]);
+  const memberId = parseId(input.memberId);
+  const saved = memberId === null ? undefined : await get<{ phone: string; email: string }>("SELECT phone, email FROM ss_member WHERE id = ?", [memberId]);
   const kind = input.kind === "phone" || input.kind === "email" ? input.kind : null;
   const typed = typeof input.value === "string" && input.value.length <= 254 ? input.value : "";
-  if (personId === null || !saved || kind === null || !contactMatches(kind, typed, saved)) {
+  if (memberId === null || !saved || kind === null || !contactMatches(kind, typed, saved)) {
     await registerWrong(ip);
     if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
     return { result: "wrong" };
   }
   await clearAttempt(attempt);
-  return { result: "ok", personId };
+  return { result: "ok", memberId };
 }
 
 // ---- Kakan
 
-// Den inloggade personen, eller null. Personen läses ur databasen vid varje förfrågan; är hen borttagen gäller kakan inte längre.
-export async function currentSantaPerson() {
+// Den inloggade medlemmen, eller null. Medlemmen läses ur databasen vid varje förfrågan; är hen borttagen gäller kakan inte längre.
+export async function currentSantaMember() {
   const id = verifySantaSession((await cookies()).get(SANTA_COOKIE)?.value, siteSecrets()?.secret);
-  return id === null ? null : ((await findPerson(id)) ?? null);
+  return id === null ? null : ((await findMember(id)) ?? null);
 }
 
 const cookieRules = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" } as const;
 
-export async function setSantaCookie(personId: number) {
+export async function setSantaCookie(memberId: number) {
   const secret = siteSecrets()?.secret;
   if (!secret) return;
-  (await cookies()).set(SANTA_COOKIE, createSantaSession(secret, personId), { ...cookieRules, maxAge: SANTA_SESSION_SECONDS });
+  (await cookies()).set(SANTA_COOKIE, createSantaSession(secret, memberId), { ...cookieRules, maxAge: SANTA_SESSION_SECONDS });
 }
 
 // Tas bort med samma regler som när den sattes: en __Host-kaka utan Secure godtas inte ens för att tömmas

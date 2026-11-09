@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
-import { addSantaFamily, addSantaMember, addSantaWish, clearSanta, joinSantaFamily, personOfMember, santaWishes } from "./family-db";
-import { santaSignIn } from "./santa";
+import { addSantaEvent, addSantaMember, addSantaWish, clearSanta, santaWishes } from "./family-db";
+import { SANTA_COOKIE, santaSignIn } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -15,12 +15,12 @@ test.afterEach(clearSanta);
 
 // The sign-in itself is tested in MUPP-039: here the cookie is set directly (TECH-018) and the own page opened
 async function signInAs(page: Page, member: number) {
-  await santaSignIn(page, await personOfMember(member));
+  await santaSignIn(page, member);
   await goto(page, "/secret-santa/min-sida");
 }
 
 async function twoMembers() {
-  const family = await addSantaFamily("Familjen Test");
+  const family = await addSantaEvent("Familjen Test");
   const anna = await addSantaMember(family, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   const bertil = await addSantaMember(family, "Bertil Testsson", "0700002222", "bertil@exempel.invalid");
   return { family, anna, bertil };
@@ -83,32 +83,35 @@ test("MUPP-040-R1 R2 a wish is added with a title, a link must be http(s) and th
   expect(await santaWishes(anna)).toEqual([]);
 });
 
-test("MUPP-040-R3 a person in two families has a separate list in each, and a wish id changed to another member's is refused", async ({ page }) => {
+test("MUPP-040-R3 MUPP-048-R5 a person in two groups is a member of each with a separate list, and a wish id changed to another member's is refused", async ({ page }) => {
   const { anna, bertil } = await twoMembers();
-  const other = await addSantaFamily("Familjen Annan");
-  const annaThere = await joinSantaFamily(anna, other);
+  const other = await addSantaEvent("Familjen Annan");
+  const annaThere = await addSantaMember(other, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   await addSantaWish(anna, "Hos Test");
   const bertilsWish = await addSantaWish(bertil, "Bertils önskning");
-  await signInAs(page, anna);
 
-  // A separate list in each family
-  const here = page.locator("section", { has: page.getByRole("heading", { name: "Din önskelista i Familjen Test" }) });
-  const there = page.locator("section", { has: page.getByRole("heading", { name: "Din önskelista i Familjen Annan" }) });
-  await expect(here.getByRole("heading", { level: 3, name: "Hos Test" })).toBeVisible();
-  await expect(there.getByText("Inga önskningar ännu.")).toBeVisible();
-
-  await there.getByRole("button", { name: "Ny önskning" }).click();
-  await there.getByLabel("Namn").fill("Hos Annan");
-  await there.getByRole("button", { name: "Lägg till" }).click();
+  // Signed in as the member of one group: only that group's list, and a new wish goes into it
+  await signInAs(page, annaThere);
+  await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Annan" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Test" })).toHaveCount(0);
+  await expect(page.getByText("Inga önskningar ännu.")).toBeVisible();
+  await page.getByRole("button", { name: "Ny önskning" }).click();
+  await page.getByLabel("Namn").fill("Hos Annan");
+  await page.getByRole("button", { name: "Lägg till" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Hos Annan lades till" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(there.getByRole("heading", { level: 3, name: "Hos Annan" })).toBeVisible();
-  await expect(here.getByRole("heading", { level: 3, name: "Hos Annan" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 3, name: "Hos Annan" })).toBeVisible();
   expect((await santaWishes(annaThere)).map((w) => w.title)).toEqual(["Hos Annan"]);
   expect((await santaWishes(anna)).map((w) => w.title)).toEqual(["Hos Test"]);
 
+  // The other member's own page shows the other list
+  await page.context().clearCookies({ name: SANTA_COOKIE });
+  await signInAs(page, anna);
+  await expect(page.getByRole("heading", { level: 3, name: "Hos Test" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "Hos Annan" })).toHaveCount(0);
+
   // The form is sent with Bertil's wish id instead of Anna's own
-  await here.getByRole("button", { name: "Ändra Hos Test" }).click();
+  await page.getByRole("button", { name: "Ändra Hos Test" }).click();
   const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Spara" }) });
   await form.locator("input[name=wishId]").evaluate((input: HTMLInputElement, id) => (input.value = id), String(bertilsWish));
   await form.getByLabel("Namn").fill("Kapad");
