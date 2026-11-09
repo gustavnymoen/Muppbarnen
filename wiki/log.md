@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-09
+
+* **Creation** [MUPP-045 Form cards with focus and Enter](../specs/MUPP-045-form-cards/solution.md): every dialog and form is one shared card that grows out of its button and folds back into it; forms open as cards with a cross, Esc, the first field focused and Enter to the next field, a new wish keeps its card open with a short confirmation, other saves close it and are announced to screen readers, the lists open in front of the card, and the kid's sizes are a card on the admin page instead of a page.
+
 ## 2026-11-08
 
 * **Creation** [MUPP-040 Secret Santa: own wish list](../specs/MUPP-040-secret-santa-wish-list/solution.md): a signed-in Secret Santa member adds, edits and deletes wishes (title, description, size, link) on their own page, one list per family, with the form and limits shared with the kids' lists; nobody else reads the list.

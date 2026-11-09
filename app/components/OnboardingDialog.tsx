@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode, type Ref } from "react";
 import { markOnboardingSeen } from "@/app/actions";
 import { Button } from "./Button";
-import { Dialog } from "./Dialog";
+import { Dialog, useCard, type DialogHandle } from "./Dialog";
 import { ChevronDownIcon } from "./icons";
 
 // Rutan "Så funkar sajten" (MUPP-035): två flikar med korta texter. Texterna är fasta och godkända på kortet.
@@ -46,36 +46,37 @@ const TABS = [
 ] satisfies { id: string; label: string; intro: string; parts: [string, ReactNode][] }[];
 
 // Öppnas av SiteMenu (ref) och, om autoOpen, av sig själv första gången. Varje sätt att stänga (OK, Esc, tryck utanför)
-// ger onClose, som då minns att rutan är sedd. <dialog> med showModal() håller fokus inne och lämnar tillbaka det när den stängs.
-export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement>; autoOpen?: boolean }) {
+// minns att rutan är sedd. Rutan är ett kort (Dialog.tsx), och dess innehåll börjar om varje gång det öppnas.
+export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<DialogHandle>; autoOpen?: boolean }) {
+  // defaultOpen gäller bara vid första visningen: när kakan sätts ritas sidan om med autoOpen av, och rutan ska inte öppnas igen
+  return (
+    <Dialog ref={ref} title="Så funkar sajten" backdropClose defaultOpen={autoOpen} className="max-h-[85dvh] flex-col open:flex" onClose={() => autoOpen && void markOnboardingSeen()}>
+      <OnboardingTabs />
+    </Dialog>
+  );
+}
+
+function OnboardingTabs() {
   const id = useId();
+  const card = useCard();
   const [tab, setTab] = useState(0);
-  // Trycket började på bakgrunden: ett tryck inne i rutan som släpps utanför (markera text) ska inte stänga den
-  const pressedBackdrop = useRef(false);
   const panel = useRef<HTMLDivElement>(null);
   // Finns det mer text under det som syns? Då är knappen längst ner en pil (MUPP-036), annars OK
   const [more, setMore] = useState(false);
-  const [node, setNode] = useState<HTMLDialogElement | null>(null);
-
-  useEffect(() => {
-    // Bara vid första visningen: när kakan sätts ritas sidan om med autoOpen av, och rutan ska inte öppnas igen
-    if (autoOpen && node && !node.open) node.showModal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [node]);
 
   function checkMore() {
     const el = panel.current;
     if (el) setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 2);
   }
 
-  // Rutan är dold tills den öppnas: ResizeObserver ger besked när panelen får sin storlek (och vid vridning av telefonen)
+  // ResizeObserver ger besked när panelen får sin storlek (och vid vridning av telefonen)
   useEffect(() => {
     const el = panel.current;
     if (!el) return;
     const observer = new ResizeObserver(checkMore);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [node]);
+  }, []);
 
   // En ny flik börjar överst
   useEffect(() => {
@@ -93,30 +94,8 @@ export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement
 
   const current = TABS[tab];
   return (
-    <Dialog
-      ref={(element) => {
-        setNode(element);
-        if (typeof ref === "function") ref(element);
-        else if (ref) ref.current = element;
-      }}
-      aria-labelledby={`${id}-titel`}
-      className="max-h-[85dvh] flex-col text-left open:flex"
-      onClose={() => {
-        setTab(0);
-        if (autoOpen) void markOnboardingSeen();
-      }}
-      onMouseDown={(event) => (pressedBackdrop.current = event.target === event.currentTarget)}
-      onClick={(event) => {
-        // Ett tryck på den mörka bakgrunden landar på <dialog> självt, utanför rutan
-        const box = event.currentTarget.getBoundingClientRect();
-        const { clientX: x, clientY: y } = event;
-        if (pressedBackdrop.current && (x < box.left || x > box.right || y < box.top || y > box.bottom)) event.currentTarget.close();
-      }}
-    >
-      <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
-        Så funkar sajten
-      </h2>
-      <div role="tablist" aria-label="Läs som" className="mt-3 flex gap-2" onKeyDown={arrow}>
+    <>
+      <div role="tablist" aria-label="Läs som" className="flex gap-2" onKeyDown={arrow}>
         {TABS.map((t, i) => (
           <Button
             key={t.id}
@@ -145,14 +124,14 @@ export function OnboardingDialog({ ref, autoOpen }: { ref: Ref<HTMLDialogElement
       <Button
         className="mt-4 self-start"
         aria-label={more ? "Läs vidare" : undefined}
-        onClick={(event) => {
-          if (!more) return event.currentTarget.closest("dialog")?.close();
+        onClick={() => {
+          if (!more) return card?.close();
           const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
           panel.current?.scrollBy({ top: panel.current.clientHeight * 0.8, behavior: smooth ? "smooth" : "auto" });
         }}
       >
         {more ? <ChevronDownIcon /> : "OK"}
       </Button>
-    </Dialog>
+    </>
   );
 }

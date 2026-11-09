@@ -1,8 +1,8 @@
 import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
-import { FoldButton, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Field, Form } from "@/app/components/Form";
-import { ChevronDownIcon, PencilIcon } from "@/app/components/icons";
+import { FormCard } from "@/app/components/FormCard";
+import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
 import { WishDetails, WishFields } from "@/app/components/WishParts";
@@ -10,12 +10,11 @@ import { dayAndMonth, parseDate } from "@/lib/deck";
 import type { AdminItem, ArchiveGroup, Child, WishlistItem } from "@/lib/family";
 import { OCCASION_NAMES, type Occasion } from "@/lib/form-input";
 import { clearList, removeItem, saveItem } from "../../actions";
-import { CopyItem } from "./CopyItem";
+import { ArchiveGroupCard } from "./ArchiveGroupCard";
 
 // Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
 export function WishlistSection({ child, occasion, items }: { child: Child; occasion: Occasion; items: AdminItem[] }) {
   const listName = OCCASION_NAMES[occasion];
-  const newItem = `ny-${occasion}`;
   return (
     <Card as="section" className="space-y-3">
       <div className="flex items-center justify-between gap-2">
@@ -44,12 +43,9 @@ export function WishlistSection({ child, occasion, items }: { child: Child; occa
           ))}
         </ul>
       )}
-      <FoldButton id={newItem} label={`Ny önskning, ${listName}`}>
-        Ny önskning
-      </FoldButton>
-      <FoldPanel id={newItem}>
+      <FormCard title={`Ny önskning, ${listName}`} label={`Ny önskning, ${listName}`} text="Ny önskning">
         <ItemForm child={child} occasion={occasion} submit="Lägg till" />
-      </FoldPanel>
+      </FormCard>
     </Card>
   );
 }
@@ -62,16 +58,18 @@ function claimWarning({ title, claimedBy, claimedAt }: AdminItem) {
 }
 
 function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion; item: AdminItem }) {
-  const edit = `onskning-${item.id}`;
   return (
     <SlimCard
       title={item.title}
       note={item.unlimited ? "Obegränsad" : undefined}
       actions={
         <>
-          <FoldToggle id={edit} label={`Ändra ${item.title}`}>
-            <PencilIcon />
-          </FoldToggle>
+          <FormCard title={`Ändra ${item.title}`} label={`Ändra ${item.title}`} icon={<PencilIcon />}>
+            <div className="space-y-4">
+              <WishDetails item={item} />
+              <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
+            </div>
+          </FormCard>
           <ConfirmAction
             action={removeItem}
             fields={{ itemId: String(item.id) }}
@@ -82,18 +80,13 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
           />
         </>
       }
-    >
-      <FoldPanel id={edit}>
-        <WishDetails item={item} />
-        <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
-      </FoldPanel>
-    </SlimCard>
+    />
   );
 }
 
 function ItemForm({ child, occasion, item, submit }: { child: Child; occasion: Occasion; item?: WishlistItem; submit: string }) {
   return (
-    <Form action={saveItem} submit={submit}>
+    <Form action={saveItem} submit={submit} says={{ field: "title", added: !item }} again={!item}>
       <input type="hidden" name="childId" value={child.id} />
       <input type="hidden" name="occasion" value={occasion} />
       {item && <input type="hidden" name="itemId" value={item.id} />}
@@ -113,39 +106,11 @@ export function ArchiveSection({ groups }: { groups: ArchiveGroup[] }) {
         Arkiv
       </Heading>
       <ul className="space-y-2">
-        {groups.map((group) => {
-          const panel = `arkiv-${group.key}`;
-          return (
-            <li key={group.key}>
-              <SlimCard
-                title={group.name}
-                actions={
-                  // Pilen pekar upp när gruppen är öppen
-                  <span className="contents [&_[aria-expanded=true]_svg]:rotate-180">
-                    <FoldToggle id={panel} label={`Visa ${group.name}`}>
-                      <ChevronDownIcon />
-                    </FoldToggle>
-                  </span>
-                }
-              >
-                <FoldPanel id={panel}>
-                  <ul className="space-y-2">
-                    {group.items.map((item) => (
-                      <li key={item.id}>
-                        <SlimCard
-                          level={4}
-                          title={item.title}
-                          note={item.claimedBy ? `Paxad av ${item.claimedBy}` : item.unlimited ? "Obegränsad" : undefined}
-                          actions={<CopyItem itemId={item.id} title={item.title} />}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </FoldPanel>
-              </SlimCard>
-            </li>
-          );
-        })}
+        {groups.map((group) => (
+          <li key={group.key}>
+            <ArchiveGroupCard group={group} />
+          </li>
+        ))}
       </ul>
     </Card>
   );

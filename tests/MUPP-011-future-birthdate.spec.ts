@@ -1,8 +1,8 @@
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { dayAndMonth, swedishToday } from "../lib/deck";
 import { latestBirthdate } from "../lib/form-input";
 import { addParent, clearFamily } from "./family-db";
-import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, openCard, runsLocally, uniqueName } from "./helpers";
 import { testIp } from "./site-session";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
@@ -21,12 +21,6 @@ test.beforeEach(async ({ page }) => {
 });
 test.afterEach(clearFamily);
 
-async function opened(scope: Locator, name: string) {
-  const toggle = scope.getByRole("button", { name });
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
-  return scope;
-}
-
 test("MUPP-011-R1 R2 R4 MUPP-020-R2 an expected child is added, listed and shown as expected; a date too far ahead is refused", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
@@ -36,7 +30,7 @@ test("MUPP-011-R1 R2 R4 MUPP-020-R2 an expected child is added, listed and shown
   const kids = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Barn", exact: true }) });
 
   // R1: the date field's limit is the server's, and a date after it is refused
-  const form = await opened(kids, "Nytt barn");
+  const form = await openCard(kids, "Nytt barn");
   await expect(form.getByLabel("Födelsedatum")).toHaveAttribute("max", latestBirthdate());
   const name = uniqueName("Väntad");
   await form.getByLabel("Namn").fill(name);
@@ -52,7 +46,7 @@ test("MUPP-011-R1 R2 R4 MUPP-020-R2 an expected child is added, listed and shown
 
   // R4: the list says expected
   const row = kids.getByRole("article").filter({ hasText: name });
-  await opened(row, "Ändra");
+  await openCard(row, "Ändra");
   await expect(row).toContainText(`Beräknad ${isoDate(due)}`);
   await expectNoA11yViolations(page);
 

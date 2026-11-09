@@ -10,7 +10,8 @@ const FADE_AFTER = 0.4;
 // Så snabbt tonar innehållet i kopian bort, så att bara ytan skalas ihop (MUPP-037)
 const CONTENT_FADE_MS = 100;
 
-const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Med minskad rörelse görs ingenting alls; också Dialog.tsx frågar
+export const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const radiusOf = (el: Element) => getComputedStyle(el).borderTopLeftRadius;
 // Utsnittet av `box` som motsvarar `part`
 const inset = (box: DOMRect, part: DOMRect, radius: string) =>
@@ -41,6 +42,12 @@ export function growScale(list: HTMLElement | null, from: Origin) {
     ],
     { duration: OPEN_MS, easing: EASE },
   );
+}
+
+// Ett kort utan knapp att växa ur (MUPP-045-R1) tonar bara in
+export function growFade(card: HTMLElement | null) {
+  if (!card || calm()) return;
+  card.animate({ opacity: [0, 1] }, { duration: OPEN_MS, easing: EASE });
 }
 
 // När listan stängs är det riktiga elementet borta direkt (fokus och läge är som vanligt); det som rör sig är en kopia som
@@ -98,4 +105,9 @@ export function shrinkTo(button: HTMLElement | null) {
   if (!button) return remove(copy);
   copy.style.transformOrigin = "top left";
   play(copy, onto(copy.getBoundingClientRect(), button.getBoundingClientRect()));
+}
+
+// Kortet utan knapp att krympa till tonar bara bort
+export function fadeAway() {
+  if (ghost) play(ghost, "none");
 }

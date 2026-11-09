@@ -1,5 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
+import { expect, test } from "@playwright/test";
+import { expectNoA11yViolations, runsLocally, signInSanta as signIn } from "./helpers";
 import { addSantaFamily, addSantaMember, addSantaWish, clearSanta, joinSantaFamily, santaWishes } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -15,16 +15,6 @@ test.beforeEach(async ({ page }) => {
   await clearSanta();
 });
 test.afterEach(clearSanta);
-
-async function signIn(page: Page, family: string, name: string, phone: string) {
-  await goto(page, "/secret-santa");
-  const familyLink = page.getByRole("link", { name: family, exact: true });
-  if (await familyLink.count()) await familyLink.click();
-  await page.getByRole("link", { name, exact: true }).click();
-  await page.getByLabel("Ditt telefonnummer").fill(phone);
-  await page.getByRole("button", { name: "Logga in" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: `Hej ${name}!` })).toBeVisible();
-}
 
 async function twoMembers() {
   const family = await addSantaFamily("Familjen Test");
@@ -59,6 +49,9 @@ test("MUPP-040-R1 a wish is added with a title; a link must be http(s) and the l
   await form.getByLabel("Storlek").fill("M");
   await form.getByLabel("Beskrivning").fill("En <b>spännande</b> bok");
   await form.getByRole("button", { name: "Lägg till" }).click();
+  // A new wish keeps its card open (MUPP-045-R6); closing it shows the list
+  await expect(page.getByRole("status").filter({ hasText: "Bok lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("heading", { level: 3, name: "Bok" })).toBeVisible();
   expect(await santaWishes(anna)).toEqual([{ title: "Bok", size: "M", description: "En <b>spännande</b> bok", url: "https://exempel.invalid/bok" }]);
   // Nothing to claim, and no "unlimited"
@@ -124,6 +117,8 @@ test("MUPP-040-R3 a person in two families has a separate list in each", async (
   await there.getByRole("button", { name: "Ny önskning" }).click();
   await there.getByLabel("Namn").fill("Hos Annan");
   await there.getByRole("button", { name: "Lägg till" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Hos Annan lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(there.getByRole("heading", { level: 3, name: "Hos Annan" })).toBeVisible();
   await expect(here.getByRole("heading", { level: 3, name: "Hos Annan" })).toHaveCount(0);
   expect((await santaWishes(annaThere)).map((w) => w.title)).toEqual(["Hos Annan"]);
