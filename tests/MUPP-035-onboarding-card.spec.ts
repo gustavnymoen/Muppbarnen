@@ -1,18 +1,6 @@
-import { readFileSync } from "node:fs";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto } from "./helpers";
-import { newVisitor, siteSessionFile, testIp } from "./site-session";
-
-// En besökare som är inloggad med sajtlösenordet men inte har sett rutan (saknar onboarding-kakan). Inloggningen anges
-// som storageState, annars ärver sammanhanget testernas sparade inloggning med kakan.
-async function newcomer(browser: Browser, baseURL: string | undefined) {
-  const { cookies } = JSON.parse(readFileSync(siteSessionFile, "utf8"));
-  return browser.newContext({
-    baseURL,
-    extraHTTPHeaders: { "x-real-ip": testIp() },
-    storageState: { cookies: cookies.filter((c: { name: string }) => !c.name.endsWith("onboarding")), origins: [] },
-  });
-}
+import { newcomer, newVisitor } from "./site-session";
 
 test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 the dialog opens by itself once, has two tabs with the texts, closes with OK and is opened again from the menu", async ({ browser, baseURL }) => {
   const context = await newcomer(browser, baseURL);

@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Heading } from "./Page";
 
-// Ett smalt kort i adminen (MUPP-010-R1): en rad med miniatyr, namn och ikonknappar. Det som fälls
-// ut (FoldPanel) kommer som children, under raden. Raden är cirka 50 px hög.
+// Ett smalt kort i adminen (MUPP-010-R1): en rad med miniatyr, namn och ikonknappar. Mer innehåll (en lista, en utfälld grupp)
+// kommer som children, under raden. Raden är cirka 50 px hög.
 export function SlimCard({
   thumb,
   title,

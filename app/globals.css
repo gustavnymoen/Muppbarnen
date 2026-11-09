@@ -62,6 +62,13 @@ body {
    till dialogens första knapp och till rutan som får fokus när dialogen stängs (MUPP-032, tidigare MUPP-022) */
 html[data-pointer] :focus-visible { outline: none; }
 
+/* Kort och rutor (Dialog.tsx, MUPP-045): bakgrunden tonar in som kortet växer, och sidan bakom står still medan ett kort är öppet */
+dialog:modal::backdrop { animation: fade-in 300ms var(--ease-out-soft) both; }
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+body:has(dialog:modal) main { overflow: hidden; }
+
 /* Kort som tonar in: bara transform och opacity, högst 300 ms */
 @keyframes enter {
   from { opacity: 0; transform: translateY(8px); }
@@ -79,7 +86,7 @@ html[data-pointer] :focus-visible { outline: none; }
 .press:active:not(:disabled) { transform: translate(2px, 3px); box-shadow: var(--shadow-card-pressed); }
 
 @media (prefers-reduced-motion: reduce) {
-  .enter { animation: none; }
+  .enter, dialog:modal::backdrop { animation: none; }
   .press { transition: background-color 120ms, border-color 120ms; }
   .press:active:not(:disabled) { transform: none; filter: brightness(0.85); }
 }

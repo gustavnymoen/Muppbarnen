@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition, type ComponentProps, type CSSProperties, type FormEvent, type Ref } from "react";
+import { useEffect, useId, useRef, useState, useTransition, type ComponentProps, type CSSProperties, type FormEvent, type Ref, type RefObject } from "react";
 import { claimWishes, unclaimWish } from "@/app/actions";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
 import { canClaim, canUnclaim, isLongTitle, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
-import { Dialog } from "./Dialog";
+import { Dialog, type DialogHandle } from "./Dialog";
 import { ChevronDownIcon, ChevronUpIcon, CrossIcon, InfoIcon, UndoIcon } from "./icons";
 
 // Knappen som öppnar en önskelista (utseende i globals.css): önskelistan är det viktigaste på sajten, så den är en tydlig knapp
@@ -73,13 +73,13 @@ export function WishList({
 function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; solo: boolean; onToggle: () => void }) {
   const [marked, setMarked] = useState<number[]>([]);
   const [notice, setNotice] = useState("");
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useRef<DialogHandle>(null);
   const [unclaiming, setUnclaiming] = useState<Wish | null>(null);
-  const unclaimDialog = useRef<HTMLDialogElement>(null);
+  const unclaimDialog = useRef<DialogHandle>(null);
 
   const toggle = (wishId: number) => setMarked((ids) => (ids.includes(wishId) ? ids.filter((i) => i !== wishId) : [...ids, wishId]));
   // Knappen som öppnade fönstret har försvunnit, så fokus går till knappen som fäller ihop listan
-  const done = (message: string, closing: HTMLDialogElement | null) => {
+  const done = (message: string, closing: DialogHandle | null) => {
     setNotice(message);
     closing?.close();
     document.getElementById(`${id}-knapp`)?.focus();
@@ -88,9 +88,9 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
     setMarked([]);
     done(message, dialog.current);
   };
-  const unclaim = (wish: Wish) => {
+  const unclaim = (wish: Wish, button: HTMLElement) => {
     setUnclaiming(wish);
-    unclaimDialog.current?.showModal();
+    unclaimDialog.current?.open(button);
   };
 
   return (
@@ -103,7 +103,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
         ) : (
           <ul className="divide-y divide-edge">
             {wishes.map((wish) => (
-              <WishRow key={wish.id} wish={wish} marked={marked.includes(wish.id)} onMark={() => toggle(wish.id)} onUnclaim={() => unclaim(wish)} />
+              <WishRow key={wish.id} wish={wish} marked={marked.includes(wish.id)} onMark={() => toggle(wish.id)} onUnclaim={(button) => unclaim(wish, button)} />
             ))}
           </ul>
         )}
@@ -116,7 +116,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
       {/* Paxa ligger fast under raderna, ovanför knappen, så att den syns direkt även när man kryssar högst upp i en lång lista (MUPP-028-R3) */}
       {marked.length > 0 && (
         <div className="flex justify-center pt-2">
-          <Button onClick={() => dialog.current?.showModal()} className="text-sm">
+          <Button onClick={(event) => dialog.current?.open(event.currentTarget)} className="text-sm">
             Paxa ({marked.length})
           </Button>
         </div>
@@ -183,7 +183,7 @@ function InfoBubble({ children }: { children: string }) {
 
 // En rad: rubriken med märken, en kryssruta om den går att paxa eller en ångra-pil om den är paxad (MUPP-006-R1),
 // och detaljerna när raden är utfälld (MUPP-005-R1–R3)
-function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: boolean; onMark: () => void; onUnclaim: () => void }) {
+function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: boolean; onMark: () => void; onUnclaim: (button: HTMLElement) => void }) {
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const link = webLink(wish.url);
@@ -197,7 +197,7 @@ function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: bool
           </label>
         )}
         {canUnclaim(wish) && (
-          <IconButton frameless label={`Ta bort paxningen på ${wish.title}`} onClick={onUnclaim} className="shrink-0">
+          <IconButton frameless label={`Ta bort paxningen på ${wish.title}`} onClick={(event) => onUnclaim(event.currentTarget)} className="shrink-0">
             <span className="text-claimed">
               <UndoIcon />
             </span>
@@ -236,10 +236,9 @@ function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: bool
   );
 }
 
-// Fönstret där besökaren skriver sitt namn och paxar de markerade presenterna (MUPP-005-R4, -R5).
-// Fokus hamnar i namnfältet för att det är det första som går att fokusera i fönstret när showModal() körs.
-// <dialog> med showModal() håller tangentbordet kvar i fönstret, stängs med Esc och ger fokus tillbaka till knappen.
-function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wishes: Wish[]; onDone: (message: string) => void }) {
+// Fönstret där besökaren skriver sitt namn och paxar de markerade presenterna (MUPP-005-R4, -R5): ett formulärkort (MUPP-045) med kryss,
+// fokus i namnfältet och Enter som skickar. Det växer ur "Paxa"-knappen och går tillbaka dit när det stängs.
+function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<DialogHandle>; wishes: Wish[]; onDone: (message: string) => void }) {
   const id = useId();
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
@@ -259,11 +258,8 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wis
   };
 
   return (
-    <Dialog ref={ref} aria-labelledby={`${id}-titel`} aria-describedby={`${id}-text`} onClose={() => setError("")}>
+    <Dialog ref={ref} form title={plural ? "Paxa presenterna" : "Paxa presenten"} aria-describedby={`${id}-text`} onClose={() => setError("")}>
       <form onSubmit={submit} noValidate className="space-y-4">
-        <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
-          {plural ? "Paxa presenterna" : "Paxa presenten"}
-        </h2>
         <ul className="list-inside list-disc wrap-anywhere">
           {wishes.map((wish) => (
             <li key={wish.id}>{wish.title}</li>
@@ -283,14 +279,9 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wis
             {error}
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
-            Avbryt
-          </Button>
-          <Button type="submit" disabled={pending}>
-            Paxa
-          </Button>
-        </div>
+        <Button type="submit" disabled={pending}>
+          Paxa
+        </Button>
       </form>
     </Dialog>
   );
@@ -298,7 +289,7 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<HTMLDialogElement>; wis
 
 // Frågan innan en paxning tas bort (MUPP-006). Fokus börjar på "Avbryt", så att Enter inte råkar ta bort den (som i ConfirmAction).
 // wish är null tills fönstret öppnats första gången.
-function UnclaimDialog({ ref, wish, onDone }: { ref: Ref<HTMLDialogElement>; wish: Wish | null; onDone: (message: string) => void }) {
+function UnclaimDialog({ ref, wish, onDone }: { ref: RefObject<DialogHandle | null>; wish: Wish | null; onDone: (message: string) => void }) {
   const id = useId();
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
@@ -315,11 +306,8 @@ function UnclaimDialog({ ref, wish, onDone }: { ref: Ref<HTMLDialogElement>; wis
   };
 
   return (
-    <Dialog ref={ref} role="alertdialog" aria-labelledby={`${id}-titel`} aria-describedby={`${id}-text`} onClose={() => setError("")}>
+    <Dialog ref={ref} role="alertdialog" title="Ta bort paxningen" aria-describedby={`${id}-text`} onClose={() => setError("")}>
       <div className="space-y-4">
-        <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
-          Ta bort paxningen
-        </h2>
         <div id={`${id}-text`} className="space-y-2">
           <p className="wrap-anywhere">
             <span className="font-semibold">{wish?.title}</span> är paxad av {wish?.claimedBy}.
@@ -330,7 +318,7 @@ function UnclaimDialog({ ref, wish, onDone }: { ref: Ref<HTMLDialogElement>; wis
           {error}
         </p>
         <div className="flex flex-wrap gap-3">
-          <Button variant="secondary" onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
+          <Button variant="secondary" onClick={() => ref.current?.close()}>
             Avbryt
           </Button>
           <Button onClick={confirm} disabled={pending}>

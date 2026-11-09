@@ -2,7 +2,7 @@
 
 import { useActionState, useId, useRef } from "react";
 import { Button, IconButton } from "@/app/components/Button";
-import { Dialog } from "@/app/components/Dialog";
+import { Dialog, type DialogHandle } from "@/app/components/Dialog";
 import type { FormState } from "@/app/components/form-state";
 import { PlusIcon } from "@/app/components/icons";
 import { copyArchivedItem } from "../../actions";
@@ -11,7 +11,7 @@ import { copyArchivedItem } from "../../actions";
 // som trycks (name="occasion"). Dialogen stängs när kopian är sparad, och fokus går då tillbaka till "+".
 export function CopyItem({ itemId, title }: { itemId: number; title: string }) {
   const id = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useRef<DialogHandle>(null);
   // Stängs här och inte i en effekt: svaret "sparat" är samma objekt varje gång, så en effekt skulle bara se första kopian
   const [state, formAction, pending] = useActionState(async (previous: FormState, formData: FormData) => {
     const result = await copyArchivedItem(previous, formData);
@@ -21,15 +21,12 @@ export function CopyItem({ itemId, title }: { itemId: number; title: string }) {
 
   return (
     <>
-      <IconButton compact label={`Lägg till ${title} igen`} onClick={() => dialog.current?.showModal()}>
+      <IconButton compact label={`Lägg till ${title} igen`} onClick={(event) => dialog.current?.open(event.currentTarget)}>
         <PlusIcon />
       </IconButton>
-      <Dialog ref={dialog} aria-labelledby={`${id}-titel`} aria-describedby={`${id}-text`}>
+      <Dialog ref={dialog} title={`Lägg till ”${title}” igen`} aria-describedby={`${id}-text`}>
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="itemId" value={itemId} />
-          <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold">
-            Lägg till ”{title}” igen
-          </h2>
           <p id={`${id}-text`}>Vilken lista ska önskningen läggas i?</p>
           <p role="alert" className="text-danger">
             {state?.error}

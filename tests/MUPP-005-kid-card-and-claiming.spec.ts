@@ -134,13 +134,14 @@ test("MUPP-005-R1 R2 R3 R4 R5 the rows and marking rows, then claiming: the dial
   await expect(name).toHaveAttribute("aria-invalid", "true");
   expect(await claimedByOf("Cykel")).toBeNull();
 
-  // R4: Escape closes it without claiming and the focus goes back to "Paxa"; so does "Avbryt"
+  // R4: Escape closes it without claiming and the focus goes back to "Paxa"; so does the cross (MUPP-045-R3, which took the place of "Avbryt")
   await page.keyboard.press("Escape");
   await expect(dialog(page)).toHaveCount(0);
   await expect(claimButton(page)).toBeFocused();
   await claimButton(page).click();
   await expect(dialog(page).getByRole("alert")).toHaveText("");
-  await dialog(page).getByRole("button", { name: "Avbryt" }).click();
+  await expect(dialog(page).getByRole("button", { name: "Avbryt" })).toHaveCount(0);
+  await dialog(page).getByRole("button", { name: "Stäng" }).click();
   await expect(dialog(page)).toHaveCount(0);
   await expect(claimButton(page)).toBeFocused();
   expect(await claimedByOf("Cykel")).toBeNull();

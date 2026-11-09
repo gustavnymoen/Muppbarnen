@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import { Avatar } from "@/app/components/Avatar";
 import { IconLink, LinkButton } from "@/app/components/Button";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
-import { FoldButton, FoldGroup, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Field, Form } from "@/app/components/Form";
+import { FormCard } from "@/app/components/FormCard";
 import { ImageIcon, ChecklistIcon, PencilIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -36,8 +36,7 @@ async function ManageContent() {
   return (
     <Page>
       <PageContent>
-        <FoldGroup>
-          <div className="max-w-2xl space-y-5">
+        <div className="max-w-2xl space-y-5">
             <LinkButton href="/admin">Till barnen</LinkButton>
             <Heading level={1} small>
               Hantera
@@ -53,12 +52,9 @@ async function ManageContent() {
                   </li>
                 ))}
               </ul>
-              <FoldButton id="ny-forälder" label="Ny förälder">
-                Ny förälder
-              </FoldButton>
-              <FoldPanel id="ny-forälder">
+              <FormCard title="Ny förälder" label="Ny förälder" text="Ny förälder">
                 <ParentForm submit="Lägg till" />
-              </FoldPanel>
+              </FormCard>
             </section>
             <section className="space-y-3">
               <Heading level={2} small>
@@ -72,31 +68,26 @@ async function ManageContent() {
                   </li>
                 ))}
               </ul>
-              <FoldButton id="nytt-barn" label="Nytt barn">
-                Nytt barn
-              </FoldButton>
-              <FoldPanel id="nytt-barn">
+              <FormCard title="Nytt barn" label="Nytt barn" text="Nytt barn">
                 <ChildForm parents={parents} submit="Lägg till" />
-              </FoldPanel>
+              </FormCard>
             </section>
           </div>
-        </FoldGroup>
       </PageContent>
     </Page>
   );
 }
 
 function ParentRow({ parent }: { parent: Parent }) {
-  const edit = `forälder-${parent.id}`;
   return (
     <SlimCard
       title={parent.name}
       note={parent.isMasterAdmin ? "Huvudadministratör" : undefined}
       actions={
         <>
-          <FoldToggle id={edit} label={`Ändra ${parent.name}`}>
-            <PencilIcon />
-          </FoldToggle>
+          <FormCard title={`Ändra ${parent.name}`} label={`Ändra ${parent.name}`} icon={<PencilIcon />}>
+            <ParentForm parent={parent} submit="Spara" />
+          </FormCard>
           <ConfirmAction
             action={removeParent}
             fields={{ parentId: String(parent.id) }}
@@ -107,17 +98,13 @@ function ParentRow({ parent }: { parent: Parent }) {
           />
         </>
       }
-    >
-      <FoldPanel id={edit}>
-        <ParentForm parent={parent} submit="Spara" />
-      </FoldPanel>
-    </SlimCard>
+    />
   );
 }
 
 function ParentForm({ parent, submit }: { parent?: Parent; submit: string }) {
   return (
-    <Form action={saveParent} submit={submit}>
+    <Form action={saveParent} submit={submit} says={{ field: "name", added: !parent }}>
       {parent && <input type="hidden" name="parentId" value={parent.id} />}
       <Field name="name" label="Namn" defaultValue={parent?.name} maxLength={60} required />
       <Field name="isMasterAdmin" type="checkbox" label="Huvudadministratör" defaultChecked={parent?.isMasterAdmin} hint="Får skapa och ändra föräldrar, barn och bilder." />
@@ -128,8 +115,6 @@ function ParentForm({ parent, submit }: { parent?: Parent; submit: string }) {
 function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
   const owner = parents.find((p) => p.id === child.parentId);
   const src = pictureUrl(child.id, child.picture);
-  const edit = `barn-${child.id}`;
-  const picture = `bild-${child.id}`;
   return (
     <SlimCard
       thumb={<Avatar name={child.name} color={childColor(child.id)} src={src} size={32} decorative />}
@@ -139,12 +124,20 @@ function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
           <IconLink compact href={`/admin/barn/${child.id}/onskelistor`} label={`Önskelistor för ${child.name}`}>
             <ChecklistIcon />
           </IconLink>
-          <FoldToggle id={edit} label={`Ändra ${child.name}`}>
-            <PencilIcon />
-          </FoldToggle>
-          <FoldToggle id={picture} label={`Bild för ${child.name}`}>
-            <ImageIcon />
-          </FoldToggle>
+          <FormCard title={`Ändra ${child.name}`} label={`Ändra ${child.name}`} icon={<PencilIcon />}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Avatar name={child.name} color={childColor(child.id)} src={src} decorative />
+                <p className="text-muted">
+                  {isExpected(child.birthdate) ? "Beräknad" : "Född"} {child.birthdate}, förälder: {owner?.name}
+                </p>
+              </div>
+              <ChildForm child={child} parents={parents} submit="Spara" />
+            </div>
+          </FormCard>
+          <FormCard title={`Bild för ${child.name}`} label={`Bild för ${child.name}`} icon={<ImageIcon />}>
+            <PictureCard child={child} src={src} />
+          </FormCard>
           <ConfirmAction
             action={removeChild}
             fields={{ childId: String(child.id) }}
@@ -155,43 +148,39 @@ function ChildRow({ child, parents }: { child: Child; parents: Parent[] }) {
           />
         </>
       }
-    >
-      <FoldPanel id={edit}>
+    />
+  );
+}
+
+// Barnets bild: den som finns (med knapp för att ta bort den) och ett fält för en ny
+function PictureCard({ child, src }: { child: Child; src?: string }) {
+  return (
+    <div className="space-y-4">
+      {src && (
         <div className="flex items-center gap-3">
-          <Avatar name={child.name} color={childColor(child.id)} src={src} decorative />
-          <p className="text-muted">
-            {isExpected(child.birthdate) ? "Beräknad" : "Född"} {child.birthdate}, förälder: {owner?.name}
-          </p>
+          <Avatar name={child.name} color={childColor(child.id)} src={src} size={32} decorative />
+          <span className="flex-1">Bild</span>
+          <ConfirmAction
+            action={removeChildPicture}
+            fields={{ childId: String(child.id) }}
+            label="Ta bort"
+            subject={`bilden för ${child.name}`}
+            title={`Ta bort bilden för ${child.name}?`}
+            text={`Bilden för ${child.name} tas bort och ${child.name} visas med sin initial i stället. Det går inte att ångra.`}
+          />
         </div>
-        <ChildForm child={child} parents={parents} submit="Spara" />
-      </FoldPanel>
-      <FoldPanel id={picture}>
-        {src && (
-          <div className="flex items-center gap-3">
-            <Avatar name={child.name} color={childColor(child.id)} src={src} size={32} decorative />
-            <span className="flex-1">Bild</span>
-            <ConfirmAction
-              action={removeChildPicture}
-              fields={{ childId: String(child.id) }}
-              label="Ta bort"
-              subject={`bilden för ${child.name}`}
-              title={`Ta bort bilden för ${child.name}?`}
-              text={`Bilden för ${child.name} tas bort och ${child.name} visas med sin initial i stället. Det går inte att ångra.`}
-            />
-          </div>
-        )}
-        <Form action={saveChildPicture} submit="Spara bild">
-          <input type="hidden" name="childId" value={child.id} />
-          <Field name="picture" type="file" label="Bild" accept="image/jpeg,image/png,image/webp" hint="JPEG, PNG eller WebP, högst 4 MB." required />
-        </Form>
-      </FoldPanel>
-    </SlimCard>
+      )}
+      <Form action={saveChildPicture} submit="Spara bild" says={`Bilden för ${child.name} sparades`}>
+        <input type="hidden" name="childId" value={child.id} />
+        <Field name="picture" type="file" label="Bild" accept="image/jpeg,image/png,image/webp" hint="JPEG, PNG eller WebP, högst 4 MB." required />
+      </Form>
+    </div>
   );
 }
 
 function ChildForm({ child, parents, submit }: { child?: Child; parents: Parent[]; submit: string }) {
   return (
-    <Form action={saveChild} submit={submit}>
+    <Form action={saveChild} submit={submit} says={{ field: "name", added: !child }}>
       {child && <input type="hidden" name="childId" value={child.id} />}
       <Field name="name" label="Namn" defaultValue={child?.name} maxLength={60} required />
       <Field name="birthdate" type="date" label="Födelsedatum" defaultValue={child?.birthdate} max={latestBirthdate()} required />

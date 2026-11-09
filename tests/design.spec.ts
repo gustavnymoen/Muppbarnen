@@ -10,6 +10,37 @@ import { newVisitor } from "./site-session";
 
 const hasHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 
+// A form card that is open (MUPP-045-R3 R4): on a phone it sits at the top with a margin and not in the middle, inside the screen, and the cross beside the title is a
+// 44 px target with the 3 px ring (at least 3:1 against the card); at 200 % zoom (a window half as wide and high) the card scrolls inside itself
+async function expectFormCardLooks(page: Page, dialog: Locator) {
+  const cross = dialog.getByRole("button", { name: "Stäng" });
+  const title = dialog.getByRole("heading", { level: 2 });
+  for (const [width, height] of [[375, 667], [320, 568]]) {
+    await page.setViewportSize({ width, height });
+    const [box, crossBox, titleBox] = [await settledBox(dialog), await settledBox(cross), await settledBox(title)];
+    expect(box.x, `card at ${width}`).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width, `card at ${width}`).toBeLessThanOrEqual(width);
+    expect(box.y, `card at ${width}`).toBeGreaterThanOrEqual(8);
+    expect(box.y, `card at ${width}`).toBeLessThanOrEqual(24);
+    expect(box.y + box.height, `card at ${width}`).toBeLessThanOrEqual(height);
+    expect(await hasHorizontalScroll(page), `page at ${width}`).toBe(false);
+    expect(crossBox.width).toBeGreaterThanOrEqual(44);
+    expect(crossBox.height).toBeGreaterThanOrEqual(44);
+    expect(titleBox.x + titleBox.width, `title at ${width}`).toBeLessThanOrEqual(crossBox.x + 0.5);
+    expect(crossBox.x + crossBox.width, `cross at ${width}`).toBeLessThanOrEqual(box.x + box.width + 0.5);
+  }
+  // focus() alone does not show :focus-visible, so a key goes first
+  await cross.focus();
+  await page.keyboard.press("Shift");
+  await expect(cross).toHaveCSS("outline-width", "3px");
+  expect(contrast(BRAND, CARD)).toBeGreaterThanOrEqual(3);
+  await page.setViewportSize({ width: 188, height: 334 });
+  const zoomed = await settledBox(dialog);
+  expect(zoomed.y + zoomed.height).toBeLessThanOrEqual(334);
+  expect(await dialog.evaluate((el) => getComputedStyle(el).overflowY === "auto" && el.scrollHeight > el.clientHeight)).toBe(true);
+  await page.setViewportSize({ width: 375, height: 667 });
+}
+
 test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone, then on a desktop: fonts, cards, controls, shell, the wide centred frame and a11y", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const hosts = new Set<string>();
@@ -293,16 +324,10 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     const wrong = page.getByRole("alert").filter({ hasText: "Fel lösenord." });
     await expectTextMessage(wrong, DANGER);
 
-    // The sizes page: a card with an edge; the wish list page: "Ny önskning" looks like the secondary button
+    // The wish list page: "Ny önskning" looks like the secondary button
     await adminSignIn(page, mia);
-    await page.getByRole("link", { name: `Storlekar för ${kid}` }).click();
-    await page.evaluate(() => document.fonts.ready);
-    const sizes = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Storlekar" }) });
-    await animationsDone(sizes);
-    await expect(sizes).toHaveCSS("border-top-color", EDGE);
-    await expect(sizes).toHaveCSS("background-color", CARD);
-    await page.goBack();
     await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
+    await page.evaluate(() => document.fonts.ready);
     const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
     const open = birthday.getByRole("button", { name: "Ny önskning" });
     await expect(open).toHaveCSS("background-color", CARD);
@@ -311,10 +336,24 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     await open.focus();
     await expect(open).toHaveCSS("outline-width", "3px");
 
-    // MUPP-010-R2 R6: a slim row is about one line high, its icon buttons are 32 px, look like the secondary button, and are equally high side by side
+    // MUPP-045-R3 R4 R6: the form card is a card on a dark backdrop, at the top of a phone, with a cross, and the confirmation is small muted readable text
     await open.click();
-    await birthday.getByLabel("Namn").fill("Pussel");
-    await birthday.getByRole("button", { name: "Lägg till" }).click();
+    const form = page.locator("dialog[open]");
+    await animationsDone(form);
+    await expect(form).toHaveCSS("background-color", CARD);
+    await expect(form).toHaveCSS("border-top-color", EDGE);
+    expect(await css(form, "background-color", "::backdrop")).toMatch(/^(rgba\(0, 0, 0, 0\.7\)|color\(srgb 0 0 0 \/ 0\.7\)|oklab\(0 0 0 \/ 0\.7\))$/);
+    await expectFormCardLooks(page, form);
+    await form.getByLabel("Namn").fill("Pussel");
+    await form.getByRole("button", { name: "Lägg till" }).click();
+    const confirmation = form.getByRole("status");
+    await expect(confirmation).toHaveText("Pussel lades till");
+    await animationsDone(confirmation);
+    expect(contrast(await css(confirmation, "color"), CARD)).toBeGreaterThanOrEqual(4.5);
+    expect(parseFloat(await css(confirmation, "font-size"))).toBeLessThan(parseFloat(await css(page.locator("body"), "font-size")));
+    await page.keyboard.press("Escape");
+
+    // MUPP-010-R2 R6: a slim row is about one line high, its icon buttons are 32 px, look like the secondary button, and are equally high side by side
     const row = birthday.getByRole("article").filter({ hasText: "Pussel" });
     expect((await settledBox(row)).height).toBeLessThanOrEqual(56);
     await expect(row).toHaveCSS("border-top-color", EDGE);
@@ -446,7 +485,7 @@ test("TECH-006-R4 the admin start shows a short text by the icons from 640 px an
     // Phone: only the icons, 32 px each
     await page.setViewportSize({ width: 375, height: 667 });
     await adminSignIn(page, chef);
-    const sizes = page.getByRole("link", { name: `Storlekar för ${kid}` });
+    const sizes = page.getByRole("button", { name: `Storlekar för ${kid}` });
     const wishes = page.getByRole("link", { name: `Önskelistor för ${kid}` });
     await expect(sizes.getByText("Storlekar", { exact: true })).toBeHidden();
     const phoneBox = await settledBox(sizes);
@@ -808,11 +847,13 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 MUPP-006-R1 R2 the wish
     await expect(name).toHaveCSS("outline-width", "3px");
     await expect(name).toHaveCSS("outline-color", BRAND);
     expect((await target(name)).height).toBeGreaterThanOrEqual(44);
-    for (const button of ["Avbryt", "Paxa"]) expect((await target(dialog.getByRole("button", { name: button }))).height).toBeGreaterThanOrEqual(44);
+    expect((await target(dialog.getByRole("button", { name: "Paxa" }))).height).toBeGreaterThanOrEqual(44);
     await dialog.getByRole("button", { name: "Paxa" }).click();
     await expectTextMessage(dialog.getByRole("alert"), DANGER);
     expect(contrast(DANGER, CARD)).toBeGreaterThanOrEqual(4.5);
     await expectNoA11yViolations(page);
+    // MUPP-045-R3 R4: the claim window is a form card, at the top with a cross
+    await expectFormCardLooks(page, dialog);
     await page.keyboard.press("Escape");
 
     // MUPP-006-R1: the undo arrow on the claimed row is frameless like the info button, in the checkbox column, orange and readable
@@ -1155,7 +1196,7 @@ test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar sajten on the narrowest phon
   await page.getByRole("button", { name: "Så funkar sajten" }).click();
   const dialog = page.getByRole("dialog", { name: "Så funkar sajten" });
   await expect(dialog).toBeVisible();
-  const box = (await dialog.boundingBox())!;
+  const box = await settledBox(dialog);
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(320);
   expect(box.y).toBeGreaterThanOrEqual(0);

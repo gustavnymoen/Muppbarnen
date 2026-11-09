@@ -20,23 +20,18 @@ test.afterEach(clearFamily);
 
 // The slim card of a kid or a parent on the Hantera page, found by its name
 const card = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
-const expanded = (button: Locator) => button.getAttribute("aria-expanded");
 
-// Samma sida i båda (TECH-018): först det hopfällda utseendet, sedan öppnandet, som ändrar det
-test("MUPP-010-R1 R2 R3 R6 Hantera starts folded: two headings, slim cards, and icon buttons that are named, have a tooltip and are at least 32 px; then a card unfolds with its form, one panel is open at a time, Esc and saving fold it, a mistake keeps it open", async ({ page }) => {
+test("MUPP-010-R1 R2 R6 Hantera starts with every card closed: two headings, slim cards, and icon buttons that are named, have a tooltip and are at least 32 px", async ({ page }) => {
   // Short names, as real ones are: a long name wraps and makes the card higher
   const chef = "Ada";
   const chefId = await addParent(chef, true);
   const kid = "Otis";
   await addChild(chefId, kid);
-  const [first, second] = [uniqueName("Ett"), uniqueName("Två")];
-  await addChild(chefId, first, "2019-03-09");
-  await addChild(chefId, second);
   await page.setViewportSize({ width: 375, height: 667 });
   await adminSignIn(page, chef);
   await goto(page, "/admin/hantera");
 
-  // R1: the headings, one slim card per parent and kid, nothing unfolded, no form field in sight
+  // R1: the headings, one slim card per parent and kid, no card open, no form field in sight
   await expect(page.getByRole("heading", { level: 2, name: "Föräldrar" })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "Barn" })).toBeVisible();
   const parentCard = card(page, chef);
@@ -44,10 +39,8 @@ test("MUPP-010-R1 R2 R3 R6 Hantera starts folded: two headings, slim cards, and 
   await expect(parentCard).toContainText("Huvudadministratör");
   await expect(kidCard.getByRole("img")).toHaveCount(0);
   await expect(page.locator("main input:visible, main select:visible, main textarea:visible")).toHaveCount(0);
-  for (const toggle of [kidCard.getByRole("button", { name: `Ändra ${kid}` }), kidCard.getByRole("button", { name: `Bild för ${kid}` }), parentCard.getByRole("button", { name: `Ändra ${chef}` })]) {
-    expect(await expanded(toggle)).toBe("false");
-  }
-  // R6: a folded card is about one line high
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
+  // R6: a slim card is about one line high
   for (const slim of [parentCard, kidCard]) expect((await settledBox(slim)).height).toBeLessThanOrEqual(56);
 
   // R2: the icons have an accessible name and the same text as a tooltip, are at least 32 × 32 px and do not touch
@@ -72,50 +65,6 @@ test("MUPP-010-R1 R2 R3 R6 Hantera starts folded: two headings, slim cards, and 
   // The buttons that open a form keep their text
   for (const name of ["Ny förälder", "Nytt barn"]) await expect(page.getByRole("button", { name })).toHaveText(name);
   await expectNoA11yViolations(page);
-
-  // R1 R3: a card unfolds with its form
-  const [one, two] = [card(page, first), card(page, second)];
-  const pencil = one.getByRole("button", { name: `Ändra ${first}` });
-
-  // R1: unfolded, the information beside the picture and the form below; only the buttons are icons
-  await pencil.click();
-  expect(await expanded(pencil)).toBe("true");
-  await expect(one).toContainText(`Född 2019-03-09, förälder: ${chef}`);
-  await expect(one.getByLabel("Namn")).toHaveValue(first);
-  await expectNoA11yViolations(page);
-
-  // R3: opening the other card, the picture panel and a "new" form each fold the one before
-  await two.getByRole("button", { name: `Ändra ${second}` }).click();
-  expect(await expanded(pencil)).toBe("false");
-  await expect(one.getByLabel("Namn")).toHaveCount(0);
-  await two.getByRole("button", { name: `Bild för ${second}` }).click();
-  await expect(two.getByLabel("Namn")).toHaveCount(0);
-  await expect(two.getByLabel("Bild", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Ny förälder" }).click();
-  await expect(two.getByLabel("Bild", { exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "Nytt barn" }).click();
-  await expect(page.getByRole("button", { name: "Ny förälder" })).toHaveAttribute("aria-expanded", "false");
-  await expect(page.locator("main form:visible")).toHaveCount(1);
-
-  // R3: a form with a mistake stays open with its message next to the field; the same button folds it
-  await page.getByRole("button", { name: "Lägg till" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Fyll i det här fältet." }).first()).toBeVisible();
-  await expect(page.getByLabel("Namn")).toBeVisible();
-  await page.getByRole("button", { name: "Nytt barn" }).click();
-  await expect(page.locator("main form:visible")).toHaveCount(0);
-
-  // R3: Esc folds the panel and gives focus back to the button; a saved form folds too
-  await pencil.click();
-  await one.getByLabel("Namn").focus();
-  await page.keyboard.press("Escape");
-  await expect(one.getByLabel("Namn")).toHaveCount(0);
-  await expect(pencil).toBeFocused();
-  const renamed = uniqueName("Nytt namn");
-  await pencil.click();
-  await one.getByLabel("Namn").fill(renamed);
-  await one.getByRole("button", { name: "Spara" }).click();
-  await expect(card(page, renamed)).toBeVisible();
-  await expect(page.locator("main form:visible")).toHaveCount(0);
 });
 
 test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash can, and removed after a confirmation that names the kid", async ({ page }) => {
@@ -128,7 +77,7 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   const pictureButton = kidCard.getByRole("button", { name: `Bild för ${kid}` });
   const files = () => readdirSync(testPicturesDir).filter((f) => f.startsWith(`barn-${kidId}-`));
 
-  // No picture yet: the panel has only the file field
+  // No picture yet: the card has only the file field
   await pictureButton.click();
   await expect(kidCard.getByRole("button", { name: /^Ta bort bilden/ })).toHaveCount(0);
   await expectNoA11yViolations(page);
@@ -138,7 +87,7 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   await expect(kidCard.locator(`img[src^="/bilder/${kidId}?v="]`)).toBeVisible();
   expect(files()).toHaveLength(1);
 
-  // With a picture the panel has a row: a thumbnail, "Bild" and a trash can that names the kid
+  // With a picture the card has a row: a thumbnail, "Bild" and a trash can that names the kid
   await pictureButton.click();
   const remove = kidCard.getByRole("button", { name: `Ta bort bilden för ${kid}` });
   await expect(kidCard.locator("span", { hasText: /^Bild$/ })).toBeVisible();
@@ -165,21 +114,20 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   await expect(kidCard).toBeVisible();
 });
 
-test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page only the lists as slim folded rows", async ({ page }) => {
+test("MUPP-010-R1 R5 the wish list page has only the lists, as slim rows, and the kid's sizes are a card on the parent's page", async ({ page }) => {
   const mia = uniqueName("Mia");
   const kid = uniqueName("Barn");
   const kidId = await addChild(await addParent(mia), kid);
   await adminSignIn(page, mia);
 
-  // R5: the sizes page has the sizes and nothing of the wish lists
-  await goto(page, `/admin/barn/${kidId}/storlekar`);
-  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: "Storlekar" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Födelsedag|Jul/ })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Ny önskning/ })).toHaveCount(0);
-  await page.getByLabel("Kläder").fill("128");
-  await page.getByRole("button", { name: "Spara" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
+  // The sizes: a card on the parent's page (MUPP-045-R2), with nothing of the wish lists
+  await page.getByRole("button", { name: `Storlekar för ${kid}` }).click();
+  const sizes = page.locator("dialog[open]");
+  await expect(sizes.getByRole("heading", { level: 2, name: `Storlekar för ${kid}` })).toBeVisible();
+  await expect(sizes.getByRole("button", { name: /Ny önskning/ })).toHaveCount(0);
+  await sizes.getByLabel("Kläder").fill("128");
+  await sizes.getByRole("button", { name: "Spara" }).click();
+  await expect(sizes).toHaveCount(0);
   await expectNoA11yViolations(page);
 
   // R5: the wish list page has Födelsedag and Jul as separate cards and no sizes
@@ -190,13 +138,14 @@ test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page on
   await expect(christmas.getByRole("heading", { name: "Födelsedag" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Storlekar" })).toHaveCount(0);
   await expect(page.getByLabel("Kläder")).toHaveCount(0);
-  // R1: everything is folded when the page opens
+  // R1: no card is open when the page opens
   await expect(page.locator("main form:visible")).toHaveCount(0);
 
   // An item is a slim row with its icon buttons; "Ny önskning" has text
   await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
   await birthday.getByLabel("Namn").fill("Pussel");
   await birthday.getByRole("button", { name: "Lägg till" }).click();
+  await page.keyboard.press("Escape");
   const item = birthday.getByRole("article").filter({ hasText: "Pussel" });
   await expect(item).toBeVisible();
   expect((await settledBox(item)).height).toBeLessThanOrEqual(56);
@@ -204,10 +153,8 @@ test("MUPP-010-R1 R3 R5 the sizes page has only the sizes, the wish list page on
   await expect(item.getByRole("button", { name: "Ta bort Pussel" })).toHaveAttribute("title", "Ta bort Pussel");
   await expect(item.getByLabel("Namn")).toHaveCount(0);
 
-  // R3: opening an item folds the "new" form; the item shows its details and form
-  await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
+  // The item's card shows its details and form
   await item.getByRole("button", { name: "Ändra Pussel" }).click();
-  await expect(birthday.getByRole("button", { name: "Ny önskning, Födelsedag" })).toHaveAttribute("aria-expanded", "false");
   await expect(item.getByLabel("Namn")).toHaveValue("Pussel");
   await expectNoA11yViolations(page);
 });
@@ -233,7 +180,7 @@ test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) 
   }
 });
 
-test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll at 320, 375 and 430 px, and pass axe", async ({ page }) => {
+test("MUPP-010-R6 the open cards and the kid pages have no sideways scroll at 320, 375 and 430 px, and pass axe", async ({ page }) => {
   const chef = uniqueName("Chef");
   const kidId = await addChild(await addParent(chef, true), uniqueName("Barn"));
   await adminSignIn(page, chef);
@@ -250,9 +197,10 @@ test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll 
   const dateInsideForm = async (form: Locator, what: string) => {
     for (const [width, height] of widths) {
       await page.setViewportSize({ width, height });
-      const date = await form.getByLabel("Födelsedatum").boundingBox();
-      const box = await form.boundingBox();
-      expect(date!.x + date!.width, `${what} date field at ${width}`).toBeLessThanOrEqual(box!.x + box!.width + 0.5);
+      // The card may still be growing (MUPP-045): both boxes are read once they have settled
+      const date = await settledBox(form.getByLabel("Födelsedatum"));
+      const box = await settledBox(form);
+      expect(date.x + date.width, `${what} date field at ${width}`).toBeLessThanOrEqual(box.x + box.width + 0.5);
     }
   };
   await goto(page, "/admin/hantera");
@@ -260,12 +208,16 @@ test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll 
   await dateInsideForm(page.locator("form").filter({ has: page.getByLabel("Födelsedatum") }).first(), "add");
   await noSidewaysScroll("add");
   const first = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^Bild för / }) }).first();
+  await page.keyboard.press("Escape");
   await first.getByRole("button", { name: /^Ändra / }).click();
   await dateInsideForm(first.locator("form").filter({ has: page.getByLabel("Födelsedatum") }), "edit");
   await noSidewaysScroll("edit");
+  await page.keyboard.press("Escape");
   await first.getByRole("button", { name: /^Bild för / }).click();
   await noSidewaysScroll("picture");
-  await goto(page, `/admin/barn/${kidId}/storlekar`);
+  await page.keyboard.press("Escape");
+  await goto(page, "/admin");
+  await page.getByRole("button", { name: /^Storlekar för / }).click();
   await noSidewaysScroll("sizes");
   await expectNoA11yViolations(page);
   await goto(page, `/admin/barn/${kidId}/onskelistor`);
@@ -273,7 +225,7 @@ test("MUPP-010-R6 the unfolded panels and the kid pages have no sideways scroll 
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc folds, and Tab reaches the trash can and the confirmation", async ({ page }) => {
+test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc closes, and Tab reaches the trash can and the confirmation", async ({ page }) => {
   const chef = uniqueName("Chef");
   const kid = uniqueName("Barn");
   await addChild(await addParent(chef, true), kid);
@@ -302,20 +254,20 @@ test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc fo
   await expect(dialog(page)).toBeHidden();
 });
 
-test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape to a page with only the sizes and a checklist to a page with only the wish lists", async ({ page }) => {
+test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape that opens the sizes and a checklist to a page with only the wish lists", async ({ page }) => {
   const mia = "Mia";
   await addChild(await addParent(mia), "Otis");
   await adminSignIn(page, mia);
-  for (const name of ["Storlekar för Otis", "Önskelistor för Otis"]) {
-    const link = page.getByRole("link", { name });
-    await expect(link).toHaveAttribute("title", name);
-    expect((await settledBox(link)).width).toBeGreaterThanOrEqual(32);
+  for (const [role, name] of [["button", "Storlekar för Otis"], ["link", "Önskelistor för Otis"]] as const) {
+    const control = page.getByRole(role, { name });
+    await expect(control).toHaveAttribute("title", name);
+    expect((await settledBox(control)).width).toBeGreaterThanOrEqual(32);
   }
   await expectNoA11yViolations(page);
-  await page.getByRole("link", { name: "Storlekar för Otis" }).click();
+  await page.getByRole("button", { name: "Storlekar för Otis" }).click();
   await expect(page.getByLabel("Kläder")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Födelsedag" })).toHaveCount(0);
-  await goto(page, "/admin");
+  await page.keyboard.press("Escape");
   await page.getByRole("link", { name: "Önskelistor för Otis" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Födelsedag" })).toBeVisible();
   await expect(page.getByLabel("Kläder")).toHaveCount(0);

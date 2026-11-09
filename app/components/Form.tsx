@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useActionState, useContext, useEffect, useId, type ReactNode } from "react";
+import { createContext, useActionState, useContext, useEffect, useId, useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { enterAction, FIELDS, savedMessage, type FieldKind, type Said } from "@/lib/form-card";
 import { Button } from "./Button";
-import { useFold } from "./Fold";
+import { useCard } from "./Dialog";
 import { ListPicker } from "./ListPicker";
 import type { FormAction, FormState } from "./form-state";
 
@@ -12,28 +13,82 @@ const FormStateContext = createContext<FormState>(null);
 const dateFit = "flex items-center min-w-0 max-w-full appearance-none text-left";
 const control = "min-h-11 w-full rounded-control border border-muted/75 bg-page px-4 text-text";
 
+const fieldsOf = (form: HTMLFormElement) => [...form.querySelectorAll<HTMLElement>(FIELDS)];
+function kindOf(field: HTMLElement): FieldKind {
+  if (field instanceof HTMLTextAreaElement) return "textarea";
+  if (field instanceof HTMLButtonElement) return "list";
+  const type = (field as HTMLInputElement).type;
+  return type === "checkbox" || type === "file" ? type : "text";
+}
+
 // Ett formulär som körs av en serveråtgärd (useActionState), så att det också går att skicka
-// utan script (utom i en hopfälld panel, som öppnas med script). Sparat och fel läses upp av skärmläsaren; felen per fält står vid fältet (Field).
+// utan script (utom i ett kort, som öppnas med script). Fel läses upp av skärmläsaren; felen per fält står vid fältet (Field).
 // noValidate: serverns meddelanden är de som visas, på samma sätt för alla fält.
-// I en hopfälld panel (Fold.tsx) fälls panelen ihop när formuläret sparats.
-export function Form({ action, submit, children, className = "space-y-4" }: { action: FormAction; submit: string; children: ReactNode; className?: string }) {
-  const [state, formAction, pending] = useActionState(action, null);
-  const close = useFold()?.close;
+// I ett kort (Dialog.tsx, MUPP-045) gäller också: Enter går till nästa fält och skickar från det sista (R5); ett sparat formulär stänger kortet och
+// säger det till skärmläsaren (R7), utom när again är satt (en ny önskning): då står kortet kvar med tomma fält, fokus i det första och en bekräftelse (R6);
+// och ett misslyckat försök behåller kortet, med fokus på första felet. says är det som sägs: en text, eller namnet som skrevs i ett fält.
+export function Form({ action, submit, says = "Sparat.", again, children, className = "space-y-4" }: { action: FormAction; submit: string; says?: Said; again?: boolean; children: ReactNode; className?: string }) {
+  const card = useCard();
+  const form = useRef<HTMLFormElement>(null);
+  const sent = useRef<FormData | null>(null);
+  const [state, formAction, pending] = useActionState(async (previous: FormState, formData: FormData) => {
+    sent.current = formData;
+    const result = await action(previous, formData);
+    // Ett nytt objekt varje gång: "sparat" är samma konstant, så effekten nedan skulle annars bara se den första sparningen
+    return result?.saved ? { ...result } : result;
+  }, null);
+
   useEffect(() => {
-    if (state?.saved) close?.();
-  }, [state, close]);
+    if (!card || !state) return;
+    if (!state.saved) {
+      // Misslyckat: första fältet med fel, annars varningen längst ner
+      const target = form.current?.querySelector<HTMLElement>("[aria-invalid=true]") ?? form.current?.querySelector<HTMLElement>("[role=alert]:not(:empty)");
+      return target?.focus();
+    }
+    const read = (field: string) => String(sent.current?.get(field) ?? "");
+    if (!again) return card.close(savedMessage(says, read));
+    card.confirm(savedMessage(typeof says === "string" ? says : { ...says, short: true }, read));
+    card.focusFirst();
+    // card är ett nytt objekt vid varje rendering av kortet; det är svaret som ska sätta effekten igång, inte kortet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  // Enter-knappen på en telefon: "Nästa" i alla textfält utom det sista, där den säger "Klar" (R5)
+  useLayoutEffect(() => {
+    if (!card || !form.current) return;
+    const fields = fieldsOf(form.current);
+    const kinds = fields.map(kindOf);
+    fields.forEach((field, i) => {
+      if (kinds[i] === "text") field.enterKeyHint = enterAction(kinds, i).do === "submit" ? "done" : "next";
+    });
+  });
+
+  const onKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (!card || event.key !== "Enter") return;
+    const fields = fieldsOf(event.currentTarget);
+    // keyCode 229: Safari skickar Enter som avslutar ett ord efter att ordet är färdigskrivet
+    const composing = event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229;
+    const next = enterAction(fields.map(kindOf), fields.indexOf(event.target as HTMLElement), composing);
+    if (next.do === "default") return;
+    event.preventDefault();
+    if (next.do === "focus") fields[next.index].focus();
+    else if (!pending) event.currentTarget.requestSubmit();
+  };
+
   return (
-    <form action={formAction} noValidate className={className}>
+    <form ref={form} action={formAction} noValidate onKeyDown={onKeyDown} className={className}>
       <FormStateContext value={state}>{children}</FormStateContext>
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={pending}>
           {submit}
         </Button>
-        <p role="status" className="text-muted">
-          {state?.saved ? "Sparat." : ""}
-        </p>
+        {!card && (
+          <p role="status" className="text-muted">
+            {state?.saved ? "Sparat." : ""}
+          </p>
+        )}
       </div>
-      <p role="alert" className="text-danger">
+      <p role="alert" tabIndex={-1} className="text-danger">
         {state?.error}
       </p>
     </form>

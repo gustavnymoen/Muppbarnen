@@ -1,7 +1,7 @@
 import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
-import { FoldButton, FoldGroup, FoldPanel, FoldToggle } from "@/app/components/Fold";
 import { Form } from "@/app/components/Form";
+import { FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -13,18 +13,15 @@ import { removeWish, saveWish } from "../wish-actions";
 // men ingen pax och ingen "obegränsad". Listan visas bara här, för ägaren.
 export function WishLists({ lists }: { lists: SantaList[] }) {
   return (
-    <FoldGroup>
-      <div className="space-y-4">
-        {lists.map((list) => (
-          <WishList key={list.memberId} list={list} />
-        ))}
-      </div>
-    </FoldGroup>
+    <div className="space-y-4">
+      {lists.map((list) => (
+        <WishList key={list.memberId} list={list} />
+      ))}
+    </div>
   );
 }
 
 function WishList({ list }: { list: SantaList }) {
-  const newWish = `ny-${list.familyId}`;
   return (
     <Card as="section" className="space-y-3">
       <Heading level={2} small>
@@ -41,26 +38,25 @@ function WishList({ list }: { list: SantaList }) {
           ))}
         </ul>
       )}
-      <FoldButton id={newWish} label={`Ny önskning, ${list.familyName}`}>
-        Ny önskning
-      </FoldButton>
-      <FoldPanel id={newWish}>
+      <FormCard title={`Ny önskning, ${list.familyName}`} label={`Ny önskning, ${list.familyName}`} text="Ny önskning">
         <WishForm list={list} submit="Lägg till" />
-      </FoldPanel>
+      </FormCard>
     </Card>
   );
 }
 
 function WishCard({ list, wish }: { list: SantaList; wish: SantaWish }) {
-  const edit = `onskning-${wish.id}`;
   return (
     <SlimCard
       title={wish.title}
       actions={
         <>
-          <FoldToggle id={edit} label={`Ändra ${wish.title}`}>
-            <PencilIcon />
-          </FoldToggle>
+          <FormCard title={`Ändra ${wish.title}`} label={`Ändra ${wish.title}`} icon={<PencilIcon />}>
+            <div className="space-y-4">
+              <WishDetails item={wish} />
+              <WishForm list={list} wish={wish} submit="Spara" />
+            </div>
+          </FormCard>
           <ConfirmAction
             action={removeWish}
             fields={{ wishId: String(wish.id) }}
@@ -71,19 +67,14 @@ function WishCard({ list, wish }: { list: SantaList; wish: SantaWish }) {
           />
         </>
       }
-    >
-      <FoldPanel id={edit}>
-        <WishDetails item={wish} />
-        <WishForm list={list} wish={wish} submit="Spara" />
-      </FoldPanel>
-    </SlimCard>
+    />
   );
 }
 
 // Familjen följer med i formuläret för att säga vilken lista det gäller; servern kontrollerar att den är personens egen
 function WishForm({ list, wish, submit }: { list: SantaList; wish?: SantaWish; submit: string }) {
   return (
-    <Form action={saveWish} submit={submit}>
+    <Form action={saveWish} submit={submit} says={{ field: "title", added: !wish }} again={!wish}>
       <input type="hidden" name="familyId" value={list.familyId} />
       {wish && <input type="hidden" name="wishId" value={wish.id} />}
       <WishFields item={wish} />

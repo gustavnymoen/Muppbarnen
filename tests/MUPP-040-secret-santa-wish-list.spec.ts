@@ -53,6 +53,9 @@ test("MUPP-040-R1 R2 a wish is added with a title, a link must be http(s) and th
   await add.getByLabel("Storlek").fill("M");
   await add.getByLabel("Beskrivning").fill("En <b>spännande</b> bok");
   await add.getByRole("button", { name: "Lägg till" }).click();
+  // A new wish keeps its card open (MUPP-045-R6); closing it shows the list
+  await expect(page.getByRole("status").filter({ hasText: "Bok lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("heading", { level: 3, name: "Bok" })).toBeVisible();
   expect(await santaWishes(anna)).toEqual([{ title: "Bok", size: "M", description: "En <b>spännande</b> bok", url: "https://exempel.invalid/bok" }]);
   // Nothing to claim, and no "unlimited"
@@ -97,6 +100,8 @@ test("MUPP-040-R3 a person in two families has a separate list in each, and a wi
   await there.getByRole("button", { name: "Ny önskning" }).click();
   await there.getByLabel("Namn").fill("Hos Annan");
   await there.getByRole("button", { name: "Lägg till" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Hos Annan lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(there.getByRole("heading", { level: 3, name: "Hos Annan" })).toBeVisible();
   await expect(here.getByRole("heading", { level: 3, name: "Hos Annan" })).toHaveCount(0);
   expect((await santaWishes(annaThere)).map((w) => w.title)).toEqual(["Hos Annan"]);

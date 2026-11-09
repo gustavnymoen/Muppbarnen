@@ -1,10 +1,10 @@
 import { readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
 import path from "node:path";
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, goto, pickOption, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, openCard, pickOption, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -30,13 +30,6 @@ test.afterEach(clearFamily);
 
 // The card for a list (Födelsedag or Jul) on a kid's page
 const list = (page: Page, name: string) => page.locator("section", { has: page.getByRole("heading", { level: 2, name, exact: true }) });
-// Opens the form behind a button ("Ändra …", "Ny önskning, …") unless it is open, and gives
-// the card it is in (MUPP-010: one panel is open at a time, so opening one folds another)
-async function opened(scope: Locator, name: string) {
-  const toggle = scope.getByRole("button", { name });
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
-  return scope;
-}
 // The page's alert dialog: answers it
 const dialog = (page: Page) => page.getByRole("alertdialog");
 
@@ -51,7 +44,7 @@ test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anythi
   await expect(page.getByRole("heading", { level: 2 })).toHaveCount(0);
   await expectNoA11yViolations(page);
 
-  for (const path of ["/admin/hantera", "/admin/barn/1/storlekar", "/admin/barn/1/onskelistor", "/admin/finns-inte"]) {
+  for (const path of ["/admin/hantera", "/admin/barn/1/onskelistor", "/admin/finns-inte"]) {
     await goto(page, path);
     await expect(page, path).toHaveURL(/\/admin$/);
     await expect(page.getByLabel("Adminlösenord")).toBeVisible();
@@ -220,7 +213,7 @@ test("MUPP-003-R2 R3 choose who you are, change, and see only your own kids; the
   await expect(page.getByRole("heading", { level: 2, name: "Vem är du?" })).toBeVisible();
 });
 
-test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and another parent's kid is out of reach", async ({ page }) => {
+test("MUPP-003-R3 sizes are edited and saved in a card, a bad value shows a message, and another parent's kid is out of reach", async ({ page }) => {
   const [mia, ola] = [uniqueName("Mia"), uniqueName("Ola")];
   const [miaId, olaId] = [await addParent(mia), await addParent(ola)];
   const kid = uniqueName("Barn");
@@ -229,45 +222,49 @@ test("MUPP-003-R3 sizes are edited and saved, a bad value shows a message, and a
 
   await page.setViewportSize({ width: 320, height: 568 });
   await adminSignIn(page, mia);
-  await page.getByRole("link", { name: `Storlekar för ${kid}` }).click();
-  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  const sizes = page.locator("dialog[open]");
+  const open = () => page.getByRole("button", { name: `Storlekar för ${kid}` }).click();
+  await open();
+  await expect(sizes.getByRole("heading", { level: 2, name: `Storlekar för ${kid}` })).toBeVisible();
   expect(await hasHorizontalScroll(page)).toBe(false);
 
-  await page.getByLabel("Kläder").fill("128");
-  await page.getByLabel("Skor").fill("31");
-  await page.getByLabel("Huvud").fill("52");
-  await page.getByLabel("Handskar").fill("4-6 år");
-  await page.getByRole("button", { name: "Spara" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
+  await sizes.getByLabel("Kläder").fill("128");
+  await sizes.getByLabel("Skor").fill("31");
+  await sizes.getByLabel("Huvud").fill("52");
+  await sizes.getByLabel("Handskar").fill("4-6 år");
+  await sizes.getByRole("button", { name: "Spara" }).click();
+  // The card closes when the sizes are saved (MUPP-045-R7)
+  await expect(sizes).toHaveCount(0);
   await page.reload();
-  await expect(page.getByLabel("Kläder")).toHaveValue("128");
-  await expect(page.getByLabel("Handskar")).toHaveValue("4-6 år");
+  await open();
+  await expect(sizes.getByLabel("Kläder")).toHaveValue("128");
+  await expect(sizes.getByLabel("Handskar")).toHaveValue("4-6 år");
 
   // Empty clears; a too long text is refused next to its field and the typed text stays
-  await page.getByLabel("Kläder").fill("");
+  await sizes.getByLabel("Kläder").fill("");
   // (the browser's own limit is taken away to reach the server's)
-  await page.getByLabel("Skor").evaluate((el) => el.removeAttribute("maxlength"));
-  await page.getByLabel("Skor").fill("x".repeat(41));
-  await page.getByRole("button", { name: "Spara" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Högst 40 tecken." })).toBeVisible();
-  await expect(page.getByLabel("Skor")).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByLabel("Skor")).toHaveValue("x".repeat(41));
+  await sizes.getByLabel("Skor").evaluate((el) => el.removeAttribute("maxlength"));
+  await sizes.getByLabel("Skor").fill("x".repeat(41));
+  await sizes.getByRole("button", { name: "Spara" }).click();
+  await expect(sizes.getByRole("alert").filter({ hasText: "Högst 40 tecken." })).toBeVisible();
+  await expect(sizes.getByLabel("Skor")).toHaveAttribute("aria-invalid", "true");
+  await expect(sizes.getByLabel("Skor")).toHaveValue("x".repeat(41));
   await expectNoA11yViolations(page);
-  await page.getByLabel("Skor").fill("32");
-  await page.getByRole("button", { name: "Spara" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Sparat." })).toBeVisible();
+  await sizes.getByLabel("Skor").fill("32");
+  await sizes.getByRole("button", { name: "Spara" }).click();
+  await expect(sizes).toHaveCount(0);
 
   await page.reload();
-  await expect(page.getByLabel("Skor")).toHaveValue("32");
-  await expect(page.getByLabel("Huvud")).toHaveValue("52");
-  await expect(page.getByLabel("Kläder")).toHaveValue("");
+  await open();
+  await expect(sizes.getByLabel("Skor")).toHaveValue("32");
+  await expect(sizes.getByLabel("Huvud")).toHaveValue("52");
+  await expect(sizes.getByLabel("Kläder")).toHaveValue("");
 
-  // Another parent's kid, and an id that is no number: the page does not exist for Mia
-  for (const id of [String(olaKid), "abc"]) {
-    await goto(page, `/admin/barn/${id}/storlekar`);
-    await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" }), id).toBeVisible();
-    await expect(page.getByLabel("Kläder"), id).toHaveCount(0);
-  }
+  // Another parent's kid: the id in the form is changed to Ola's kid, and the server refuses (MUPP-045 leaves the check on the server)
+  await sizes.locator("input[name=childId]").evaluate((input: HTMLInputElement, id) => (input.value = id), String(olaKid));
+  await sizes.getByLabel("Kläder").fill("999");
+  await sizes.getByRole("button", { name: "Spara" }).click();
+  await expect(sizes.getByRole("alert").filter({ hasText: "Du kan inte göra det här." })).toBeVisible();
 });
 
 test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, with confirmations that name them", async ({ page }) => {
@@ -284,7 +281,7 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
   await expect(christmas.getByText("Inga önskningar ännu.")).toBeVisible();
 
   // Add: a missing name and a bad link are refused next to their fields
-  let form = await opened(birthday, "Ny önskning");
+  let form = await openCard(birthday, "Ny önskning");
   await expectNoA11yViolations(page);
   await form.getByLabel("Länk").fill("javascript:alert(1)");
   await form.getByRole("button", { name: "Lägg till" }).click();
@@ -301,27 +298,30 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
   await form.getByLabel("Länk").fill("https://exempel.se/lego");
   await form.getByLabel("Obegränsad").check();
   await form.getByRole("button", { name: "Lägg till" }).click();
+  // A new wish keeps the card open for the next one (MUPP-045-R6); closing it shows the list
+  await expect(page.getByRole("status").filter({ hasText: "lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   const item = birthday.getByRole("article").filter({ hasText: title });
   await expect(item).toBeVisible();
   const unlimited = item.locator("span").filter({ hasText: /^Obegränsad$/ });
   await expect(unlimited).toBeVisible();
   // The details are behind the row's pencil
   await expect(item.getByText("Storlek: Stor")).toHaveCount(0);
-  await opened(item, "Ändra");
+  await openCard(item, "Ändra");
   await expect(item.getByText("Storlek: Stor")).toBeVisible();
   await expect(item.getByRole("link", { name: "https://exempel.se/lego" })).toHaveAttribute("href", "https://exempel.se/lego");
   await expect(item.locator("p").filter({ hasText: "<script>alert(1)</script> En stor ask" })).toBeVisible();
   // Never rendered as HTML: no element was made of the text
   expect(await birthday.locator("article b, article script").count()).toBe(0);
-  // The new form folded when it was saved, is empty when opened again, and the other list is unchanged
-  await expect(birthday.getByRole("button", { name: "Ny önskning" })).toHaveAttribute("aria-expanded", "false");
-  form = await opened(birthday, "Ny önskning");
+  // The new card is empty when opened again, and the other list is unchanged
+  await page.keyboard.press("Escape");
+  form = await openCard(birthday, "Ny önskning");
   await expect(form.getByLabel("Namn")).toHaveValue("");
   await expect(christmas.getByText("Inga önskningar ännu.")).toBeVisible();
+  await page.keyboard.press("Escape");
 
-  // Edit (one panel at a time: the new form folds when the row's pencil is chosen)
-  const edit = await opened(item, "Ändra");
-  await expect(birthday.getByRole("button", { name: "Ny önskning" })).toHaveAttribute("aria-expanded", "false");
+  // Edit
+  const edit = await openCard(item, "Ändra");
   await edit.getByLabel("Namn").fill("Lego Technic");
   await edit.getByLabel("Obegränsad").uncheck();
   await edit.getByRole("button", { name: "Spara" }).click();
@@ -343,9 +343,11 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
 
   // Clear a list: the confirmation names the list and the kid
   for (const name of ["Cykel", "Hjälm"]) {
-    form = await opened(christmas, "Ny önskning");
+    form = await openCard(christmas, "Ny önskning");
     await form.getByLabel("Namn").fill(name);
     await form.getByRole("button", { name: "Lägg till" }).click();
+    await expect(page.getByRole("status").filter({ hasText: `${name} lades till` })).toBeVisible();
+    await page.keyboard.press("Escape");
     await expect(christmas.getByRole("heading", { level: 3, name })).toBeVisible();
   }
   await christmas.getByRole("button", { name: /^Töm listan/ }).click();
@@ -371,7 +373,7 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   const kids = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Barn" }) });
 
   // A parent: a name is needed
-  let form = await opened(parents, "Ny förälder");
+  let form = await openCard(parents, "Ny förälder");
   await form.getByRole("button", { name: "Lägg till" }).click();
   await expect(form.getByRole("alert").filter({ hasText: "Fyll i det här fältet." })).toBeVisible();
   const ola = uniqueName("Ola");
@@ -382,7 +384,7 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
 
   // A kid: a real date, not more than ten months ahead (MUPP-011-R1)
   const kid = uniqueName("Barn");
-  form = await opened(kids, "Nytt barn");
+  form = await openCard(kids, "Nytt barn");
   await form.getByLabel("Namn").fill(kid);
   await form.getByLabel("Födelsedatum").fill("2999-01-01");
   await pickOption(page, form, "Förälder", mia);
@@ -394,15 +396,16 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   // The page is re-rendered when the kid is saved: axe waits until the new row is there
   await expect(row).toBeVisible();
   await expectNoA11yViolations(page);
-  const edit = await opened(row, "Ändra");
+  const edit = await openCard(row, "Ändra");
   await expect(row).toContainText(`Född 2019-03-09, förälder: ${mia}`);
 
   // Move the kid to another parent
   await pickOption(page, edit, "Förälder", ola);
   await edit.getByRole("button", { name: "Spara" }).click();
-  await expect(row.getByRole("button", { name: "Ändra" })).toHaveAttribute("aria-expanded", "false");
-  await opened(row, "Ändra");
+  await expect(row.locator("dialog[open]")).toHaveCount(0);
+  await openCard(row, "Ändra");
   await expect(row).toContainText(`förälder: ${ola}`);
+  await page.keyboard.press("Escape");
 
   // A parent with kids cannot be removed; the message says what to do and the dialog stays open
   await parents.getByRole("button", { name: `Ta bort ${ola}` }).click();
@@ -415,10 +418,11 @@ test("MUPP-003-R5 the master admin manages parents and kids, moves a kid and can
   await dialog(page).getByRole("button", { name: "Ta bort" }).click();
   await expect(dialog(page).getByRole("alert")).toHaveText("Det måste finnas minst en huvudadministratör.");
   await dialog(page).getByRole("button", { name: "Avbryt" }).click();
-  const chefEdit = await opened(parents.getByRole("article").filter({ hasText: chef }), "Ändra");
+  const chefEdit = await openCard(parents.getByRole("article").filter({ hasText: chef }), "Ändra");
   await chefEdit.getByLabel("Huvudadministratör").uncheck();
   await chefEdit.getByRole("button", { name: "Spara" }).click();
   await expect(chefEdit.getByRole("alert").filter({ hasText: "Det måste finnas minst en huvudadministratör." })).toHaveText("Det måste finnas minst en huvudadministratör.");
+  await page.keyboard.press("Escape");
 
   // Remove the kid after a confirmation, then its parent
   await row.getByRole("button", { name: `Ta bort ${kid}` }).click();
@@ -443,7 +447,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   await goto(page, "/admin/hantera");
   const row = page.getByRole("article").filter({ hasText: kid });
   const upload = async (file: { name: string; mimeType: string; buffer: Buffer }) => {
-    const form = await opened(row, `Bild för ${kid}`);
+    const form = await openCard(row, `Bild för ${kid}`);
     await form.getByLabel("Bild", { exact: true }).setInputFiles(file);
     await form.getByRole("button", { name: "Spara bild" }).click();
     return form;
@@ -467,7 +471,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
 
   // A picture: stored, shown next to the name as decoration (empty alt text), served at /bilder/<id>
   form = await upload({ name: "bild.png", mimeType: "image/png", buffer: png });
-  // The panel folds when the picture is saved
+  // The card closes when the picture is saved
   await expect.poll(() => pictureOf(kidId)).toMatch(/\.webp$/);
   await expect(form.getByLabel("Bild", { exact: true })).toHaveCount(0);
   const first = await pictureOf(kidId);
@@ -573,13 +577,15 @@ test("MUPP-003-R8 every admin page works at 320, 430 and 1280 px: no sideways sc
   const kid = await addChild(miaId, uniqueName("Barn"));
   await adminSignIn(page, mia);
   await goto(page, `/admin/barn/${kid}/onskelistor`);
-  const form = await opened(list(page, "Födelsedag"), "Ny önskning");
+  const form = await openCard(list(page, "Födelsedag"), "Ny önskning");
   await form.getByLabel("Namn").fill("Pussel");
   await form.getByRole("button", { name: "Lägg till" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Pussel lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("heading", { level: 3, name: "Pussel" })).toBeVisible();
 
   // Every page is opened once and measured at each width by resizing the window (TECH-015)
-  for (const path of ["/admin", `/admin/barn/${kid}/storlekar`, `/admin/barn/${kid}/onskelistor`, "/admin/hantera"]) {
+  for (const path of ["/admin", `/admin/barn/${kid}/onskelistor`, "/admin/hantera"]) {
     await goto(page, path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     for (const [width, height] of [[1280, 800], [430, 932], [320, 568]]) {
@@ -625,9 +631,17 @@ test("MUPP-003-R8 with the keyboard only: sign in, choose a parent and open a ki
   const birthday = list(page, "Födelsedag");
   await birthday.getByRole("button", { name: "Ny önskning" }).focus();
   await page.keyboard.press("Enter");
-  await birthday.getByLabel("Namn").focus();
+  // The first field has focus at once (MUPP-045-R4); the card stays open for the next wish, and Esc closes it
+  await expect(birthday.getByLabel("Namn")).toBeFocused();
   await page.keyboard.type("Pussel");
+  // Enter moves through the fields and sends the form from the last text field (MUPP-045-R5)
   await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  // (Enter in the description makes a new line, so Tab goes on to the link)
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status").filter({ hasText: "Pussel lades till" })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(birthday.getByRole("heading", { level: 3, name: "Pussel" })).toBeVisible();
 
   // The dialog keeps focus away from the page behind it, starts on Avbryt, closes with Esc and gives focus back

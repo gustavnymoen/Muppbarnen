@@ -214,3 +214,26 @@ export async function pickOption(page: Page, scope: Locator, label: string, opti
   await scope.getByRole("button", { name: label }).click();
   await page.getByRole("option", { name: option }).click();
 }
+
+// Opens the form card behind a button ("Ändra …", "Ny önskning, …") unless one is open already, and gives the scope back (MUPP-045:
+// the card is in the page's DOM next to its button, so a locator inside the scope finds its fields). A card that stays open after
+// a save (a new wish) is left open and used again.
+export async function openCard(scope: Locator, name: string | RegExp) {
+  if ((await scope.locator("dialog[open]").count()) === 0) await scope.getByRole("button", { name }).click();
+  await expect(scope.locator("dialog[open]")).toHaveCount(1);
+  return scope;
+}
+
+// The card (an open <dialog>) with this title, wherever it is on the page
+export const cardTitled = (page: Page, title: string | RegExp) => page.locator("dialog[open]").filter({ has: page.getByRole("heading", { level: 2, name: title }) });
+
+// Signs in as a Secret Santa member (MUPP-039): the family (when there is more than one), the name and the saved phone number
+export async function signInSanta(page: Page, family: string, name: string, phone: string) {
+  await goto(page, "/secret-santa");
+  const familyLink = page.getByRole("link", { name: family, exact: true });
+  if (await familyLink.count()) await familyLink.click();
+  await page.getByRole("link", { name, exact: true }).click();
+  await page.getByLabel("Ditt telefonnummer").fill(phone);
+  await page.getByRole("button", { name: "Fortsätt" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: `Hej ${name}!` })).toBeVisible();
+}

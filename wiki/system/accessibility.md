@@ -24,6 +24,7 @@ Every page or state that a feature adds or changes gets one call, in that featur
 |---|---|---|
 | `/design` | Phone width (and 320 px), desktop width | `tests/design.spec.ts` |
 | `/admin/barn/<id>/onskelistor` | The removal dialog with the claimed-present warning | `tests/MUPP-007-remove-claimed.spec.ts` |
+| `/admin/hantera`, `/admin/barn/<id>/onskelistor`, `/admin`, the Secret Santa tab, `/secret-santa/min-sida`, `/` | A form card open (edit, new, with an error, with the confirmation, with a list), the claim window and the question card ([Form cards](form-cards.md)) | `tests/MUPP-045-form-cards.spec.ts` |
 | … | (each feature adds a row for the pages and states it checks) | … |
 
 ## The focus ring after a tap
