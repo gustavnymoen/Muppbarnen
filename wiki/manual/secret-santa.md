@@ -29,4 +29,8 @@ Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som dr
 
 Ingen annan kan se ditt nummer eller din e-post på sidan. Hör av dig till Gustav om de som är sparade är fel.
 
+## Mejlen du får
+
+Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
+
 [Manual](index.md)

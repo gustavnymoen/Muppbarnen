@@ -1,7 +1,7 @@
 %% TECH-017 Sending email
 %% What sendMail does with a mail. Steps are labelled with requirement IDs.
 flowchart TD
-    A[A card calls sendMail with subject, heading and text] --> B{Valid address? R1}
+    A[A card calls sendMail with subject and text] --> B{Valid address? R1}
     B -- no --> F[Failure, nothing sent]
     B -- yes --> C[Build the HTML and plain text in the layout, R0]
     C --> D{RESEND_API_KEY set?}
