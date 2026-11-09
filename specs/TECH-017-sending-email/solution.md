@@ -17,7 +17,7 @@ None in the database. In development and tests the mails are appended to `mail-o
 
 ## Interface
 
-No page. `lib/mail.ts` exports `sendMail(to, { subject, heading, text })`, which returns `{ ok: true }` or `{ ok: false }` and never throws, and `layout()`. `lib/mail-sink.ts` holds the outbox (`saveToOutbox`, `readOutbox`, `clearOutbox`), which tests read. The layout is Swedish: the logo (`/icon.png`, already public), the heading, the text, and the footer "Detta mail går inte att svara på." with the link to the site.
+No page. `lib/mail.ts` exports `sendMail(to, { subject, text })`, which returns `{ ok: true }` or `{ ok: false }` and never throws, and `layout()`. `lib/mail-sink.ts` holds the outbox (`saveToOutbox`, `readOutbox`, `clearOutbox`), which tests read. The layout is Swedish: the logo (`/icon.png`, already public), the text, and the footer "Detta mail går inte att svara på." with the link to the site.
 
 ## Decisions
 
