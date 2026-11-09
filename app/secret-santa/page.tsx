@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { LinkButton } from "@/app/components/Button";
+import { IconLink, LinkButton } from "@/app/components/Button";
+import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { parseId } from "@/lib/form-input";
 import { entranceFamilies, entranceMembers, currentSantaPerson, findPerson } from "@/lib/santa-auth";
@@ -37,8 +38,18 @@ async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-san
   const chosen = parseId(first(query.person));
   const person = family && members.some((m) => m.personId === chosen) && chosen !== null ? await findPerson(chosen) : undefined;
 
+  const backHref = family ? `/secret-santa?familj=${family.id}` : "/secret-santa";
+
   return (
-    <Page>
+    <Page
+      back={
+        family && person && (
+          <IconLink label="Tillbaka" href={backHref}>
+            <ReturnIcon />
+          </IconLink>
+        )
+      }
+    >
       <PageContent>
         <div className="mx-auto max-w-md space-y-4">
           <Heading level={1}>Secret Santa</Heading>
@@ -75,10 +86,9 @@ async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-san
           {family && person && (
             <>
               <p>
-                Hej <strong>{person.name}</strong>! Skriv det du sparat hos oss, så vet vi att det är du.
+                Hej <strong>{person.name}</strong>, ange ditt telefonnummer eller e-post för att komma vidare
               </p>
-              <SignInForm personId={person.id} />
-              <LinkButton href={`/secret-santa?familj=${family.id}`}>Det är inte jag</LinkButton>
+              <SignInForm personId={person.id} backHref={backHref} />
             </>
           )}
         </div>

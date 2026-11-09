@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/Button";
 import { signIn } from "./actions";
 
@@ -8,12 +9,22 @@ const choice = "flex min-h-11 flex-1 items-center gap-3 rounded-control border b
 
 // Telefon är förvalt. Ett byte tömmer fältet, ger det rätt tangentbord och flyttar markören dit,
 // så att man kan börja skriva direkt (MUPP-039-R4b).
-export function SignInForm({ personId }: { personId: number }) {
+export function SignInForm({ personId, backHref }: { personId: number; backHref: string }) {
+  const router = useRouter();
   const [state, action, pending] = useActionState(signIn, null);
   const [kind, setKind] = useState<"phone" | "email">("phone");
   const field = useRef<HTMLInputElement>(null);
   // Också efter ett svar, eftersom formuläret då töms
   useEffect(() => field.current?.focus(), [kind, state]);
+
+  // Esc går tillbaka till namnen, som Tillbaka-knappen; en öppen meny har redan förbrukat sin egen Esc (MUPP-047-R1)
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) router.push(backHref);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router, backHref]);
 
   const phone = kind === "phone";
   return (
@@ -54,7 +65,7 @@ export function SignInForm({ personId }: { personId: number }) {
         </p>
       </div>
       <Button type="submit" disabled={pending} className="w-full">
-        Logga in
+        Fortsätt
       </Button>
     </form>
   );

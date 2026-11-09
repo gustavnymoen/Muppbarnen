@@ -4,10 +4,10 @@ import { SiteHeader } from "./SiteHeader";
 // Sidans skal: fyller skärmen (dvh, med skydd för skärmbrunn och hemfält),
 // sidan själv scrollar inte, bara innehållsytan gör det. Sidhuvudet ligger
 // utanför innehållsytan och står därför kvar när innehållet scrollas.
-export function Page({ home, onboarding, children }: { home?: boolean; onboarding?: boolean; children: ReactNode }) {
+export function Page({ home, onboarding, back, children }: { home?: boolean; onboarding?: boolean; back?: ReactNode; children: ReactNode }) {
   return (
     <div data-page className="mx-auto flex h-dvh w-full max-w-6xl flex-col overflow-hidden px-4 sm:px-8 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
-      <SiteHeader home={home} onboarding={onboarding} />
+      <SiteHeader home={home} onboarding={onboarding} back={back} />
       {children}
     </div>
   );
