@@ -20,7 +20,7 @@ Står det "Det stämde inte" har du valt fel namn eller skrivit något annat än
 
 På din sida finns en önskelista för varje familj du är med i. Listorna är skilda: det du önskar i en familj syns inte i en annan.
 
-1. Tryck **Ny önskning**, skriv ett namn och tryck **Lägg till** (eller Enter i det sista fältet). Beskrivning, storlek och länk är valfria. Länken ska börja med `http://` eller `https://`. Kortet står kvar med tomma fält så att du kan skriva nästa önskning, och en kort bekräftelse ("fotboll lades till") syns överst i tre sekunder. Tryck på krysset eller Esc när du är klar.
+1. Tryck **Ny önskning**, skriv ett namn och tryck **Lägg till** (eller Enter i det sista fältet). Beskrivning, storlek och länk är valfria. Länken ska börja med `http://` eller `https://`. Kortet står kvar med tomma fält så att du kan skriva nästa önskning, och en grön ruta glider ner överst på skärmen ("fotboll lades till") syns i två sekunder. Tryck på krysset eller Esc när du är klar.
 2. Tryck på pennan vid en önskning för att ändra den (kortet stängs när du sparat), och på papperskorgen för att ta bort den.
 
 Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som drar dig läsa dem.

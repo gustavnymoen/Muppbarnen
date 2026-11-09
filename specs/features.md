@@ -65,6 +65,7 @@ tags: [product, features]
 | [MUPP-040](MUPP-040-secret-santa-wish-list/solution.md) | Secret Santa: own wish list | Shared | Review |
 | [MUPP-047](MUPP-047-santa-back-button/solution.md) | Back button on the Secret Santa sign-in | Shared | Review |
 | [MUPP-045](MUPP-045-form-cards/solution.md) | Form cards with focus and Enter | Shared | Review |
+| [MUPP-054](MUPP-054-toaster/solution.md) | Toast after saving | Shared | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
 | [TECH-018](TECH-018-test-suite-room-again/solution.md) | Test suite at its time budget again | Shared | Review |
