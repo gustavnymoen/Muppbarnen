@@ -68,7 +68,7 @@ describe("MUPP-039-R3 R4 what visitors read and the sign-in check", () => {
     expect(await entranceMembers(b.event)).toEqual([{ memberId: b.member, name: "Anna" }]);
     // Samma uppgifter i två grupper: inloggningen gäller bara den medlem som valts
     expect(await checkSantaSignIn("1.1.1.6", { memberId: String(b.member), kind: "phone", value: saved.phone }, 0)).toEqual({ result: "ok", memberId: b.member });
-    expect(await findMember(b.member)).toEqual({ id: b.member, name: "Anna", eventId: b.event, eventName: "Annan grupp" });
+    expect(await findMember(b.member)).toEqual({ id: b.member, name: "Anna", eventId: b.event, eventName: "Annan grupp", status: "inactive" });
   });
 
   test("MUPP-039-R4 the right value signs in, a wrong one does not and says nothing about which part", async () => {

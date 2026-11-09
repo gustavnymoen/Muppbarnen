@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { all, get } from "./db";
 import { beginAttempt, clearAttempt, registerWrong, wrongWait } from "./login-block";
 import { parseId } from "./form-input";
+import type { EventStatus } from "./santa";
 import { createSantaSession, SANTA_COOKIE, SANTA_SESSION_SECONDS, verifySantaSession } from "./santa-session";
 import { siteSecrets } from "./site-session";
 
@@ -11,7 +12,7 @@ import { siteSecrets } from "./site-session";
 // för kontrollen, och lämnar aldrig funktionen. Designen: wiki/system/secret-santa-entrance.md.
 
 export type EntranceMember = { memberId: number; name: string };
-export type SantaMember = { id: number; name: string; eventId: number; eventName: string };
+export type SantaMember = { id: number; name: string; eventId: number; eventName: string; status: EventStatus };
 export type SantaContact = "phone" | "email";
 
 // ---- Läsa (bara namn)
@@ -24,11 +25,11 @@ export async function entranceMembers(eventId: number): Promise<EntranceMember[]
 }
 
 export async function findMember(id: number): Promise<SantaMember | undefined> {
-  const row = await get<{ id: number; name: string; event_id: number; event_name: string }>(
-    "SELECT m.id, m.name, m.event_id, e.name AS event_name FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?",
+  const row = await get<{ id: number; name: string; event_id: number; event_name: string; status: EventStatus }>(
+    "SELECT m.id, m.name, m.event_id, e.name AS event_name, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?",
     [id],
   );
-  return row && { id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name };
+  return row && { id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name, status: row.status };
 }
 
 // ---- Jämförelsen

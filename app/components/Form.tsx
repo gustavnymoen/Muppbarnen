@@ -52,6 +52,7 @@ export function Form({ action, submit, says = "Sparat.", again, children, classN
     // En ny önskning får kort titel i meddelandet, så att det får plats på en rad
     const message = savedMessage(again && typeof says !== "string" ? { ...says, short: true } : says, read);
     toast(message);
+    if (state.notice) toast(state.notice, true);
     if (!card) return;
     if (!again) return card.close(savedMessage(says, read));
     card.confirm(message);
