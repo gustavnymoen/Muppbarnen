@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { addSantaFamily, addSantaMember, clearSanta, personOfMember } from "./family-db";
+import { addSantaEvent, addSantaMember, clearSanta } from "./family-db";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { santaSignIn } from "./santa";
 
@@ -88,8 +88,8 @@ test("MUPP-046-R1 R2 R3 every page says Kusinportalen in its title and head, and
     await goto(page, "/secret-santa");
     await expectHead(page, "Secret Santa | Kusinportalen");
     await expectNoOldName(page);
-    const member = await addSantaMember(await addSantaFamily("Familjen Test"), "Anna Testsson", "0700001111", "anna@exempel.invalid");
-    await santaSignIn(page, await personOfMember(member));
+    const member = await addSantaMember(await addSantaEvent("Familjen Test"), "Anna Testsson", "0700001111", "anna@exempel.invalid");
+    await santaSignIn(page, member);
     await goto(page, "/secret-santa/min-sida");
     await expectHead(page, "Din Secret Santa-sida | Kusinportalen");
     await expectNoOldName(page);

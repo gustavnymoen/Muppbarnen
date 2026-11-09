@@ -6,5 +6,5 @@
 * [Startsidan och menyn](startsidan.md) - Så använder du startsidan, menyn och raden med barnens kort på telefon och dator.
 * [Lösenordet till sajten](losenord.md) - Så kommer du in på sajten med lösenordet, vad som händer om du skriver fel och hur du byter lösenord.
 * [Administrationssidan](admin.md) - Så loggar du in som admin, väljer vem du är, ändrar storlekar och önskelistor och, som huvudadministratör, hanterar barn, föräldrar och bilder.
-* [Secret Santa](secret-santa.md) - Så kommer du in i Secret Santa, väljer familj och namn, loggar in med telefon eller e-post, byter person och skriver din önskelista.
+* [Secret Santa](secret-santa.md) - Så kommer du in i Secret Santa, väljer grupp och namn, loggar in med telefon eller e-post, byter person och skriver din önskelista.
 * [Wiki](../index.md) - Startsida för all dokumentation. Manualsidor läggs till här när funktionerna byggs.

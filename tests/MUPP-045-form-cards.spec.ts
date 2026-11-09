@@ -16,7 +16,7 @@ import {
   transformsOf,
   uniqueName,
 } from "./helpers";
-import { addChild, addParent, addSantaFamily, addSantaMember, addWish, claimedByOf, clearFamily, clearSanta, setSizes } from "./family-db";
+import { addChild, addParent, addSantaEvent, addSantaMember, addWish, claimedByOf, clearFamily, clearSanta, setSizes } from "./family-db";
 import { newcomer, testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -274,11 +274,11 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   await expect(birthday.getByRole("button", { name: "Ändra basket" })).toBeFocused();
 });
 
-test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new family with one field, a new person through Enter, a known person from a list in front of the card, and a member's partner list", async ({ page }) => {
+test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new group with one field, a new person through Enter, and a member's partner list", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
-  const ek = await addSantaFamily("Familjen Ek");
-  await addSantaFamily("Familjen Ask");
+  const ek = await addSantaEvent("Familjen Ek");
+  await addSantaEvent("Familjen Ask");
   await addSantaMember(ek, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   await addSantaMember(ek, "Bertil Testsson", "0700002222", "bertil@exempel.invalid");
   await page.setViewportSize({ width: 375, height: 667 });
@@ -314,23 +314,6 @@ test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new family with one field, a 
   await expect(dialog).toHaveCount(0);
   await expect(said(page, "Cilla Testsson lades till")).toBeAttached();
 
-  // R4 R8: a card whose first field is a list focuses the list's button; the options open in front of the card, Esc closes the list and not the card
-  await page.getByRole("button", { name: "Lägg till känd person i Familjen Ask" }).click();
-  const person = dialog.getByRole("button", { name: /^Välj person/ });
-  await expect(person).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("option")).toHaveCount(2);
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("option")).toHaveCount(0);
-  await expect(dialog).toHaveCount(1);
-  await expect(person).toBeFocused();
-  await person.click();
-  await page.getByRole("option", { name: "Bertil Testsson" }).click();
-  await expect(person).toHaveText("Bertil Testsson");
-  await dialog.getByRole("button", { name: "Lägg till" }).click();
-  await expect(dialog).toHaveCount(0);
-  await expect(said(page, "Personen lades till i Familjen Ask")).toBeAttached();
-
   // R2 R8: a member's card has its fields filled in and a partner list that works in the card; the first field's text is selected
   await page.getByRole("button", { name: "Ändra Anna Testsson i Familjen Ek" }).click();
   await expect(dialog.getByLabel("Namn")).toHaveValue("Anna Testsson");
@@ -344,7 +327,7 @@ test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new family with one field, a 
 });
 
 test("MUPP-045-R2 R6 R7 the Secret Santa own page: a new wish keeps the card open with a confirmation, an edit closes it and is announced", async ({ page }) => {
-  const family = await addSantaFamily("Familjen Test");
+  const family = await addSantaEvent("Familjen Test");
   await addSantaMember(family, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   await signInSanta(page, "Familjen Test", "Anna Testsson", "0700001111");
   const dialog = card(page);

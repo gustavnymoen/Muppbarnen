@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
-import { addSantaFamily, addSantaMember, clearSanta } from "./family-db";
+import { addSantaEvent, addSantaMember, clearSanta } from "./family-db";
 import { testIp } from "./site-session";
 import { openSignInForm, pickName, SANTA_COOKIE, sendPhone } from "./santa";
 
@@ -22,7 +22,7 @@ const message = (page: Page) => page.getByRole("alert").filter({ hasText: /\S/ }
 const santaCookie = async (page: Page) => (await page.context().cookies()).find((c) => c.name === SANTA_COOKIE);
 
 async function oneFamily() {
-  const family = await addSantaFamily("Familjen Test");
+  const family = await addSantaEvent("Familjen Test");
   await addSantaMember(family, "Anna Testsson", PHONE, EMAIL);
   await addSantaMember(family, "Bertil Testsson", "0700002222", "bertil@exempel.invalid");
   return family;
@@ -39,7 +39,7 @@ test("MUPP-039-R1 R2 R3 the menu opens the entrance; one family shows its names 
 
   // R2: one family goes straight to its members
   await expect(page.getByRole("link", { name: "Anna Testsson" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Byt familj" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveAttribute("href", "/");
 
   // R3: names only, in the page and in the next step
   await expectNoA11yViolations(page);
@@ -50,16 +50,19 @@ test("MUPP-039-R1 R2 R3 the menu opens the entrance; one family shows its names 
   }
 
   // R2: several families are choices
-  const other = await addSantaFamily("Familjen Annan");
+  const other = await addSantaEvent("Familjen Annan");
   await addSantaMember(other, "Cecilia Annan", "0700003333", "cecilia@exempel.invalid");
   await goto(page, "/secret-santa");
   await expect(page.getByRole("link", { name: "Anna Testsson" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Familjen Annan" })).toBeVisible();
   await expectNoA11yViolations(page);
   await page.getByRole("link", { name: "Familjen Test" }).click();
-  await expect(page).toHaveURL(new RegExp(`familj=${family}$`));
+  await expect(page).toHaveURL(new RegExp(`grupp=${family}$`));
   await expect(page.getByRole("link", { name: "Bertil Testsson" })).toBeVisible();
-  await page.getByRole("link", { name: "Byt familj" }).click();
+  // MUPP-048-R8: the back button goes back to the events, and "Byt familj" is gone
+  await expect(page.getByRole("link", { name: "Byt familj" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Byt grupp" })).toHaveCount(0);
+  await page.getByRole("link", { name: "Tillbaka" }).click();
   await expect(page.getByRole("link", { name: "Familjen Annan" })).toBeVisible();
 });
 
@@ -86,7 +89,8 @@ test("MUPP-047-R1 R2 R3 the sign-in step has Tillbaka and no 'Det är inte jag',
   await back.click();
   await expect(page.getByRole("link", { name: "Bertil Testsson", exact: true })).toBeVisible();
   await expect(page.getByLabel("Ditt telefonnummer")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveCount(0);
+  // The names step has its own Tillbaka since MUPP-048-R8 (to the start page, there is one group)
+  await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveAttribute("href", "/");
   await page.getByRole("link", { name: "Anna Testsson", exact: true }).click();
   await expect(page.getByLabel("Ditt telefonnummer")).toHaveValue("");
 

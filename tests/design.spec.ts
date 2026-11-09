@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaFamily, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, personOfMember } from "./family-db";
+import { addChild, addParent, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta } from "./family-db";
 import { santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -405,7 +405,7 @@ test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 the Secret Santa tab on a phone: tabs 44 
   await clearSanta();
   const chef = uniqueName("Chef");
   await addParent(chef, true);
-  const family = await addSantaFamily("Familjen Ek");
+  const family = await addSantaEvent("Familjen Ek");
   for (let i = 1; i <= 8; i++) await addSantaMember(family, `Person Nummer${i}`, `070000${String(i).padStart(4, "0")}`, `person${i}@exempel.invalid`);
   try {
     await page.setViewportSize({ width: 320, height: 640 });
@@ -1258,10 +1258,20 @@ test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar listorna on the narrowest ph
   expect(await panel.evaluate((el) => el.scrollTop)).toBe(0);
 });
 
+// MUPP-047-R1, MUPP-048-R8: Tillbaka is in the top left corner, 44 px, clear of the menu button and the heading
+async function expectBackInCorner(page: Page) {
+  const back = await settledBox(page.getByRole("link", { name: "Tillbaka" }));
+  expect(back.height).toBeGreaterThanOrEqual(44);
+  expect(back.width).toBeGreaterThanOrEqual(44);
+  expect(back.x).toBeLessThan(24);
+  expect(back.y).toBeLessThan(24);
+  for (const other of [page.getByRole("button", { name: "Meny" }), page.getByRole("heading", { level: 1 })]) expect(disjoint(back, await settledBox(other))).toBe(true);
+}
+
 test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per row, all visible without scrolling and 44 px high; the sign-in form fits", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test database");
   await clearSanta();
-  const family = await addSantaFamily("Familjen Ek");
+  const family = await addSantaEvent("Familjen Ek");
   for (let i = 1; i <= 8; i++) await addSantaMember(family, `Person Nummer${i}`, `070000${String(i).padStart(4, "0")}`, `person${i}@exempel.invalid`);
   try {
     await page.setViewportSize({ width: 375, height: 667 });
@@ -1280,20 +1290,31 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
     for (let i = 0; i < 8; i += 2) expect(disjoint(boxes[i], boxes[i + 1])).toBe(true);
     expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
+    // MUPP-048-R8: the names step has the same Tillbaka (it goes to the start page with one group), and no "Byt grupp" text button
+    await expectBackInCorner(page);
+    await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveAttribute("href", "/");
 
     await tiles[0].click();
     await expect(page.getByLabel("Ditt telefonnummer")).toBeVisible();
     // The radio buttons are as large as their labels, and the field and button as the other forms'
     const controls = [page.locator("label").filter({ hasText: /^Telefon$/ }), page.locator("label").filter({ hasText: /^E-post$/ }), page.getByLabel("Ditt telefonnummer"), page.getByRole("button", { name: "Fortsätt" })];
     for (const control of controls) expect((await settledBox(control)).height).toBeGreaterThanOrEqual(44);
-    // MUPP-047-R1: Tillbaka is in the top left corner, 44 px, clear of the menu button and the heading
-    const back = await settledBox(page.getByRole("link", { name: "Tillbaka" }));
-    expect(back.height).toBeGreaterThanOrEqual(44);
-    expect(back.width).toBeGreaterThanOrEqual(44);
-    expect(back.x).toBeLessThan(24);
-    expect(back.y).toBeLessThan(24);
-    for (const other of [page.getByRole("button", { name: "Meny" }), page.getByRole("heading", { level: 1 })]) expect(disjoint(back, await settledBox(other))).toBe(true);
+    await expectBackInCorner(page);
     expect(await hasHorizontalScroll(page)).toBe(false);
+
+    // MUPP-048-R4: with several groups the entrance lists them, 44 px high and within the width; no Tillbaka there
+    await addSantaEvent("Familjen Ask");
+    await goto(page, "/secret-santa");
+    const groups = await page.getByRole("list").getByRole("link").all();
+    expect(groups).toHaveLength(2);
+    for (const group of groups) {
+      const box = await settledBox(group);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.x + box.width).toBeLessThanOrEqual(375);
+    }
+    await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveCount(0);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
   } finally {
     await clearSanta();
   }
@@ -1302,13 +1323,13 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
 test("MUPP-040-R1 R2 MUPP-053-R1 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the plus is 44 px, the form fits the width", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test database");
   await clearSanta();
-  const family = await addSantaFamily("Familjen Ek");
+  const family = await addSantaEvent("Familjen Ek");
   const member = await addSantaMember(family, "Anna Ek", "0700004444", "anna@exempel.invalid");
   await addSantaWish(member, "En mycket lång önskning med många ord som måste radbrytas");
   await addSantaWish(member, "Bok");
   try {
     await page.setViewportSize({ width: 375, height: 667 });
-    await santaSignIn(page, await personOfMember(member));
+    await santaSignIn(page, member);
     await goto(page, "/secret-santa/min-sida");
     await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" })).toBeVisible();
     expect(await hasHorizontalScroll(page)).toBe(false);

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, uniqueName } from "./helpers";
-import { addParent, addSantaFamily, addSantaMember, clearFamily, clearSanta, countSanta } from "./family-db";
+import { addParent, addSantaEvent, addSantaMember, clearFamily, clearSanta, countSanta } from "./family-db";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -48,24 +48,25 @@ test("MUPP-038-R1 the master admin sees two tabs with the kids tab selected; the
   await expect(kids).toHaveAttribute("aria-selected", "true");
 });
 
-test("MUPP-038-R1 R6 a parent who is not master admin has no Secret Santa tab, and no phone or email is on the visitor pages or the admin page", async ({ page }) => {
+test("MUPP-038-R6 MUPP-048-R3 no phone, email or member name is on the visitor pages or the page of a parent who does not administer the group", async ({ page }) => {
   const mia = uniqueName("Mia");
   await addParent(mia);
-  await addSantaMember(await addSantaFamily("Testfamiljen"), "Anna Testsson", PHONE, EMAIL);
+  await addSantaMember(await addSantaEvent("Testfamiljen"), "Anna Testsson", PHONE, EMAIL);
 
-  // R1: no tab; the kids are shown as before
+  // Mia has the tab (MUPP-048-R1) but no group of her own, so there is nothing of Anna's in it
   await adminSignIn(page, mia);
-  await expect(page.getByRole("tab")).toHaveCount(0);
-  await expect(page.getByText("Secret Santa")).toHaveCount(0);
+  await page.getByRole("tab", { name: "Secret Santa" }).click();
+  await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
 
-  // R6: the pages of a parent who is not master admin and of every visitor page carry nothing from the tables
+  // The admin page of a parent who does not administer the group and the visitor pages carry nothing from the group's members
+  // (the group's own name is public on the entrance, but not on these pages)
   for (const path of ["/", "/admin", "/design"]) {
     const html = await (await page.request.get(path)).text();
     for (const secret of [PHONE, EMAIL, "Anna Testsson", "Testfamiljen"]) expect(html, `${path} ${secret}`).not.toContain(secret);
   }
 });
 
-test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors, pick a known person, choose a partner both ways, remove, delete with a question", async ({ page }) => {
+test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, choose a partner both ways, remove, delete with a question", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
   await page.setViewportSize({ width: 375, height: 667 });
@@ -95,7 +96,7 @@ test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Skriv numret som 07XXXXXXXX" })).toBeVisible();
   await expect(page.getByRole("alert").filter({ hasText: "Skriv en e-postadress" })).toBeVisible();
-  expect(await countSanta("ss_person")).toBe(0);
+  expect(await countSanta("ss_member")).toBe(0);
   await expectNoA11yViolations(page);
 
   // R3: valid details add the member (the fields kept what was typed)
@@ -138,39 +139,33 @@ test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors
   await expect(anna).not.toContainText("Partner");
   await expect(cia).not.toContainText("Partner");
 
-  // R4: a second family can take Anna from the known people, without entering her again
+  // The same phone number can be used for a person in another group (MUPP-048-R5): Anna is a separate member there
   await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
   await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ask");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   const ash = familyCard(page, "Familjen Ask");
-  await ash.getByRole("button", { name: "Lägg till känd person i Familjen Ask" }).click();
-  await pickOption(page, ash, "Välj person", "Anna Testsson");
-  await ash.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await expect(ash).toContainText("1 medlem");
-  expect(await countSanta("ss_person")).toBe(3);
-  expect(await countSanta("ss_member")).toBe(4);
-  // The same phone for a new person is refused
   await ash.getByRole("button", { name: "Ny person i Familjen Ask" }).click();
-  await page.getByLabel("Namn", { exact: true }).fill("Dubbel");
+  await page.getByLabel("Namn", { exact: true }).fill("Anna Testsson");
   await page.getByLabel("Telefon", { exact: true }).fill(PHONE);
-  await page.getByLabel("E-post", { exact: true }).fill("dubbel@exempel.invalid");
+  await page.getByLabel("E-post", { exact: true }).fill(EMAIL);
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Numret används redan" })).toBeVisible();
-  await page.keyboard.press("Escape");
+  await expect(ash).toContainText("1 medlem");
+  expect(await countSanta("ss_member")).toBe(4);
 
-  // R3: editing her details in one family changes both (one person)
+  // Editing her in one group does not change the other
   const annaAsh = ash.locator("article");
   await annaAsh.getByRole("button", { name: "Ändra Anna Testsson i Familjen Ask" }).click();
   await annaAsh.getByLabel("Namn", { exact: true }).fill("Anna Ek");
   await annaAsh.getByRole("button", { name: "Spara", exact: true }).click();
-  await expect(memberCard(page, "Anna Ek")).toHaveCount(2);
+  await expect(memberCard(page, "Anna Ek")).toHaveCount(1);
+  await expect(memberCard(page, "Anna Testsson")).toHaveCount(1);
 
-  // R3: removing her from the second family asks, and she stays in the first
+  // R3: removing her from the second group asks, and she stays in the first
   await annaAsh.getByRole("button", { name: "Ta bort Anna Ek i Familjen Ask" }).click();
-  await expect(dialog(page)).toContainText("finns kvar i de andra familjerna");
+  await expect(dialog(page)).toContainText("önskelistan i Familjen Ask tas bort");
   await dialog(page).getByRole("button", { name: "Ta bort", exact: true }).click();
   await expect(ash).toContainText("0 medlemmar");
-  await expect(memberCard(page, "Anna Ek")).toHaveCount(1);
+  await expect(memberCard(page, "Anna Testsson")).toHaveCount(1);
 
   // R2: deleting a family asks first; Avbryt keeps it, Ta bort removes it with its members
   await birch.getByRole("button", { name: "Ta bort Familjen Björk" }).click();
@@ -181,6 +176,5 @@ test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors
   await dialog(page).getByRole("button", { name: "Ta bort", exact: true }).click();
   await expect(birch).toBeHidden();
   await expect(page.getByRole("heading", { level: 4 })).toHaveCount(0);
-  expect(await countSanta("ss_person")).toBe(0);
   expect(await countSanta("ss_member")).toBe(0);
 });

@@ -8,8 +8,8 @@ export const SANTA_COOKIE = "__Host-santa_session";
 
 // Signs in without the form (TECH-018): the cookie the site would set, signed with the test server's
 // made-up key (set in playwright.config.ts). Tests of the sign-in itself use the form.
-export async function santaSignIn(page: Page, personId: number) {
-  const value = createSantaSession(process.env.SITE_SESSION_SECRET!, personId);
+export async function santaSignIn(page: Page, memberId: number) {
+  const value = createSantaSession(process.env.SITE_SESSION_SECRET!, memberId);
   await page.context().addCookies([{ name: SANTA_COOKIE, value, domain: "localhost", path: "/", secure: true, httpOnly: true, sameSite: "Lax" }]);
 }
 

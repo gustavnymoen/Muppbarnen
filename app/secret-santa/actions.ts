@@ -15,13 +15,13 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
   if (guard !== "ok") return { error: guardMessage(guard) };
 
   const outcome = await checkSantaSignIn(clientIp(await headers()), {
-    personId: formData.get("personId"),
+    memberId: formData.get("memberId"),
     kind: formData.get("kind"),
     value: formData.get("value"),
   });
   if (outcome.result !== "ok") return { error: outcome.result === "blocked" ? "För många försök. Försök igen om en stund." : "Det stämde inte" };
 
-  await setSantaCookie(outcome.personId);
+  await setSantaCookie(outcome.memberId);
   redirect(OWN_PAGE);
 }
 

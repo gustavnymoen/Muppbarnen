@@ -65,8 +65,16 @@ export const setPicture = (childId: number, name: string) =>
   withDb((db) => db.execute({ sql: "UPDATE child SET picture = ? WHERE id = ?", args: [name, childId] }));
 
 // Everything the tests made. The test database is only theirs, so it is all removed.
+// The Secret Santa tables first: an event is owned by a parent, and a parent who owns one cannot be deleted
+async function clearSantaTables(db: ReturnType<typeof createClient>) {
+  await db.execute("DELETE FROM ss_wish");
+  await db.execute("DELETE FROM ss_member");
+  await db.execute("DELETE FROM ss_event");
+}
+
 export const clearFamily = () =>
   withDb(async (db) => {
+    await clearSantaTables(db);
     await db.execute("DELETE FROM wishlist_item");
     await db.execute("DELETE FROM wishlist");
     await db.execute("DELETE FROM child");
@@ -85,28 +93,23 @@ export const setSizes = (childId: number, sizes: { clothes?: string; shoes?: str
     }),
   );
 
-// Secret Santa (MUPP-038): made-up families and people, made straight in the test database
-export const addSantaFamily = (name: string) =>
-  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_family (name) VALUES (?)", args: [name] })).lastInsertRowid));
+// Secret Santa (MUPP-038, MUPP-048): made-up events (groups) and members, made straight in the test database.
+// An event has an owner, the parent who administers it; without one the helper makes a made-up parent that clearSanta removes again.
+const SANTA_OWNER = "Santa-testförälder";
 
-export const addSantaMember = (familyId: number, name: string, phone: string, email: string) =>
+export const addSantaEvent = (name: string, ownerId?: number) =>
   withDb(async (db) => {
-    const person = await db.execute({ sql: "INSERT INTO ss_person (name, phone, email) VALUES (?, ?, ?)", args: [name, phone, email] });
-    const member = await db.execute({ sql: "INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", args: [familyId, Number(person.lastInsertRowid)] });
-    return Number(member.lastInsertRowid);
+    let owner = ownerId;
+    if (owner === undefined) {
+      const found = await db.execute({ sql: "SELECT id FROM parent WHERE name = ?", args: [SANTA_OWNER] });
+      owner = found.rows[0] ? Number(found.rows[0].id) : Number((await db.execute({ sql: "INSERT INTO parent (name) VALUES (?)", args: [SANTA_OWNER] })).lastInsertRowid);
+    }
+    return Number((await db.execute({ sql: "INSERT INTO ss_event (owner_id, name) VALUES (?, ?)", args: [owner, name] })).lastInsertRowid);
   });
 
-// The person a membership belongs to (the Secret Santa cookie holds the person id)
-export const personOfMember = (memberId: number) =>
-  withDb(async (db) => Number((await db.execute({ sql: "SELECT person_id FROM ss_member WHERE id = ?", args: [memberId] })).rows[0].person_id));
-
-// The same person joins another family (a new membership, MUPP-040-R3); returns the new member id
-export const joinSantaFamily = (memberId: number, familyId: number) =>
-  withDb(async (db) => {
-    const person = await db.execute({ sql: "SELECT person_id FROM ss_member WHERE id = ?", args: [memberId] });
-    const member = await db.execute({ sql: "INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", args: [familyId, person.rows[0].person_id] });
-    return Number(member.lastInsertRowid);
-  });
+// The Secret Santa cookie holds the member id
+export const addSantaMember = (eventId: number, name: string, phone: string, email: string) =>
+  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", args: [eventId, name, phone, email] })).lastInsertRowid));
 
 // Secret Santa wish lists (MUPP-040): made straight in the test database, read back as the database holds them
 export const addSantaWish = (memberId: number, title: string) =>
@@ -117,11 +120,12 @@ export const santaWishes = (memberId: number) =>
 
 export const clearSanta = () =>
   withDb(async (db) => {
-    await db.execute("DELETE FROM ss_wish");
-    await db.execute("DELETE FROM ss_member");
-    await db.execute("DELETE FROM ss_person");
-    await db.execute("DELETE FROM ss_family");
+    await clearSantaTables(db);
+    await db.execute({ sql: "DELETE FROM parent WHERE name = ?", args: [SANTA_OWNER] });
   });
 
-export const countSanta = (table: "ss_family" | "ss_person" | "ss_member") =>
+export const countSanta = (table: "ss_event" | "ss_member") =>
   withDb(async (db) => Number((await db.execute(`SELECT COUNT(*) AS n FROM ${table}`)).rows[0].n));
+
+// The events of the test database by name, in name order
+export const santaEventNames = () => withDb(async (db) => (await db.execute("SELECT name FROM ss_event ORDER BY name")).rows.map((r) => String(r.name)));

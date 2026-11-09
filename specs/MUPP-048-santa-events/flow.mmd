@@ -1,0 +1,18 @@
+%% MUPP-048 Secret Santa: events created by any parent
+%% A parent creates an event and administers it; visitors pick an event, then a name, then sign in to that event.
+flowchart TD
+    A[Parent: admin, tab Secret Santa: R1] --> B[Ny grupp, a name]
+    B --> C{Name free among all events? R2}
+    C -- no --> D[Det finns redan en grupp med det namnet]
+    D --> B
+    C -- yes --> E[Event owned by the parent]
+    E --> F[Members with their own phone and email: R5]
+    F --> G{Own event, or master admin? R3}
+    G -- no --> H[Du kan inte göra det här]
+    V[Visitor: /secret-santa] --> W{More than one event? R4}
+    W -- yes --> X[List of events]
+    W -- no --> Y
+    X --> Y[Names of that event; Tillbaka: R8]
+    Y --> Z[Sign-in as that member: R5]
+    Y -. Tillbaka or Esc .-> X
+    Y -. one event: Tillbaka .-> S[Start page]

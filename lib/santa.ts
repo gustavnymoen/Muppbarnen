@@ -3,134 +3,159 @@ import { all, get, run, withTransaction, type Executor } from "./db";
 import { collect, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
 
-// Secret Santa: familjer, personer och medlemskap (MUPP-038). Bara huvudadministratören får läsa eller
-// ändra något här, och telefon och e-post lämnar aldrig de här funktionerna till någon annan sida.
-// Allt som ändrar något tar emot vem som gör det (läst ur databasen vid varje förfrågan) och kontrollerar
-// både rättigheten och indatan här.
+// Secret Santa: grupper (events) och deras medlemmar (MUPP-038, MUPP-048). Vilken förälder som helst skapar en
+// grupp och administrerar den; huvudadministratören ser och ändrar alla. Telefon och e-post lämnar aldrig de här
+// funktionerna till någon annan sida. Allt som ändrar något tar emot vem som gör det (läst ur databasen vid varje
+// förfrågan) och kontrollerar både rättigheten och indatan här.
 
-export type SantaMember = { id: number; personId: number; name: string; phone: string; email: string; partnerId: number | null };
-export type SantaFamily = { id: number; name: string; members: SantaMember[] };
-// En person som redan finns, att lägga till i en annan familj (MUPP-038-R4)
-export type KnownPerson = { id: number; name: string };
+export type SantaMember = { id: number; name: string; phone: string; email: string; partnerId: number | null };
+export type SantaEvent = { id: number; name: string; ownerId: number; ownerName: string; members: SantaMember[] };
 
 const NOT_ALLOWED = { ok: false, error: "Du kan inte göra det här." } as const;
 const GONE = { ok: false, error: "Det finns inte längre. Ladda om sidan." } as const;
-const PHONE_TAKEN = { ok: false, fields: { phone: "Numret används redan av en annan person." } } as const;
+const NAME_TAKEN = { ok: false, fields: { name: "Det finns redan en grupp med det namnet." } } as const;
+const PHONE_TAKEN = { ok: false, fields: { phone: "Numret används redan av en annan person i gruppen." } } as const;
+const EMAIL_TAKEN = { ok: false, fields: { email: "E-postadressen används redan av en annan person i gruppen." } } as const;
+const PARTNER_IN_GROUP = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } } as const;
 
-const isMaster = (actor: Parent | null): actor is Parent => actor?.isMasterAdmin === true;
+type EventRow = { id: number; owner_id: number; name: string };
+
+// Gruppens ägare och huvudadministratören får ändra den (MUPP-048-R3)
+const canManage = (actor: Parent | null, event: Pick<EventRow, "owner_id">): actor is Parent => actor !== null && (actor.isMasterAdmin || event.owner_id === actor.id);
+
+// Samma namn oavsett versaler och mellanslag i ändarna (MUPP-048-R2). Jämförelsen görs här och inte bara av
+// indexet i databasen, som bara vet hur ASCII-versaler ser ut.
+const nameKey = (name: string) => name.trim().toLocaleLowerCase("sv");
+
+async function nameTaken(name: string, exceptId: number | null, tx: Executor) {
+  const events = await all<{ id: number; name: string }>("SELECT id, name FROM ss_event", [], tx);
+  return events.some((e) => e.id !== exceptId && nameKey(e.name) === nameKey(name));
+}
+
+// Gruppen, om förfrågan avser en som aktören får ändra
+async function manageableEvent(actor: Parent | null, rawId: unknown, tx: Executor): Promise<EventRow | Outcome> {
+  const id = parseId(rawId);
+  const event = id === null ? undefined : await get<EventRow>("SELECT id, owner_id, name FROM ss_event WHERE id = ?", [id], tx);
+  if (!event) return GONE;
+  return canManage(actor, event) ? event : NOT_ALLOWED;
+}
+
+const isOutcome = <T extends object>(value: T | Outcome): value is Outcome => "ok" in value;
 
 // ---- Läsa
 
-// Familjerna med sina medlemmar, i namnordning, och personerna som finns i någon familj
-export async function listFamilies(actor: Parent | null): Promise<{ families: SantaFamily[]; people: (KnownPerson & { familyIds: number[] })[] }> {
-  if (!isMaster(actor)) return { families: [], people: [] };
-  const families = await all<{ id: number; name: string }>("SELECT id, name FROM ss_family ORDER BY name, id");
-  const rows = await all<{ id: number; family_id: number; person_id: number; name: string; phone: string; email: string; partner_member_id: number | null }>(
-    `SELECT m.id, m.family_id, m.person_id, p.name, p.phone, p.email, m.partner_member_id
-     FROM ss_member m JOIN ss_person p ON p.id = m.person_id ORDER BY p.name, m.id`,
+// Grupperna aktören får se (egna; alla för huvudadministratören) med medlemmarna, i namnordning
+export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
+  if (!actor) return [];
+  // Samma urval för grupperna och medlemmarna (fast SQL-text): kontaktuppgifter för andras grupper läses aldrig ens in
+  const args = [actor.isMasterAdmin ? 1 : 0, actor.id];
+  const events = await all<EventRow & { owner_name: string }>(
+    "SELECT e.id, e.owner_id, e.name, p.name AS owner_name FROM ss_event e JOIN parent p ON p.id = e.owner_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY e.name, e.id",
+    args,
   );
-  const byFamily = new Map<number, SantaMember[]>();
-  const familiesOf = new Map<number, { id: number; name: string; familyIds: number[] }>();
-  for (const r of rows) {
-    const member = { id: r.id, personId: r.person_id, name: r.name, phone: r.phone, email: r.email, partnerId: r.partner_member_id };
-    byFamily.set(r.family_id, [...(byFamily.get(r.family_id) ?? []), member]);
-    const person = familiesOf.get(r.person_id) ?? { id: r.person_id, name: r.name, familyIds: [] };
-    person.familyIds.push(r.family_id);
-    familiesOf.set(r.person_id, person);
-  }
-  return { families: families.map((f) => ({ ...f, members: byFamily.get(f.id) ?? [] })), people: [...familiesOf.values()] };
+  const rows = await all<{ id: number; event_id: number; name: string; phone: string; email: string; partner_member_id: number | null }>(
+    "SELECT m.id, m.event_id, m.name, m.phone, m.email, m.partner_member_id FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY m.name, m.id",
+    args,
+  );
+  return events.map((e) => ({
+    id: e.id,
+    name: e.name,
+    ownerId: e.owner_id,
+    ownerName: e.owner_name,
+    members: rows.filter((r) => r.event_id === e.id).map((r) => ({ id: r.id, name: r.name, phone: r.phone, email: r.email, partnerId: r.partner_member_id })),
+  }));
 }
 
-// ---- Familjer
+// ---- Grupper
 
-export async function saveFamily(actor: Parent | null, input: { id?: unknown; name: unknown }): Promise<Outcome> {
-  if (!isMaster(actor)) return NOT_ALLOWED;
+export async function saveEvent(actor: Parent | null, input: { id?: unknown; name: unknown }): Promise<Outcome> {
+  if (!actor) return NOT_ALLOWED;
   const checked = collect({ name: parseText(input.name, 60, true) });
   if (!checked.ok) return { ok: false, fields: checked.errors };
-  if (input.id === undefined || input.id === "") {
-    await run("INSERT INTO ss_family (name) VALUES (?)", [checked.values.name]);
-    return { ok: true };
-  }
-  const id = parseId(input.id);
-  const { changes } = id === null ? { changes: 0 } : await run("UPDATE ss_family SET name = ? WHERE id = ?", [checked.values.name, id]);
-  return changes > 0 ? { ok: true } : GONE;
-}
-
-// Familjen, medlemskapen och de personer som inte är med i någon annan familj tas bort.
-// Allt görs här och inte bara av ON DELETE CASCADE: en transaktion behåller inte alltid
-// inställningen för främmande nycklar på en lokal databasfil.
-export async function removeFamily(actor: Parent | null, rawId: unknown): Promise<Outcome> {
-  if (!isMaster(actor)) return NOT_ALLOWED;
-  const id = parseId(rawId);
-  if (id === null) return GONE;
+  const { name } = checked.values;
+  const creating = input.id === undefined || input.id === "";
   return withTransaction(async (tx) => {
-    if (!(await get("SELECT 1 FROM ss_family WHERE id = ?", [id], tx))) return GONE;
-    await run("UPDATE ss_member SET partner_member_id = NULL WHERE family_id = ?", [id], tx);
-    await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE family_id = ?)", [id], tx);
-    await run("DELETE FROM ss_member WHERE family_id = ?", [id], tx);
-    await run("DELETE FROM ss_family WHERE id = ?", [id], tx);
-    await dropPeopleWithoutFamily(tx);
+    const event = creating ? null : await manageableEvent(actor, input.id, tx);
+    if (event && isOutcome(event)) return event;
+    if (await nameTaken(name, event?.id ?? null, tx)) return NAME_TAKEN;
+    try {
+      if (event) await run("UPDATE ss_event SET name = ? WHERE id = ?", [name, event.id], tx);
+      else await run("INSERT INTO ss_event (owner_id, name) VALUES (?, ?)", [actor.id, name], tx);
+    } catch (error) {
+      // Två föräldrar som sparar samma namn samtidigt: indexet i databasen stoppar den andra
+      if (/constraint/i.test(String(error))) return NAME_TAKEN;
+      throw error;
+    }
     return { ok: true };
   });
 }
 
-const dropPeopleWithoutFamily = (tx: Executor) => run("DELETE FROM ss_person WHERE id NOT IN (SELECT person_id FROM ss_member)", [], tx);
+// Gruppen och dess medlemmar med önskelistor tas bort. Allt görs här och inte bara av ON DELETE CASCADE: en
+// transaktion behåller inte alltid inställningen för främmande nycklar på en lokal databasfil.
+export async function removeEvent(actor: Parent | null, rawId: unknown): Promise<Outcome> {
+  return withTransaction(async (tx) => {
+    const event = await manageableEvent(actor, rawId, tx);
+    if (isOutcome(event)) return event;
+    await run("UPDATE ss_member SET partner_member_id = NULL WHERE event_id = ?", [event.id], tx);
+    await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE event_id = ?)", [event.id], tx);
+    await run("DELETE FROM ss_member WHERE event_id = ?", [event.id], tx);
+    await run("DELETE FROM ss_event WHERE id = ?", [event.id], tx);
+    return { ok: true };
+  });
+}
 
 // ---- Medlemmar
 
-const memberFacts = (id: number, tx: Executor) => get<{ id: number; family_id: number; person_id: number }>("SELECT id, family_id, person_id FROM ss_member WHERE id = ?", [id], tx);
+type MemberRow = { id: number; event_id: number };
 
-// En ny person i familjen
-export async function addNewMember(actor: Parent | null, input: { familyId: unknown; name: unknown; phone: unknown; email: unknown }): Promise<Outcome> {
-  if (!isMaster(actor)) return NOT_ALLOWED;
-  const familyId = parseId(input.familyId);
+// Medlemmen, om aktören får ändra gruppen den ligger i
+async function manageableMember(actor: Parent | null, rawId: unknown, tx: Executor): Promise<(MemberRow & { owner_id: number }) | Outcome> {
+  const id = parseId(rawId);
+  const member = id === null ? undefined : await get<MemberRow & { owner_id: number }>("SELECT m.id, m.event_id, e.owner_id FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
+  if (!member) return GONE;
+  return canManage(actor, member) ? member : NOT_ALLOWED;
+}
+
+// Telefon och e-post är unika inom gruppen (MUPP-048-R5); exceptId är medlemmen som ändras
+async function contactTaken(eventId: number, phone: string, email: string, exceptId: number | null, tx: Executor) {
+  const others = await all<{ phone: string; email: string }>("SELECT phone, email FROM ss_member WHERE event_id = ? AND id IS NOT ?", [eventId, exceptId], tx);
+  if (others.some((o) => o.phone === phone)) return PHONE_TAKEN;
+  if (others.some((o) => o.email.toLowerCase() === email.toLowerCase())) return EMAIL_TAKEN;
+  return null;
+}
+
+// En ny medlem i gruppen
+export async function addMember(actor: Parent | null, input: { eventId: unknown; name: unknown; phone: unknown; email: unknown }): Promise<Outcome> {
   const checked = collect({ name: parseText(input.name, 60, true), phone: parsePhone(input.phone), email: parseEmail(input.email) });
-  if (!checked.ok) return { ok: false, fields: checked.errors };
-  const { name, phone, email } = checked.values;
   return withTransaction(async (tx) => {
-    if (familyId === null || !(await get("SELECT 1 FROM ss_family WHERE id = ?", [familyId], tx))) return GONE;
-    if (await get("SELECT 1 FROM ss_person WHERE phone = ?", [phone], tx)) return PHONE_TAKEN;
-    const person = await run("INSERT INTO ss_person (name, phone, email) VALUES (?, ?, ?)", [name, phone, email], tx);
-    await run("INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", [familyId, person.lastId], tx);
+    const event = await manageableEvent(actor, input.eventId, tx);
+    if (isOutcome(event)) return event;
+    if (!checked.ok) return { ok: false, fields: checked.errors };
+    const { name, phone, email } = checked.values;
+    const taken = await contactTaken(event.id, phone, email, null, tx);
+    if (taken) return taken;
+    await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
     return { ok: true };
   });
 }
 
-// En person som redan finns, i ytterligare en familj (MUPP-038-R4)
-export async function joinFamily(actor: Parent | null, input: { familyId: unknown; personId: unknown }): Promise<Outcome> {
-  if (!isMaster(actor)) return NOT_ALLOWED;
-  const familyId = parseId(input.familyId);
-  const personId = parseId(input.personId);
-  return withTransaction(async (tx) => {
-    const found = familyId !== null && personId !== null && (await get("SELECT 1 FROM ss_family f, ss_person p WHERE f.id = ? AND p.id = ?", [familyId, personId], tx));
-    if (!found) return GONE;
-    if (await get("SELECT 1 FROM ss_member WHERE family_id = ? AND person_id = ?", [familyId, personId], tx)) {
-      return { ok: false, error: "Personen är redan med i familjen." };
-    }
-    await run("INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", [familyId, personId], tx);
-    return { ok: true };
-  });
-}
-
-// Personens uppgifter (gäller i alla hens familjer, en person och inte flera kopior) och partnern i den här familjen.
-// Partnern är ett annat medlemskap i samma familj, eller ingen; länken sätts åt båda håll (MUPP-038-R5).
+// Medlemmens uppgifter och partnern: en annan medlem i samma grupp, eller ingen; länken sätts åt båda håll (MUPP-038-R5)
 export async function saveMember(actor: Parent | null, input: { memberId: unknown; name: unknown; phone: unknown; email: unknown; partnerId: unknown }): Promise<Outcome> {
-  if (!isMaster(actor)) return NOT_ALLOWED;
-  const memberId = parseId(input.memberId);
   const partnerId = input.partnerId === "" || input.partnerId === undefined ? null : parseId(input.partnerId);
   const checked = collect({ name: parseText(input.name, 60, true), phone: parsePhone(input.phone), email: parseEmail(input.email) });
-  if (!checked.ok) return { ok: false, fields: checked.errors };
-  const { name, phone, email } = checked.values;
   return withTransaction(async (tx) => {
-    const member = memberId === null ? undefined : await memberFacts(memberId, tx);
-    if (!member) return GONE;
-    if (input.partnerId !== "" && input.partnerId !== undefined && partnerId === null) return { ok: false, fields: { partnerId: "Välj en av de andra i familjen." } };
+    const member = await manageableMember(actor, input.memberId, tx);
+    if (isOutcome(member)) return member;
+    if (!checked.ok) return { ok: false, fields: checked.errors };
+    const { name, phone, email } = checked.values;
+    if (input.partnerId !== "" && input.partnerId !== undefined && partnerId === null) return PARTNER_IN_GROUP;
     if (partnerId !== null) {
-      const partner = partnerId === member.id ? undefined : await memberFacts(partnerId, tx);
-      if (partner?.family_id !== member.family_id) return { ok: false, fields: { partnerId: "Välj en av de andra i familjen." } };
+      const partner = partnerId === member.id ? undefined : await get<MemberRow>("SELECT id, event_id FROM ss_member WHERE id = ?", [partnerId], tx);
+      if (partner?.event_id !== member.event_id) return PARTNER_IN_GROUP;
     }
-    if (await get("SELECT 1 FROM ss_person WHERE phone = ? AND id <> ?", [phone, member.person_id], tx)) return PHONE_TAKEN;
-    await run("UPDATE ss_person SET name = ?, phone = ?, email = ? WHERE id = ?", [name, phone, email, member.person_id], tx);
+    const taken = await contactTaken(member.event_id, phone, email, member.id, tx);
+    if (taken) return taken;
+    await run("UPDATE ss_member SET name = ?, phone = ?, email = ? WHERE id = ?", [name, phone, email, member.id], tx);
     await setPartner(member.id, partnerId, tx);
     return { ok: true };
   });
@@ -147,17 +172,14 @@ async function setPartner(memberId: number, partnerId: number | null, tx: Execut
   }
 }
 
-// Medlemmen tas bort ur familjen; är det den sista familjen tas personen och hens uppgifter bort (MUPP-038-R3)
+// Medlemmen, hens önskelista och kontaktuppgifter tas bort ur gruppen
 export async function removeMember(actor: Parent | null, rawId: unknown): Promise<Outcome> {
-  if (!isMaster(actor)) return NOT_ALLOWED;
-  const id = parseId(rawId);
   return withTransaction(async (tx) => {
-    const member = id === null ? undefined : await memberFacts(id, tx);
-    if (!member) return GONE;
+    const member = await manageableMember(actor, rawId, tx);
+    if (isOutcome(member)) return member;
     await setPartner(member.id, null, tx);
     await run("DELETE FROM ss_wish WHERE member_id = ?", [member.id], tx);
     await run("DELETE FROM ss_member WHERE id = ?", [member.id], tx);
-    await dropPeopleWithoutFamily(tx);
     return { ok: true };
   });
 }

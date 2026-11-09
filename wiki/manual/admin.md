@@ -8,7 +8,7 @@ tags: [admin, önskelista, bilder]
 
 # Administrationssidan
 
-På administrationssidan fyller föräldrarna i barnens storlekar och önskelistor. Gustav, som är huvudadministratör, lägger också till föräldrar och barn, laddar upp barnens bilder och sätter upp familjer för Secret Santa. Du måste först ha kommit in på sajten med [sajtlösenordet](losenord.md).
+På administrationssidan fyller föräldrarna i barnens storlekar och önskelistor. Gustav, som är huvudadministratör, lägger också till föräldrar och barn, laddar upp barnens bilder och alla föräldrar kan sätta upp sina egna grupper för Secret Santa. Du måste först ha kommit in på sajten med [sajtlösenordet](losenord.md).
 
 ## Logga in
 
@@ -69,23 +69,22 @@ Fel visas bredvid fältet, och det du skrivit finns kvar så att du kan rätta d
 
 Om du är huvudadministratör finns **Hantera** på din sida, med knappen **Hantera barn och föräldrar**. Där finns rubrikerna **Föräldrar** och **Barn**, med ett smalt kort för var och en.
 
-- **Föräldrar:** lägg till, ändra namn, kryssa i **Huvudadministratör**, eller ta bort. En förälder som har barn kan inte tas bort: flytta eller ta bort barnen först. Det måste alltid finnas minst en huvudadministratör.
+- **Föräldrar:** lägg till, ändra namn, kryssa i **Huvudadministratör**, eller ta bort. En förälder som har barn kan inte tas bort: flytta eller ta bort barnen först. Det går inte heller om föräldern är administratör för en Secret Santa-grupp: ta bort grupperna först. Det måste alltid finnas minst en huvudadministratör.
 - **Barn:** lägg till med plusset **Nytt barn**: namn, födelsedatum (ett riktigt datum, högst tio månader fram, så att du kan lägga till ett barn som ännu inte är fött) och förälder. Föräldern väljer du i en lista som öppnas under fältet, framför kortet: tryck på fältet och sedan på en förälder, eller använd piltangenterna och Enter (Esc stänger listan utan att ändra, inte kortet). Ett barn som inte är fött visas som "Beräknad" med datumet. Pennan öppnar ett kort med bilden, födelsedatum och förälder som låter dig ändra, bland annat byta förälder. Papperskorgen tar också bort barnets listor och bild, efter en fråga.
 - **Bild:** tryck bildikonen **Bild för …** vid barnet, välj en fil (JPEG, PNG eller WebP, högst 4 MB) och tryck **Spara bild**. Bilden görs liten automatiskt när den sparas (och platsdata i bilden tas bort), så du behöver inte förminska den själv. En ny bild ersätter den gamla. Annat, eller en fil som inte går att öppna som bild, ger "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB."
 - **Ta bort bilden:** har barnet en bild visas en rad "Bild" med en papperskorg överst i bildkortet (**Ta bort bilden för …**). Du får en fråga som nämner barnet; efter **Ta bort** visas barnets initial i stället.
 
 Bilderna syns bara för den som är inne på sajten med sajtlösenordet.
 
-## Secret Santa (bara huvudadministratören)
+## Secret Santa (varje förälder)
 
-Om du är huvudadministratör har din sida två flikar: **Barn** (som förut, med **Hantera**) och **Secret Santa**. Andra föräldrar ser ingen flik. Byt flik med musen, eller med vänster- och högerpil när en flik är vald. Lottningen, inloggningen och önskelistorna för Secret Santa kommer i senare steg; här lägger du in vilka som är med.
+Din sida har två flikar: **Barn** (som förut, och för huvudadministratören med **Hantera**) och **Secret Santa**. Byt flik med musen, eller med vänster- och högerpil när en flik är vald. Under **Grupper** ser du de grupper du själv har skapat och är administratör för; ingen annan förälder ser dem. Gustav, som är huvudadministratör, ser och kan ändra alla grupper (det står "administreras av …" på de andras). Lottningen och mejlen för Secret Santa kommer i senare steg; här lägger du in vilka som är med.
 
-- **Grupp:** tryck **Ny grupp** (under rubriken **Grupper**), skriv namnet (högst 60 tecken) och **Lägg till**. Pennan **Byt namn på …** ändrar namnet. Papperskorgen **Ta bort …** frågar först: familjen, dess medlemmar och deras önskelistor i familjen tas bort, och personer som inte är med i någon annan familj tas bort helt. Det går inte att ångra.
-- **Ny person:** tryck plusset **Ny person** längst ner i gruppen och fyll i **Namn**, **Telefon** och **E-post**. Telefonen skrivs som `07XXXXXXXX` (tio siffror som börjar på 07, utan mellanslag eller streck); annars står det "Skriv numret som 07XXXXXXXX". Två personer kan inte ha samma nummer.
-- **Lägg till känd person:** en person kan vara med i flera familjer. Tryck **Lägg till känd person**, välj personen i listan **Välj person** och **Lägg till**. Då skrivs inget in igen. Knappen finns bara när det finns någon som inte redan är med i familjen.
-- **Ändra en medlem:** pennan **Ändra … i …** visar namn, telefon, e-post och **Partner**. Namn, telefon och e-post gäller i alla familjer personen är med i.
-- **Partner:** välj en av de andra i familjen, eller **Ingen**. Länken går åt båda håll: väljer Anna Bo som partner blir Anna också Bos partner, och ändrar du eller tar bort den ändras båda. Partnern gäller bara i den familjen; samma person kan ha olika partner i olika familjer. Partnern används senare i lottningen, så att paret inte drar varandra.
-- **Ta bort en medlem:** papperskorgen vid personen frågar först. Personen försvinner ur familjen men finns kvar i de andra; tas hen bort ur den sista familjen raderas hen och hens uppgifter.
+- **Grupp:** tryck **Ny grupp** (under rubriken **Grupper**), skriv namnet (högst 60 tecken) och **Lägg till**. Två grupper kan inte ha samma namn, inte heller med andra stora och små bokstäver eller mellanslag i ändarna; då står det "Det finns redan en grupp med det namnet." Pennan **Byt namn på …** ändrar namnet. Papperskorgen **Ta bort …** frågar först: gruppen, dess medlemmar och deras önskelistor tas bort. Det går inte att ångra. Alla gruppernas namn syns för besökarna på Secret Santa-sidan, där de väljer sin grupp.
+- **Ny person:** tryck plusset **Ny person** längst ner i gruppen och fyll i **Namn**, **Telefon** och **E-post**. Telefonen skrivs som `07XXXXXXXX` (tio siffror som börjar på 07, utan mellanslag eller streck); annars står det "Skriv numret som 07XXXXXXXX". Två personer i samma grupp kan inte ha samma telefonnummer eller e-postadress. Samma person kan vara med i flera grupper: lägg då in henne i varje grupp, med samma uppgifter. Hon är en egen medlem i varje grupp, med egen önskelista och egen inloggning, och en ändring i en grupp rör inte de andra.
+- **Ändra en medlem:** pennan **Ändra … i …** visar namn, telefon, e-post och **Partner**.
+- **Partner:** välj en av de andra i gruppen, eller **Ingen**. Länken går åt båda håll: väljer Anna Bo som partner blir Anna också Bos partner, och ändrar du eller tar bort den ändras båda. Partnern används senare i lottningen, så att paret inte drar varandra.
+- **Ta bort en medlem:** papperskorgen vid personen frågar först. Medlemmen, kontaktuppgifterna och önskelistan i gruppen tas bort.
 
 Telefonnummer och e-post syns bara här, för huvudadministratören, aldrig för besökare.
 
@@ -93,6 +92,6 @@ Telefonnummer och e-post syns bara här, för huvudadministratören, aldrig för
 
 Lösenordet och nyckeln som signerar inloggningen är inställningarna `ADMIN_PASSWORD` och `ADMIN_SESSION_SECRET` i Vercel (Production och Preview) och i `.env.local`. Byt värdet och publicera om sajten; byter du nyckeln loggas alla ut. Saknas någon av dem är admin stängd.
 
-Byggd av [MUPP-003](../../specs/MUPP-003-admin-page/solution.md), [MUPP-038](../../specs/MUPP-038-secret-santa-families/solution.md) och [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md); den tekniska beskrivningen är [Admin page](../system/admin.md).
+Byggd av [MUPP-003](../../specs/MUPP-003-admin-page/solution.md), [MUPP-038](../../specs/MUPP-038-secret-santa-families/solution.md), [MUPP-048](../../specs/MUPP-048-santa-events/solution.md) och [MUPP-010](../../specs/MUPP-010-compact-admin/solution.md); den tekniska beskrivningen är [Admin page](../system/admin.md).
 
 [Manual](index.md)

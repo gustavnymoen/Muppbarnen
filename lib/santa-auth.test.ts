@@ -5,12 +5,12 @@ import { unitTestDbFile } from "./local-db.mjs";
 process.env.TURSO_DATABASE_URL = `file:${unitTestDbFile}`;
 const { get, run } = await import("./db");
 const { MAX_WRONG } = await import("./login-block");
-const { checkSantaSignIn, contactMatches, entranceFamilies, entranceMembers, normalizePhone } = await import("./santa-auth");
+const { checkSantaSignIn, contactMatches, entranceEvents, entranceMembers, findMember, normalizePhone } = await import("./santa-auth");
 
 const clear = async () => {
   await run("DELETE FROM ss_member");
-  await run("DELETE FROM ss_person");
-  await run("DELETE FROM ss_family");
+  await run("DELETE FROM ss_event");
+  await run("DELETE FROM parent");
   await run("DELETE FROM login_attempts");
   await run("DELETE FROM login_blocks");
 };
@@ -19,6 +19,15 @@ afterAll(clear);
 
 // Påhittade uppgifter
 const saved = { phone: "0701234567", email: "Anna.Test@Exempel.invalid" };
+async function newEvent(name = "Testgruppen") {
+  const owner = (await run("INSERT INTO parent (name) VALUES ('Förälder')")).lastId;
+  return (await run("INSERT INTO ss_event (owner_id, name) VALUES (?, ?)", [owner, name])).lastId;
+}
+async function member(name: string, phone: string, event?: number) {
+  const eventId = event ?? (await newEvent());
+  const id = (await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [eventId, name, phone, saved.email])).lastId;
+  return { event: eventId, member: id };
+}
 
 describe("MUPP-039-R4 matching of phone and email", () => {
   test("MUPP-039-R4 a phone matches with spaces, dashes and +46 read as a leading 0", () => {
@@ -42,57 +51,60 @@ describe("MUPP-039-R4 matching of phone and email", () => {
 });
 
 describe("MUPP-039-R3 R4 what visitors read and the sign-in check", () => {
-  async function member(name: string, phone: string) {
-    const family = (await run("INSERT INTO ss_family (name) VALUES ('Testfamiljen')")).lastId;
-    const person = (await run("INSERT INTO ss_person (name, phone, email) VALUES (?, ?, ?)", [name, phone, saved.email])).lastId;
-    await run("INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", [family, person]);
-    return { family, person };
-  }
-
   test("MUPP-039-R3 the entrance reads names only", async () => {
-    const { family, person } = await member("Anna", saved.phone);
-    expect(await entranceFamilies()).toEqual([{ id: family, name: "Testfamiljen" }]);
-    const members = await entranceMembers(family);
-    expect(members).toEqual([{ personId: person, name: "Anna" }]);
+    const { event, member: id } = await member("Anna", saved.phone);
+    expect(await entranceEvents()).toEqual([{ id: event, name: "Testgruppen" }]);
+    const members = await entranceMembers(event);
+    expect(members).toEqual([{ memberId: id, name: "Anna" }]);
     expect(JSON.stringify(members)).not.toContain(saved.phone);
   });
 
+  test("MUPP-048-R4 R5 the names of an event are only its own members, also when the same person is in two events", async () => {
+    const a = await member("Anna", saved.phone);
+    const b = await member("Anna", saved.phone, (await newEvent("Annan grupp")));
+    await member("Bo", "0707777777", a.event);
+    expect((await entranceEvents()).map((e) => e.name)).toEqual(["Annan grupp", "Testgruppen"]);
+    expect((await entranceMembers(a.event)).map((m) => m.name)).toEqual(["Anna", "Bo"]);
+    expect(await entranceMembers(b.event)).toEqual([{ memberId: b.member, name: "Anna" }]);
+    // Samma uppgifter i två grupper: inloggningen gäller bara den medlem som valts
+    expect(await checkSantaSignIn("1.1.1.6", { memberId: String(b.member), kind: "phone", value: saved.phone }, 0)).toEqual({ result: "ok", memberId: b.member });
+    expect(await findMember(b.member)).toEqual({ id: b.member, name: "Anna", eventId: b.event, eventName: "Annan grupp" });
+  });
+
   test("MUPP-039-R4 the right value signs in, a wrong one does not and says nothing about which part", async () => {
-    const { person } = await member("Anna", saved.phone);
-    expect(await checkSantaSignIn("1.1.1.1", { personId: String(person), kind: "phone", value: "070-123 45 67" }, 0)).toEqual({ result: "ok", personId: person });
-    expect(await checkSantaSignIn("1.1.1.1", { personId: String(person), kind: "email", value: saved.email.toUpperCase() }, 0)).toEqual({ result: "ok", personId: person });
+    const { member: person } = await member("Anna", saved.phone);
+    expect(await checkSantaSignIn("1.1.1.1", { memberId: String(person), kind: "phone", value: "070-123 45 67" }, 0)).toEqual({ result: "ok", memberId: person });
+    expect(await checkSantaSignIn("1.1.1.1", { memberId: String(person), kind: "email", value: saved.email.toUpperCase() }, 0)).toEqual({ result: "ok", memberId: person });
     for (const input of [
-      { personId: String(person), kind: "phone", value: "0709999999" },
-      { personId: String(person + 1), kind: "phone", value: saved.phone },
-      { personId: "abc", kind: "phone", value: saved.phone },
-      { personId: String(person), kind: "annat", value: saved.phone },
-      { personId: String(person), kind: "phone", value: 123 },
+      { memberId: String(person), kind: "phone", value: "0709999999" },
+      { memberId: String(person + 1), kind: "phone", value: saved.phone },
+      { memberId: "abc", kind: "phone", value: saved.phone },
+      { memberId: String(person), kind: "annat", value: saved.phone },
+      { memberId: String(person), kind: "phone", value: 123 },
     ]) {
       expect(await checkSantaSignIn("1.1.1.2", input, 0)).toEqual({ result: "wrong" });
     }
   });
 
   test("MUPP-039-R4 repeated wrong tries block the address like the other sign-ins, and a right one is not counted", async () => {
-    const { person } = await member("Anna", saved.phone);
-    const right = { personId: String(person), kind: "phone", value: saved.phone };
+    const { member: person } = await member("Anna", saved.phone);
+    const right = { memberId: String(person), kind: "phone", value: saved.phone };
     const wrong = { ...right, value: "0700000000" };
     for (let i = 0; i < MAX_WRONG * 2; i++) await checkSantaSignIn("1.1.1.3", right, 0);
     for (let i = 0; i <= MAX_WRONG; i++) expect((await checkSantaSignIn("1.1.1.3", wrong, 0)).result).toBe("wrong");
     expect(await checkSantaSignIn("1.1.1.3", right, 0)).toEqual({ result: "blocked" });
-    expect(await checkSantaSignIn("1.1.1.4", right, 0)).toEqual({ result: "ok", personId: person });
+    expect(await checkSantaSignIn("1.1.1.4", right, 0)).toEqual({ result: "ok", memberId: person });
   });
 });
 
 describe("TECH-018-R2 the wait after a wrong Secret Santa sign-in", () => {
   test("TECH-018-R2 with the default wait a wrong try is answered only after one second, and still counts", async () => {
-    const family = (await run("INSERT INTO ss_family (name) VALUES ('Testfamiljen')")).lastId;
-    const person = (await run("INSERT INTO ss_person (name, phone, email) VALUES ('Anna', ?, ?)", [saved.phone, saved.email])).lastId;
-    await run("INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", [family, person]);
+    const { member: person } = await member("Anna", saved.phone);
     // Bara timern är falsk: databasen svarar på riktigt
     vi.useFakeTimers({ toFake: ["setTimeout"] });
     try {
       let answered = false;
-      const answer = checkSantaSignIn("1.1.1.5", { personId: String(person), kind: "phone", value: "0700000000" }).then((r) => ((answered = true), r));
+      const answer = checkSantaSignIn("1.1.1.5", { memberId: String(person), kind: "phone", value: "0700000000" }).then((r) => ((answered = true), r));
       // Databasen svarar på riktigt (setImmediate är inte falsk); sedan väntar försöket på sin timer
       while (vi.getTimerCount() === 0) await new Promise((resolve) => setImmediate(resolve));
       expect(answered).toBe(false);

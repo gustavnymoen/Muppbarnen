@@ -89,3 +89,65 @@ describe("MUPP-031-R4 the migration that dates items", () => {
     }
   });
 });
+
+describe("MUPP-048-R7 the migration that turns families into events", () => {
+  const migration = (name: string) => readFileSync(path.join(import.meta.dirname, "migrations", name), "utf8");
+
+  // Påhittad data i tabellerna som 003, 005 och 006 gör, som i en riktig databas (främmande nycklar på, som i skriptet)
+  test("MUPP-048-R7 the family becomes an event owned by the master admin, and members, partners, wishes and ids are kept", async () => {
+    const db = createClient({ url: ":memory:" });
+    try {
+      await db.execute("PRAGMA foreign_keys = ON");
+      for (const name of ["003_family.sql", "005_secret_santa.sql", "006_secret_santa_wishes.sql"]) await db.executeMultiple(migration(name));
+      await db.executeMultiple(`
+        INSERT INTO parent (id, name, is_master_admin) VALUES (1, 'Emma', 0), (2, 'Chef', 1);
+        INSERT INTO ss_family (id, name) VALUES (1, 'Familjen A'), (2, 'Familjen B'), (3, ' familjen a '), (4, '   ');
+        INSERT INTO ss_person (id, name, phone, email) VALUES (1, 'Anna', '0701111111', 'Anna@Exempel.se'), (2, 'Bo', '0702222222', 'bo@exempel.se');
+        INSERT INTO ss_member (id, family_id, person_id, partner_member_id) VALUES (10, 1, 1, NULL), (11, 1, 2, NULL), (12, 2, 1, NULL);
+        UPDATE ss_member SET partner_member_id = 11 WHERE id = 10;
+        UPDATE ss_member SET partner_member_id = 10 WHERE id = 11;
+        INSERT INTO ss_wish (id, member_id, title, description, size, url) VALUES (100, 10, 'Bok', 'Spänning', 'M', 'https://exempel.se'), (101, 12, 'Hos B', '', '', '');`);
+      await db.executeMultiple(migration("007_secret_santa_events.sql"));
+
+      // Alla grupper ägs av huvudadministratören; en dubblett av ett namn (versaler och mellanslag) får sitt id efter namnet
+      expect((await db.execute("SELECT id, owner_id, name FROM ss_event ORDER BY id")).rows.map((r) => ({ ...r }))).toEqual([
+        { id: 1, owner_id: 2, name: "Familjen A" },
+        { id: 2, owner_id: 2, name: "Familjen B" },
+        { id: 3, owner_id: 2, name: "familjen a (3)" },
+        { id: 4, owner_id: 2, name: "Grupp 4" },
+      ]);
+      // Varje grupp har sin egen kopia av personen, med samma uppgifter och samma id som medlemskapet hade
+      expect((await db.execute("SELECT id, event_id, name, phone, email, partner_member_id FROM ss_member ORDER BY id")).rows.map((r) => ({ ...r }))).toEqual([
+        { id: 10, event_id: 1, name: "Anna", phone: "0701111111", email: "Anna@Exempel.se", partner_member_id: 11 },
+        { id: 11, event_id: 1, name: "Bo", phone: "0702222222", email: "bo@exempel.se", partner_member_id: 10 },
+        { id: 12, event_id: 2, name: "Anna", phone: "0701111111", email: "Anna@Exempel.se", partner_member_id: null },
+      ]);
+      expect((await db.execute("SELECT id, member_id, title, description, size, url FROM ss_wish ORDER BY id")).rows.map((r) => ({ ...r }))).toEqual([
+        { id: 100, member_id: 10, title: "Bok", description: "Spänning", size: "M", url: "https://exempel.se" },
+        { id: 101, member_id: 12, title: "Hos B", description: "", size: "", url: "" },
+      ]);
+      const tables = (await db.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'ss_%' OR name LIKE 'tmp_%') ORDER BY name")).rows.map((r) => r.name);
+      expect(tables).toEqual(["ss_event", "ss_member", "ss_wish"]);
+
+      // Reglerna gäller efteråt: ägare och telefon, och önskelistan följer gruppen
+      await expect(db.execute("INSERT INTO ss_event (owner_id, name) VALUES (99, 'Utan ägare')")).rejects.toThrow(/constraint failed/i);
+      await expect(db.execute("INSERT INTO ss_event (owner_id, name) VALUES (1, ' FAMILJEN b')")).rejects.toThrow(/constraint failed/i);
+      await expect(db.execute("INSERT INTO ss_member (event_id, name, phone, email) VALUES (1, 'Cia', '0701111111', 'c@exempel.se')")).rejects.toThrow(/constraint failed/i);
+      await db.execute("DELETE FROM ss_event WHERE id = 2");
+      expect((await db.execute("SELECT COUNT(*) AS n FROM ss_wish")).rows[0].n).toBe(1);
+    } finally {
+      db.close();
+    }
+  });
+
+  test("MUPP-048-R7 a database without any family migrates to empty tables", async () => {
+    const db = createClient({ url: ":memory:" });
+    try {
+      await db.execute("PRAGMA foreign_keys = ON");
+      for (const name of ["003_family.sql", "005_secret_santa.sql", "006_secret_santa_wishes.sql", "007_secret_santa_events.sql"]) await db.executeMultiple(migration(name));
+      expect((await db.execute("SELECT (SELECT COUNT(*) FROM ss_event) + (SELECT COUNT(*) FROM ss_member) + (SELECT COUNT(*) FROM ss_wish) AS n")).rows[0].n).toBe(0);
+    } finally {
+      db.close();
+    }
+  });
+});
