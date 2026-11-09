@@ -39,17 +39,17 @@ On https://muppbarnen.vercel.app, 2026-11-03, in the built-in browser at 375 px.
 
 | # | Item | Result |
 |---|---|---|
-| 1 | Keyboard | Not checked (the browser pane gives no reliable Tab order) |
-| 2 | Focus visible | Not checked |
-| 3 | Screen reader | Not checked (VoiceOver not run); the headings are H2 date and H3 name and the fold buttons have `aria-expanded` (read from the page) |
+| 1 | Keyboard | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) (the browser pane gives no reliable Tab order) |
+| 2 | Focus visible | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
+| 3 | Screen reader | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) (VoiceOver not run); the headings are H2 date and H3 name and the fold buttons have `aria-expanded` (read from the page) |
 | 4 | Zoom 200 %, 320 px | 375 px: no sideways scroll; 200 % and 320 px not checked |
-| 5 | Text spacing | Not checked |
+| 5 | Text spacing | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
 | 6 | Contrast | "Född" 5.53:1, date and name 11.36:1, "Önskelista" button text about 6:1 (estimated from the colours). "Fyllde 2 år" line not measured |
 | 7 | Target size | Folds 192×60 and 229×72 px, the sizes button 44×44 px: pass |
 | 8 | Hover or focus content | Not affected: no new menus or tooltips |
 | 9 | Errors and labels | Not affected: no form |
 | 10 | Title, language, images | `lang="sv"`, the title names the page; no new images |
-| 11 | Reduced motion | Not checked |
+| 11 | Reduced motion | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
 
 **Admin page** `/admin/barn/<id>/onskelistor` (the three kids of the signed-in parent): there is no "Arkiv" on any of them, because they have no archived items yet, and the archive cannot be made without changing real data. So when this was written the Arkiv group, the fold buttons in it, the "+" label "Lägg till … igen" and its size, and focus into and out of the copy dialog were **not checked live** by me; they are covered by the local browser test `MUPP-031-R5 R7 …` (axe, "+" at least 24 px, focus back to "+"). The user has since checked these on the live site: the Arkiv group, the "+" and the copy dialog, and the accessibility checklist (checked by the user (reported 2026-11-03)); no per-item results were given and none are recorded here.
 

@@ -7,7 +7,7 @@ feature: MUPP-003
 
 # Verification of MUPP-003
 
-Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database and the local picture folder), the unit tests in `lib/` and `db/`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts`. Everything below was checked locally on 2026-10-28, never against the user's own database or Blob store. Not done: the accessibility checklist on the live site, the site-password check of `/bilder/1` on the live site, and the Live tests after the merge (see Notes).
+Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database and the local picture folder), the unit tests in `lib/` and `db/`, the look in `tests/design.spec.ts` and the smoke test in `tests/smoke.spec.ts`. Everything below was checked locally on 2026-10-28, never against the user's own database or Blob store. Not done: the site-password check of `/bilder/1` on the live site, and the Live tests after the merge (see Notes).
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -28,7 +28,7 @@ Tests: `tests/MUPP-003-admin-page.spec.ts` (browser, against the test database a
 | Unit tests | `lib/admin-session.test.ts`, `form-input.test.ts`, `image-type.test.ts`, `pictures.test.ts`, `family.test.ts`; additions to `db/db-setup.test.ts` and `lib/route-checks.test.ts` | local, CI | Pass | 2026-10-28 |
 | Browser tests | `tests/MUPP-003-admin-page.spec.ts` with data from `uniqueName()` or the test database, and the look test in `tests/design.spec.ts` | local, CI | Pass | 2026-10-28 |
 | Smoke test | `@smoke` test in `tests/smoke.spec.ts`: `/admin` without the site cookie answers with the site password page and none of the admin | local; preview and live: not run yet | Pass locally | 2026-10-28 |
-| Accessibility | axe (`expectNoA11yViolations`) on the sign-in, the first-master form, the parent list, a parent's page with the forms, the master section and the confirmation; the manual checklist (VoiceOver, 200 % zoom, text spacing, contrast, target sizes) on the live site | local; live checklist: not done | axe: Pass; checklist: not checked | 2026-10-28 |
+| Accessibility | axe (`expectNoA11yViolations`) on the sign-in, the first-master form, the parent list, a parent's page with the forms, the master section and the confirmation; the manual checklist (VoiceOver, 200 % zoom, text spacing, contrast, target sizes) on the live site | local; live checklist: reported by the user | axe: Pass; checklist: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | 2026-10-28 |
 | Security | The security points of the review; `/security-review` run on the whole change, nothing found at high confidence (see [review.md](review.md)) | local | Pass | 2026-10-28 |
 | Manual check | Real Blob upload on the preview, as described under R6 | preview | Pass (the site-password check of `/bilder/1` not checked on the preview) | 2026-10-28 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-28 |
@@ -49,7 +49,7 @@ The browser time grew about 3.3 times, more than the 25 % rule, and is still ins
 - [x] Tests: every check in the card's test plan is done (the real Blob upload on the preview by hand, recorded above); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; total time grew more than 25 %, with the cause explained above; the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
-- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations` (done), but the relevant items of `wiki/system/accessibility.md` are not yet checked on the live site
+- [x] Accessibility: changed pages and states pass `expectNoA11yViolations`; the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/admin.md`), system docs (`wiki/system/admin.md` and others) and `wiki/log.md` updated
 - [x] No leftovers: the template helpers in `tests/helpers.ts` and `tests/global-teardown.ts` that the change replaced are deleted; no commented-out code or debug output
@@ -123,7 +123,7 @@ The admin pages need the admin password in addition to the site password.
 - **The proxy's redirect** from `/admin/...` to `/admin` carries the body "/admin"; the test allows both an empty body and that.
 - **The confirmation dialog does not wrap focus** (Tab past the last button leaves to the browser's own interface). The test checks that focus never lands behind the dialog, and Escape and Shift+Tab work.
 - **Preview and Vercel's sign-in:** the preview is behind Vercel's own authentication, so a private window sees the Vercel login and never the site's password page. The site-password check of `/bilder/<id>` is therefore covered by the browser test (`MUPP-003-R6 …`, no picture without the site cookie) and is to be seen once on the live site.
-- **Not checked:** the accessibility checklist on the live site, the site-password check of `/bilder/1` on the live site, and the Live tests after the merge.
+- **Not checked:** the site-password check of `/bilder/1` on the live site, and the Live tests after the merge.
 - **Test time:** see Test suite above.
 
 See also: [Solution](solution.md), [Review](review.md).

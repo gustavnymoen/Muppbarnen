@@ -23,7 +23,7 @@ feature: TECH-006
 | Unit tests | `npm run test:unit`: 110 pass, including `lib/design-tokens.test.ts` | local | Pass | 2026-10-29 |
 | Browser tests | `npm run test:local`: 55 tests; look changes in `tests/design.spec.ts` | local | Pass (see Notes on one flaky test) | 2026-10-29 |
 | Smoke test | None new | | Not applicable | |
-| Accessibility | axe on the admin start, Hantera, the two-kid card and the Christmas card; contrast of the wish button 5.6–7.5 for all six kid colours. The checklist in `wiki/system/accessibility.md` on the live site: not checked yet | local | Pass locally, live not checked | 2026-10-29 |
+| Accessibility | axe on the admin start, Hantera, the two-kid card and the Christmas card; contrast of the wish button 5.6–7.5 for all six kid colours. The checklist in `wiki/system/accessibility.md` on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass locally, live checklist reported done | 2026-10-29 |
 | Security | Not needed: only looks changed | | Not applicable | |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-29 |
 
@@ -43,7 +43,7 @@ The findings of step 3 (the card): **twins** have a bigger picture (72 px on a l
 - [ ] Tests: the plan's checks are done locally; the live checks are not yet
 - [x] Test suite: within the budgets, total time +7 %, the two new tests follow the quality rules
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
-- [ ] Accessibility: axe locally passes; the checklist on the live site not yet
+- [x] Accessibility: axe locally passes; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [ ] Requirements as built (below) match the card; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the proposals page and its stylesheet, the variant code and the dev server's files were deleted
@@ -85,7 +85,7 @@ Nothing changes in what the site does; the existing tests pass and the changed l
 - **Critique in one context:** Impeccable wants two isolated sub-agents for a critique; no sub-agents were used, so the critique of step 2 ran in one context.
 - **Flaky test, not caused by this change:** `MUPP-012-R1 R2 R3` failed on its first run (6.8 s, the keyboard step) and passed on the next two (1.9 s); it does not touch what this change touched. Worth a look in a technical task if it happens again.
 - **A fix found on the way:** the narrow wish button used to be as wide as the card because `w-full` won over `w-44`; the small button no longer has `w-full`.
-- **Not checked yet:** the live site and the accessibility checklist.
+- **Not checked yet:** the live site (the accessibility checklist was reported done by the user, 2026-11-09).
 
 See also: [Solution](solution.md), [Review](review.md).
 

@@ -25,7 +25,7 @@ How each requirement was checked. Browser tests ran locally (`npm run test:local
 | Unit tests | `lib/santa.test.ts` (13), `lib/form-input.test.ts` (2 new), and `lib/route-checks.test.ts` keeps passing with the new action file | local | Pass | 2026-11-08 |
 | Browser tests | `tests/MUPP-038-secret-santa.spec.ts` (3), each with axe where a new state shows; the look in `tests/design.spec.ts` (1: tabs ≥ 44 px, a family of 8 at 320 px, no sideways scroll, axe) | local | Pass | 2026-11-08 |
 | Smoke test | Not applicable: admin is behind the second password and nothing visitors see changes | | | |
-| Accessibility | axe in the browser tests (tabs, empty tab, the forms with errors, the family of 8 with a form open); keyboard on the tabs (arrows, Home); the manual checklist on the live site: not checked yet | local | Pass (axe) | 2026-11-08 |
+| Accessibility | axe in the browser tests (tabs, empty tab, the forms with errors, the family of 8 with a form open); keyboard on the tabs (arrows, Home); the manual checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-08 |
 | Security | Security points in the review; `/security-review` run, no finding | local | Pass | 2026-11-08 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-08 |
 
@@ -45,7 +45,7 @@ Four browser tests and 15 unit tests were added; the browser total is just insid
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is pushed
-- [x] Accessibility (axe passes; the manual checklist on the live site is not done yet)
+- [x] Accessibility (axe passes; the manual checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item))
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output

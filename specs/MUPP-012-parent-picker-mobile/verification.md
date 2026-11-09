@@ -22,7 +22,7 @@ How each requirement was checked. All checks are local so far; the live checks a
 | Unit tests | None planned: the logic is in the interface and tested in the browser | n/a | n/a | 2026-10-29 |
 | Browser tests | `tests/MUPP-012-parent-picker.spec.ts` (2 tests), `tests/design.spec.ts` (1 test), `tests/MUPP-003-admin-page.spec.ts` changed to the new control; `pickOption` added to `tests/helpers.ts` | local | Pass | 2026-10-29 |
 | Smoke test | Not applicable: the manage page needs sign-in and is not in the read-only smoke test | n/a | n/a | 2026-10-29 |
-| Accessibility | axe with the list open (375 px and 1280 px) and the page with it closed; the keyboard and screen-reader items of the checklist on the live site: not checked yet | local | Pass (axe) | 2026-10-29 |
+| Accessibility | axe with the list open (375 px and 1280 px) and the page with it closed; the keyboard and screen-reader items of the checklist on the live site: reported tested by hand by the user, screen reader included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live reported done | 2026-10-29 |
 | Security | Not needed per the card: the control only picks among options the server sent, and the server still checks the parent id. Covered by the security points in the review | local | Pass | 2026-10-29 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-29 |
 
@@ -40,7 +40,7 @@ How each requirement was checked. All checks are local so far; the live checks a
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (10 %), and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations` (done), and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not checked yet)
+- [x] Accessibility: changed pages and states pass `expectNoA11yViolations`; the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output
@@ -66,7 +66,7 @@ The chosen value is sent with the form under the same field name as before (`par
 
 - The control is in `app/components/ListPicker.tsx`, used by `Field` in `Form.tsx`, rather than inside `Form.tsx` itself.
 - Focus moves into the list while it is open (the listbox has `aria-activedescendant`), instead of staying on the button; the list is focusable (`tabIndex=0`) because axe requires a scrollable region to be.
-- Not checked: a real screen reader and a real phone.
+- Not checked by me: a real screen reader and a real phone (the user reported testing the live checklist by hand, screen reader included, 2026-11-09).
 
 See also: [Solution](solution.md), [Review](review.md).
 

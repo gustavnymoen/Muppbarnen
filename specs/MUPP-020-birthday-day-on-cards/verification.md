@@ -22,7 +22,7 @@ feature: MUPP-020
 | Unit tests | `lib/deck.test.ts` | local | Pass | 2026-11-02 |
 | Browser tests | The tests above, with axe on each state | local | Pass | 2026-11-02 |
 | Smoke test | Not applicable: no page or flow is added. The Live tests still passed after the deploy | live | Pass | 2026-11-02 |
-| Accessibility | axe in the browser tests; the checklist on the live site: not checked | local | Partly | 2026-11-02 |
+| Accessibility | axe in the browser tests; the checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass | 2026-11-02 |
 | Security | Security points in the review; `/security-review` not needed (no sign-in, route, query or form changes) | local | Pass | 2026-11-02 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -36,7 +36,7 @@ feature: MUPP-020
 ## Definition of Done
 
 - [x] Deployed (PR #91, 2026-11-02), and the Live tests (smoke tests) passed against production for commit d0d6d7b
-- [ ] The manual accessibility checklist on the live site: not checked (needs the site password, so it is left for the product owner)
+- [x] The manual accessibility checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] The rest is described in the table and notes above; commit and pull request are left for the user's go-ahead
 
 ## Requirements as built

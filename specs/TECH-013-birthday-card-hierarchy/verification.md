@@ -26,7 +26,7 @@ How each requirement was checked. Every browser test below is in `tests/design.s
 | Unit tests | Not applicable: the change is layout, and `FitName`'s measuring needs a browser (as the plan says); the 141 unit tests pass | local | Pass | 2026-11-03 |
 | Browser tests | The new test per phone size (see above); in its own test instead of the MUPP-014 test, which it would have taken to 7 s (the card's test plan is updated) | local | Pass | 2026-11-03 |
 | Smoke test | Not applicable: no main page or flow is added or changed | none | n/a | 2026-11-03 |
-| Accessibility | `expectNoA11yViolations` on the closed single-kid card and the three-kid card at 320 × 568, in the new test. The checklist on the live site (contrast of the smaller chip and date, the moved arrows' targets, text resize): **not checked**, the change is not deployed | local | Pass (axe); live checklist not checked | 2026-11-03 |
+| Accessibility | `expectNoA11yViolations` on the closed single-kid card and the three-kid card at 320 × 568, in the new test. The checklist on the live site (contrast of the smaller chip and date, the moved arrows' targets, text resize): reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-03 |
 | Security | Security points in the review: passed. `/security-review`: not needed (presentation only) | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
 | Design | Impeccable critique (below). The check on a real phone (320 and 375 px): **not checked** | local | See below | 2026-11-03 |
@@ -51,7 +51,7 @@ Two browser tests added (1.9 s each); the total is within the 3 min budget and g
 - [x] Tests: every check in the card's test plan is done (except the live and real-phone checks, below); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 2 %, and the new tests follow the quality rules in `wiki/system/testing.md`
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 41655959512 against the merge `66a2031` passed (2026-11-03)
-- [ ] Accessibility: axe passes on the changed states; the checklist items on the live site are not checked yet (after the deploy)
+- [x] Accessibility: axe passes on the changed states; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated; `DESIGN.md` has the rule
 - [x] No leftovers: `SOLO_AVATAR` is gone; the copies of `disjoint`, `inside` and `toCard` in `tests/design.spec.ts` moved to `tests/helpers.ts`; no commented-out code or debug output
@@ -96,7 +96,7 @@ Two browser tests added (1.9 s each); the total is within the 3 min budget and g
 ## Notes
 
 - The picture on the closed single-kid card is 129 px at 375 × 667 (was 140 × 121, an oval), so at that size the picture is a little smaller than before; R4 asks for it to be round.
-- The real-phone check and the accessibility checklist on the live site are left for after the deploy.
+- The real-phone check is left for after the deploy; the accessibility checklist on the live site was reported done by the user (2026-11-09).
 
 See also: [Solution](solution.md), [Review](review.md).
 

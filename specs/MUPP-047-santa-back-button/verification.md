@@ -22,7 +22,7 @@ How each requirement was checked. Browser tests ran locally (a production build,
 | Unit tests | Not applicable: no logic outside the page; the 193 existing ones pass | local | Pass | 2026-11-09 |
 | Browser tests | One new test (R1–R3) and a check added to the design test; the 039, 040 and design tests use "Fortsätt" | local | Pass (121) | 2026-11-09 |
 | Smoke test | Not applicable: no main page or flow is added | – | – | – |
-| Accessibility | axe in the new test (the sign-in step); the checklist on the live site: not checked yet | local | Pass (axe) | 2026-11-09 |
+| Accessibility | axe in the new test (the sign-in step); the checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-09 |
 | Security | Security points in the review; `/security-review` not needed (no data path changes) | local | Pass | 2026-11-09 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-09 |
 
@@ -42,7 +42,7 @@ One browser test was added (about 3 s); the others only changed a button name. T
 - [x] Tests: every check in the test plan is done and every requirement has a test; unit and browser tests pass locally
 - [ ] Test suite: over the time budget (see above); TECH-018 covers it; the new test follows the quality rules
 - [ ] Deployed, and the smoke tests pass against production: not yet, nothing is pushed
-- [x] Accessibility: axe passes; the checklist on the live site is not done yet
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

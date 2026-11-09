@@ -28,7 +28,7 @@ How each requirement was checked. Create this file when work starts and fill it 
 | Unit tests | `lib/design-tokens.test.ts` (6 tests) and `lib/child-colors.test.ts` (3 tests) | local, CI | Pass | 2026-10-27 |
 | Browser tests | `tests/design.spec.ts`, 3 tests: phone and 320 px, desktop, motion | local, CI | Pass | 2026-10-27 |
 | Smoke test | Not applicable: `/design` is not a main page or flow; the existing smoke test still passes | local | Pass | 2026-10-27 |
-| Accessibility | axe on `/design` at three widths. The checklist on the live site (keyboard, VoiceOver, 200 % zoom, text spacing, contrast of borders and focus ring by hand, target sizes, reduced motion): **not done yet**, after the deploy | local | axe pass; checklist not done | 2026-10-27 |
+| Accessibility | axe on `/design` at three widths. The checklist on the live site (keyboard, VoiceOver, 200 % zoom, text spacing, contrast of borders and focus ring by hand, target sizes, reduced motion): tested by hand (reported by the user 2026-11-09, screen reader items included, not recorded item by item) | local, live | axe pass; checklist reported done | 2026-10-27 |
 | Security | `/security-review` not needed: no sign-in, admin, API, database or personal data | - | n/a | 2026-10-27 |
 | Code review | [review.md](review.md) | local | See review.md | 2026-10-27 |
 
@@ -45,10 +45,10 @@ The browser time grew because the three new tests load `/design` and run axe on 
 
 ## Definition of Done
 
-- [ ] Tests: every check in the card's test plan is done (the manual R9 check and the live checklist are not)
+- [ ] Tests: every check in the card's test plan is done (the manual R9 check is not; the live checklist is reported done by the user, 2026-11-09)
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (combined by journey, no fixed waits)
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
-- [ ] Accessibility: axe passes; the checklist on the live site is not done yet
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built (after the last change)
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [ ] No leftovers: `.claude/launch.json` (temporary) removed before commit

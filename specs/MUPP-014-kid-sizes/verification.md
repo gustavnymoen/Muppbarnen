@@ -46,7 +46,7 @@ The first run had one design test of 5.7 s, over the 5 s budget; it was split in
 - [x] Tests: every check in the card's test plan is done locally; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 7 %, and the new tests follow the quality rules
 - [x] Deployed (PR #51), and the smoke tests pass against production (Live tests, run 41032144275 on `main`)
-- [x] Accessibility: axe passes; the relevant checklist items were gone through on the live site (below). Not checked: VoiceOver itself, text spacing (item 5), reduced motion (item 11)
+- [x] Accessibility: axe passes; the relevant checklist items were gone through on the live site (below). Not checked by me: VoiceOver itself (the user later reported the live checklist tested by hand, screen reader items included, 2026-11-09, not recorded item by item); text spacing (item 5), reduced motion (item 11)
 - [x] Requirements in the card match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
@@ -64,13 +64,13 @@ Checked on https://muppbarnen.vercel.app on 2026-10-30 in the built-in browser (
 | 2 | Focus visible | Pass. 3 px focus ring on "Storlekar" buttons and "Stäng", not hidden by the dialog |
 | 3 | Screen reader | Partly. The accessibility tree gives "Storlekar" and "Storlekar för {name}" as button names, the dialog has a heading "Storlekar för {name}" that names it, and the icon is `aria-hidden`. VoiceOver itself was not run: not checked |
 | 4 | 320 px and 400 % zoom | Pass at 320 × 568 (the same width as 400 % of 1280): no sideways scroll, dialog inside the screen, nothing cut off or overlapping on the Christmas card (corner icon) and the single-kid card |
-| 5 | Text spacing | Not checked |
+| 5 | Text spacing | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
 | 6 | Contrast | Pass. Icon `rgb(200, 208, 220)` on the button background `rgb(20, 25, 32)` is 11.4:1, also on the Christmas card (the corner button is opaque, so the card behind does not matter). The button border was judged by eye only |
 | 7 | Target size | Pass. Icon buttons 44 × 44 px; the "Storlekar" button is 44 px high (a card that is not in front is scaled down by the carousel, so it measures smaller on screen) |
 | 8 | Hover and focus content | Not affected: the sizes show in a dialog, not a tooltip |
 | 9 | Errors and labels | Not affected: no form |
 | 10 | Title, language, images | Not affected: no new page or image; the icon is decoration (`aria-hidden`) |
-| 11 | Reduced motion | Not checked |
+| 11 | Reduced motion | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
 
 ## Requirements as built
 

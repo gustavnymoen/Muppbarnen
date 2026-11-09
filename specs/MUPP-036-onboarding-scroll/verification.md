@@ -18,7 +18,7 @@ feature: MUPP-036
 |---|---|---|---|---|
 | Unit tests | Not applicable: no logic outside the component | | | |
 | Browser tests | The MUPP-035 journey and the 320 px test extended; `npm run test:local` | local | Pass, see below | 2026-11-04 |
-| Accessibility | axe at 320 px with the arrow; the checklist on the live site: not checked | local | Partly | 2026-11-04 |
+| Accessibility | axe at 320 px with the arrow; the checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass | 2026-11-04 |
 | Security | Not applicable: no server code, no new input | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-04 |
 

@@ -43,7 +43,7 @@ Three browser tests were added; the look checks went into the existing design te
 
 - [x] Tests: every check in the card's test plan is done locally; `npm run test:unit` and `npm run test:local` pass
 - [x] Deployed (PR #56), and the smoke tests pass against production (Live tests, run 41058524717 on `main`)
-- [x] Accessibility: axe passes; the relevant checklist items were gone through on the live site (below). Not checked: VoiceOver itself, text spacing (item 5), reduced motion (item 11). Finding: at 320 × 568 the wish list of the birthday card with two kids is squeezed to 10 px (item 4)
+- [x] Accessibility: axe passes; the relevant checklist items were gone through on the live site (below). Not checked by me: VoiceOver itself (the user later reported the live checklist tested by hand, screen reader items included, 2026-11-09, not recorded item by item); text spacing (item 5), reduced motion (item 11). Finding: at 320 × 568 the wish list of the birthday card with two kids is squeezed to 10 px (item 4)
 - [x] Requirements in the card match what was built, no open questions; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
@@ -62,13 +62,13 @@ Checked on https://muppbarnen.vercel.app on 2026-10-30 in the built-in browser (
 | 2 | Focus visible | Pass. Tillbaka has a 3 px solid focus ring (`rgb(154, 169, 224)`) when reached with Tab |
 | 3 | Screen reader | Partly. The accessibility tree names the buttons "Tillbaka till alla barn" and "Tillbaka till Julafton". The live region text was not read on the live site, and VoiceOver itself was not run: not checked |
 | 4 | 320 px and 400 % zoom | Partly. Pass at 320 × 568 for the Christmas card and at 375 × 667 for the two-kid card: no sideways or page scroll, no overlap of Tillbaka, the sizes icon and the heading. **Finding:** at 320 × 568 the wish list of the two-kid card (Wilda, no wishes yet) is a 10 px high scroll area, so a longer list could hardly be read; at 375 × 667 it is 121 px. Not fixed here; proposed as a card |
-| 5 | Text spacing | Not checked |
+| 5 | Text spacing | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
 | 6 | Contrast | Pass. Text `rgb(200, 208, 220)` on `rgb(20, 25, 32)` is 11.4:1 on both cards (the button is opaque). The button border was judged by eye only |
 | 7 | Target size | Pass. Tillbaka is 126 × 44 px and the sizes icon 44 × 44 px at 320 px, on both cards |
 | 8 | Hover and focus content | Not affected: no tooltip or menu |
 | 9 | Errors and labels | Not affected: no form |
 | 10 | Title, language, images | Not affected: no new page or image; the arrow is decoration |
-| 11 | Reduced motion | Not checked |
+| 11 | Reduced motion | Not checked by me; the user reports it tested by hand (2026-11-09, not recorded item by item) |
 
 ## Requirements as built
 

@@ -23,7 +23,7 @@ How each requirement was checked. All checks are local so far; the live checks a
 | Unit tests | `parseBirthdate`, `latestBirthdate`, the deck; `npm run test:unit` | local | Pass | 2026-10-29 |
 | Browser tests | `tests/MUPP-011-future-birthdate.spec.ts`; `tests/MUPP-003-admin-page.spec.ts` changed to the new message; axe on the form with the error, on the manage page and on the start page | local | Pass | 2026-10-29 |
 | Smoke test | Not applicable: the start page is read-only and unchanged for existing data | n/a | n/a | 2026-10-29 |
-| Accessibility | axe in the browser test (see above); the checklist on the live site: not checked yet | local | Pass (axe) | 2026-10-29 |
+| Accessibility | axe in the browser test (see above); the checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-10-29 |
 | Security | Not needed per the card: no new route, action or query; the check is still on the server. Covered by the security points in the review | local | Pass | 2026-10-29 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-29 |
 
@@ -43,7 +43,7 @@ The card planned a check of the "Beräknad" text in `tests/design.spec.ts`; it w
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations` (done), and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not checked yet)
+- [x] Accessibility: changed pages and states pass `expectNoA11yViolations`; the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output

@@ -20,7 +20,7 @@ feature: MUPP-027
 | Unit tests | not applicable: no logic | | | |
 | Browser tests | the test above; `tests/MUPP-019-wish-row.spec.ts` passes unchanged | local | Pass | 2026-11-02 |
 | Smoke test | not applicable: no page or flow added or changed | | | |
-| Accessibility | axe in the existing MUPP-019 test (list with the bubble shown); not checked by hand on a phone | local | Pass (phone: not checked) | 2026-11-02 |
+| Accessibility | axe in the existing MUPP-019 test (list with the bubble shown); the live checklist reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-02 |
 | Security | not applicable: no sign-in, API, data or server code | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -36,7 +36,7 @@ feature: MUPP-027
 - [x] Tests: all checks of the test plan done; unit and local browser tests pass
 - [x] Test suite: within the budgets (no test added, one extended)
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
-- [ ] Accessibility: axe passes; the live checklist is not checked (not done)
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual (no change: it does not describe the frame), system docs and `wiki/log.md` updated
 - [x] No leftovers
