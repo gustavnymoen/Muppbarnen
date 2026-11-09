@@ -42,7 +42,7 @@ test("MUPP-038-R1 the master admin sees two tabs with the kids tab selected; the
   await expect(santa).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("tabpanel", { name: "Secret Santa" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Hantera barn och föräldrar" })).toBeHidden();
-  await expect(page.getByText("Inga familjer ännu.")).toBeVisible();
+  await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
   await expectNoA11yViolations(page);
   await page.keyboard.press("Home");
   await expect(kids).toHaveAttribute("aria-selected", "true");
@@ -73,16 +73,16 @@ test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors
   await page.getByRole("tab", { name: "Secret Santa" }).click();
 
   // R2: create a family; an empty name is refused
-  await page.getByRole("button", { name: "Ny familj", exact: true }).click();
+  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Fyll i det här fältet." })).toBeVisible();
-  await page.getByLabel("Familjens namn", { exact: true }).fill("Familjen Ek");
+  await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ek");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(familyCard(page, "Familjen Ek")).toContainText("0 medlemmar");
 
   // R2: rename it
   await page.getByRole("button", { name: "Byt namn på Familjen Ek" }).click();
-  await page.getByLabel("Familjens namn", { exact: true }).fill("Familjen Björk");
+  await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Björk");
   await page.getByRole("button", { name: "Spara", exact: true }).click();
   const birch = familyCard(page, "Familjen Björk");
   await expect(birch).toBeVisible();
@@ -139,8 +139,8 @@ test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors
   await expect(cia).not.toContainText("Partner");
 
   // R4: a second family can take Anna from the known people, without entering her again
-  await page.getByRole("button", { name: "Ny familj", exact: true }).click();
-  await page.getByLabel("Familjens namn", { exact: true }).fill("Familjen Ask");
+  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
+  await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ask");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   const ash = familyCard(page, "Familjen Ask");
   await ash.getByRole("button", { name: "Lägg till känd person i Familjen Ask" }).click();

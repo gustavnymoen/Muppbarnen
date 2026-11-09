@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Avatar } from "@/app/components/Avatar";
 import { IconLink, LinkButton } from "@/app/components/Button";
+import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Field, Form } from "@/app/components/Form";
-import { FormCard } from "@/app/components/FormCard";
+import { AddRow, FormCard } from "@/app/components/FormCard";
 import { ImageIcon, ChecklistIcon, PencilIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -41,7 +42,7 @@ async function ManageContent() {
             <Heading level={1} small>
               Hantera
             </Heading>
-            <section className="space-y-3">
+            <Card as="section" className="space-y-3">
               <Heading level={2} small>
                 Föräldrar
               </Heading>
@@ -52,11 +53,13 @@ async function ManageContent() {
                   </li>
                 ))}
               </ul>
-              <FormCard title="Ny förälder" label="Ny förälder" text="Ny förälder">
-                <ParentForm submit="Lägg till" />
-              </FormCard>
-            </section>
-            <section className="space-y-3">
+              <AddRow>
+                <FormCard title="Ny förälder" label="Ny förälder" add>
+                  <ParentForm submit="Lägg till" />
+                </FormCard>
+              </AddRow>
+            </Card>
+            <Card as="section" className="space-y-3">
               <Heading level={2} small>
                 Barn
               </Heading>
@@ -68,10 +71,12 @@ async function ManageContent() {
                   </li>
                 ))}
               </ul>
-              <FormCard title="Nytt barn" label="Nytt barn" text="Nytt barn">
-                <ChildForm parents={parents} submit="Lägg till" />
-              </FormCard>
-            </section>
+              <AddRow>
+                <FormCard title="Nytt barn" label="Nytt barn" add>
+                  <ChildForm parents={parents} submit="Lägg till" />
+                </FormCard>
+              </AddRow>
+            </Card>
           </div>
       </PageContent>
     </Page>

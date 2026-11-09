@@ -1,7 +1,7 @@
 import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Field, Form } from "@/app/components/Form";
-import { FormCard } from "@/app/components/FormCard";
+import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -9,29 +9,17 @@ import { WishDetails, WishFields } from "@/app/components/WishParts";
 import { dayAndMonth, parseDate } from "@/lib/deck";
 import type { AdminItem, ArchiveGroup, Child, WishlistItem } from "@/lib/family";
 import { OCCASION_NAMES, type Occasion } from "@/lib/form-input";
-import { clearList, removeItem, saveItem } from "../../actions";
+import { removeItem, saveItem } from "../../actions";
 import { ArchiveGroupCard } from "./ArchiveGroupCard";
 
-// Den ena av barnets två listor: önskningarna som smala rader, "Ny önskning" och knappen för att tömma listan.
+// Den ena av barnets två listor: önskningarna som smala rader och "Ny önskning".
 export function WishlistSection({ child, occasion, items }: { child: Child; occasion: Occasion; items: AdminItem[] }) {
   const listName = OCCASION_NAMES[occasion];
   return (
     <Card as="section" className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <Heading level={2} small>
-          {listName}
-        </Heading>
-        {items.length > 0 && (
-          <ConfirmAction
-            action={clearList}
-            fields={{ childId: String(child.id), occasion }}
-            label="Töm listan"
-            subject={`${listName}, ${child.name}`}
-            title={`Töm listan ”${listName}”?`}
-            text={`Alla önskningar i listan ”${listName}” för ${child.name} tas bort. Det går inte att ångra.`}
-          />
-        )}
-      </div>
+      <Heading level={2} small>
+        {listName}
+      </Heading>
       {items.length === 0 ? (
         <p className="text-muted">Inga önskningar ännu.</p>
       ) : (
@@ -43,9 +31,11 @@ export function WishlistSection({ child, occasion, items }: { child: Child; occa
           ))}
         </ul>
       )}
-      <FormCard title={`Ny önskning, ${listName}`} label={`Ny önskning, ${listName}`} text="Ny önskning">
-        <ItemForm child={child} occasion={occasion} submit="Lägg till" />
-      </FormCard>
+      <AddRow>
+        <FormCard title={`Ny önskning, ${listName}`} label={`Ny önskning, ${listName}`} add>
+          <ItemForm child={child} occasion={occasion} submit="Lägg till" />
+        </FormCard>
+      </AddRow>
     </Card>
   );
 }

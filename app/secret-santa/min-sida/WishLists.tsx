@@ -1,7 +1,7 @@
 import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Form } from "@/app/components/Form";
-import { FormCard } from "@/app/components/FormCard";
+import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -38,9 +38,11 @@ function WishList({ list }: { list: SantaList }) {
           ))}
         </ul>
       )}
-      <FormCard title={`Ny önskning, ${list.familyName}`} label={`Ny önskning, ${list.familyName}`} text="Ny önskning">
-        <WishForm list={list} submit="Lägg till" />
-      </FormCard>
+      <AddRow>
+        <FormCard title={`Ny önskning, ${list.familyName}`} label={`Ny önskning, ${list.familyName}`} add>
+          <WishForm list={list} submit="Lägg till" />
+        </FormCard>
+      </AddRow>
     </Card>
   );
 }

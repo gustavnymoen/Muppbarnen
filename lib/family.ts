@@ -390,17 +390,6 @@ export async function removeItem(actor: Parent | null, rawId: unknown, today = s
   return { ok: true };
 }
 
-// Tömmer listan men lämnar det arkiverade (MUPP-031-R5)
-export async function clearList(actor: Parent | null, rawChildId: unknown, rawOccasion: unknown, today = swedishToday()): Promise<Outcome> {
-  const child = await manageableChild(actor, rawChildId);
-  const occasion = parseOccasion(rawOccasion);
-  if (!child || !occasion) return NOT_ALLOWED;
-  const ids = (await listWishlists(child, today))[occasion].map((item) => item.id);
-  // Id:na som en JSON-lista i en parameter, så att frågan är samma text oavsett hur många de är
-  await run("DELETE FROM wishlist_item WHERE id IN (SELECT value FROM json_each(?))", [JSON.stringify(ids)]);
-  return { ok: true };
-}
-
 // Lägger en kopia av en arkiverad önskning i en av barnets listor (MUPP-031-R7). Kopian är opaxad och tillagd idag;
 // arkivet behåller sin. Bara en önskning som är arkiverad, och bara för den som får ändra barnet.
 export async function copyArchivedItem(actor: Parent | null, rawItemId: unknown, rawOccasion: unknown, today = swedishToday()): Promise<Outcome> {

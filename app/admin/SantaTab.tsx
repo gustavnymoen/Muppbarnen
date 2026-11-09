@@ -1,6 +1,6 @@
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Field, Form } from "@/app/components/Form";
-import { FormCard } from "@/app/components/FormCard";
+import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -14,9 +14,9 @@ export function SantaTab({ families, people }: { families: SantaFamily[]; people
   return (
     <section className="max-w-2xl space-y-3">
       <Heading level={2} small>
-        Familjer
+        Grupper
       </Heading>
-      {families.length === 0 && <p className="text-muted">Inga familjer ännu.</p>}
+      {families.length === 0 && <p className="text-muted">Inga grupper ännu.</p>}
       <ul className="space-y-2">
         {families.map((family) => (
           <li key={family.id}>
@@ -24,9 +24,11 @@ export function SantaTab({ families, people }: { families: SantaFamily[]; people
           </li>
         ))}
       </ul>
-      <FormCard title="Ny familj" label="Ny familj" text="Ny familj">
-        <FamilyForm submit="Lägg till" />
-      </FormCard>
+      <AddRow>
+        <FormCard title="Ny grupp" label="Ny grupp" text="Ny grupp">
+          <FamilyForm submit="Lägg till" />
+        </FormCard>
+      </AddRow>
     </section>
   );
 }
@@ -62,21 +64,23 @@ function FamilyCard({ family, people }: { family: SantaFamily; people: People })
           ))}
         </ul>
       )}
-      <div className="mt-3 flex flex-wrap gap-2 pb-1">
-        <FormCard title={`Ny person i ${family.name}`} label={`Ny person i ${family.name}`} text="Ny person">
-          <Form action={addNewMember} submit="Lägg till" says={{ field: "name", added: true }}>
-            <input type="hidden" name="familyId" value={family.id} />
-            <ContactFields />
-          </Form>
-        </FormCard>
-        {candidates.length > 0 && (
-          <FormCard title={`Känd person i ${family.name}`} label={`Lägg till känd person i ${family.name}`} text="Lägg till känd person">
-            <Form action={joinFamily} submit="Lägg till" says={`Personen lades till i ${family.name}`}>
+      <div className="mt-3 pb-1">
+        <AddRow>
+          <FormCard title={`Ny person i ${family.name}`} label={`Ny person i ${family.name}`} add>
+            <Form action={addNewMember} submit="Lägg till" says={{ field: "name", added: true }}>
               <input type="hidden" name="familyId" value={family.id} />
-              <Field name="personId" type="select" label="Välj person" options={candidates.map((p) => ({ value: String(p.id), label: p.name }))} />
+              <ContactFields />
             </Form>
           </FormCard>
-        )}
+          {candidates.length > 0 && (
+            <FormCard title={`Känd person i ${family.name}`} label={`Lägg till känd person i ${family.name}`} text="Lägg till känd person">
+              <Form action={joinFamily} submit="Lägg till" says={`Personen lades till i ${family.name}`}>
+                <input type="hidden" name="familyId" value={family.id} />
+                <Field name="personId" type="select" label="Välj person" options={candidates.map((p) => ({ value: String(p.id), label: p.name }))} />
+              </Form>
+            </FormCard>
+          )}
+        </AddRow>
       </div>
     </SlimCard>
   );
@@ -140,7 +144,7 @@ function FamilyForm({ family, submit }: { family?: SantaFamily; submit: string }
   return (
     <Form action={saveFamily} submit={submit} says={{ field: "name", added: !family }}>
       {family && <input type="hidden" name="familyId" value={family.id} />}
-      <Field name="name" label="Familjens namn" defaultValue={family?.name} maxLength={60} required />
+      <Field name="name" label="Gruppens namn" defaultValue={family?.name} maxLength={60} required />
     </Form>
   );
 }

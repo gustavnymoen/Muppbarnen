@@ -84,6 +84,13 @@ export const PlusIcon = () => (
   </Icon>
 );
 
+// Två pilar runt en cirkel: byt förälder (MUPP-053)
+export const SwapIcon = () => (
+  <Icon>
+    <path d="M17 3l4 4-4 4M21 7H8a4 4 0 0 0-4 4M7 21l-4-4 4-4M3 17h13a4 4 0 0 0 4-4" />
+  </Icon>
+);
+
 export const CrossIcon = () => (
   <Icon>
     <path d="M6 6l12 12M18 6 6 18" />
