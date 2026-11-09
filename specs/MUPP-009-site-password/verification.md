@@ -25,7 +25,7 @@ Tests: `tests/MUPP-009-site-password.spec.ts`, the smoke test in `tests/smoke.sp
 | Unit tests | `lib/site-session.test.ts` (R1 target, R2 cookie, R3 settings, R5 comparison) and `lib/login-attempts.test.ts` (R5 limit against the unit-test database) | local | Pass | 2026-10-27 |
 | Browser tests | `tests/MUPP-009-site-password.spec.ts` (five tests), the look in `tests/design.spec.ts` | local | Pass | 2026-10-27 |
 | Smoke test | `MUPP-009-R6 @smoke` replaces the start-page smoke test; run locally. Not yet against a preview or production | local | Pass | 2026-10-27 |
-| Accessibility | axe on the password page, also with an error showing, in the browser test (320 px). **The checklist on the live site (keyboard, VoiceOver reading the error, 200 % zoom, text spacing, contrast, target sizes) is not done**: the page is not live | local | axe passes; checklist not checked | 2026-10-27 |
+| Accessibility | axe on the password page, also with an error showing, in the browser test (320 px). The checklist on the live site (keyboard, VoiceOver reading the error, 200 % zoom, text spacing, contrast, target sizes): reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | axe passes; checklist reported done | 2026-10-27 |
 | Security | Security points in the review; `/security-review`, see [review.md](review.md) | local | See review | 2026-10-27 |
 | Code review | [review.md](review.md) | local | See review | 2026-10-27 |
 
@@ -45,7 +45,7 @@ The browser time grew by more than 25 %. The cause is by design: a wrong passwor
 - [x] Tests: every check in the card's test plan is done (the live-site checks follow the deploy); every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; the growth is explained above; the new tests follow the quality rules
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the checklist on the live site follows the deploy
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers

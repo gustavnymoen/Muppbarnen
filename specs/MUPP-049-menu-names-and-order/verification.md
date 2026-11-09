@@ -20,7 +20,7 @@ feature: MUPP-049
 | Unit tests | Not applicable: only words and order changed; the 211 existing unit tests pass | local | Pass | 2026-11-09 |
 | Browser tests | The menu and dialog tests above, with `expectNoA11yViolations` on the open menu | local | Pass | 2026-11-09 |
 | Smoke test | The existing smoke tests name no menu entry, so none changed | local | Pass | 2026-11-09 |
-| Accessibility | axe on the open menu in the tests above; the live-site checklist is not checked yet (after the deploy) | local | Pass (live: not checked) | 2026-11-09 |
+| Accessibility | axe on the open menu in the tests above; the live-site checklist: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (live checklist reported done) | 2026-11-09 |
 | Security | Not applicable: no route, query or data change | local | n/a | 2026-11-09 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-09 |
 
@@ -40,7 +40,7 @@ The run was made while other test runs and builds were using the machine (a seco
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget in a noisy local run (see above); CI to confirm
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; live-site checklist after the deploy
+- [x] Accessibility: axe passes locally; the live-site checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers

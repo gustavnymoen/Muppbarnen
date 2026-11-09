@@ -28,7 +28,7 @@ How each requirement was checked. Everything ran locally (a production build wit
 | Browser tests | `tests/MUPP-045-form-cards.spec.ts` (8, one journey per surface, axe in each state of an open card) and the older tests changed to the cards (MUPP-003, 005, 010, 011, 012, 035, 038, 040, design) | local | Pass | 2026-11-09 |
 | WebKit | `tests/MUPP-045-form-cards.webkit.spec.ts` (1, the claim window; admin does not sign in under WebKit here) and `tests/MUPP-032-quiet-focus-after-tap.webkit.spec.ts` (changed: the claim window closes with the cross), `npm run test:webkit` (11 pass) | local | Pass | 2026-11-09 |
 | Smoke test | Not applicable: the card says none (the changed pages are behind the admin password) | n/a | n/a | 2026-11-09 |
-| Accessibility | axe in every browser test above; the manual checklist on the live site (items 1–4, 6, 7, 9, 11): not checked, nothing is deployed | local | Pass (axe); live not checked | 2026-11-09 |
+| Accessibility | axe in every browser test above; the manual checklist on the live site (items 1–4, 6, 7, 9, 11): reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-09 |
 | Security | Security points in the review; `/security-review` not needed: no server action, route, query, cookie or data was added or changed. `saveSizes` still goes through `manageableChild` on the server (the test changes the child id in the sizes card to another parent's kid and is refused); the sizes sent to the card are the signed-in parent's own kids'; the confirmation and the announcement are rendered as text (the test types `<b>x</b>`); nothing the card held is kept after it has closed (the content is unmounted) | local | Pass | 2026-11-09 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-09 |
 | Look | Screenshots of the cards at 375 and 320 px looked at (the card at the top, the cross in the corner, the list in front of the card); Impeccable's critique was not run | local | Looked at, no critique | 2026-11-09 |
@@ -36,7 +36,7 @@ How each requirement was checked. Everything ran locally (a production build wit
 ## Manual checks
 
 - **The keyboard on a real iPhone** (R4): not checked. The iOS simulator was not started and the WebKit tests cannot show the keyboard; they show that the first field is the active element right after the press (`flushSync`). **Do this on a phone before merging:** open a form card in Safari and see that the keyboard is up without a second tap and that the card and the confirmation are not hidden behind it. If Safari does not show the keyboard, R4 is changed first, as the card says.
-- **VoiceOver:** not checked (title when the card opens, the confirmation, the hidden "sparades" text, focus back on the button).
+- **VoiceOver:** not checked by me; the user reports the screen reader items tested by hand (2026-11-09, not recorded item by item) (title when the card opens, the confirmation, the hidden "sparades" text, focus back on the button).
 - **The look of the grow and fold on a phone, with `emil-design-eng`:** not checked on a phone; the motion is the wish list's own helpers, 300 ms.
 - Admin does not sign in under WebKit on http (the cookie is `Secure`), so the admin's form cards are tested in Chromium only; the claim window is the same card.
 

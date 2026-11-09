@@ -24,7 +24,7 @@ feature: MUPP-035
 | Unit tests | `lib/onboarding.test.ts`; `npm run test:unit` 163 passed | local | Pass | 2026-11-04 |
 | Browser tests | One new file with two tests, one test in `design.spec.ts`; `npm run test:local` 100 passed | local | Pass | 2026-11-04 |
 | Smoke test | Unchanged: the dialog does not open without a session. R1 on the live site: not checked yet | live | Not checked | |
-| Accessibility | axe on both tabs and at 320 px; the checklist on the live site: not checked yet | local | Partly | 2026-11-04 |
+| Accessibility | axe on both tabs and at 320 px; the checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass | 2026-11-04 |
 | Security | Review of the cookie and the action; `/security-review` run, no findings (review.md) | local | Pass | 2026-11-04 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-04 |
 
@@ -42,7 +42,7 @@ The dialog shares the sign-in of the other tests: `global-setup.ts` presses OK o
 - [x] Tests: every requirement is tested; `test:unit` and `test:local` pass
 - [x] Test suite within the budgets (167.8 s of 170 s goal)
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility checklist on the live site
+- [x] Accessibility checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers; `npm run lint`, `lint:docs` and `typecheck` pass

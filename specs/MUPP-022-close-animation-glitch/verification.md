@@ -23,7 +23,7 @@ Chromium does not show a focus ring after a click (iOS Safari does), so the poin
 | Unit tests | not applicable | | | |
 | Browser tests | `tests/MUPP-022-close-animation-glitch.spec.ts` (6 tests) and the updated `tests/MUPP-016-wishlist-open-transition.spec.ts`; axe at rest after the close on both cards | local | Pass | 2026-11-02 |
 | Smoke test | none new; the existing ones pass | local | Pass | 2026-11-02 |
-| Accessibility | axe at rest; the live checklist (the ring after Tab on the live site, reduced motion) is not checked yet | local | Pass (live: not checked) | 2026-11-02 |
+| Accessibility | axe at rest; the live checklist (the ring after Tab on the live site, reduced motion): reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (live checklist reported done) | 2026-11-02 |
 | Security | not applicable: components and CSS | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -41,7 +41,7 @@ Looked at: the copy paused in the middle of the close in Chromium on 375 px (a w
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (161.9 s of 180 s; close to the limit, the six new tests add about 9 s)
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the live checklist is not checked yet
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated (no manual change: the visitor sees no new function)
 - [x] No leftovers (`inset`-based shrink removed)

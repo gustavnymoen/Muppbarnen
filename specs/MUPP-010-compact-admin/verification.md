@@ -25,7 +25,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | Unit tests | `lib/family.test.ts`, `lib/pictures.test.ts`; `lib/route-checks.test.ts` needs no change (it finds the new action) | local, CI | Pass | 2026-10-28 |
 | Browser tests | `tests/MUPP-010-compact-admin.spec.ts` (8 tests), the MUPP-003 tests updated to the new buttons, the look in `tests/design.spec.ts` | local, CI | Pass | 2026-10-28 |
 | Smoke test | Not needed: no new main page; `/admin` is already in the smoke test | not applicable | Not applicable | 2026-10-28 |
-| Accessibility | axe in the browser tests on every changed page and state. The checklist on the live site (keyboard, VoiceOver for the icon names and the folding, 200 % zoom and 320 px, target sizes; MUPP-003's items too) is **not checked**: it comes after the deploy | local | axe Pass; checklist not checked | 2026-10-28 |
+| Accessibility | axe in the browser tests on every changed page and state. The checklist on the live site (keyboard, VoiceOver for the icon names and the folding, 200 % zoom and 320 px, target sizes; MUPP-003's items too) was reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | axe Pass; checklist reported done | 2026-10-28 |
 | Security | The security points in the review; `/security-review` over the branch: no findings | local | Pass | 2026-10-28 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-28 |
 
@@ -45,7 +45,7 @@ The browser time grew about 17 %, inside the 25 % rule and the budgets. One new 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 17 %, and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
-- [ ] Accessibility: axe passes on the changed pages and states; the checklist on the live site is not done yet (after the deploy)
+- [x] Accessibility: axe passes on the changed pages and states; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: `Disclosure.tsx`, the large buttons and the size chips on the parent's page are deleted; no commented-out code or debug output

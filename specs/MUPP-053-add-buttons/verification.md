@@ -22,7 +22,7 @@ feature: MUPP-053
 | Unit tests | Not applicable: no logic. `npm run test:unit` still passes (212) | local | Pass | 2026-11-09 |
 | Browser tests | Old tests that clicked or read the old texts updated (MUPP-003, 010, 038, 045); new tests per requirement; look checks in `design.spec.ts` | local | Pass | 2026-11-09 |
 | Smoke test | Not applicable: no main page or flow added | | | |
-| Accessibility | axe on `/admin`, `/admin/hantera`, the wish lists page, the Secret Santa tab and a participant's page (in the new tests). The checklist on the live site: not checked yet (after deploy) | local | Pass (axe); checklist not checked | 2026-11-09 |
+| Accessibility | axe on `/admin`, `/admin/hantera`, the wish lists page, the Secret Santa tab and a participant's page (in the new tests). The checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-09 |
 | Security | Not applicable: no server action, data or route changed | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-09 |
 
@@ -42,7 +42,7 @@ The browser suite was already over its 180 s budget on `main` (TECH-019 is about
 - [x] Tests: every check in the test plan is done; every requirement is tested or has a recorded check; unit and local tests pass
 - [ ] Test suite: over budget before and after (TECH-019); growth 6 %; the new tests follow the rules, one is 0.2 s over 5 s
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the checklist on the live site is not checked yet
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built (R2 records the placement), copied below
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the old text buttons and the temporary screenshot test are gone

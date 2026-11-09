@@ -26,7 +26,7 @@ How each requirement was checked. Browser tests ran locally (`npm run test:local
 | Unit tests | `lib/santa-session.test.ts` (3), `lib/santa-auth.test.ts` (6); `lib/route-checks.test.ts` keeps passing with the new action file | local | Pass | 2026-11-08 |
 | Browser tests | `tests/MUPP-039-secret-santa-entrance.spec.ts` (5) with axe on each page and state; the grid on a small phone in `tests/design.spec.ts` (1); the three tests that list the menu were updated for the new entry | local | Pass | 2026-11-08 |
 | Smoke test | `MUPP-039-R1 @smoke …`: without the site cookie the entrance and the own page lead to the password page and show no names. The menu entry and the entrance itself need the site password, which the smoke tests do not have | local | Pass (live: not run) | 2026-11-08 |
-| Accessibility | axe in the browser tests (entrance, grid, sign-in form with and without an error, own page); keyboard on the radio buttons and the menu; the manual checklist on the live site: not checked yet | local | Pass (axe) | 2026-11-08 |
+| Accessibility | axe in the browser tests (entrance, grid, sign-in form with and without an error, own page); keyboard on the radio buttons and the menu; the manual checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-08 |
 | Security | Security points in the review; `/security-review` run, no finding at confidence 8 or higher | local | Pass | 2026-11-08 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-08 |
 
@@ -46,7 +46,7 @@ Nine unit tests and seven browser tests were added (the browser count includes t
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: the total time is over the budget (191.8 s of 180 s), growth 7 %; the new tests follow the quality rules; a technical task is needed
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is pushed
-- [x] Accessibility (axe passes; the manual checklist on the live site is not done yet)
+- [x] Accessibility (axe passes; the manual checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item))
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output

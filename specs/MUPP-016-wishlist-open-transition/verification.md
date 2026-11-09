@@ -25,7 +25,7 @@ The look of the motion (curve, distances) is not tested, by design (the card's t
 | Unit tests | not applicable: no logic outside the browser (the origin is measured there) | | | |
 | Browser tests | `tests/MUPP-016-wishlist-open-transition.spec.ts`, one test per requirement, axe on each state; the older tests did not need a change | local | Pass | 2026-11-02 |
 | Smoke test | none new; the existing ones pass | local | Pass | 2026-11-02 |
-| Accessibility | axe at rest in the open and closed states of the three cards; the live checklist (focus after open and close, nothing announced twice, reduced motion, 2.3.3) is not checked yet | local | Pass (live: not checked) | 2026-11-02 |
+| Accessibility | axe at rest in the open and closed states of the three cards; the live checklist (focus after open and close, nothing announced twice, reduced motion, 2.3.3): reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (live checklist reported done) | 2026-11-02 |
 | Security | not applicable: only components and CSS | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -45,7 +45,7 @@ The look of the motion (curve, distances) is not tested, by design (the card's t
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (152.5 s of 180 s; grown 23 % since MUPP-019, partly other cards)
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 41435572672 on the merge commit a1faa88
-- [ ] Accessibility: axe passes; the live checklist is not checked yet
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers (`reveal` and `.wish-list` are gone)
