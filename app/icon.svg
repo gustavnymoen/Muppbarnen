@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Kusinportalen</title>
+<rect width="512" height="512" rx="112" fill="#0C1015"/>
+<g transform="translate(256 268) scale(1.16) translate(-256 -268)">
+<rect x="112" y="244" width="288" height="170" rx="34" fill="#A698D0"/>
+<rect x="92" y="196" width="328" height="76" rx="30" fill="#9AA9E0"/>
+<rect x="226" y="196" width="60" height="218" fill="#E3A15F"/>
+<g fill="none" stroke="#E3A15F" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+<path d="M256 192C200 190 160 160 176 124C192 92 244 130 256 192Z"/>
+<path d="M256 192C312 190 352 160 336 124C320 92 268 130 256 192Z"/></g></g>
+</svg>

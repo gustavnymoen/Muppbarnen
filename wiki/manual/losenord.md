@@ -12,7 +12,7 @@ Hela sajten ligger bakom ett gemensamt lösenord, så att bara familj och vänne
 
 ## Komma in
 
-1. Öppna sajten. Har du inte skrivit in lösenordet förut kommer du till en sida med sajtens namn och ett fält som heter **Lösenord**.
+1. Öppna sajten. Har du inte skrivit in lösenordet förut kommer du till en sida med sajtens namn, Kusinportalen, och ett fält som heter **Lösenord**.
 2. Skriv lösenordet och tryck **Öppna**.
 3. Du kommer till den sida du ville till. Sajten kommer ihåg dig i 180 dagar på den enheten och webbläsaren, så du behöver inte skriva det igen.
 

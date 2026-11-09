@@ -54,7 +54,7 @@ test("MUPP-009-R1 R2 R5 the password page, a wrong and the right password, the c
   // R1: ett försök att nå /design leder hit, och sidan har namnet, fältet och knappen, inget annat
   await goto(page, "/design");
   await expect(page).toHaveURL(/\/losenord\?till=%2Fdesign$/);
-  await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Kusinportalen" })).toBeVisible();
   const field = page.getByLabel("Lösenord");
   await expect(field).toHaveAttribute("type", "password");
   await expect(field).toHaveAttribute("autocomplete", "current-password");
@@ -102,7 +102,7 @@ test("MUPP-009-R1 R2 only an address on this site is accepted as the target, a c
   await goto(page, "/losenord?till=https%3A%2F%2Fevil.example%2Fstart");
   await signInWith(page, password);
   await expect(page).toHaveURL((url) => url.pathname === "/");
-  await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Kusinportalen" })).toBeVisible();
 
   // R2: samma besökare; kakan sätts om för hand (bara mot testservern, som har nyckeln) (TECH-015)
   if (runsLocally) {
