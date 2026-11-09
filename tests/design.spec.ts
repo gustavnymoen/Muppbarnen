@@ -338,7 +338,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 MUPP-053-R1 the admin link is quiet, and the ad
     await open.focus();
     await expect(open).toHaveCSS("outline-width", "3px");
 
-    // MUPP-045-R3 R4 R6: the form card is a card on a dark backdrop, at the top of a phone, with a cross, and the confirmation is small muted readable text
+    // MUPP-045-R3 R4 R6: the form card is a card on a dark backdrop, at the top of a phone, with a cross, and the message after a save is a toast
     await open.click();
     const form = page.locator("dialog[open]");
     await animationsDone(form);
@@ -348,11 +348,20 @@ test("MUPP-003-R8 MUPP-010-R2 R6 MUPP-053-R1 the admin link is quiet, and the ad
     await expectFormCardLooks(page, form);
     await form.getByLabel("Namn").fill("Pussel");
     await form.getByRole("button", { name: "Lägg till" }).click();
-    const confirmation = form.getByRole("status");
-    await expect(confirmation).toHaveText("Pussel lades till");
-    await animationsDone(confirmation);
-    expect(contrast(await css(confirmation, "color"), CARD)).toBeGreaterThanOrEqual(4.5);
-    expect(parseFloat(await css(confirmation, "font-size"))).toBeLessThan(parseFloat(await css(page.locator("body"), "font-size")));
+    // MUPP-054-R1 R3: the message is a green tinted band at the top, centred of the screen, in front of the card, with readable text; a failed save is a red one
+    const message = page.locator("[data-toast] p");
+    await expect(message).toHaveText("Pussel lades till");
+    await animationsDone(message);
+    await expect(message).toHaveCSS("border-top-color", "rgb(95, 154, 115)");
+    expect(contrast(await css(message, "color"), await backgroundOf(message))).toBeGreaterThanOrEqual(4.5);
+    const band = await settledBox(message);
+    expect(band.y).toBeLessThanOrEqual(16);
+    expect(band.x).toBeGreaterThanOrEqual(0);
+    // MUPP-054-R2: a field that is not filled in shows its error at the field and no toast
+    await form.getByLabel("Namn").fill("");
+    await form.getByRole("button", { name: "Lägg till" }).click();
+    await expect(form.getByRole("alert").filter({ hasText: "Fyll i det här fältet." })).toBeVisible();
+    await expect(page.locator("[data-toast]")).toHaveCount(0);
     await page.keyboard.press("Escape");
 
     // MUPP-010-R2 R6: a slim row is about one line high, its icon buttons are 32 px, look like the secondary button, and are equally high side by side

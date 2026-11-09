@@ -1,4 +1,4 @@
-import { readdirSync, unlinkSync } from "node:fs";
+import { existsSync, readdirSync, unlinkSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { testPicturesDir } from "../lib/local-db.mjs";
@@ -33,7 +33,7 @@ test.afterEach(async () => {
   await clearSanta();
   await clearFamily();
   // The picture the Hantera test uploads: kid ids start again at 1, so the file would be counted by the picture tests
-  for (const file of readdirSync(testPicturesDir).filter((f) => f.startsWith("barn-"))) unlinkSync(path.join(testPicturesDir, file));
+  for (const file of (existsSync(testPicturesDir) ? readdirSync(testPicturesDir) : []).filter((f) => f.startsWith("barn-"))) unlinkSync(path.join(testPicturesDir, file));
 });
 
 // The open card (MUPP-045): a modal <dialog>, which stays in the page's DOM next to its button
@@ -226,11 +226,13 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   for (const field of [name, size, description, link]) await expect(field).toHaveValue("");
   await expect(unlimited).not.toBeChecked();
   await expect(name).toBeFocused();
-  // The card is taller than this screen and was scrolled down to Länk: it is back at the top, so the confirmation and the first field are in view together
-  expect(await dialog.evaluate((el) => el.scrollTop)).toBe(0);
-  const [confirmationBox, nameBox] = [await settledBox(confirmation), await settledBox(name)];
-  expect(confirmationBox.y).toBeGreaterThanOrEqual(0);
-  expect(nameBox.y + nameBox.height).toBeLessThanOrEqual(568);
+  // MUPP-054-R1: the same words are in a toast at the top of the screen, in the top layer in front of the card
+  const toast = page.locator("[data-toast]");
+  await expect(toast).toHaveText("fotboll lades till");
+  await expect(toast).toHaveAttribute("data-toast", "saved");
+  await expect(toast).toHaveAttribute("aria-hidden", "true");
+  expect(await toast.evaluate((el) => el.matches(":popover-open"))).toBe(true);
+  expect((await settledBox(toast.locator("p"))).y).toBeLessThanOrEqual(16);
   await expect(dialog.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0);
   await expect(birthday.locator("article").filter({ hasText: "fotboll" })).toBeAttached();
   await expectNoA11yViolations(page);
@@ -243,8 +245,11 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   await expect(confirmation).toHaveText("Ett väldigt långt önskem… lades till");
   await page.clock.fastForward(2000);
   await expect(confirmation).not.toHaveText("");
+  await expect(toast).toHaveText("Ett väldigt långt önskem… lades till");
   await page.clock.fastForward(1100);
   await expect(confirmation).toHaveText("");
+  // MUPP-054-R1: still there 2 s after the last save, gone 3.1 s after it (the slide and the fade are not measured)
+  await expect(toast).toHaveCount(0);
   await expect(birthday.locator("article").filter({ hasText: long })).toBeAttached();
   // R6: what is typed is text, never HTML
   await page.keyboard.type("<b>x</b>");

@@ -121,5 +121,15 @@ body:has(dialog:modal) main { overflow: hidden; }
 .divider-short:not(:first-child) { padding-top: 0.75rem; }
 .divider-short:not(:first-child)::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 1px; background: color-mix(in srgb, var(--color-muted) 45%, transparent); }
 
+/* Meddelandet överst (Toaster.tsx, MUPP-054): grönt när något sparats, rött när något gick fel */
+.toast-saved {
+  background: color-mix(in srgb, var(--color-christmas-green) 24%, var(--color-card));
+  border-color: var(--color-christmas-green);
+}
+.toast-error {
+  background: color-mix(in srgb, var(--color-danger) 22%, var(--color-card));
+  border-color: var(--color-danger);
+}
+
 /* Julkortet: grön kant; bakgrunden ritas av ChristmasBackdrop */
 .christmas-card { border-color: color-mix(in srgb, var(--color-christmas-green) 55%, var(--color-edge)); }

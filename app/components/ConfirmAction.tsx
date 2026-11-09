@@ -4,6 +4,7 @@ import { useActionState, useEffect, useId, useRef } from "react";
 import { Button, IconButton } from "./Button";
 import { Dialog, type DialogHandle } from "./Dialog";
 import { TrashIcon } from "./icons";
+import { toast } from "./Toaster";
 import type { FormAction } from "./form-state";
 
 // En papperskorgsknapp som frågar innan den gör något som inte går att ångra. Frågan är ett kort (Dialog.tsx), som håller tangentbordet
@@ -29,6 +30,7 @@ export function ConfirmAction({
 
   useEffect(() => {
     if (state?.saved) dialog.current?.close();
+    else if (state?.error) toast(state.error, true);
   }, [state]);
 
   return (

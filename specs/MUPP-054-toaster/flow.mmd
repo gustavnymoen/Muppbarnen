@@ -1,0 +1,10 @@
+flowchart TD
+  A[Form saved or failed] --> B{Saved?}
+  B -- yes --> C[toast: green message]
+  B -- no --> D[toast: red, only if state.error; field errors stay at the fields]
+  C --> E{In a card?}
+  E -- closes --> F[card.close with announcement]
+  E -- stays open, new wish --> G[card.confirm for screen readers, focus first field]
+  C --> H[slide in 0.3 s, on screen 2 s, fade 0.3 s]
+  D --> H
+  H --> I[popover hidden]
