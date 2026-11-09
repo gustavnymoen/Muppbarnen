@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { MAIL_FOOTER, SITE_URL, layout, sendMail } from "./mail";
 import { clearOutbox, readOutbox } from "./mail-sink";
 
-const mail = { subject: "Secret Santa: Familjen – hej", heading: "Hej", text: "Dragningen är gjord." };
+const mail = { subject: "Secret Santa: Familjen – hej", text: "Dragningen är gjord." };
 const local = { TURSO_DATABASE_URL: "file:/tmp/x.db" };
 const withKey = { ...local, RESEND_API_KEY: "re_test_key" };
 
@@ -21,13 +21,29 @@ describe("TECH-017-R0 mail layout", () => {
     expect(MAIL_FOOTER).toBe("Detta mail går inte att svara på.");
   });
 
-  test("TECH-017-R0 HTML characters in the heading and text are escaped in the HTML part", () => {
-    const { html, plain } = layout({ heading: "<b>Hej</b>", text: 'a & "b" <script>' });
-    expect(html).not.toContain("<b>Hej</b>");
+  test("TECH-017-R0 HTML characters in the text are escaped in the HTML part", () => {
+    const { html, plain } = layout({ text: 'a & "b" <script>' });
     expect(html).not.toContain("<script>");
-    expect(html).toContain("&lt;b&gt;Hej&lt;/b&gt;");
     expect(html).toContain("a &amp; &quot;b&quot; &lt;script&gt;");
-    expect(plain).toContain("<b>Hej</b>");
+    expect(plain).toContain('a & "b" <script>');
+  });
+});
+
+describe("MUPP-052-R3 layout of every mail", () => {
+  const { html, plain } = layout({ text: "Första raden\nandra raden\n\nNytt stycke" });
+
+  test("MUPP-052-R3 a blank line starts a paragraph and a single line break stays a line break", () => {
+    expect(html).toContain("<p>Första raden<br>andra raden</p><p>Nytt stycke</p>");
+    expect(plain).toContain("Första raden\nandra raden\n\nNytt stycke");
+  });
+
+  test("MUPP-052-R3 a button to the site in the site's colours, and under it the line that the mail can not be answered", () => {
+    expect(html).toMatch(/<a href="https:\/\/www\.kusinportalen\.com" style="[^"]*border-radius:14px;background:#9AA9E0;color:#0C1015;[^"]*">Gå till Kusinportalen<\/a>/);
+    expect(html.indexOf(MAIL_FOOTER)).toBeGreaterThan(html.indexOf("Gå till Kusinportalen"));
+  });
+
+  test("MUPP-052-R3 the plain-text version has the same text, the address and the same line", () => {
+    expect(plain).toBe(`Första raden\nandra raden\n\nNytt stycke\n\nGå till Kusinportalen: ${SITE_URL}\n${MAIL_FOOTER}`);
   });
 });
 
@@ -69,7 +85,7 @@ describe("TECH-017-R2 no mail outside production", () => {
     const send = vi.fn();
     expect(await sendMail("anna@example.com", mail, local, send)).toEqual({ ok: true });
     expect(send).not.toHaveBeenCalled();
-    expect(readOutbox()).toEqual([expect.objectContaining({ to: "anna@example.com", subject: mail.subject, heading: mail.heading, text: mail.text })]);
+    expect(readOutbox()).toEqual([expect.objectContaining({ to: "anna@example.com", subject: mail.subject, text: mail.text })]);
   });
 
   test("TECH-017-R2 without a key and without a local database nothing is sent and the caller gets a failure", async () => {

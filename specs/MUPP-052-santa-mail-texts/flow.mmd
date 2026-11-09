@@ -1,0 +1,8 @@
+%% MUPP-052 Secret Santa: mail texts
+%% From an event in the series to the mail that is sent (the sending itself is MUPP-051, 041, 042, 043).
+flowchart TD
+    A[A card reaches its moment: activated, added, started, stopped, list changed, message] --> B[It calls the function for that mail with the group and, for mails 1 and 8, the administrator R1]
+    B --> C[subject and text]
+    C --> D[sendMail adds the layout R3: paragraphs, button, the line under it]
+    D --> E[HTML and plain-text version go to the member]
+    F[The admin presses Aktivera, Avaktivera, Starta or Stoppa] --> G[The dialog says what happens R2]
