@@ -197,9 +197,10 @@ test("MUPP-010-R6 the open cards and the kid pages have no sideways scroll at 32
   const dateInsideForm = async (form: Locator, what: string) => {
     for (const [width, height] of widths) {
       await page.setViewportSize({ width, height });
-      const date = await form.getByLabel("Födelsedatum").boundingBox();
-      const box = await form.boundingBox();
-      expect(date!.x + date!.width, `${what} date field at ${width}`).toBeLessThanOrEqual(box!.x + box!.width + 0.5);
+      // The card may still be growing (MUPP-045): both boxes are read once they have settled
+      const date = await settledBox(form.getByLabel("Födelsedatum"));
+      const box = await settledBox(form);
+      expect(date.x + date.width, `${what} date field at ${width}`).toBeLessThanOrEqual(box.x + box.width + 0.5);
     }
   };
   await goto(page, "/admin/hantera");
