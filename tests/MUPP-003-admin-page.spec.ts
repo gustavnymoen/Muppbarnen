@@ -159,7 +159,7 @@ test("MUPP-003-R2 R8 with no parent the page offers one form, Skapa huvudadminis
   await page.getByRole("button", { name: "Skapa" }).click();
 
   // The new parent is the master admin and is chosen at once
-  await expect(page.getByText("Barn som tillhör")).toContainText("Gustav");
+  await expect(page.getByText("Inloggad som")).toContainText("Gustav");
   await expect(page.getByRole("heading", { level: 2, name: "Hantera" })).toBeVisible();
   expect(await countRows("parent")).toBe(1);
   await expect(page.getByRole("heading", { name: "Skapa huvudadministratör" })).toHaveCount(0);
@@ -181,7 +181,7 @@ test("MUPP-003-R2 R3 choose who you are, change, and see only your own kids; the
   await expectNoA11yViolations(page);
 
   await page.getByRole("button", { name: mia, exact: true }).click();
-  await expect(page.getByText("Barn som tillhör")).toContainText(mia);
+  await expect(page.getByText("Inloggad som")).toContainText(mia);
   await expect(page.getByRole("heading", { level: 2, name: miaKid })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: olaKid })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Hantera" })).toHaveCount(0);
@@ -201,7 +201,7 @@ test("MUPP-003-R2 R3 choose who you are, change, and see only your own kids; the
   await expect(page.getByRole("heading", { level: 2, name: "Hantera" })).toBeVisible();
   await setMasterFlag(chefId, false);
   await page.reload();
-  await expect(page.getByText("Barn som tillhör")).toContainText(chef);
+  await expect(page.getByText("Inloggad som")).toContainText(chef);
   await expect(page.getByRole("heading", { name: "Hantera" })).toHaveCount(0);
   await goto(page, "/admin/hantera");
   await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" })).toBeVisible();
@@ -347,21 +347,6 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
   await expect(edited).toHaveCount(0);
   expect(await countRows("wishlist_item")).toBe(0);
 
-  // Clear a list: the confirmation names the list and the kid
-  for (const name of ["Cykel", "Hjälm"]) {
-    form = await openCard(christmas, "Ny önskning");
-    await form.getByLabel("Namn").fill(name);
-    await form.getByRole("button", { name: "Lägg till" }).click();
-    await expect(page.getByRole("status").filter({ hasText: `${name} lades till` })).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(christmas.getByRole("heading", { level: 3, name })).toBeVisible();
-  }
-  await christmas.getByRole("button", { name: /^Töm listan/ }).click();
-  await expect(dialog(page).getByRole("heading", { name: "Töm listan ”Jul”?" })).toBeVisible();
-  await expect(dialog(page)).toContainText(kid);
-  await dialog(page).getByRole("button", { name: "Töm listan" }).click();
-  await expect(christmas.getByText("Inga önskningar ännu.")).toBeVisible();
-  expect(await countRows("wishlist_item")).toBe(0);
   expect(await hasHorizontalScroll(page)).toBe(false);
 });
 

@@ -295,7 +295,7 @@ test("MUPP-009-R1 the password page: a card with the name, a labelled field, a b
 const MUTED = "rgb(133, 145, 164)";
 const TEXT = "rgb(200, 208, 220)";
 
-test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages look like the rest: headings, cards, field, button, slim rows with icon buttons, dialog", async ({ page }) => {
+test("MUPP-003-R8 MUPP-010-R2 R6 MUPP-053-R1 the admin link is quiet, and the admin pages look like the rest: headings, cards, field, button, slim rows with icon buttons, dialog", async ({ page }) => {
   test.skip(!runsLocally, "needs the admin password of the local test server");
   await clearFamily();
   const mia = uniqueName("Mia");
@@ -324,7 +324,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     const wrong = page.getByRole("alert").filter({ hasText: "Fel lösenord." });
     await expectTextMessage(wrong, DANGER);
 
-    // The wish list page: "Ny önskning" looks like the secondary button
+    // The wish list page: "Ny önskning" is a round plus button that looks like the other icon buttons, MUPP-053-R1
     await adminSignIn(page, mia);
     await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
     await page.evaluate(() => document.fonts.ready);
@@ -332,7 +332,9 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
     const open = birthday.getByRole("button", { name: "Ny önskning" });
     await expect(open).toHaveCSS("background-color", CARD);
     await expect(open).toHaveCSS("border-top-width", "1px");
-    expect((await settledBox(open)).height).toBeGreaterThanOrEqual(44);
+    await expect(open).toHaveClass(/rounded-full/);
+    const plus = await settledBox(open);
+    expect([plus.width, plus.height]).toEqual([44, 44]);
     await open.focus();
     await expect(open).toHaveCSS("outline-width", "3px");
 
@@ -397,7 +399,7 @@ test("MUPP-003-R8 MUPP-010-R2 R6 the admin link is quiet, and the admin pages lo
   }
 });
 
-test("MUPP-038-R1 R2 R3 the Secret Santa tab on a phone: tabs 44 px high with the selected one marked, a family of 8 as slim rows that fit the width", async ({ page }) => {
+test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 the Secret Santa tab on a phone: tabs 44 px high with the selected one marked, a family of 8 as slim rows that fit the width", async ({ page }) => {
   test.skip(!runsLocally, "needs the admin password of the local test server");
   await clearFamily();
   await clearSanta();
@@ -424,6 +426,13 @@ test("MUPP-038-R1 R2 R3 the Secret Santa tab on a phone: tabs 44 px high with th
     await expect(card.getByRole("heading", { level: 4 })).toHaveCount(8);
     for (const row of await card.locator("article").all()) expect((await settledBox(row)).height).toBeLessThanOrEqual(56);
     expect(await hasHorizontalScroll(page)).toBe(false);
+    // MUPP-053-R1 R3: a 44 px plus for a new person inside the group's card, and "Ny grupp" a text button centred under the groups
+    const plus = await settledBox(card.getByRole("button", { name: "Ny person i Familjen Ek" }));
+    expect([plus.width, plus.height]).toEqual([44, 44]);
+    const [cardBox, groupButton] = await Promise.all([settledBox(card), settledBox(page.getByRole("button", { name: "Ny grupp", exact: true }))]);
+    expect(plus.y + plus.height).toBeLessThanOrEqual(cardBox.y + cardBox.height);
+    expect(groupButton.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(groupButton.x + groupButton.width / 2 - 160)).toBeLessThanOrEqual(2);
     const edit = card.getByRole("button", { name: "Ändra Person Nummer1 i Familjen Ek" });
     expect((await settledBox(edit)).width).toBeGreaterThanOrEqual(32);
     await edit.click();
@@ -484,7 +493,7 @@ test("MUPP-012-R1 R2 the parent picker looks like the other fields, and its list
   }
 });
 
-test("TECH-006-R4 the admin start shows a short text by the icons from 640 px and only icons on a phone, and the manage page keeps its lists narrow on a wide screen", async ({ page }) => {
+test("TECH-006-R4 MUPP-053-R2 R4 the admin start shows a short text by the icons from 640 px and only icons on a phone, and the manage page keeps its lists narrow on a wide screen", async ({ page }) => {
   test.skip(!runsLocally, "needs the admin password of the local test server");
   await clearFamily();
   const chef = uniqueName("Chef");
@@ -500,6 +509,16 @@ test("TECH-006-R4 the admin start shows a short text by the icons from 640 px an
     const phoneBox = await settledBox(sizes);
     expect([phoneBox.width, phoneBox.height]).toEqual([32, 32]);
 
+    // MUPP-053-R4: "Inloggad som" and the 44 px swap icon share one row on the narrowest common phone
+    await page.setViewportSize({ width: 360, height: 640 });
+    const [who, swap] = await Promise.all([settledBox(page.getByText("Inloggad som")), settledBox(page.getByRole("button", { name: "Byt förälder" }))]);
+    expect([swap.width, swap.height]).toEqual([44, 44]);
+    expect(who.y + who.height).toBeGreaterThan(swap.y);
+    expect(swap.y + swap.height).toBeGreaterThan(who.y);
+    expect(swap.x).toBeGreaterThanOrEqual(who.x + who.width);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await page.setViewportSize({ width: 375, height: 667 });
+
     // Wide screen: the text is visible beside the icon, the link grows, and the name is still the full one
     await page.setViewportSize({ width: 1280, height: 800 });
     await expect(sizes.getByText("Storlekar", { exact: true })).toBeVisible();
@@ -514,6 +533,15 @@ test("TECH-006-R4 the admin start shows a short text by the icons from 640 px an
     const row = page.getByRole("article").filter({ hasText: kid });
     await animationsDone(row);
     expect((await settledBox(row)).width).toBeLessThanOrEqual(672);
+
+    // MUPP-053-R2: the list of kids is a framed card with its plus button inside it, centred, under the last row
+    const frame = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Barn" }) });
+    await expect(frame).toHaveCSS("border-top-width", "1px");
+    const [frameBox, rowBox, addBox] = await Promise.all([settledBox(frame), settledBox(row), settledBox(frame.getByRole("button", { name: "Nytt barn" }))]);
+    expect([addBox.width, addBox.height]).toEqual([44, 44]);
+    expect(addBox.y).toBeGreaterThanOrEqual(rowBox.y + rowBox.height);
+    expect(addBox.y + addBox.height).toBeLessThanOrEqual(frameBox.y + frameBox.height);
+    expect(Math.abs(addBox.x + addBox.width / 2 - (frameBox.x + frameBox.width / 2))).toBeLessThanOrEqual(1);
     await expectNoA11yViolations(page);
   } finally {
     await clearFamily();
@@ -1271,7 +1299,7 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
   }
 });
 
-test("MUPP-040-R1 R2 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the form fits the width", async ({ page }) => {
+test("MUPP-040-R1 R2 MUPP-053-R1 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the plus is 44 px, the form fits the width", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test database");
   await clearSanta();
   const family = await addSantaFamily("Familjen Ek");
@@ -1287,6 +1315,7 @@ test("MUPP-040-R1 R2 the Secret Santa wish list on a 375 x 667 phone: long title
     for (const name of [/^Ändra /, /^Ta bort /]) {
       for (const button of await page.getByRole("button", { name }).all()) expect((await settledBox(button)).height).toBeGreaterThanOrEqual(32);
     }
+    expect((await settledBox(page.getByRole("button", { name: "Ny önskning" }))).height).toBeGreaterThanOrEqual(44);
     await page.getByRole("button", { name: "Ny önskning" }).click();
     for (const field of ["Namn", "Storlek", "Beskrivning", "Länk"]) {
       const box = await settledBox(page.getByLabel(field));

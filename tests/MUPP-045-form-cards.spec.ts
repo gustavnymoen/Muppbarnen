@@ -175,7 +175,7 @@ test("MUPP-045-R2 R5 R7 R8 Hantera, a new parent, a new kid with the parent list
   // R3: a button that is gone when the card closes: focus goes to the heading of the section it was in, never to the top of the page
   await page.getByRole("button", { name: "Ny förälder" }).click();
   await expect(dialog).toHaveCount(1);
-  await page.locator("button", { hasText: /^Ny förälder$/ }).evaluate((button) => button.remove());
+  await page.getByRole("button", { name: "Ny förälder" }).evaluate((button) => button.remove());
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 2, name: "Föräldrar" })).toBeFocused();
@@ -287,9 +287,9 @@ test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new family with one field, a 
   const dialog = card(page);
 
   // R2 R5: a family has one field, so Enter sends it
-  await page.getByRole("button", { name: "Ny familj", exact: true }).click();
-  await expect(dialog.getByRole("heading", { level: 2, name: "Ny familj" })).toBeVisible();
-  await expect(dialog.getByLabel("Familjens namn")).toBeFocused();
+  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
+  await expect(dialog.getByRole("heading", { level: 2, name: "Ny grupp" })).toBeVisible();
+  await expect(dialog.getByLabel("Gruppens namn")).toBeFocused();
   await page.keyboard.type("Familjen Alm");
   await page.keyboard.press("Enter");
   await expect(dialog).toHaveCount(0);

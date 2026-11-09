@@ -1,7 +1,8 @@
 import { Suspense } from "react";
-import { Button, LinkButton } from "@/app/components/Button";
+import { Button, IconButton, LinkButton } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import { Field, Form } from "@/app/components/Form";
+import { SwapIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { Tabs } from "@/app/components/Tabs";
 import { currentAdmin } from "@/lib/admin-auth";
@@ -116,14 +117,14 @@ async function ParentHome({ parent }: { parent: Parent }) {
   const santa = parent.isMasterAdmin ? await listFamilies(parent) : null;
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <p>
-          Barn som tillhör <strong>{parent.name}</strong>.
+          Inloggad som <strong>{parent.name}</strong>
         </p>
         <form action={leaveParent}>
-          <Button type="submit" variant="secondary">
-            Byt förälder
-          </Button>
+          <IconButton type="submit" round label="Byt förälder">
+            <SwapIcon />
+          </IconButton>
         </form>
       </div>
       {santa ? (

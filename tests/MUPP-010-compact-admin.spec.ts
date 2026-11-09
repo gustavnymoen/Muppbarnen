@@ -62,8 +62,8 @@ test("MUPP-010-R1 R2 R6 Hantera starts with every card closed: two headings, sli
     if (name.endsWith(kid) && previousRight !== -Infinity) expect(box.x - previousRight, name).toBeGreaterThanOrEqual(4);
     previousRight = name.endsWith(kid) ? box.x + box.width : -Infinity;
   }
-  // The buttons that open a form keep their text
-  for (const name of ["Ny förälder", "Nytt barn"]) await expect(page.getByRole("button", { name })).toHaveText(name);
+  // The buttons that add a row are plus icons without text (MUPP-053)
+  for (const name of ["Ny förälder", "Nytt barn"]) await expect(page.getByRole("button", { name })).toHaveText("");
   await expectNoA11yViolations(page);
 });
 
@@ -141,7 +141,7 @@ test("MUPP-010-R1 R5 the wish list page has only the lists, as slim rows, and th
   // R1: no card is open when the page opens
   await expect(page.locator("main form:visible")).toHaveCount(0);
 
-  // An item is a slim row with its icon buttons; "Ny önskning" has text
+  // An item is a slim row with its icon buttons
   await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
   await birthday.getByLabel("Namn").fill("Pussel");
   await birthday.getByRole("button", { name: "Lägg till" }).click();

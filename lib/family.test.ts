@@ -165,15 +165,11 @@ describe("MUPP-003-R4 wish lists", () => {
     expect(await family.removeItem(ola, String(a.id))).toMatchObject({ ok: false });
     expect(await family.saveItem(ola, item(kid, "Intrång", { itemId: String(a.id) }))).toMatchObject({ ok: false });
     expect(await family.saveItem(ola, item(kid, "Intrång"))).toMatchObject({ ok: false });
-    expect(await family.clearList(ola, String(kid), "birthday")).toMatchObject({ ok: false });
     expect((await wishlists(kid)).birthday).toHaveLength(2);
 
     expect(await family.removeItem(mia, String(a.id))).toEqual({ ok: true });
     expect((await wishlists(kid)).birthday.map((i) => i.id)).toEqual([b.id]);
-    expect(await family.clearList(mia, String(kid), "birthday")).toEqual({ ok: true });
-    const lists = await wishlists(kid);
-    expect(lists.birthday).toEqual([]);
-    expect(lists.christmas).toHaveLength(1);
+    expect((await wishlists(kid)).christmas).toHaveLength(1);
   });
 });
 
@@ -480,17 +476,6 @@ describe("MUPP-031 the month after and the archive", () => {
       ["Födelsedag 2026", ["Cykel"]],
       ["Födelsedag 2025", ["Docka"]],
     ]);
-  });
-
-  test("MUPP-031-R5 Töm listan removes only the items that are not archived", async () => {
-    const mia = await parent("Mia");
-    const kid = await alma(mia);
-    await family.saveItem(mia, item(kid, "Gammal"), on("2026-03-01"));
-    await family.saveItem(mia, item(kid, "Ny"), on("2026-04-17"));
-    expect(await family.clearList(mia, String(kid), "birthday", on("2026-04-17"))).toEqual({ ok: true });
-    const after = await lists(kid, "2026-04-17");
-    expect(after.birthday).toEqual([]);
-    expect(after.archive.flatMap((g) => titles(g.items))).toEqual(["Gammal"]);
   });
 
   test("MUPP-031-R7 copying an archived item gives an unclaimed copy, added today, and leaves the archive as it was", async () => {

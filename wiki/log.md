@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* **Creation** [MUPP-053 Plus buttons for adding](../specs/MUPP-053-add-buttons/solution.md): a new wish, person, kid or parent is added with a round plus button at the bottom of its list or frame (the parents and the kids on the manage page are framed), "Ny familj" is the centred text button "Ny grupp" under "Grupper", and "Byt förälder" is a swap icon beside "Inloggad som …"; `DESIGN.md` says when to use which.
 * **Creation** [MUPP-054 Toast after saving](../specs/MUPP-054-toaster/solution.md): a green band slides down from above, centred at the top of the screen after every save (red for an error), in front of open cards; it replaces the line at the top of the card.
 * **Update** [TECH-018 Test suite at its time budget again](../specs/TECH-018-test-suite-room-again/solution.md): the test server skips the second a wrong password costs (only with a local database), the Secret Santa tests sign in by cookie, boxes are read in the page and more tests are merged by journey, so the browser tests (121 → 111 tests) run in about 178 s instead of 203 s; the goal was relaxed from 170 s to 180 s.
 * **Update** [MUPP-047 Back button on the Secret Santa sign-in](../specs/MUPP-047-santa-back-button/solution.md): after a name is picked, a Tillbaka arrow in the top left corner (or Esc) replaces "Det är inte jag"; the welcome line is shorter and the submit button reads "Fortsätt".

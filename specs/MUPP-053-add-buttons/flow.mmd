@@ -1,0 +1,9 @@
+%% MUPP-053 Plus buttons for adding
+%% Which button adds what: a row in a list or frame gets a plus, a new top-level object a centred text button.
+flowchart TD
+    A[Something to add] --> B{Where does it go?}
+    B -- a row in a list or frame --> C[Round 44 px plus button at the bottom of the frame: R1 R2]
+    B -- a new top-level object --> D[Centred text button, for example Ny grupp: R3]
+    C --> E[Same form card as before, grown out of the button]
+    D --> E
+    F[/admin] --> G[Inloggad som name + swap icon button Byt förälder on one row: R4]
