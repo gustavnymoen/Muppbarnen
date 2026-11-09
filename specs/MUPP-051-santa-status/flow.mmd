@@ -2,8 +2,8 @@
 %% The status of an event and what each status allows; the administrator's two moves and the refusals.
 flowchart TD
     N[New event] -->|R1| I[Inaktiv]
-    I -->|Aktivera, Är du säker? R2| P[Förbereder]
-    P -->|Avaktivera, Är du säker? R2| I
+    I -->|toggle Aktiv on, Är du säker? R2| P[Förbereder]
+    P -->|toggle Aktiv off, Är du säker? R2| I
     P -->|the draw, MUPP-041| S[Startad]
     S -->|stop, MUPP-041| P
     S -. deactivate refused, R2 .-> S

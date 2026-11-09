@@ -15,12 +15,18 @@ An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a statu
 
 | | Inactive | Preparing | Started |
 |---|---|---|---|
-| Members added, changed, removed (`lib/santa.ts`) | yes | yes | no ("Gruppen är startad. Medlemmarna kan inte ändras nu.") |
+| Members added, changed, removed (`lib/santa.ts`) | yes | yes | no ("Gruppen är startad. Deltagarna kan inte ändras nu.") |
 | Wishes added, changed, removed (`lib/santa-wishes.ts`) | no ("Önskelistan är stängd just nu.") | yes | yes |
 | What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" (the rest comes with MUPP-041) |
-| Administrator's button | Aktivera | Avaktivera | none |
+| The toggle "Aktiv" | off; switch on to activate | on; switch off to deactivate | on and locked, "Stoppa gruppen först" |
+
+In the interface the people are "deltagare" ([R7](../../specs/MUPP-051-santa-status/solution.md)); the code and the database keep `member`.
 
 The group's name can still be changed and the group deleted in every status.
+
+## The admin controls
+
+Under the group's plus button, `ActiveToggle` in `app/admin/SantaTab.tsx` shows the toggle **Aktiv** (`SwitchButton`, `role="switch"`, 44 px high, centred). Switching it asks "Är du säker?" (`ConfirmAction` with `switchLabel`), then calls `activateEvent` or `deactivateEvent`. Beside the status text `StatusInfo` (an "i" button, "Vad betyder statusen?") opens a card with the three explanations; Esc, the cross and a press outside close it. Started has no second toggle yet (MUPP-041).
 
 ## Rules
 

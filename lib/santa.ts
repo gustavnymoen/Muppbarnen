@@ -21,7 +21,7 @@ const GONE = { ok: false, error: "Det finns inte längre. Ladda om sidan." } as 
 const NAME_TAKEN = { ok: false, fields: { name: "Det finns redan en grupp med det namnet." } } as const;
 const PHONE_TAKEN = { ok: false, fields: { phone: "Numret används redan av en annan person i gruppen." } } as const;
 const EMAIL_TAKEN = { ok: false, fields: { email: "E-postadressen används redan av en annan person i gruppen." } } as const;
-const STARTED = { ok: false, error: "Gruppen är startad. Medlemmarna kan inte ändras nu." } as const;
+const STARTED = { ok: false, error: "Gruppen är startad. Deltagarna kan inte ändras nu." } as const;
 const WRONG_STATUS = { ok: false, error: "Gruppens status har redan ändrats. Ladda om sidan." } as const;
 const PARTNER_IN_GROUP = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } } as const;
 

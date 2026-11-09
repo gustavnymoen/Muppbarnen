@@ -335,7 +335,7 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
     const anna = await person(emma, id, "Anna");
     const bo = await person(emma, id, "Bo");
     await setStatus(id, "started");
-    const closed = { ok: false, error: "Gruppen är startad. Medlemmarna kan inte ändras nu." };
+    const closed = { ok: false, error: "Gruppen är startad. Deltagarna kan inte ändras nu." };
     for (const actor of [emma, master]) {
       expect(await santa.addMember(actor, { eventId: String(id), name: "Ny", phone: "0700099999", email: "ny@exempel.se" })).toEqual(closed);
       expect(await santa.saveMember(actor, edit(anna, { partnerId: String(bo) }))).toEqual(closed);

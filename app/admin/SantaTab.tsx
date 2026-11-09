@@ -2,9 +2,11 @@ import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Field, Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
+import { SwitchButton } from "@/app/components/SwitchButton";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
 import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
+import { StatusInfo } from "./StatusInfo";
 import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember } from "./santa-actions";
 
 const STATUS_LABEL: Record<EventStatus, string> = { inactive: "Inaktiv", preparing: "Förbereder", started: "Startad" };
@@ -35,7 +37,7 @@ export function SantaTab({ events, adminId }: { events: SantaEvent[]; adminId: n
 }
 
 function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
-  const count = `${event.members.length} ${event.members.length === 1 ? "medlem" : "medlemmar"}`;
+  const count = `${event.members.length} deltagare`;
   return (
     <SlimCard
       title={event.name}
@@ -52,7 +54,7 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
             label="Ta bort"
             subject={event.name}
             title={`Ta bort ${event.name}?`}
-            text={`${event.name}, dess medlemmar och deras önskelistor tas bort. Det går inte att ångra.`}
+            text={`${event.name}, dess deltagare och deras önskelistor tas bort. Det går inte att ångra.`}
           />
         </>
       }
@@ -67,7 +69,7 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
           ))}
         </ul>
       )}
-      {/* Medlemmarna ändras inte i en startad grupp (MUPP-051-R3) */}
+      {/* Deltagarna ändras inte i en startad grupp (MUPP-051-R3) */}
       {event.status !== "started" && (
         <div className="mt-3 pb-1">
           <AddRow>
@@ -80,30 +82,50 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
           </AddRow>
         </div>
       )}
+      <ActiveToggle event={event} />
     </SlimCard>
   );
 }
 
-// Statusen och knappen som byter den (MUPP-051). En startad grupp byter inte status här: dragningen stoppas först (MUPP-041).
-// En enda ConfirmAction för båda lägena, så att frågan och dess svar finns kvar när statusen har bytts.
+// Statustexten med förklaringen (MUPP-051-R2)
 function StatusRow({ event }: { event: SantaEvent }) {
-  const activating = event.status === "inactive";
   return (
-    <div className="mt-2 flex items-center justify-between gap-3">
+    <div className="mt-2 flex items-center gap-1">
       <p>
         Status: <strong>{STATUS_LABEL[event.status]}</strong>
       </p>
-      {event.status !== "started" && (
-        <ConfirmAction
-          action={activating ? activateEvent : deactivateEvent}
-          fields={{ eventId: String(event.id) }}
-          label={activating ? "Aktivera" : "Avaktivera"}
-          buttonText={activating ? "Aktivera" : "Avaktivera"}
-          subject={event.name}
-          title="Är du säker?"
-          text={statusQuestion(event, activating)}
-        />
-      )}
+      <StatusInfo />
+    </div>
+  );
+}
+
+// Reglaget Aktiv (av = inaktiv, på = förbereder), centrerat under plusknappen (MUPP-051-R2; vänsterställt prövas när det byggts).
+// I en startad grupp är det på och låst: dragningen måste stoppas först (MUPP-041). En enda ConfirmAction för båda lägena, så att
+// frågan och dess svar finns kvar när statusen har bytts.
+function ActiveToggle({ event }: { event: SantaEvent }) {
+  if (event.status === "started") {
+    return (
+      <div className="mt-2 flex flex-col items-center">
+        <SwitchButton label="Aktiv" checked disabled aria-describedby={`locked-${event.id}`} />
+        <p id={`locked-${event.id}`} className="text-sm text-muted">
+          Stoppa gruppen först
+        </p>
+      </div>
+    );
+  }
+  const activating = event.status === "inactive";
+  return (
+    <div className="mt-2 flex justify-center">
+      <ConfirmAction
+        action={activating ? activateEvent : deactivateEvent}
+        fields={{ eventId: String(event.id) }}
+        label={activating ? "Aktivera" : "Avaktivera"}
+        switchLabel="Aktiv"
+        switchOn={!activating}
+        subject={event.name}
+        title="Är du säker?"
+        text={statusQuestion(event, activating)}
+      />
     </div>
   );
 }
@@ -111,9 +133,9 @@ function StatusRow({ event }: { event: SantaEvent }) {
 // Frågan före ett statusbyte: vad som händer och hur många som får mejl
 function statusQuestion(event: SantaEvent, activating: boolean) {
   const count = event.members.length;
-  const mail = count === 0 ? "inga mejl skickas, för den har inga medlemmar" : `${count === 1 ? "den enda medlemmen" : `alla ${count} medlemmar`} får ett mejl om det`;
+  const mail = count === 0 ? "inga mejl skickas, för den har inga deltagare" : `${count === 1 ? "den enda deltagaren" : `alla ${count} deltagare`} får ett mejl om det`;
   return activating
-    ? `Gruppen ${event.name} öppnas, så att medlemmarna kan skriva sina önskelistor, och ${mail}.`
+    ? `Gruppen ${event.name} öppnas, så att deltagarna kan skriva sina önskelistor, och ${mail}.`
     : `Gruppen ${event.name} stängs och ${mail}. Önskelistorna ligger kvar och kommer tillbaka när gruppen aktiveras igen.`;
 }
 

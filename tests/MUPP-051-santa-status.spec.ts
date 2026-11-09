@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaStatusOf, santaWishes, setSantaStatus } from "./family-db";
 import { santaSignIn } from "./santa";
 import { testIp } from "./site-session";
@@ -32,7 +32,7 @@ async function annaIn(page: Page, status: "inactive" | "preparing" | "started") 
   return { event, anna };
 }
 
-test("MUPP-051-R1 R2 a new group is inactive; Aktivera and Avaktivera each ask 'Är du säker?', cancelling changes nothing, and the status follows", async ({ page }) => {
+test("MUPP-051-R1 R2 a new group is inactive; the toggle Aktiv asks 'Är du säker?' each way, cancelling changes nothing, and the status follows", async ({ page }) => {
   const emma = uniqueName("Emma");
   await addParent(emma);
   await openSantaTab(page, emma);
@@ -43,10 +43,12 @@ test("MUPP-051-R1 R2 a new group is inactive; Aktivera and Avaktivera each ask '
 
   // R1: a new group is inactive
   await expect(card).toContainText("Status: Inaktiv");
-  await expect(card.getByRole("button", { name: "Avaktivera Emmas jul", exact: true })).toHaveCount(0);
+  const toggle = card.getByRole("switch", { name: "Aktiv Emmas jul" });
+  await expect(toggle).toHaveAttribute("aria-checked", "false");
+  expect((await settledBox(toggle)).height).toBeGreaterThanOrEqual(44);
 
   // R2: the question first; cancelling changes nothing
-  await card.getByRole("button", { name: "Aktivera Emmas jul", exact: true }).click();
+  await toggle.click();
   const question = page.getByRole("alertdialog", { name: "Är du säker?" });
   await expect(question).toContainText("inga mejl skickas");
   await expectNoA11yViolations(page);
@@ -54,11 +56,12 @@ test("MUPP-051-R1 R2 a new group is inactive; Aktivera and Avaktivera each ask '
   await expect(card).toContainText("Status: Inaktiv");
 
   // R2: confirming activates; then it can be deactivated, after the same question
-  await card.getByRole("button", { name: "Aktivera Emmas jul", exact: true }).click();
+  await expect(toggle).toHaveAttribute("aria-checked", "false");
+  await toggle.click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Aktivera", exact: true }).click();
   await expect(card).toContainText("Status: Förbereder");
-  await expect(card.getByRole("button", { name: "Aktivera Emmas jul", exact: true })).toHaveCount(0);
-  await card.getByRole("button", { name: "Avaktivera Emmas jul", exact: true }).click();
+  await expect(toggle).toHaveAttribute("aria-checked", "true");
+  await toggle.click();
   await expect(page.getByRole("alertdialog", { name: "Är du säker?" })).toContainText("Önskelistorna ligger kvar");
   await page.getByRole("alertdialog").getByRole("button", { name: "Avaktivera", exact: true }).click();
   await expect(card).toContainText("Status: Inaktiv");
@@ -79,7 +82,12 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
   await openSantaTab(page, emma);
   const card = eventCard(page, "Startad grupp");
   await expect(card).toContainText("Status: Startad");
-  await expect(card.getByRole("button", { name: /^(Aktivera|Avaktivera|Ny person|Ändra Anna|Ta bort Anna)/ })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: /^(Ny person|Ändra Anna|Ta bort Anna)/ })).toHaveCount(0);
+  // R2: the toggle is on and locked, with the note
+  const locked = card.getByRole("switch", { name: "Aktiv", exact: true });
+  await expect(locked).toBeDisabled();
+  await expect(locked).toHaveAttribute("aria-checked", "true");
+  await expect(card).toContainText("Stoppa gruppen först");
   await expectNoA11yViolations(page);
 
   // R3: the group that is not started still has its buttons
@@ -91,7 +99,7 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
 
   // R2: the page was loaded while the group was inactive; the server refuses the second activation and the status stays
   await openSantaTab(page, emma);
-  await eventCard(page, "Öppen grupp").getByRole("button", { name: "Aktivera Öppen grupp", exact: true }).click();
+  await eventCard(page, "Öppen grupp").getByRole("switch", { name: "Aktiv Öppen grupp" }).click();
   await setSantaStatus(open, "preparing");
   await page.getByRole("alertdialog").getByRole("button", { name: "Aktivera", exact: true }).click();
   await expect(page.getByText("Gruppens status har redan ändrats.").first()).toBeVisible();
@@ -142,4 +150,43 @@ test("MUPP-051-R6 MUPP-051-R4 a preparing group has the active list card and the
   await page.getByRole("button", { name: "Lägg till" }).click();
   await expect(page.getByText("Önskelistan är stängd just nu.").first()).toBeVisible();
   expect((await santaWishes(anna)).map((w) => w.title)).toEqual(["Bok"]);
+});
+
+test("MUPP-051-R2 the i icon is 44 px, opens the three explanations and closes with Esc, the cross and a press outside", async ({ page }) => {
+  const emma = uniqueName("Emma");
+  await addSantaEvent("Emmas jul", await addParent(emma), "inactive");
+  await openSantaTab(page, emma);
+  const info = page.getByRole("button", { name: "Vad betyder statusen?" });
+  expect((await settledBox(info)).height).toBeGreaterThanOrEqual(44);
+  const dialog = page.getByRole("dialog", { name: "Vad betyder statusen?" });
+  const texts = ["Gruppen har ej startat.", "Deltagarna kan nu skapa önskelistor men har ej tilldelats en matchning.", "Deltagarna är matchade och kan se den andres lista, samt skicka meddelanden."];
+
+  await info.click();
+  for (const text of texts) await expect(dialog).toContainText(text);
+  await expectNoA11yViolations(page);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await info.click();
+  await dialog.getByRole("button", { name: /Stäng|Avbryt/ }).click();
+  await expect(dialog).toBeHidden();
+  await info.click();
+  await page.mouse.click(2, 2);
+  await expect(dialog).toBeHidden();
+});
+
+test("MUPP-051-R7 the count and the delete question say deltagare, in singular and plural, and nowhere does the tab say medlem", async ({ page }) => {
+  const emma = uniqueName("Emma");
+  const event = await addSantaEvent("Emmas jul", await addParent(emma), "inactive");
+  await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid");
+  await openSantaTab(page, emma);
+  const card = eventCard(page, "Emmas jul");
+  await expect(card).toContainText("1 deltagare");
+  await addSantaMember(event, "Bertil Testsson", "0700002222", "bertil@exempel.invalid");
+  await page.reload();
+  await page.getByRole("tab", { name: "Secret Santa" }).click();
+  await expect(card).toContainText("2 deltagare");
+  await card.getByRole("button", { name: "Ta bort Emmas jul", exact: true }).click();
+  await expect(page.getByRole("alertdialog")).toContainText("Emmas jul, dess deltagare och deras önskelistor tas bort. Det går inte att ångra.");
+  await page.getByRole("button", { name: "Avbryt" }).click();
+  await expect(page.locator("main")).not.toContainText(/medlem/i);
 });

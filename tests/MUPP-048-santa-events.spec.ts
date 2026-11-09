@@ -45,13 +45,13 @@ test("MUPP-048-R1 R3 a parent who is not master admin has the tab, creates a gro
   await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
   await createEvent(page, "Emmas jul");
   const emmas = eventCard(page, "Emmas jul");
-  await expect(emmas).toContainText("0 medlemmar");
+  await expect(emmas).toContainText("0 deltagare");
   await emmas.getByRole("button", { name: "Ny person i Emmas jul" }).click();
   await page.getByLabel("Namn", { exact: true }).fill("Anna Testsson");
   await page.getByLabel("Telefon", { exact: true }).fill(PHONE);
   await page.getByLabel("E-post", { exact: true }).fill(EMAIL);
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await expect(emmas).toContainText("1 medlem");
+  await expect(emmas).toContainText("1 deltagare");
   await expectNoA11yViolations(page);
   await emmas.getByRole("button", { name: "Byt namn på Emmas jul" }).click();
   await page.getByLabel("Gruppens namn", { exact: true }).fill("Emmas julafton");
