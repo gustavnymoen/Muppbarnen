@@ -1,0 +1,3 @@
+# Falskt larm: filnamnen på migreringarna i db/db-setup.test.ts (MUPP-048) läses som en nyckel av regeln generic-api-key
+ef43f25dd8afc1c21843be81a2fa3e167422765b:db/db-setup.test.ts:generic-api-key:101
+ef43f25dd8afc1c21843be81a2fa3e167422765b:db/db-setup.test.ts:generic-api-key:147
