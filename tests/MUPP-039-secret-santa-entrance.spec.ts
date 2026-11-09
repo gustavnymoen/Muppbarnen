@@ -17,7 +17,8 @@ test.beforeEach(async ({ page }) => {
 });
 test.afterEach(clearSanta);
 
-const message = (page: Page) => page.getByRole("alert").filter({ hasText: /\S/ });
+// Not the route announcer: with a page title that changes it now holds text too (MUPP-046)
+const message = (page: Page) => page.getByRole("alert").filter({ hasText: /\S/ }).and(page.locator("#santa-fel"));
 const santaCookie = async (page: Page) => (await page.context().cookies()).find((c) => c.name === SANTA_COOKIE);
 
 async function oneFamily() {

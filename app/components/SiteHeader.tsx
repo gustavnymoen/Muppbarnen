@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { SiteMenu } from "./SiteMenu";
 
-export const SITE_NAME = "Muppbarnens önskelistor";
+export const SITE_NAME = "Kusinportalen";
 
 // Sidhuvudet på varje sida: bara menyn (TECH-006: sajtens namn syns inte som rubrik). På startsidan
 // finns namnet kvar som en dold h1, så att sidan har en rubrik för skärmläsare; andra sidor har en egen h1.

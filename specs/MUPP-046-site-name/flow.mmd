@@ -1,0 +1,11 @@
+%% MUPP-046 Site name
+%% What a request without the site cookie gets: the four public files, the password page, or 401.
+flowchart TD
+    A[Request without the site cookie] --> B{Path}
+    B -- /losenord --> C[Password page: Kusinportalen: R1]
+    B -- icon.svg, icon.png, apple-icon.png, manifest.webmanifest --> D{GET or HEAD?}
+    D -- yes --> E[200, the file: R4]
+    D -- no --> F[401: R4]
+    B -- any other path --> G{A page?}
+    G -- yes --> H[307 to the password page]
+    G -- no --> F

@@ -18,12 +18,12 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
 
   // R1 (changed by TECH-006): namnet syns inte som rubrik; det finns kvar som en dold h1, den enda, och sidtiteln är densamma (sidhuvudets utseende: tests/design.spec.ts)
-  const name = page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" });
+  const name = page.getByRole("heading", { level: 1, name: "Kusinportalen" });
   await expect(name).toBeAttached();
   // dold: syns inte, men finns för skärmläsare
   expect((await settledBox(name)).width).toBeLessThanOrEqual(1);
   expect(await page.getByRole("heading", { level: 1 }).count()).toBe(1);
-  await expect(page).toHaveTitle("Muppbarnens önskelistor");
+  await expect(page).toHaveTitle("Kusinportalen");
 
   // R4: landmärkena header, nav (när menyn är öppen) och main; inga axe-fel
   await expect(page.getByRole("main")).toBeVisible();
@@ -87,13 +87,13 @@ test("MUPP-002-R1 R2 R4 header, menu and a11y on a phone, also at 320 px", async
   await page.getByRole("button", { name: "Meny" }).click();
   await page.getByRole("link", { name: "Start" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Kusinportalen" })).toBeVisible();
   await expect(menu).toHaveAttribute("aria-expanded", "false");
 
   // R4: på 320 × 568 px fungerar sidhuvud och meny utan sidled scroll (fönstret ändras mitt i testet)
   await page.setViewportSize({ width: 320, height: 568 });
   expect(await hasHorizontalScroll(page)).toBe(false);
-  await expect(page.getByRole("heading", { level: 1, name: "Muppbarnens önskelistor" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Kusinportalen" })).toBeVisible();
   const menuBox = await settledBox(menu);
   expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(320);
   await menu.click();

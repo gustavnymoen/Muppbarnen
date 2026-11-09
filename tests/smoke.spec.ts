@@ -9,7 +9,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
 test("MUPP-009-R6 @smoke the site answers with the password page and none of its content", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/losenord\?till=%2F$/);
-  await expect(page.getByRole("heading", { name: "Muppbarnens önskelistor", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kusinportalen", level: 1 })).toBeVisible();
   await expect(page.getByLabel("Lösenord")).toBeVisible();
   await expect(page.getByRole("button", { name: "Öppna" })).toBeVisible();
   // Inget annat från sajten: varken kort, meny eller länkar
@@ -42,4 +42,11 @@ test("MUPP-039-R1 @smoke the Secret Santa entrance is behind the site password a
   const own = await request.get("/secret-santa/min-sida", { maxRedirects: 0 });
   expect(own.status()).toBe(307);
   expect(own.headers().location).toContain("/losenord");
+});
+
+test("MUPP-046-R4 @smoke the icon is public and a page still needs the password", async ({ request }) => {
+  const icon = await request.get("/icon.png", { maxRedirects: 0 });
+  expect(icon.status()).toBe(200);
+  expect(icon.headers()["content-type"]).toContain("image/png");
+  expect((await request.get("/", { maxRedirects: 0 })).status()).toBe(307);
 });
