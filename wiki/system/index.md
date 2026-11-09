@@ -13,6 +13,7 @@
 * [Architecture](architecture.md) - The parts of Muppbarnen and how they fit: framework, data, hosting and the databases per environment.
 * [Design system](design.md) - How Muppbarnen looks and how the look is built: the tokens, the shared components, the style guide page /design and the rules for adding to them.
 * [Start page and menu](start-page.md) - How the start page, the shared header and the hamburger menu are built, and the birthday deck of cards.
+* [Form cards](form-cards.md) - How every dialog and form is one card that grows out of its button: the shared Dialog, focus on open, Enter between fields, the confirmation after a new wish and the announcement after a save.
 * [Site password](site-password.md) - How the whole site is put behind one shared password: the proxy, the signed cookie, the attempt limit, the settings, the private picture store and how the tests get past it.
 * [Secret Santa entrance](secret-santa-entrance.md) - How visitors get into Secret Santa: the menu entry, family and name choice, the sign-in with phone or email, the signed cookie and the rules that keep contact details private.
 * [Secret Santa wish list](secret-santa-wish-list.md) - How a Secret Santa member's own wish list works: one list per family membership, the form and limits shared with the kids' lists, and the owner check on the server.

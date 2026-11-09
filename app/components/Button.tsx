@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ComponentProps, Ref } from "react";
+import type { ComponentProps, ReactNode, Ref } from "react";
 
 const base =
   "press inline-flex items-center justify-center gap-2 font-heading font-medium disabled:opacity-60 disabled:cursor-not-allowed";
@@ -35,11 +35,27 @@ const framelessClass = "inline-flex min-h-11 w-11 items-center justify-center ro
 // text: en kort text bredvid ikonen på bred skärm (från 640 px); på mobil räcker ikonen
 type IconProps = { label: string; compact?: boolean; text?: string };
 
-// Knapp med bara en ikon: label är det skärmläsaren hör, och syns som tooltip
-export function IconButton({ label, compact, round, frameless, children, className = "", ...props }: ComponentProps<"button"> & IconProps & { round?: boolean; frameless?: boolean; ref?: Ref<HTMLButtonElement> }) {
+// Ikonen, och på bred skärm en kort text bredvid
+function IconContent({ text, children }: { text?: string; children: ReactNode }) {
   return (
-    <button type="button" aria-label={label} title={label} className={`${frameless ? framelessClass : iconClass(compact, round)} ${className}`} {...props}>
+    <>
       <span aria-hidden="true">{children}</span>
+      {text && (
+        <span aria-hidden="true" className="hidden text-sm sm:inline">
+          {text}
+        </span>
+      )}
+    </>
+  );
+}
+
+const withText = (text?: string) => (text ? "sm:w-auto sm:px-3" : "");
+
+// Knapp med bara en ikon: label är det skärmläsaren hör, och syns som tooltip
+export function IconButton({ label, compact, text, round, frameless, children, className = "", ...props }: ComponentProps<"button"> & IconProps & { round?: boolean; frameless?: boolean; ref?: Ref<HTMLButtonElement> }) {
+  return (
+    <button type="button" aria-label={label} title={label} className={`${frameless ? framelessClass : iconClass(compact, round)} ${withText(text)} ${className}`} {...props}>
+      <IconContent text={text}>{children}</IconContent>
     </button>
   );
 }
@@ -47,13 +63,8 @@ export function IconButton({ label, compact, round, frameless, children, classNa
 // En länk som ser ut som en ikonknapp
 export function IconLink({ label, compact, text, children, className = "", ...props }: ComponentProps<typeof Link> & IconProps) {
   return (
-    <Link aria-label={label} title={label} className={`${iconClass(compact)} ${text ? "sm:w-auto sm:px-3" : ""} ${className}`} {...props}>
-      <span aria-hidden="true">{children}</span>
-      {text && (
-        <span aria-hidden="true" className="hidden text-sm sm:inline">
-          {text}
-        </span>
-      )}
+    <Link aria-label={label} title={label} className={`${iconClass(compact)} ${withText(text)} ${className}`} {...props}>
+      <IconContent text={text}>{children}</IconContent>
     </Link>
   );
 }

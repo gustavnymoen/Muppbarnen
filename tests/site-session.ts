@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { Browser } from "@playwright/test";
 
 // Var inloggningen med sajtlösenordet sparas (av tests/global-setup.ts), så att
@@ -18,3 +19,14 @@ export const testIp = () => `10.${Math.floor(nextIp / 62_500)}.${Math.floor(next
 // En besökare utan inloggning och med ett eget "IP-nummer", för tester av lösenordssidan
 export const newVisitor = (browser: Browser, baseURL: string | undefined, viewport?: { width: number; height: number }) =>
   browser.newContext({ baseURL, viewport, extraHTTPHeaders: { "x-real-ip": testIp() } });
+
+// En besökare som är inloggad med sajtlösenordet men inte har sett rutan "Så funkar sajten" (saknar onboarding-kakan, MUPP-035). Inloggningen
+// anges som storageState, annars ärver sammanhanget testernas sparade inloggning med kakan.
+export async function newcomer(browser: Browser, baseURL: string | undefined) {
+  const { cookies } = JSON.parse(readFileSync(siteSessionFile, "utf8"));
+  return browser.newContext({
+    baseURL,
+    extraHTTPHeaders: { "x-real-ip": testIp() },
+    storageState: { cookies: cookies.filter((c: { name: string }) => !c.name.endsWith("onboarding")), origins: [] },
+  });
+}

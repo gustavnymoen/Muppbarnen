@@ -51,7 +51,8 @@ const dialogs = [
       await region(page).getByRole("checkbox", { name: /Cykel/ }).tap();
       return region(page).getByRole("button", { name: /^Paxa \(/ });
     },
-    close: (page: Page) => dialog(page).getByRole("button", { name: "Avbryt" }),
+    // The claim window is a form card (MUPP-045): the cross closes it
+    close: (page: Page) => dialog(page).getByRole("button", { name: "Stäng" }),
   },
   {
     name: "Storlekar",

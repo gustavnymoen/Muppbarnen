@@ -1,0 +1,15 @@
+%% MUPP-045 Form cards with focus and Enter
+%% Every dialog and form is the same card: it grows out of the button, is focused at once, and folds back into it.
+flowchart TD
+    A[Button pressed: open on the card, from the button] --> B[Card mounts its content, showModal, grows from the button: R1]
+    B --> C[First field focused in the same press, text selected when editing: R4]
+    C --> D{Key or button}
+    D -- Enter in a field --> E[Next text field, or submit from the last: R5]
+    D -- Esc or the cross --> F[Fold into the button, focus back on it: R3]
+    D -- Tap outside --> G[Nothing for a form card: R3]
+    D -- Spara --> H{Server answer}
+    H -- error --> I[Card stays, typed values kept, focus on the first error: R7]
+    H -- saved, new wish --> J[Fields emptied, focus in the first field, 'fotboll lades till' for 3 s: R6]
+    H -- saved, anything else --> K[Fold into the button, hidden status 'Otis sparades': R7]
+    F --> L[Button gone? focus on the section heading]
+    K --> L

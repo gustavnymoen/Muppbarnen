@@ -1,9 +1,10 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useRef } from "react";
+import type { MouseEvent } from "react";
 import type { DeckKid } from "@/lib/deck";
 import { Button, IconButton } from "./Button";
-import { Dialog } from "./Dialog";
+import { Dialog, type DialogHandle } from "./Dialog";
 import { MeasureIcon } from "./icons";
 
 const ROWS = [
@@ -17,12 +18,11 @@ const ROWS = [
 // "text" är knappen "Storlekar" på kortet med ett barn, "icon" är ikonknappen bredvid önskelistknappen på kortet med flera barn
 // (forKid hänger på barnets namn för skärmläsaren), och "corner" är samma ikonknapp uppe i hörnet av en öppen barnvy.
 // Knappen finns även när inga storlekar är inlagda; rutan säger det då. Rutans text är vanlig text, aldrig HTML.
-// <dialog> med showModal() håller tangentbordet kvar i rutan, stängs med Esc och ger fokus tillbaka till knappen.
+// Rutan är ett kort (Dialog.tsx): det växer ur knappen, håller tangentbordet kvar, stängs med Esc och ger fokus tillbaka till knappen.
 export function SizesButton({ kid, mode, forKid, className = "" }: { kid: DeckKid; mode: "text" | "icon" | "corner"; forKid?: boolean; className?: string }) {
-  const id = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useRef<DialogHandle>(null);
   const rows = ROWS.filter(([key]) => kid.sizes[key] !== "");
-  const open = () => dialog.current?.showModal();
+  const open = (event: MouseEvent<HTMLElement>) => dialog.current?.open(event.currentTarget);
 
   return (
     <>
@@ -36,12 +36,8 @@ export function SizesButton({ kid, mode, forKid, className = "" }: { kid: DeckKi
           <MeasureIcon />
         </IconButton>
       )}
-      <Dialog ref={dialog} aria-labelledby={`${id}-titel`}>
-        {/* <dialog> centrerar sin text som standard; storlekarna ska stå vänsterställda */}
-        <div className="space-y-4 text-left">
-          <h2 id={`${id}-titel`} className="font-heading text-xl font-semibold break-words">
-            Storlekar för {kid.name}
-          </h2>
+      <Dialog ref={dialog} title={`Storlekar för ${kid.name}`}>
+        <div className="space-y-4">
           {rows.length === 0 ? (
             <p>Inga storlekar inlagda än.</p>
           ) : (

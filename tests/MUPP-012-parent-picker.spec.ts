@@ -57,16 +57,17 @@ test("MUPP-012-R1 R2 R3 the parent is picked from the site's own list at 375 px:
   await expectAgainstField(field, list, "below");
   await expectNoA11yViolations(page);
 
-  // R1: Escape and a click outside close the list without a change, Escape without folding the panel
+  // R1: Escape and a click outside close the list without a change, Escape without closing the card (MUPP-045-R8)
   await page.keyboard.press("Escape");
   await expect(list).toBeHidden();
   await expect(field).toBeFocused();
   await expect(kids.getByLabel("Namn")).toBeVisible();
   await expect(field).toHaveText(chef);
   await field.click();
-  await page.getByRole("heading", { level: 1, name: "Hantera" }).click();
+  await page.mouse.click(2, 300);
   await expect(list).toBeHidden();
   await expect(field).toHaveText(chef);
+  await expect(kids.getByLabel("Namn")).toBeVisible();
 
   // R1: an option picked with the pointer closes the list and shows in the field
   await pickOption(page, kids, "Förälder", mia);
@@ -124,8 +125,8 @@ test("MUPP-012-R1 R2 on a wide screen the list opens under the field, and above 
   const below = await settledBox(list);
   expect(below.y + below.height).toBeLessThanOrEqual(720);
   await expectNoA11yViolations(page);
-  // The list is drawn in body, so the folded panel cannot cut it off, and clicking the field closes it
-  await expect(page.locator("body > ul[role=listbox]")).toHaveCount(1);
+  // The list is drawn in the card (MUPP-045-R8), so nothing cuts it off, and clicking the field closes it
+  await expect(page.locator("dialog[open] > ul[role=listbox]")).toHaveCount(1);
   await field.click();
   await expect(list).toBeHidden();
 

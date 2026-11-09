@@ -21,7 +21,6 @@ test.afterEach(async () => {
 });
 
 const dialog = (page: Page) => page.getByRole("alertdialog");
-const saved = (page: Page) => page.getByRole("status").filter({ hasText: "Sparat." });
 const familyCard = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
 const memberCard = (page: Page, name: string) => page.locator("article:not(:has(article))").filter({ has: page.getByRole("heading", { level: 4, name, exact: true }) });
 
@@ -184,5 +183,4 @@ test("MUPP-038-R2 R3 R4 R5 families and members: create, rename, add with errors
   await expect(page.getByRole("heading", { level: 4 })).toHaveCount(0);
   expect(await countSanta("ss_person")).toBe(0);
   expect(await countSanta("ss_member")).toBe(0);
-  await expect(saved(page)).toHaveCount(0);
 });

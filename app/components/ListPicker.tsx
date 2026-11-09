@@ -12,7 +12,8 @@ const MARGIN = 8;
 // Ett val ur en lista (MUPP-012), i stället för webbläsarens egen <select>, som ritas olika i varje
 // webbläsare och i mobilläge hamnar uppe i hörnet. Mönstret är ARIA:s "select-only combobox": en knapp
 // som öppnar en listbox. Värdet skickas med formuläret i ett dolt fält med fältets namn.
-// Listan ritas i body och placeras med fixed mot fältet, så att en hopfälld panel (Fold.tsx) inte klipper den.
+// Listan ritas utanför fältets ruta och placeras med fixed mot fältet, så att ingen ruta klipper den. Står fältet i ett kort (Dialog.tsx) ritas den i kortet:
+// ett modalt kort gör allt utanför sig overksamt, så en lista i body skulle hamna bakom det (MUPP-045-R8).
 // Fokus flyttas till listan när den öppnas och tillbaka till knappen när den stängs.
 export function ListPicker({
   id,
@@ -36,6 +37,8 @@ export function ListPicker({
   const [value, setValue] = useState(initial);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  // Där listan ritas
+  const [host, setHost] = useState<Element>();
   const button = useRef<HTMLButtonElement>(null);
   const hidden = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
@@ -88,6 +91,7 @@ export function ListPicker({
   }, [open, active]);
 
   const show = (index: number) => {
+    setHost(button.current?.closest("dialog") ?? document.body);
     setActive(index);
     setOpen(true);
   };
@@ -146,7 +150,7 @@ export function ListPicker({
       return;
     }
     if (event.key === "Escape") {
-      // Stannar här: annars fäller Fold.tsx ihop hela panelen
+      // Stannar här: annars stänger Dialog.tsx hela kortet
       event.stopPropagation();
       close();
     } else if (event.key === "Enter" || event.key === " ") choose(active);
@@ -180,6 +184,7 @@ export function ListPicker({
         <Chevron open={open} />
       </button>
       {open &&
+        host &&
         createPortal(
           <ul
             ref={list}
@@ -212,7 +217,7 @@ export function ListPicker({
               </li>
             ))}
           </ul>,
-          document.body,
+          host,
         )}
     </>
   );
