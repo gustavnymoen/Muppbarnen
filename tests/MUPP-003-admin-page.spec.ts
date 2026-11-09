@@ -59,15 +59,14 @@ test("MUPP-003-R1 without the admin cookie /admin shows only the sign-in, anythi
   expect(await action.text()).toBe("");
 });
 
-test("MUPP-003-R1 R8 a wrong password is answered after a second next to the field, the right one sets a session cookie", async ({ page, context }) => {
+test("MUPP-003-R1 R8 a wrong password is answered next to the field, the right one sets a session cookie", async ({ page, context }) => {
   await goto(page, "/admin");
   const field = page.getByLabel("Adminlösenord");
   await field.fill("fel lösenord");
-  const started = Date.now();
   await page.getByRole("button", { name: "Logga in" }).click();
   const error = page.getByRole("alert").filter({ hasText: "Fel lösenord." });
   await expect(error).toBeVisible();
-  expect(Date.now() - started).toBeGreaterThanOrEqual(900);
+  // Att svaret dröjer en sekund testas som ett enhetstest (lib/login-block.test.ts): testservern hoppar över väntan
   // The error is read out, and the field points to it
   await expect(field).toHaveAttribute("aria-invalid", "true");
   await expect(field).toHaveAttribute("aria-describedby", new RegExp(`${await error.getAttribute("id")}`));
@@ -123,16 +122,16 @@ test("MUPP-003-R1 R2 a changed, expired or foreign cookie is refused, a signed o
 
 test("MUPP-003-R1 the sixth wrong password blocks the address, and then even the right one is refused", async ({ browser, baseURL }) => {
   const context = await browser.newContext({ baseURL, storageState: "playwright/.auth/site.json", extraHTTPHeaders: { "x-real-ip": testIp() } });
-  // Six wrong at once, so that the second a wrong password costs is paid once (as in TECH-005-R3)
-  const pages = await Promise.all(Array.from({ length: 6 }, () => context.newPage()));
-  for (const page of pages) await goto(page, "/admin");
-  for (const page of pages) {
+  // Six wrong in a row on one page (the test server skips the second a wrong password costs, TECH-018)
+  const page = await context.newPage();
+  await goto(page, "/admin");
+  for (let i = 0; i < 6; i++) {
     await page.getByLabel("Adminlösenord").fill("fel lösenord");
-    await page.getByRole("button", { name: "Logga in" }).click();
+    // The answer is waited for, so that the next try is not sent while the last is on its way
+    await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), page.getByRole("button", { name: "Logga in" }).click()]);
+    await expect(page.getByRole("alert").filter({ hasText: "Fel lösenord." })).toHaveText("Fel lösenord.");
   }
-  for (const page of pages) await expect(page.getByRole("alert").filter({ hasText: "Fel lösenord." })).toHaveText("Fel lösenord.");
 
-  const page = pages[0];
   await goto(page, "/admin");
   await page.getByLabel("Adminlösenord").fill(process.env.ADMIN_PASSWORD ?? "");
   await page.getByRole("button", { name: "Logga in" }).click();

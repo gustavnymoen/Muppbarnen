@@ -19,7 +19,7 @@ Nothing on the site is visible before the visitor has entered the site password.
 | Server check | `lib/site-auth.ts` | `hasSiteSession()` / `requireSiteSession()` read the cookie again. Each page checks in its own component behind `<Suspense>` and builds its content afterwards; API routes, server actions and the picture route call `hasSiteSession()` first. |
 | Cookie | `lib/site-session.ts` | `__Host-site_session` (`site_session` in development over http): expiry and HMAC-SHA256 signature made with `SITE_SESSION_SECRET`. `HttpOnly`, `Secure`, `SameSite=Lax`, path `/`, no `Domain`, 180 days. |
 | Password page | `app/losenord/` | The only page served without the cookie; asks for the password and leads on to the page the visitor asked for (only addresses on this site). |
-| Block | `lib/login-block.ts`, `db/migrations/001_login_attempts.sql`, `002_login_blocks_and_write_requests.sql` | More than 5 wrong passwords in 15 minutes from one IP address block it for 20 minutes, also for the right password; right passwords don't count; shared with the admin sign-in. A wrong password is answered after one second. |
+| Block | `lib/login-block.ts`, `db/migrations/001_login_attempts.sql`, `002_login_blocks_and_write_requests.sql` | More than 5 wrong passwords in 15 minutes from one IP address block it for 20 minutes, also for the right password; right passwords don't count; shared with the admin sign-in. A wrong password is answered after one second (`wrongWait`; the local test server skips it, see [Testing](testing.md)). |
 | Request limit and Origin | `lib/request-guard.ts`, `lib/write-limit.ts` | The login action first calls `guardWrite()`: at most 60 writing requests per IP address a minute, and the `Origin` must be the site. |
 
 ## Settings

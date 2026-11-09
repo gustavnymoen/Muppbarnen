@@ -48,11 +48,11 @@ export default defineConfig({
     storageState: siteSignIn,
     // Sent with every request, so no bypass cookie is needed
     extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
-    // Screenshot of failing tests, for the report. A trace only locally: it
-    // saves every request's headers and typed values, and so the bypass secret,
-    // which the runs against a deployed site use.
+    // Screenshot of failing tests, for the report. A trace only locally and only when asked for
+    // (TRACE=1): it saves every request's headers and typed values, and so the bypass secret, which
+    // the runs against a deployed site use, and recording one costs the suite about 4 s (TECH-018).
     screenshot: "only-on-failure",
-    trace: local ? "retain-on-failure" : "off",
+    trace: local && process.env.TRACE ? "retain-on-failure" : "off",
   },
   webServer: local
     ? { command: "node scripts/test-server.mjs", url: baseURL, reuseExistingServer: false, timeout: 300_000 }

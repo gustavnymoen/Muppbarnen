@@ -129,25 +129,27 @@ export async function pageAnimationsDone(page: Page) {
   await page.evaluate(() => Promise.allSettled(document.getAnimations().map((a) => a.finished)));
 }
 
-// The box of an element once it has settled: visible, and the same in two reads
-// in a row. A bare boundingBox() is read at once, so it can catch an element
-// mid-animation (a height of 43.99 instead of 44) or one the page is just
-// re-rendering (null, which a "!" would hide).
+// The box of an element once it has settled: visible, and the same in two reads 50 ms apart. A bare
+// boundingBox() is read at once, so it can catch an element mid-animation (a height of 43.99
+// instead of 44) or one the page is just re-rendering (null, which a "!" would hide). Both reads
+// are made in the page, so a box costs one round trip instead of three (TECH-018). 50 ms and not
+// two frames: a staggered entrance can stand still for a frame or two before it moves.
 export async function settledBox(locator: Locator) {
   await expect(locator).toBeVisible();
-  let previous = "";
-  let box: Awaited<ReturnType<Locator["boundingBox"]>> = null;
+  let box: Box | null = null;
   await expect
     .poll(
       async () => {
-        box = await locator.boundingBox();
-        const now = JSON.stringify(box);
-        const settled = box !== null && now === previous;
-        previous = now;
-        return settled;
+        box = await locator.evaluate(async (el) => {
+          const read = () => JSON.stringify(el.getBoundingClientRect());
+          const before = read();
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          // A detached element reads as an empty box: it counts as not settled
+          return el.isConnected && read() === before ? (JSON.parse(before) as Box) : null;
+        });
+        return box !== null;
       },
-      // Two equal reads 50 ms apart: an animation or re-render is over, a still box costs one extra read
-      { message: "the box never settled", intervals: [50] },
+      { message: "the box never settled", intervals: [0] },
     )
     .toBe(true);
   return box!;

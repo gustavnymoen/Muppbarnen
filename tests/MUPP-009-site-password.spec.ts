@@ -68,12 +68,10 @@ test("MUPP-009-R1 R2 R5 the password page, a wrong and the right password, the c
   expect(await hasHorizontalScroll(page)).toBe(false);
   await expectNoA11yViolations(page);
 
-  // R1 R5: ett fel lösenord ger "Fel lösenord." som text vid fältet, efter ungefär en sekund
-  const started = Date.now();
+  // R1 R5: ett fel lösenord ger "Fel lösenord." som text vid fältet (att svaret dröjer en sekund testas som ett enhetstest, lib/login-block.test.ts: testservern hoppar över väntan)
   await signInWith(page, "fel lösenord");
   const error = page.locator("#losenord-fel");
   await expect(error).toHaveText("Fel lösenord.");
-  expect(Date.now() - started).toBeGreaterThanOrEqual(900);
   await expect(field).toHaveAccessibleDescription("Fel lösenord.");
   await expect(page.getByLabel("Lösenord")).toBeVisible();
   expect(await hasHorizontalScroll(page)).toBe(false);
