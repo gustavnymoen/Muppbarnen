@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createClient } from "@libsql/client";
 import { describe, expect, test } from "vitest";
@@ -158,7 +158,8 @@ describe("MUPP-051-R1 the status of an event", () => {
     const db = createClient({ url: ":memory:" });
     try {
       await db.execute("PRAGMA foreign_keys = ON");
-      for (const name of ["003_family.sql", "005_secret_santa.sql", "006_secret_santa_wishes.sql", "007_secret_santa_events.sql"]) await db.executeMultiple(migration(name));
+      // Alla migreringar före 008, i ordning
+      for (const name of readdirSync(path.join(import.meta.dirname, "migrations")).sort().filter((n) => n < "008")) await db.executeMultiple(migration(name));
       await db.executeMultiple("INSERT INTO parent (id, name, is_master_admin) VALUES (1, 'Chef', 1); INSERT INTO ss_event (id, owner_id, name) VALUES (1, 1, 'Gammal grupp');");
       await db.executeMultiple(migration("008_santa_event_status.sql"));
       await db.execute("INSERT INTO ss_event (id, owner_id, name) VALUES (2, 1, 'Ny grupp')");
