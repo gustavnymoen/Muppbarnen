@@ -45,7 +45,10 @@ jobs:
       # Enhetstesterna före bygget, så att en trasig regel stoppar tidigt
       - run: npm run test:unit
       - run: npm run build
+      # Spår av misslyckade tester sparas i testrapporten; lokalt är de avstängda så att sviten går snabbare (TECH-018)
       - run: npm run test:local
+        env:
+          TRACE: "1"
 
       - name: Spara testrapporten
         if: failure()

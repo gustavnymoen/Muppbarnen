@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily, setSizes } from "./family-db";
-import { animationsDone, birthdateIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, toCard, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -93,7 +93,7 @@ test("MUPP-014-R5 a kid with no sizes still has the button, and the dialog says 
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-014-R3 R4 R5 the card with several kids: an icon button per kid, and the corner icon on the open kid view", async ({ page }) => {
+test("MUPP-014-R3 R4 R5 the card with several kids: an icon button per kid, and the corner icon on the open kid view; on Christmas Eve the tiles have none and the open kid view has the corner icon", async ({ page }) => {
   await twoKids(page);
 
   const veraIcon = card(page).getByRole("button", { name: "Storlekar för Vera" });
@@ -122,6 +122,22 @@ test("MUPP-014-R3 R4 R5 the card with several kids: an icon button per kid, and 
   await card(page).getByRole("button", { name: "Storlekar" }).click();
   await expect(dialog(page).getByRole("heading", { name: "Storlekar för Vera" })).toBeVisible();
   await expectNoA11yViolations(page);
+
+  // Christmas Eve, on the same page: the tiles have no sizes button, and the open kid view has the corner icon
+  await page.keyboard.press("Escape");
+  await card(page).getByRole("button", { name: "Tillbaka till alla barn" }).click();
+  await pageAnimationsDone(page);
+  await toCard(page, "Julafton");
+  await expect(card(page).getByRole("button", { name: /^Storlekar/ })).toHaveCount(0);
+  await card(page).getByRole("button", { name: /^Öppna Vera/ }).click();
+  await expect(region(page)).toBeVisible();
+  const icon = card(page).getByRole("button", { name: "Storlekar" });
+  await expect(icon).toBeVisible();
+  await expectNoA11yViolations(page);
+  await icon.click();
+  await expect(dialog(page).getByRole("heading", { name: "Storlekar för Vera" })).toBeVisible();
+  await expect(dialog(page).getByRole("definition")).toHaveText(["122", "30"]);
+  await expectNoA11yViolations(page);
 });
 
 test("MUPP-014-R5 the dialog keeps the focus inside, shows long values as plain text and fits at 320 px", async ({ page }) => {
@@ -142,23 +158,5 @@ test("MUPP-014-R5 the dialog keeps the focus inside, shows long values as plain 
   }
   // Nothing sticks out of the dialog sideways
   expect(await dialog(page).evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
-  await expectNoA11yViolations(page);
-});
-
-test("MUPP-014-R4 R5 Christmas Eve: the tiles have no sizes button, and the open kid view has the corner icon", async ({ page }) => {
-  await twoKids(page);
-  for (let i = 0; i < 3 && (await card(page).getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
-    await page.getByRole("button", { name: "Nästa kort" }).click();
-    await animationsDone(card(page));
-  }
-  await expect(card(page).getByRole("button", { name: /^Storlekar/ })).toHaveCount(0);
-  await card(page).getByRole("button", { name: /^Öppna Vera/ }).click();
-  await expect(region(page)).toBeVisible();
-  const icon = card(page).getByRole("button", { name: "Storlekar" });
-  await expect(icon).toBeVisible();
-  await expectNoA11yViolations(page);
-  await icon.click();
-  await expect(dialog(page).getByRole("heading", { name: "Storlekar för Vera" })).toBeVisible();
-  await expect(dialog(page).getByRole("definition")).toHaveText(["122", "30"]);
   await expectNoA11yViolations(page);
 });

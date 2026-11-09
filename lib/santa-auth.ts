@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { all, get } from "./db";
-import { beginAttempt, clearAttempt, registerWrong } from "./login-block";
+import { beginAttempt, clearAttempt, registerWrong, wrongWait } from "./login-block";
 import { parseId } from "./form-input";
 import { createSantaSession, SANTA_COOKIE, SANTA_SESSION_SECONDS, verifySantaSession } from "./santa-session";
 import { siteSecrets } from "./site-session";
@@ -54,8 +54,8 @@ type Attempt = { personId: unknown; kind: unknown; value: unknown };
 type SignInResult = { result: "ok"; personId: number } | { result: "wrong" | "blocked" };
 
 // Samma spärr som sajtlösenordet och adminlösenordet (lib/login-block.ts): försöket skrivs in först, ett fel
-// kostar en sekund (wait, 0 i enhetstesterna) och ett rätt räknas inte. Vad som var fel sägs aldrig.
-export async function checkSantaSignIn(ip: string, input: Attempt, wait = 1000): Promise<SignInResult> {
+// kostar en sekund (wait, 0 i enhetstesterna; testservern hoppar över den, se wrongWait) och ett rätt räknas inte. Vad som var fel sägs aldrig.
+export async function checkSantaSignIn(ip: string, input: Attempt, wait = wrongWait()): Promise<SignInResult> {
   const attempt = await beginAttempt(ip);
   if (attempt === null) return { result: "blocked" };
   const personId = parseId(input.personId);

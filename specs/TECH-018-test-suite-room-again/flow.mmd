@@ -1,0 +1,13 @@
+%% TECH-018 Test suite at its time budget again
+%% What a test does now, and where the time that was cut came from.
+flowchart TD
+    A[Test starts: a new browser context, about 0.2 s] --> B[Seed the test data in the test database]
+    B --> C{Signed in as a Secret Santa member?}
+    C -- sign-in is the test --> D[The form, a real wrong try costs no second on the test server]
+    C -- not the test --> E[santaSignIn sets the signed cookie, no form]
+    D --> F[goto opens the page]
+    E --> F
+    F --> G[Checks; boxes are read in the page, 50 ms apart]
+    G --> H{Another journey on the same page?}
+    H -- yes --> G
+    H -- no --> I[Test ends, the test cleans up its data]

@@ -1,9 +1,9 @@
-import { afterAll, beforeEach, describe, expect, test } from "vitest";
+import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { unitTestDbFile } from "./local-db.mjs";
 
 // lib/db.ts väljer databasen när den läses in: enhetstesternas egen, aldrig den riktiga
 process.env.TURSO_DATABASE_URL = `file:${unitTestDbFile}`;
-const { run } = await import("./db");
+const { get, run } = await import("./db");
 const { MAX_WRONG } = await import("./login-block");
 const { checkSantaSignIn, contactMatches, entranceFamilies, entranceMembers, normalizePhone } = await import("./santa-auth");
 
@@ -80,5 +80,29 @@ describe("MUPP-039-R3 R4 what visitors read and the sign-in check", () => {
     for (let i = 0; i <= MAX_WRONG; i++) expect((await checkSantaSignIn("1.1.1.3", wrong, 0)).result).toBe("wrong");
     expect(await checkSantaSignIn("1.1.1.3", right, 0)).toEqual({ result: "blocked" });
     expect(await checkSantaSignIn("1.1.1.4", right, 0)).toEqual({ result: "ok", personId: person });
+  });
+});
+
+describe("TECH-018-R2 the wait after a wrong Secret Santa sign-in", () => {
+  test("TECH-018-R2 with the default wait a wrong try is answered only after one second, and still counts", async () => {
+    const family = (await run("INSERT INTO ss_family (name) VALUES ('Testfamiljen')")).lastId;
+    const person = (await run("INSERT INTO ss_person (name, phone, email) VALUES ('Anna', ?, ?)", [saved.phone, saved.email])).lastId;
+    await run("INSERT INTO ss_member (family_id, person_id) VALUES (?, ?)", [family, person]);
+    // Bara timern är falsk: databasen svarar på riktigt
+    vi.useFakeTimers({ toFake: ["setTimeout"] });
+    try {
+      let answered = false;
+      const answer = checkSantaSignIn("1.1.1.5", { personId: String(person), kind: "phone", value: "0700000000" }).then((r) => ((answered = true), r));
+      // Databasen svarar på riktigt (setImmediate är inte falsk); sedan väntar försöket på sin timer
+      while (vi.getTimerCount() === 0) await new Promise((resolve) => setImmediate(resolve));
+      expect(answered).toBe(false);
+      await vi.advanceTimersByTimeAsync(999);
+      expect(answered).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(await answer).toEqual({ result: "wrong" });
+      expect((await get<{ n: number }>("SELECT COUNT(*) AS n FROM login_attempts WHERE ip = '1.1.1.5'"))?.n).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

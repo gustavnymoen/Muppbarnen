@@ -1,11 +1,11 @@
-import { afterAll, beforeEach, describe, expect, test } from "vitest";
+import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { unitTestDbFile } from "./local-db.mjs";
 
 // lib/db.ts väljer databasen när den läses in: pekas ut före importen, så att det
 // är enhetstesternas egen databas och aldrig den riktiga
 process.env.TURSO_DATABASE_URL = `file:${unitTestDbFile}`;
 const { run, get } = await import("./db");
-const { BLOCK_SECONDS, MAX_WRONG, WINDOW_SECONDS, beginAttempt, clearAttempt, registerWrong } = await import("./login-block");
+const { BLOCK_SECONDS, MAX_WRONG, WINDOW_SECONDS, beginAttempt, checkLogin, clearAttempt, registerWrong, wrongWait } = await import("./login-block");
 
 const now = Date.UTC(2026, 9, 28);
 const clear = async () => {
@@ -68,5 +68,33 @@ describe("TECH-005-R3 block after wrong passwords", () => {
     const results = await Promise.all(Array.from({ length: 20 }, () => beginAttempt("1.2.3.4", now)));
     expect(results.filter((id) => id !== null).length).toBeLessThanOrEqual(MAX_WRONG + 1);
     expect(await beginAttempt("1.2.3.4", now + 1000)).toBeNull();
+  });
+});
+
+describe("TECH-018-R2 the wait after a wrong password", () => {
+  test("TECH-018-R2 it is skipped only when the setting is on and the database is a local file", () => {
+    expect(wrongWait("1", "file:/tmp/test.db")).toBe(0);
+    // Turso (Vercel) or no setting: the wait stays
+    expect(wrongWait("1", "libsql://muppbarnen.turso.io")).toBe(1000);
+    expect(wrongWait("1", "https://example.invalid")).toBe(1000);
+    expect(wrongWait(undefined, "file:/tmp/test.db")).toBe(1000);
+    expect(wrongWait("0", "file:/tmp/test.db")).toBe(1000);
+  });
+
+  test("TECH-018-R2 MUPP-003-R1 R8 MUPP-009-R1 R5 with the default wait a wrong password is answered only after one second, a right one at once", async () => {
+    expect(await checkLogin("1.2.3.4", "rätt", "rätt")).toBe("ok");
+    // Bara timern är falsk: databasen svarar på riktigt
+    vi.useFakeTimers({ toFake: ["setTimeout"] });
+    try {
+      let answered = false;
+      const answer = checkLogin("1.2.3.5", "fel", "rätt").then((r) => ((answered = true), r));
+      while (vi.getTimerCount() === 0) await new Promise((resolve) => setImmediate(resolve));
+      await vi.advanceTimersByTimeAsync(999);
+      expect(answered).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(await answer).toBe("wrong");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

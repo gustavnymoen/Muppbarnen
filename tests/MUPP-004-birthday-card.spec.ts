@@ -33,7 +33,8 @@ test.afterAll(async () => {
   await clearFamily();
 });
 
-test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons, no scrolling page", async ({ page }) => {
+// Samma sida i båda (TECH-018): först den tomma kortleken, sedan ett barn som fyller år på julafton
+test("MUPP-004-R1 R2 the empty deck: one card with a text, no examples, no buttons, no scrolling page; then a birthday on Christmas Eve comes before the Christmas Eve card", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await goto(page, "/");
   await expect(page.getByText("Inga barn har lagts till än.")).toBeVisible();
@@ -42,6 +43,15 @@ test("MUPP-004-R1 the empty deck: one card with a text, no examples, no buttons,
   await expect(previous(page)).toHaveCount(0);
   expect(await pageDoesNotScroll(page)).toBe(true);
   await expectNoA11yViolations(page);
+
+  // R2
+  await addChild(await addParent(uniqueName("Förälder")), "Jul", "2020-12-24");
+  await goto(page, "/"); // laddas om: barnet finns nu
+  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("24 december");
+  await expect(card(page).getByText("Nästa födelsedag")).toBeVisible();
+  await next(page).click();
+  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("Julafton");
+  await expect(page.getByText("Nästa: Julafton")).toHaveCount(0);
 });
 
 test("MUPP-004-R2 R3 R6 R7 R8 R9 R10 MUPP-020-R1 MUPP-030-R1 one kid: month, nearest mark, folded and unfolded list, browsing and the screen reader", async ({ page }) => {
@@ -190,14 +200,4 @@ test("MUPP-004-R2 R4 R5 R7 R9 MUPP-020-R1 several kids on one card, then Christm
   // R4 R9: Escape på julkortet för fokus tillbaka till barnets knapp på just det kortet (samma barn finns också på födelsedagskortet)
   await page.keyboard.press("Escape");
   await expect(card(page).getByRole("button", { name: "Öppna Vera" })).toBeFocused();
-});
-
-test("MUPP-004-R2 a birthday on Christmas Eve comes before the Christmas Eve card", async ({ page }) => {
-  await addChild(await addParent(uniqueName("Förälder")), "Jul", "2020-12-24");
-  await goto(page, "/");
-  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("24 december");
-  await expect(card(page).getByText("Nästa födelsedag")).toBeVisible();
-  await next(page).click();
-  await expect(card(page).getByRole("heading", { level: 2 })).toHaveText("Julafton");
-  await expect(page.getByText("Nästa: Julafton")).toHaveCount(0);
 });

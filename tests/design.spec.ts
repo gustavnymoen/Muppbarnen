@@ -1,8 +1,9 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaFamily, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta } from "./family-db";
+import { addChild, addParent, addSantaFamily, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, personOfMember } from "./family-db";
+import { santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
-import { newVisitor, testIp } from "./site-session";
+import { newVisitor } from "./site-session";
 
 // Utseendet: ett test per sida och läge, så att sidan laddas en gång för många kontroller.
 // Reglerna som inte behöver en webbläsare (kontrast ur tokens, barnfärger) är enhetstester.
@@ -40,7 +41,7 @@ async function expectFormCardLooks(page: Page, dialog: Locator) {
   await page.setViewportSize({ width: 375, height: 667 });
 }
 
-test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone: fonts, cards, controls, shell and a11y", async ({ page }) => {
+test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone, then on a desktop: fonts, cards, controls, shell, the wide centred frame and a11y", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const hosts = new Set<string>();
   page.on("request", (request) => hosts.add(new URL(request.url()).host));
@@ -126,11 +127,9 @@ test("MUPP-001-R2 R3 R4 R5 R8 /design on a phone: fonts, cards, controls, shell 
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
   expect(await content.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
   await expectNoA11yViolations(page);
-});
 
-test("MUPP-001-R5 R8 /design on a desktop: a wide centred frame with the same look", async ({ page }) => {
+  // R5 R8: the same page on a desktop, by resizing the window (TECH-018): a wide centred frame with the same look
   await page.setViewportSize({ width: 1280, height: 800 });
-  await goto(page, "/design");
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
   const frame = page.getByRole("main").locator("..");
   const box = await settledBox(frame);
@@ -1280,12 +1279,9 @@ test("MUPP-040-R1 R2 the Secret Santa wish list on a 375 x 667 phone: long title
   await addSantaWish(member, "En mycket lång önskning med många ord som måste radbrytas");
   await addSantaWish(member, "Bok");
   try {
-    await page.context().setExtraHTTPHeaders({ "x-real-ip": testIp() });
     await page.setViewportSize({ width: 375, height: 667 });
-    await goto(page, "/secret-santa");
-    await page.getByRole("link", { name: "Anna Ek", exact: true }).click();
-    await page.getByLabel("Ditt telefonnummer").fill("0700004444");
-    await page.getByRole("button", { name: "Fortsätt" }).click();
+    await santaSignIn(page, await personOfMember(member));
+    await goto(page, "/secret-santa/min-sida");
     await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" })).toBeVisible();
     expect(await hasHorizontalScroll(page)).toBe(false);
     for (const name of [/^Ändra /, /^Ta bort /]) {

@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { addSantaFamily, addSantaMember, clearSanta } from "./family-db";
 import { testIp } from "./site-session";
+import { openSignInForm, pickName, SANTA_COOKIE, sendPhone } from "./santa";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
 test.skip(!runsLocally, "the Secret Santa tests need the local test server (its own database and passwords)");
@@ -9,7 +10,6 @@ test.skip(!runsLocally, "the Secret Santa tests need the local test server (its 
 // Made-up details, never real ones
 const PHONE = "0700001111";
 const EMAIL = "Hemlig.Testperson@exempel.invalid";
-const COOKIE = "__Host-santa_session";
 
 test.beforeEach(async ({ page }) => {
   await page.context().setExtraHTTPHeaders({ "x-real-ip": testIp() });
@@ -18,19 +18,13 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(clearSanta);
 
 const message = (page: Page) => page.getByRole("alert").filter({ hasText: /\S/ });
-const santaCookie = async (page: Page) => (await page.context().cookies()).find((c) => c.name === COOKIE);
+const santaCookie = async (page: Page) => (await page.context().cookies()).find((c) => c.name === SANTA_COOKIE);
 
 async function oneFamily() {
   const family = await addSantaFamily("Familjen Test");
   await addSantaMember(family, "Anna Testsson", PHONE, EMAIL);
   await addSantaMember(family, "Bertil Testsson", "0700002222", "bertil@exempel.invalid");
   return family;
-}
-
-async function openForm(page: Page, name: string) {
-  await goto(page, "/secret-santa");
-  await page.getByRole("link", { name, exact: true }).click();
-  await expect(page.getByLabel("Ditt telefonnummer")).toBeVisible();
 }
 
 test("MUPP-039-R1 R2 R3 the menu opens the entrance; one family shows its names directly, several are choices; no phone or email is in the page", async ({ page }) => {
@@ -70,7 +64,7 @@ test("MUPP-039-R1 R2 R3 the menu opens the entrance; one family shows its names 
 
 test("MUPP-047-R1 R2 R3 the sign-in step has Tillbaka and no 'Det är inte jag', the new welcome line and 'Fortsätt'; Tillbaka and Esc return to the names with nothing typed", async ({ page }) => {
   await oneFamily();
-  await openForm(page, "Anna Testsson");
+  await openSignInForm(page, "Anna Testsson");
 
   // R1: Tillbaka is there, the text button is not
   const back = page.getByRole("link", { name: "Tillbaka" });
@@ -110,7 +104,7 @@ test("MUPP-047-R1 R2 R3 the sign-in step has Tillbaka and no 'Det är inte jag',
 
 test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switches the field; wrong values say only 'Det stämde inte'", async ({ page }) => {
   await oneFamily();
-  await openForm(page, "Anna Testsson");
+  await openSignInForm(page, "Anna Testsson");
 
   const phone = page.getByLabel("Ditt telefonnummer");
   await expect(page.getByRole("radio", { name: "Telefon" })).toBeChecked();
@@ -133,8 +127,7 @@ test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switch
 
   // A wrong phone, and Bertil's phone on Anna: the same short message, still no cookie
   for (const wrong of ["0700009999", "0700002222"]) {
-    await page.getByLabel("Ditt telefonnummer").fill(wrong);
-    await page.getByRole("button", { name: "Fortsätt" }).click();
+    await sendPhone(page, wrong);
     await expect(message(page)).toHaveText("Det stämde inte");
     await expect(page.getByLabel("Ditt telefonnummer")).toBeFocused();
   }
@@ -144,68 +137,61 @@ test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switch
 
 test("MUPP-039-R4 the saved phone in other writings, and the email in other letters, sign in", async ({ page }) => {
   await oneFamily();
+  await openSignInForm(page, "Anna Testsson");
   for (const typed of ["070-000 11 11", "+46700001111"]) {
-    await openForm(page, "Anna Testsson");
-    await page.getByLabel("Ditt telefonnummer").fill(typed);
-    await page.getByRole("button", { name: "Fortsätt" }).click();
+    await sendPhone(page, typed);
     await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
     await page.getByRole("button", { name: "Byt person" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Secret Santa" })).toBeVisible();
+    await pickName(page, "Anna Testsson");
   }
-  await openForm(page, "Anna Testsson");
   await page.getByRole("radio", { name: "E-post" }).check();
   await page.getByLabel("Din e-postadress").fill(EMAIL.toUpperCase());
   await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
 });
 
-test("MUPP-039-R5 the cookie is __Host-, HttpOnly, Secure, path / and holds only the id; it is remembered and 'Byt person' removes it", async ({ page }) => {
+test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id; it is remembered and 'Byt person' removes it", async ({ page }) => {
   await oneFamily();
-  await openForm(page, "Anna Testsson");
-  await page.getByLabel("Ditt telefonnummer").fill(PHONE);
-  await page.getByRole("button", { name: "Fortsätt" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
-
-  const cookie = await santaCookie(page);
-  expect(cookie).toMatchObject({ httpOnly: true, secure: true, path: "/", sameSite: "Lax" });
-  expect(cookie!.value).toMatch(/^\d+\.[0-9a-f]{64}$/);
-  expect(cookie!.value).not.toContain(PHONE);
-  expect(cookie!.domain).not.toMatch(/^\./);
-
-  // Back at the entrance, or via the menu: straight to the own page
-  await goto(page, "/secret-santa");
-  await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
-  await expectNoA11yViolations(page);
-
-  await page.getByRole("button", { name: "Byt person" }).click();
-  await expect(page.getByRole("link", { name: "Bertil Testsson" })).toBeVisible();
-  expect(await santaCookie(page)).toBeUndefined();
-});
-
-test("MUPP-039-R6 the own page is reached only with the own cookie: none, a changed id or a removed person gives the entrance", async ({ page }) => {
-  await oneFamily();
+  // R6: no cookie gives the entrance
   await goto(page, "/secret-santa/min-sida");
   await expect(page).toHaveURL(/\/secret-santa$/);
 
-  await openForm(page, "Anna Testsson");
-  await page.getByLabel("Ditt telefonnummer").fill(PHONE);
-  await page.getByRole("button", { name: "Fortsätt" }).click();
+  await pickName(page, "Anna Testsson");
+  await sendPhone(page, PHONE);
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
+
+  // R5: the cookie
   const cookie = (await santaCookie(page))!;
+  expect(cookie).toMatchObject({ httpOnly: true, secure: true, path: "/", sameSite: "Lax" });
+  expect(cookie.value).toMatch(/^\d+\.[0-9a-f]{64}$/);
+  expect(cookie.value).not.toContain(PHONE);
+  expect(cookie.domain).not.toMatch(/^\./);
+
+  // R6: the own page holds no one else's details
   const html = await page.context().request.get("/secret-santa/min-sida").then((r) => r.text());
   expect(html).not.toContain("Bertil");
   expect(html).not.toContain(PHONE);
 
-  // The same signature on another person's id is not accepted
+  // R5: back at the entrance: straight to the own page
+  await goto(page, "/secret-santa");
+  await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
+  await expectNoA11yViolations(page);
+
+  // R5: "Byt person" removes the cookie
+  await page.getByRole("button", { name: "Byt person" }).click();
+  await expect(page.getByRole("link", { name: "Bertil Testsson" })).toBeVisible();
+  expect(await santaCookie(page)).toBeUndefined();
+
+  // R6: the same signature on another person's id is not accepted
   const [, signature] = cookie.value.split(".");
   const bertil = Number(cookie.value.split(".")[0]) + 1;
   await page.context().addCookies([{ ...cookie, value: `${bertil}.${signature}` }]);
   await goto(page, "/secret-santa/min-sida");
   await expect(page).toHaveURL(/\/secret-santa$/);
   await expect(page.getByRole("heading", { name: /Hej/ })).toHaveCount(0);
-  expect(html).not.toContain("Bertil");
 
-  // A removed person's cookie is no longer worth anything
+  // R6: a removed person's cookie is no longer worth anything
   await page.context().addCookies([cookie]);
   await clearSanta();
   await goto(page, "/secret-santa/min-sida");
