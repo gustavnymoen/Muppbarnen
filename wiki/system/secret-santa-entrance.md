@@ -30,7 +30,7 @@ Secret Santa knows who a visitor is, but only lightly: nobody is expected to che
 - **Wrong answer:** always "Det stämde inte", whichever part was wrong or whether the person exists. More than 5 wrong tries in 15 minutes block the address for 20, with the same table as the passwords ([Site password](site-password.md)); a wrong try takes a second (`wrongWait` in `lib/login-block.ts`; the local test server skips it, [Testing](testing.md)).
 - **Cookie:** `__Host-santa_session` (without the prefix over local http), `HttpOnly`, `Secure`, path `/`, no `Domain`, one year. Value `<member id>.<signature>`, signed over `santa-member.<id>`; nothing else. It is checked on every request and the member is read from the database, so a removed member is signed out. Cookies from before [MUPP-048](../../specs/MUPP-048-santa-events/solution.md) (signed over `santa.<id>`, a person id) do not pass, so they can never name another member.
 - **Own page only:** `/secret-santa/min-sida` has no id; it shows whoever the cookie names. A changed id fails the signature.
-- **Leave:** "Byt person" removes the cookie and goes back to the entrance.
+- **Leave:** the own page has no "Byt person". With several groups a back arrow ("Tillbaka", a form post to the server action `leave`) removes the cookie and goes to the choice of group; with one group a cross ("Stäng", a plain link) goes to the start page and keeps the sign-in, since nobody should switch to another person's page ([MUPP-055](../../specs/MUPP-055-santa-back-arrow/solution.md)).
 
 Specification: [MUPP-039](../../specs/MUPP-039-secret-santa-entrance/solution.md), [MUPP-048](../../specs/MUPP-048-santa-events/solution.md). More on cookies and limits: [Security](security.md).
 

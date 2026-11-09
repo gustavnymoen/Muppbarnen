@@ -1259,8 +1259,8 @@ test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar listorna on the narrowest ph
 });
 
 // MUPP-047-R1, MUPP-048-R8: Tillbaka is in the top left corner, 44 px, clear of the menu button and the heading
-async function expectBackInCorner(page: Page) {
-  const back = await settledBox(page.getByRole("link", { name: "Tillbaka" }));
+async function expectBackInCorner(page: Page, control = page.getByRole("link", { name: "Tillbaka" })) {
+  const back = await settledBox(control);
   expect(back.height).toBeGreaterThanOrEqual(44);
   expect(back.width).toBeGreaterThanOrEqual(44);
   expect(back.x).toBeLessThan(24);
@@ -1320,7 +1320,7 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
   }
 });
 
-test("MUPP-040-R1 R2 MUPP-053-R1 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the plus is 44 px, the form fits the width", async ({ page }) => {
+test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the plus is 44 px, the form fits the width, and the own page has the cross (one group) or the arrow (several) in the corner like the entrance", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test database");
   await clearSanta();
   const family = await addSantaEvent("Familjen Ek");
@@ -1346,6 +1346,13 @@ test("MUPP-040-R1 R2 MUPP-053-R1 the Secret Santa wish list on a 375 x 667 phone
     expect((await settledBox(page.getByRole("button", { name: "Lägg till" }))).height).toBeGreaterThanOrEqual(44);
     expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
+
+    // MUPP-055-R1: one group gives the cross, several the arrow, both 44 px in the same corner as the entrance's Tillbaka
+    await page.keyboard.press("Escape"); // closes the open wish form, whose page is inert
+    await expectBackInCorner(page, page.getByRole("link", { name: "Stäng" }));
+    await addSantaEvent("Familjen Ask");
+    await goto(page, "/secret-santa/min-sida");
+    await expectBackInCorner(page, page.getByRole("button", { name: "Tillbaka" }));
   } finally {
     await clearSanta();
   }

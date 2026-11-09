@@ -25,7 +25,7 @@ På din sida finns din önskelista i den grupp du loggade in i. Är du med i fle
 
 Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som drar dig läsa dem.
 
-Är det en annan som ska använda telefonen trycker du **Byt person** på din sida.
+Uppe till vänster på din sida finns en pil (**Tillbaka**) om det finns flera grupper: den loggar ut dig och visar grupperna igen. Finns det bara en grupp är det ett kryss (**Stäng**) som tar dig till startsidan, och du är kvar inloggad.
 
 Ingen annan kan se ditt nummer eller din e-post på sidan. Hör av dig till Gustav om de som är sparade är fel.
 
