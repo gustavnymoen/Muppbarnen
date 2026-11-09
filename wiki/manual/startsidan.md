@@ -35,8 +35,9 @@ Under det ligger en **karusell med kort** med barnens födelsedagar och julafton
 
 Knappen med tre streck uppe till höger öppnar menyn, på alla skärmstorlekar.
 
-- **Start** tar dig till startsidan.
-- **Så funkar sajten** öppnar en ruta som förklarar hur sajten används, med två flikar: **Besökare** och **Förälder**. Rutan öppnas av sig själv första gången du kommer in på startsidan; tryck **OK** (eller Esc, eller utanför rutan). Är texten längre än rutan står det en pil nedåt i stället för OK; tryck på den för att läsa vidare, så blir den OK när du kommit till slutet så öppnas den inte av sig själv igen i den webbläsaren. Rutan finns kvar här i menyn.
+- **Barnens listor** tar dig till startsidan.
+- **Secret Santa** tar dig till [Secret Santa](secret-santa.md).
+- **Så funkar listorna** öppnar en ruta som förklarar hur önskelistorna används, med två flikar: **Besökare** och **Förälder**. Rutan öppnas av sig själv första gången du kommer in på startsidan; tryck **OK** (eller Esc, eller utanför rutan). Är texten längre än rutan står det en pil nedåt i stället för OK; tryck på den för att läsa vidare, så blir den OK när du kommit till slutet så öppnas den inte av sig själv igen i den webbläsaren. Rutan finns kvar här i menyn.
 - **Admin** tar dig till [administrationssidan](admin.md).
 
 Menyn stängs när du väljer något, trycker på Esc eller trycker utanför den. Med tangentbordet öppnar du menyn med Enter eller mellanslag och går igenom den med Tab.

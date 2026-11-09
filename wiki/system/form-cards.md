@@ -17,7 +17,7 @@ Every dialog and form on the site is the same component, `Dialog` (`app/componen
 |---|---|---|---|---|
 | Form card (`form`) | Edit parent, kid, picture, sizes, wish, family, person, member; the claim window | "Stäng" | nothing | the first field (its text selected when editing); a list's button when the first field is a list |
 | Question | "Ta bort …?", "Ta bort paxningen", "Lägg till … igen" | no | nothing | the first button (the safe one, "Avbryt") |
-| Information | "Så funkar sajten", the kid's sizes on the start page | no | closes "Så funkar sajten" (`backdropClose`) | the first control |
+| Information | "Så funkar listorna", the kid's sizes on the start page | no | closes "Så funkar listorna" (`backdropClose`) | the first control |
 
 The page forms (the password pages, the admin sign-in, the Secret Santa sign-in) are not cards and work as before.
 
@@ -26,7 +26,7 @@ The page forms (the password pages, the admin sign-in, the Secret Santa sign-in)
 - A button calls `card.current?.open(event.currentTarget)`. `FormCard.tsx` is the button and the card in one for the forms; the others hold a `ref` to `Dialog` themselves.
 - The content exists only while the card is open, so a form starts empty (or with the current values) each time.
 - `open()` renders the content with `flushSync`, shows the card (`showModal()`), grows it from the button (`growScale` in `transition.ts`) and focuses the first field before it returns, so the focus is set **in the press**: iOS Safari shows the keyboard only then. Nothing waits for the motion.
-- `close()` (the cross, Esc, a button inside, a saved form) copies the card, closes the real one at once, puts focus on the button and moves and scales the copy onto the button while its content fades first ([MUPP-037](../../specs/MUPP-037-close-motion-surface/solution.md)). The copy is removed when the motion ends, is cancelled or after a safety time, and a new open or close removes it first. A card with no button (the first visit's "Så funkar sajten", or a button that is gone) only fades, and focus goes to the heading of the section it was in.
+- `close()` (the cross, Esc, a button inside, a saved form) copies the card, closes the real one at once, puts focus on the button and moves and scales the copy onto the button while its content fades first ([MUPP-037](../../specs/MUPP-037-close-motion-surface/solution.md)). The copy is removed when the motion ends, is cancelled or after a safety time, and a new open or close removes it first. A card with no button (the first visit's "Så funkar listorna", or a button that is gone) only fades, and focus goes to the heading of the section it was in.
 - With `prefers-reduced-motion` nothing moves or fades and no copy is made. While a card is open the page behind does not scroll and the card scrolls inside itself.
 
 ## Inside a form card (`Form.tsx`)

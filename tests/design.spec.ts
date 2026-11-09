@@ -302,13 +302,13 @@ test("MUPP-003-R8 MUPP-010-R2 R6 MUPP-053-R1 the admin link is quiet, and the ad
   const kid = uniqueName("Barn");
   await addChild(await addParent(mia), kid);
   try {
-    // The menu: "Admin" in the muted text colour, still readable, "Start" in the normal one
+    // The menu: "Admin" in the muted text colour, still readable, "Barnens listor" in the normal one
     await goto(page, "/");
     await page.getByRole("button", { name: "Meny" }).click();
     const admin = page.getByRole("link", { name: "Admin" });
     await animationsDone(page.getByRole("navigation", { name: "Huvudmeny" }));
     await expect(admin).toHaveCSS("color", MUTED);
-    await expect(page.getByRole("link", { name: "Start" })).toHaveCSS("color", TEXT);
+    await expect(page.getByRole("link", { name: "Barnens listor" })).toHaveCSS("color", TEXT);
     expect(contrast(MUTED, await backgroundOf(admin))).toBeGreaterThanOrEqual(4.5);
 
     // Sign-in: the name of the page in Fredoka, a card, a field and a button as on the password page
@@ -1225,13 +1225,13 @@ test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit
   }
 });
 
-test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar sajten on the narrowest phone: it fits, its panel scrolls inside it, an arrow shows there is more until the end, and the buttons are 44 px", async ({ page }) => {
+test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar listorna on the narrowest phone: it fits, its panel scrolls inside it, an arrow shows there is more until the end, and the buttons are 44 px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await goto(page, "/");
   // The signed-in test visitor has the cookie, so the dialog is opened from the menu
   await page.getByRole("button", { name: "Meny" }).click();
-  await page.getByRole("button", { name: "Så funkar sajten" }).click();
-  const dialog = page.getByRole("dialog", { name: "Så funkar sajten" });
+  await page.getByRole("button", { name: "Så funkar listorna" }).click();
+  const dialog = page.getByRole("dialog", { name: "Så funkar listorna" });
   await expect(dialog).toBeVisible();
   const box = await settledBox(dialog);
   expect(box.x).toBeGreaterThanOrEqual(0);

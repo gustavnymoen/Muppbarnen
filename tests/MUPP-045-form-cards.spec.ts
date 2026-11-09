@@ -495,11 +495,11 @@ test("MUPP-045-R1 a card grows out of its button and folds back into it, a quick
   await expect(dialog).toHaveCount(0);
   await expect(ghost(page)).toHaveCount(0);
 
-  // A card with no button to grow from ("Så funkar sajten" the first time the site is opened) only fades: its copy is not moved
+  // A card with no button to grow from ("Så funkar listorna" the first time the site is opened) only fades: its copy is not moved
   const context = await newcomer(browser, baseURL);
   const first = await context.newPage();
   await goto(first, "/");
-  const intro = first.getByRole("dialog", { name: "Så funkar sajten" });
+  const intro = first.getByRole("dialog", { name: "Så funkar listorna" });
   await expect(intro).toBeVisible();
   await intro.getByRole("button", { name: "OK" }).click();
   await expect(intro).toHaveCount(0);

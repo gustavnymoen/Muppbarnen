@@ -60,7 +60,12 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
           <ul className="space-y-1">
             <li>
               <Link href="/" className={item} onClick={close}>
-                Start
+                Barnens listor
+              </Link>
+            </li>
+            <li>
+              <Link href="/secret-santa" className={item} onClick={close}>
+                Secret Santa
               </Link>
             </li>
             <li>
@@ -73,13 +78,8 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
                   onboardingDialog.current?.open(button.current);
                 }}
               >
-                Så funkar sajten
+                Så funkar listorna
               </button>
-            </li>
-            <li>
-              <Link href="/secret-santa" className={item} onClick={close}>
-                Secret Santa
-              </Link>
             </li>
             <li>
               <Link href="/admin" className={`${item} text-muted hover:text-text`} onClick={close}>

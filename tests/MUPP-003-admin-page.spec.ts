@@ -546,7 +546,7 @@ test("MUPP-003-R8 the menu ends with a quiet Admin link, nothing else points to 
   await expect(page.locator('a[href^="/admin"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Meny" }).click();
   const links = page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("link");
-  await expect(links).toHaveText(["Start", "Secret Santa", "Admin"]);
+  await expect(links).toHaveText(["Barnens listor", "Secret Santa", "Admin"]);
   await expect(links.last()).toHaveAttribute("href", "/admin");
   await expect(page.locator('a[href^="/admin"]')).toHaveCount(1);
 
