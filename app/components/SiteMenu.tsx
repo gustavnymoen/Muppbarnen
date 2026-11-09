@@ -36,7 +36,11 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
       ref={root}
       className="relative"
       onKeyDown={(event) => {
-        if (event.key === "Escape" && open) close();
+        // preventDefault: Esc är då förbrukat, så att en sida som lyssnar på Esc (MUPP-047) inte också agerar
+        if (event.key === "Escape" && open) {
+          event.preventDefault();
+          close();
+        }
       }}
       // Tab ut ur menyn stänger den, så att den inte ligger kvar över sidan. Utan känt
       // nästa mål (Safari ger inget fokus vid klick) stänger bara klicket utanför.

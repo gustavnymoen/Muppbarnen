@@ -1,0 +1,6 @@
+%% MUPP-047 Back button on the Secret Santa sign-in
+%% After a name is picked, Tillbaka (or Esc) returns to the names; "Fortsätt" signs in.
+flowchart TD
+    A[Names] -->|pick a name| B[Sign-in step: welcome line R2, Fortsätt R3]
+    B -->|Tillbaka in the top left corner, or Esc: R1| A
+    B -->|Fortsätt| C[Own page]

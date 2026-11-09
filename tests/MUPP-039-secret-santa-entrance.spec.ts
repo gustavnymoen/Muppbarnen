@@ -68,6 +68,46 @@ test("MUPP-039-R1 R2 R3 the menu opens the entrance; one family shows its names 
   await expect(page.getByRole("link", { name: "Familjen Annan" })).toBeVisible();
 });
 
+test("MUPP-047-R1 R2 R3 the sign-in step has Tillbaka and no 'Det är inte jag', the new welcome line and 'Fortsätt'; Tillbaka and Esc return to the names with nothing typed", async ({ page }) => {
+  await oneFamily();
+  await openForm(page, "Anna Testsson");
+
+  // R1: Tillbaka is there, the text button is not
+  const back = page.getByRole("link", { name: "Tillbaka" });
+  await expect(back).toBeVisible();
+  await expect(page.getByText("Det är inte jag")).toHaveCount(0);
+  // R2: the welcome line, exactly, and the old one is gone
+  await expect(page.getByRole("main").getByRole("paragraph").first()).toHaveText("Hej Anna Testsson, ange ditt telefonnummer eller e-post för att komma vidare");
+  await expect(page.getByText("Skriv det du sparat hos oss")).toHaveCount(0);
+  // R3: Fortsätt, and nothing named Logga in
+  await expect(page.getByRole("button", { name: "Fortsätt" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Logga in" })).toHaveCount(0);
+  await expectNoA11yViolations(page);
+
+  // R1: keyboard focus, then Tillbaka shows the names again with nobody picked and the typed value gone
+  await back.focus();
+  await expect(back).toBeFocused();
+  await page.getByLabel("Ditt telefonnummer").fill("0700");
+  await back.click();
+  await expect(page.getByRole("link", { name: "Bertil Testsson", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Ditt telefonnummer")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveCount(0);
+  await page.getByRole("link", { name: "Anna Testsson", exact: true }).click();
+  await expect(page.getByLabel("Ditt telefonnummer")).toHaveValue("");
+
+  // R1: Esc in an open menu only closes the menu
+  await page.getByRole("button", { name: "Meny" }).click();
+  await expect(page.getByRole("navigation", { name: "Huvudmeny" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("navigation", { name: "Huvudmeny" })).toHaveCount(0);
+  await expect(page.getByLabel("Ditt telefonnummer")).toBeVisible();
+
+  // R1: Esc does the same as Tillbaka
+  await page.getByLabel("Ditt telefonnummer").fill("0700");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("link", { name: "Bertil Testsson", exact: true })).toBeVisible();
+});
+
 test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switches the field; wrong values say only 'Det stämde inte'", async ({ page }) => {
   await oneFamily();
   await openForm(page, "Anna Testsson");
@@ -94,7 +134,7 @@ test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switch
   // A wrong phone, and Bertil's phone on Anna: the same short message, still no cookie
   for (const wrong of ["0700009999", "0700002222"]) {
     await page.getByLabel("Ditt telefonnummer").fill(wrong);
-    await page.getByRole("button", { name: "Logga in" }).click();
+    await page.getByRole("button", { name: "Fortsätt" }).click();
     await expect(message(page)).toHaveText("Det stämde inte");
     await expect(page.getByLabel("Ditt telefonnummer")).toBeFocused();
   }
@@ -107,7 +147,7 @@ test("MUPP-039-R4 the saved phone in other writings, and the email in other lett
   for (const typed of ["070-000 11 11", "+46700001111"]) {
     await openForm(page, "Anna Testsson");
     await page.getByLabel("Ditt telefonnummer").fill(typed);
-    await page.getByRole("button", { name: "Logga in" }).click();
+    await page.getByRole("button", { name: "Fortsätt" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
     await page.getByRole("button", { name: "Byt person" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Secret Santa" })).toBeVisible();
@@ -115,7 +155,7 @@ test("MUPP-039-R4 the saved phone in other writings, and the email in other lett
   await openForm(page, "Anna Testsson");
   await page.getByRole("radio", { name: "E-post" }).check();
   await page.getByLabel("Din e-postadress").fill(EMAIL.toUpperCase());
-  await page.getByRole("button", { name: "Logga in" }).click();
+  await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
 });
 
@@ -123,7 +163,7 @@ test("MUPP-039-R5 the cookie is __Host-, HttpOnly, Secure, path / and holds only
   await oneFamily();
   await openForm(page, "Anna Testsson");
   await page.getByLabel("Ditt telefonnummer").fill(PHONE);
-  await page.getByRole("button", { name: "Logga in" }).click();
+  await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
 
   const cookie = await santaCookie(page);
@@ -149,7 +189,7 @@ test("MUPP-039-R6 the own page is reached only with the own cookie: none, a chan
 
   await openForm(page, "Anna Testsson");
   await page.getByLabel("Ditt telefonnummer").fill(PHONE);
-  await page.getByRole("button", { name: "Logga in" }).click();
+  await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
   const cookie = (await santaCookie(page))!;
   const html = await page.context().request.get("/secret-santa/min-sida").then((r) => r.text());

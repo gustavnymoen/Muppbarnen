@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-09
+
+* **Update** [MUPP-047 Back button on the Secret Santa sign-in](../specs/MUPP-047-santa-back-button/solution.md): after a name is picked, a Tillbaka arrow in the top left corner (or Esc) replaces "Det är inte jag"; the welcome line is shorter and the submit button reads "Fortsätt".
+
 ## 2026-11-08
 
 * **Creation** [MUPP-040 Secret Santa: own wish list](../specs/MUPP-040-secret-santa-wish-list/solution.md): a signed-in Secret Santa member adds, edits and deletes wishes (title, description, size, link) on their own page, one list per family, with the form and limits shared with the kids' lists; nobody else reads the list.
