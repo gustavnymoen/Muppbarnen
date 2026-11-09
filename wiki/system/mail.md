@@ -40,6 +40,8 @@ The same module holds the questions of the status dialogs (`STATUS_CONFIRMATIONS
 | No key, `TURSO_DATABASE_URL` is a `file:` URL (development, the test server) | Nothing leaves the machine; the mail is appended to `mail-outbox.jsonl` in the local data folder (`lib/mail-sink.ts`). Tests read it with `readOutbox()` and empty it with `clearOutbox()`. |
 | No key on a deployed site | `{ ok: false }`, nothing sent. |
 
+The test server blanks `RESEND_API_KEY` (`scripts/test-server.mjs`), even if `.env.local` has one, so a browser test never sends a real mail and its mails land in the outbox.
+
 The key and the sender domain are set up in [TECH-020](https://github.com/gustavnymoen/Muppbarnen/issues/168) (not built yet), so until then the site sends no real mail.
 
 ## For callers

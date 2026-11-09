@@ -5,6 +5,8 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import { guardMessage, guardWrite } from "@/lib/request-guard";
 import * as santa from "@/lib/santa";
 import { requireSiteSession } from "@/lib/site-auth";
+import { activatedMail, deactivatedMail } from "@/lib/santa-mail";
+import { mailEveryone, mailNewMember } from "@/lib/santa-notify";
 import { answer, text } from "./action-helpers";
 
 // Secret Santas serveråtgärder (MUPP-038, MUPP-048) för varje förälder: lib/santa.ts kontrollerar att gruppen är förälderns egen (eller att hen är huvudadministratör).
@@ -32,7 +34,8 @@ export async function activateEvent(_previous: FormState, formData: FormData): P
   const { parent } = await requireAdminSession();
   const guard = await guardWrite();
   if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
-  return answer(formData, await santa.activateEvent(parent, text(formData, "eventId")));
+  const outcome = await santa.activateEvent(parent, text(formData, "eventId"));
+  return answer(formData, outcome, outcome.ok ? await mailEveryone(outcome.recipients, activatedMail(outcome.eventName, outcome.adminName)) : []);
 }
 
 export async function deactivateEvent(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -40,7 +43,8 @@ export async function deactivateEvent(_previous: FormState, formData: FormData):
   const { parent } = await requireAdminSession();
   const guard = await guardWrite();
   if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
-  return answer(formData, await santa.deactivateEvent(parent, text(formData, "eventId")));
+  const outcome = await santa.deactivateEvent(parent, text(formData, "eventId"));
+  return answer(formData, outcome, outcome.ok ? await mailEveryone(outcome.recipients, deactivatedMail(outcome.eventName)) : []);
 }
 
 export async function addMember(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -54,7 +58,8 @@ export async function addMember(_previous: FormState, formData: FormData): Promi
     phone: text(formData, "phone"),
     email: text(formData, "email"),
   });
-  return answer(formData, outcome);
+  // Välkomstmejlet (och i en grupp som förbereder aktiveringsmejlet) går efter att deltagaren är sparad
+  return answer(formData, outcome, outcome.ok && !(await mailNewMember(outcome)) ? [outcome.name] : []);
 }
 
 export async function saveMember(_previous: FormState, formData: FormData): Promise<FormState> {

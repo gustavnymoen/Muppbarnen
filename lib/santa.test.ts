@@ -354,7 +354,7 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
   test("MUPP-051-R3 an added member answers with what the welcome mail needs: the address, the event, the administrator and whether it is preparing", async () => {
     const id = await event(emma, "Emmas jul");
     const input = (n: number) => ({ eventId: String(id), name: `Ny ${n}`, phone: `070009999${n}`, email: `ny${n}@exempel.se` });
-    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, email: "ny1@exempel.se", eventName: "Emmas jul", adminName: "Emma", preparing: false });
+    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", adminName: "Emma", preparing: false });
     await santa.activateEvent(emma, String(id));
     expect(await santa.addMember(emma, input(2))).toMatchObject({ ok: true, preparing: true });
   });

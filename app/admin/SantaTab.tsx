@@ -5,6 +5,7 @@ import { PencilIcon } from "@/app/components/icons";
 import { SwitchButton } from "@/app/components/SwitchButton";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
+import { STATUS_CONFIRMATIONS } from "@/lib/santa-mail";
 import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
 import { StatusInfo } from "./StatusInfo";
 import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember } from "./santa-actions";
@@ -106,7 +107,7 @@ function ActiveToggle({ event }: { event: SantaEvent }) {
   if (event.status === "started") {
     return (
       <div className="mt-2 flex flex-col items-center">
-        <SwitchButton label="Aktiv" checked disabled aria-describedby={`locked-${event.id}`} />
+        <SwitchButton label="Aktiv" checked disabled aria-label={`Aktiv ${event.name}`} aria-describedby={`locked-${event.id}`} />
         <p id={`locked-${event.id}`} className="text-sm text-muted">
           Stoppa gruppen först
         </p>
@@ -114,6 +115,7 @@ function ActiveToggle({ event }: { event: SantaEvent }) {
     );
   }
   const activating = event.status === "inactive";
+  const confirmation = activating ? STATUS_CONFIRMATIONS.activate : STATUS_CONFIRMATIONS.deactivate;
   return (
     <div className="mt-2 flex justify-center">
       <ConfirmAction
@@ -123,20 +125,11 @@ function ActiveToggle({ event }: { event: SantaEvent }) {
         switchLabel="Aktiv"
         switchOn={!activating}
         subject={event.name}
-        title="Är du säker?"
-        text={statusQuestion(event, activating)}
+        title={confirmation.title}
+        text={confirmation.text}
       />
     </div>
   );
-}
-
-// Frågan före ett statusbyte: vad som händer och hur många som får mejl
-function statusQuestion(event: SantaEvent, activating: boolean) {
-  const count = event.members.length;
-  const mail = count === 0 ? "inga mejl skickas, för den har inga deltagare" : `${count === 1 ? "den enda deltagaren" : `alla ${count} deltagare`} får ett mejl om det`;
-  return activating
-    ? `Gruppen ${event.name} öppnas, så att deltagarna kan skriva sina önskelistor, och ${mail}.`
-    : `Gruppen ${event.name} stängs och ${mail}. Önskelistorna ligger kvar och kommer tillbaka när gruppen aktiveras igen.`;
 }
 
 function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent }) {

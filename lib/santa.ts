@@ -163,7 +163,7 @@ async function contactTaken(eventId: number, phone: string, email: string, excep
 }
 
 // Det som behövs för att skicka välkomstmejlet till en ny medlem; preparing: gruppen är redan aktiv, så aktiveringsmejlet följer
-export type NewMember = { email: string; eventName: string; adminName: string; preparing: boolean };
+export type NewMember = { name: string; email: string; eventName: string; adminName: string; preparing: boolean };
 
 // En ny medlem i gruppen (inte i en startad)
 export async function addMember(actor: Parent | null, input: { eventId: unknown; name: unknown; phone: unknown; email: unknown }): Promise<Outcome<NewMember>> {
@@ -177,7 +177,7 @@ export async function addMember(actor: Parent | null, input: { eventId: unknown;
     const taken = await contactTaken(event.id, phone, email, null, tx);
     if (taken) return taken;
     await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
-    return { ok: true, email, eventName: event.name, adminName: await ownerName(event.owner_id, tx), preparing: event.status === "preparing" };
+    return { ok: true, name, email, eventName: event.name, adminName: await ownerName(event.owner_id, tx), preparing: event.status === "preparing" };
   });
 }
 

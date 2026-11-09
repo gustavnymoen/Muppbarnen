@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaStatusOf, santaWishes, setSantaStatus } from "./family-db";
+import { clearOutbox, readOutbox } from "../lib/mail-sink";
 import { santaSignIn } from "./santa";
 import { testIp } from "./site-session";
 
@@ -50,7 +51,7 @@ test("MUPP-051-R1 R2 a new group is inactive; the toggle Aktiv asks 'Är du säk
   // R2: the question first; cancelling changes nothing
   await toggle.click();
   const question = page.getByRole("alertdialog", { name: "Är du säker?" });
-  await expect(question).toContainText("inga mejl skickas");
+  await expect(question).toContainText("Alla i gruppen får ett mail och kan börja skriva önskelistor.");
   await expectNoA11yViolations(page);
   await question.getByRole("button", { name: "Avbryt" }).click();
   await expect(card).toContainText("Status: Inaktiv");
@@ -62,7 +63,7 @@ test("MUPP-051-R1 R2 a new group is inactive; the toggle Aktiv asks 'Är du säk
   await expect(card).toContainText("Status: Förbereder");
   await expect(toggle).toHaveAttribute("aria-checked", "true");
   await toggle.click();
-  await expect(page.getByRole("alertdialog", { name: "Är du säker?" })).toContainText("Önskelistorna ligger kvar");
+  await expect(page.getByRole("alertdialog", { name: "Är du säker?" })).toContainText("Önskelistorna finns kvar.");
   await page.getByRole("alertdialog").getByRole("button", { name: "Avaktivera", exact: true }).click();
   await expect(card).toContainText("Status: Inaktiv");
   await expectNoA11yViolations(page);
@@ -84,7 +85,7 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
   await expect(card).toContainText("Status: Startad");
   await expect(card.getByRole("button", { name: /^(Ny person|Ändra Anna|Ta bort Anna)/ })).toHaveCount(0);
   // R2: the toggle is on and locked, with the note
-  const locked = card.getByRole("switch", { name: "Aktiv", exact: true });
+  const locked = card.getByRole("switch", { name: "Aktiv Startad grupp" });
   await expect(locked).toBeDisabled();
   await expect(locked).toHaveAttribute("aria-checked", "true");
   await expect(card).toContainText("Stoppa gruppen först");
@@ -189,4 +190,64 @@ test("MUPP-051-R7 the count and the delete question say deltagare, in singular a
   await expect(page.getByRole("alertdialog")).toContainText("Emmas jul, dess deltagare och deras önskelistor tas bort. Det går inte att ångra.");
   await page.getByRole("button", { name: "Avbryt" }).click();
   await expect(page.locator("main")).not.toContainText(/medlem/i);
+});
+
+test("MUPP-051-R2 R3 the mails: activation and deactivation go to every participant, a failing one is named, and a new participant gets the welcome mail (and the activation mail while preparing)", async ({ page }) => {
+  clearOutbox();
+  const emma = uniqueName("Emma");
+  const event = await addSantaEvent("Emmas jul", await addParent(emma), "inactive");
+  await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid");
+  // An address the mail check refuses (no dot after the @), put straight in the database
+  await addSantaMember(event, "Bertil Testsson", "0700002222", "bertil@invalid");
+  const subjects = () => readOutbox().map((mail) => `${mail.to} ${mail.subject}`);
+  await openSantaTab(page, emma);
+  const card = eventCard(page, "Emmas jul");
+
+  // R2: activation: one mail to the participant with a working address, and the administrator is told who got none
+  await card.getByRole("switch", { name: "Aktiv Emmas jul" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Aktivera", exact: true }).click();
+  await expect(card).toContainText("Status: Förbereder");
+  await expect(page.getByText("Sparat, men Bertil Testsson fick inget mejl.").first()).toBeVisible();
+  expect(subjects()).toEqual(["anna@exempel.invalid Secret Santa: Emmas jul – Nu kan du skriva din önskelista"]);
+  expect(readOutbox()[0].text).toContain(emma);
+  expect(JSON.stringify(readOutbox())).not.toContain("Testsson");
+
+  // R3: a new participant in a preparing group: the welcome mail and then the activation mail
+  clearOutbox();
+  await card.getByRole("button", { name: "Ny person i Emmas jul" }).click();
+  await page.getByLabel("Namn", { exact: true }).fill("Cia Testsson");
+  await page.getByLabel("Telefon", { exact: true }).fill("0700003333");
+  await page.getByLabel("E-post", { exact: true }).fill("cia@exempel.invalid");
+  await page.getByRole("button", { name: "Lägg till", exact: true }).click();
+  await expect(card).toContainText("3 deltagare");
+  await expect.poll(subjects).toEqual(["cia@exempel.invalid Secret Santa: Emmas jul – välkommen", "cia@exempel.invalid Secret Santa: Emmas jul – Nu kan du skriva din önskelista"]);
+
+  // R2: deactivation
+  clearOutbox();
+  await card.getByRole("switch", { name: "Aktiv Emmas jul" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Avaktivera", exact: true }).click();
+  await expect(card).toContainText("Status: Inaktiv");
+  await expect.poll(() => subjects().sort()).toEqual(["anna@exempel.invalid Secret Santa: Emmas jul – är avaktiverad!", "cia@exempel.invalid Secret Santa: Emmas jul – är avaktiverad!"]);
+
+  // R3: a new participant in an inactive group: the welcome mail only
+  clearOutbox();
+  await card.getByRole("button", { name: "Ny person i Emmas jul" }).click();
+  await page.getByLabel("Namn", { exact: true }).fill("Dan Testsson");
+  await page.getByLabel("Telefon", { exact: true }).fill("0700004444");
+  await page.getByLabel("E-post", { exact: true }).fill("dan@exempel.invalid");
+  await page.getByRole("button", { name: "Lägg till", exact: true }).click();
+  await expect(card).toContainText("4 deltagare");
+  await expect.poll(subjects).toEqual(["dan@exempel.invalid Secret Santa: Emmas jul – välkommen"]);
+
+  // R3: an address the mail check refuses (a quote is allowed by the form): saved, and the administrator is told
+  clearOutbox();
+  await card.getByRole("button", { name: "Ny person i Emmas jul" }).click();
+  await page.getByLabel("Namn", { exact: true }).fill("  Eva Testsson ");
+  await page.getByLabel("Telefon", { exact: true }).fill("0700005555");
+  await page.getByLabel("E-post", { exact: true }).fill('e"va@exempel.invalid');
+  await page.getByRole("button", { name: "Lägg till", exact: true }).click();
+  await expect(card).toContainText("5 deltagare");
+  await expect(page.getByText("Sparat, men Eva Testsson fick inget mejl.").first()).toBeVisible();
+  expect(readOutbox()).toEqual([]);
+  clearOutbox();
 });

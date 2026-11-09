@@ -10,8 +10,8 @@ feature: MUPP-051
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | MUPP-051-R1 | Unit tests `MUPP-051-R1` (`lib/santa.test.ts`: a new event is inactive and listed with its status; the database refuses another status) and `db/db-setup.test.ts` (existing events become inactive); browser test `MUPP-051-R1 R2 a new group is inactive…` ("Status: Inaktiv", axe) | local | Pass | 2026-11-09 |
-| MUPP-051-R2 | Unit tests `MUPP-051-R2` (the two changes and the recipients they return; each change from one status only; started refused; owner, master admin and a forged id); browser tests `MUPP-051-R1 R2 …` (the toggle Aktiv is a switch, 44 px, the question, cancel, confirm both ways, axe on the dialog), `MUPP-051-R2 R3 a started group…` (the toggle is on, disabled and says "Stoppa gruppen först"; no toggle for another parent; a stale page is refused by the server) and `MUPP-051-R2 the i icon…` (44 px, the three texts, closes with Esc, the cross and a press outside, axe); the toggle under the plus button, centred, and its question on a phone in `tests/design.spec.ts`. **The mails (every member gets mail 1 or 2, and the administrator is told who got none) are not built yet and not checked:** `lib/santa-mail.ts` (MUPP-052) is not on `main` | local | Partly: the status change passes; the mails are not done | 2026-11-09 |
-| MUPP-051-R3 | Unit tests `MUPP-051-R3` (add, change, remove while inactive and preparing; refused when started also for the master admin, members unchanged; the rights before the status; what an added member returns for the mail); browser test `MUPP-051-R2 R3 a started group…` (no plus, pencil or trash). **The welcome mail (mail 8) and the activation mail (mail 1) to a new member are not built yet and not checked** (same reason as R2) | local | Partly: the lock passes; the mails are not done | 2026-11-09 |
+| MUPP-051-R2 | Unit tests `MUPP-051-R2` (the two changes and the recipients they return; each change from one status only; started refused; owner, master admin and a forged id); browser tests `MUPP-051-R1 R2 …` (the toggle Aktiv is a switch, 44 px, the question, cancel, confirm both ways, axe on the dialog), `MUPP-051-R2 R3 a started group…` (the toggle is on, disabled and says "Stoppa gruppen först"; no toggle for another parent; a stale page is refused by the server) and `MUPP-051-R2 the i icon…` (44 px, the three texts, closes with Esc, the cross and a press outside, axe); the toggle under the plus button, centred, and its question on a phone in `tests/design.spec.ts`. The mails: browser test `MUPP-051-R2 R3 the mails…` (outbox: mail 1 on activation, mail 2 on deactivation, a participant with a refused address is named in the notice and the others still get theirs, no participant name in any mail) and `lib/santa-notify.test.ts` | local | Pass | 2026-11-09 |
+| MUPP-051-R3 | Unit tests `MUPP-051-R3` (add, change, remove while inactive and preparing; refused when started also for the master admin, members unchanged; the rights before the status; what an added member returns for the mail); browser test `MUPP-051-R2 R3 a started group…` (no plus, pencil or trash). The mails: the same browser test (mail 8, and mail 1 right after it in a preparing group; mail 8 only in an inactive one) and `lib/santa-notify.test.ts` | local | Pass | 2026-11-09 |
 | MUPP-051-R4 | Unit tests `MUPP-051-R4` (`lib/santa-wishes.test.ts`: allowed while preparing and started; refused when inactive with the list unchanged; deactivating keeps the wishes and activating brings them back); browser tests `MUPP-051-R4 R5 …` (the list page is not reachable while inactive) and `MUPP-051-R6 MUPP-051-R4 …` (kept wishes are back; a change after deactivation is refused with the message) | local | Pass | 2026-11-09 |
 | MUPP-051-R5 | Browser test `MUPP-051-R4 R5 an inactive group gives only…` (the text, no card, no link, no list, axe) | local | Pass | 2026-11-09 |
 | MUPP-051-R6 | Browser test `MUPP-051-R6 MUPP-051-R4 a preparing group…` (the list card is a link and opens the list, the grey card is a heading without a link with "Inte tilldelad än", axe); the phone check in `tests/design.spec.ts` (44 px card, the orange line's contrast at least 4.5, no sideways scroll). The look of the Santa-hat icon: checked by eye in a screenshot, not tested | local | Pass | 2026-11-09 |
@@ -21,8 +21,8 @@ feature: MUPP-051
 
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
-| Unit tests | Transitions, who may change the status, members and wishes locked by status, the recipient data (`lib/santa.test.ts`, `lib/santa-wishes.test.ts`, `db/db-setup.test.ts`). The list of mails with a failing recipient is not done (it needs the mail texts) | local | Partly | 2026-11-09 |
-| Browser tests | New `tests/MUPP-051-santa-status.spec.ts` (6 tests) with axe, and one phone test in `tests/design.spec.ts`; `MUPP-040`, `MUPP-045`, `MUPP-048`, `MUPP-053` and `design.spec.ts` follow the list's new page. Mails from the test sink: not done (see R2) | local | Partly | 2026-11-09 |
+| Unit tests | Transitions, who may change the status, members and wishes locked by status, the recipient data (`lib/santa.test.ts`, `lib/santa-wishes.test.ts`, `db/db-setup.test.ts`). The list of mails with a failing recipient: `lib/santa-notify.test.ts` | local | Pass | 2026-11-09 |
+| Browser tests | New `tests/MUPP-051-santa-status.spec.ts` (7 tests) with axe, and one phone test in `tests/design.spec.ts`; `MUPP-040`, `MUPP-045`, `MUPP-048`, `MUPP-053` and `design.spec.ts` follow the list's new page. Mails from the test sink: `MUPP-051-R2 R3 the mails…` | local | Pass | 2026-11-09 |
 | Smoke test | None, as planned | not applicable | Not applicable | 2026-11-09 |
 | Accessibility | axe on the status row, the question, the inactive page, the two cards and the list page. The checklist items of `wiki/system/accessibility.md` on the live site: not checked yet | local | Pass locally; live not checked | 2026-11-09 |
 | Security | `/security-review` and the review's security points: [review.md](review.md) | local | `/security-review`: see review.md | 2026-11-09 |
@@ -35,13 +35,13 @@ feature: MUPP-051
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before | 241 unit, 130 browser | 263.3 s (unit 0.4 s) | 7.0 s |
-| After | 257 unit, 137 browser | 271.7 s (unit 0.4 s) | 6.8 s |
+| After | 284 unit, 138 browser | 278.2 s (unit 0.4 s) | 6.8 s |
 
-The browser suite grew by 8.4 s (3 %) for 7 more tests (6 new tests plus the phone test), and the tests over the 5 s budget are the same ones as before; the new ones are under it.
+The browser suite grew by 14.9 s (6 %) for 8 more tests (7 new tests plus the phone test), and the tests over the 5 s budget are the same ones as before; the new ones are under it.
 
 ## Definition of Done
 
-- [ ] Tests: every check in the plan is done; the mail checks of R2 and R3 are not (the mails wait for MUPP-052)
+- [x] Tests: every check in the plan is done; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: within the time budgets, total time grown by at most 25 % (see above; the budget was already exceeded before, TECH-019)
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
 - [ ] Accessibility: axe passes locally; the checklist items on the live site are not checked yet
@@ -54,7 +54,7 @@ The browser suite grew by 8.4 s (3 %) for 7 more tests (6 new tests plus the pho
 
 ## Requirements as built
 
-Copied from the card after its change of 2026-11-09 (the toggle Aktiv, the "i" explanation and "deltagare"). R2 and R3 are built except for the mails (see Notes).
+Copied from the card after its change of 2026-11-09 (the toggle Aktiv, the "i" explanation and "deltagare"). All requirements are built.
 
 ### MUPP-051-R1 Three statuses, inactive first
 
@@ -126,7 +126,8 @@ Acceptance criteria:
 
 ## Notes
 
-- The mail calls (mails 1, 2 and 8 of MUPP-052) are missing because `lib/santa-mail.ts` was not on `main` when the rest was done. The data they need is returned by `activateEvent`, `deactivateEvent` and `addMember` in `lib/santa.ts`.
+- The mails use `lib/santa-mail.ts` and `sendMail` of MUPP-052 and TECH-017. Setting up the real sender is TECH-020.
+- Found on the way: `.env.local` holds a `RESEND_API_KEY`, which the test server would pass on, so a browser test would have sent real mail. The test server now blanks it. Two real mails to a made-up `.invalid` address were attempted by test runs before that was found.
 - Started shows only the list card on the member's page until MUPP-041 builds its own page.
 
 See also: [Solution](solution.md), [Review](review.md).

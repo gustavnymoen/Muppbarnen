@@ -37,6 +37,11 @@ Under the group's plus button, `ActiveToggle` in `app/admin/SantaTab.tsx` shows 
 
 ## Mails
 
-`activateEvent`, `deactivateEvent` and `addMember` return what a mail needs (the event name, the administrator's name and the recipients' addresses) and send nothing themselves.
+The library functions (`activateEvent`, `deactivateEvent`, `addMember`) change data and return what a mail needs (the event name, the administrator's name, the recipients); the server actions in `app/admin/santa-actions.ts` then send, through `lib/santa-notify.ts` and the texts of [MUPP-052](../../specs/MUPP-052-santa-mail-texts/solution.md) (`lib/santa-mail.ts`), after the change is saved:
+
+- **Activation:** mail 1 to every participant. **Deactivation:** mail 2 to every participant. The question's texts are `STATUS_CONFIRMATIONS` in `lib/santa-mail.ts`.
+- **A new participant:** mail 8 (welcome), and in a preparing group mail 1 right after it.
+- **A mail that cannot be sent** never undoes the change: the action answers `savedWithNotice` and the administrator sees "Sparat, men <names> fick inget mejl." in a red toast.
+- The mail has the administrator's name and the event's name, never a participant's name or a wish ([Mail](mail.md)).
 
 [System documentation](index.md)
