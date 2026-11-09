@@ -1,0 +1,13 @@
+%% TECH-017 Sending email
+%% What sendMail does with a mail. Steps are labelled with requirement IDs.
+flowchart TD
+    A[A card calls sendMail with subject, heading and text] --> B{Valid address? R1}
+    B -- no --> F[Failure, nothing sent]
+    B -- yes --> C[Build the HTML and plain text in the layout, R0]
+    C --> D{RESEND_API_KEY set?}
+    D -- yes --> E[POST to the provider, R1]
+    E -- ok --> OK[Success]
+    E -- error or no answer --> F
+    D -- no --> G{Local database file? R2}
+    G -- yes --> H[Append to mail-outbox.jsonl] --> OK
+    G -- no --> F
