@@ -22,7 +22,7 @@ async function signIn(page: Page, family: string, name: string, phone: string) {
   if (await familyLink.count()) await familyLink.click();
   await page.getByRole("link", { name, exact: true }).click();
   await page.getByLabel("Ditt telefonnummer").fill(phone);
-  await page.getByRole("button", { name: "Logga in" }).click();
+  await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { level: 1, name: `Hej ${name}!` })).toBeVisible();
 }
 

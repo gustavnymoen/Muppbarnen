@@ -1207,8 +1207,15 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
     await tiles[0].click();
     await expect(page.getByLabel("Ditt telefonnummer")).toBeVisible();
     // The radio buttons are as large as their labels, and the field and button as the other forms'
-    const controls = [page.locator("label").filter({ hasText: /^Telefon$/ }), page.locator("label").filter({ hasText: /^E-post$/ }), page.getByLabel("Ditt telefonnummer"), page.getByRole("button", { name: "Logga in" })];
+    const controls = [page.locator("label").filter({ hasText: /^Telefon$/ }), page.locator("label").filter({ hasText: /^E-post$/ }), page.getByLabel("Ditt telefonnummer"), page.getByRole("button", { name: "Fortsätt" })];
     for (const control of controls) expect((await settledBox(control)).height).toBeGreaterThanOrEqual(44);
+    // MUPP-047-R1: Tillbaka is in the top left corner, 44 px, clear of the menu button and the heading
+    const back = await settledBox(page.getByRole("link", { name: "Tillbaka" }));
+    expect(back.height).toBeGreaterThanOrEqual(44);
+    expect(back.width).toBeGreaterThanOrEqual(44);
+    expect(back.x).toBeLessThan(24);
+    expect(back.y).toBeLessThan(24);
+    for (const other of [page.getByRole("button", { name: "Meny" }), page.getByRole("heading", { level: 1 })]) expect(disjoint(back, await settledBox(other))).toBe(true);
     expect(await hasHorizontalScroll(page)).toBe(false);
   } finally {
     await clearSanta();
@@ -1228,7 +1235,7 @@ test("MUPP-040-R1 R2 the Secret Santa wish list on a 375 x 667 phone: long title
     await goto(page, "/secret-santa");
     await page.getByRole("link", { name: "Anna Ek", exact: true }).click();
     await page.getByLabel("Ditt telefonnummer").fill("0700004444");
-    await page.getByRole("button", { name: "Logga in" }).click();
+    await page.getByRole("button", { name: "Fortsätt" }).click();
     await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" })).toBeVisible();
     expect(await hasHorizontalScroll(page)).toBe(false);
     for (const name of [/^Ändra /, /^Ta bort /]) {

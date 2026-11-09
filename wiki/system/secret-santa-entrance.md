@@ -15,8 +15,8 @@ Secret Santa knows who a visitor is, but only lightly: nobody is expected to che
 
 | Part | What it does |
 |---|---|
-| `app/secret-santa/page.tsx` | The entrance: family choice (skipped with one family), the grid of names, the sign-in form. The steps are in the address (`?familj=`, `&person=`). |
-| `app/secret-santa/SignInForm.tsx` | Radio buttons phone/email, the field with the right keyboard and focus. |
+| `app/secret-santa/page.tsx` | The entrance: family choice (skipped with one family), the grid of names, the sign-in form. On the sign-in step "Tillbaka" (an `IconLink` in the page header's `back` slot) leads back to the names. The steps are in the address (`?familj=`, `&person=`). |
+| `app/secret-santa/SignInForm.tsx` | Radio buttons phone/email, the field with the right keyboard and focus, and Esc back to the names ([MUPP-047](../../specs/MUPP-047-santa-back-button/solution.md)). |
 | `app/secret-santa/actions.ts` | `signIn` and `leave`. Site sign-in first, then `guardWrite()`. |
 | `app/secret-santa/min-sida/page.tsx` | The own page: "Hej <name>!" and the wish lists ([Secret Santa wish list](secret-santa-wish-list.md)). |
 | `lib/santa-auth.ts` | Reads names, compares phone or email, applies the block, reads and sets the cookie. |
