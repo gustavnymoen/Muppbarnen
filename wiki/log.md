@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* **Creation** [TECH-017 Sending email](../specs/TECH-017-sending-email/solution.md): `sendMail` builds a short mail in a shared layout (logo, heading, text, link and "Detta mail går inte att svara på.") and sends it through Resend once a key is set; without a key a local run or test saves it in an outbox file that tests read. The domain, the account and the key are TECH-020.
 * **Creation** [MUPP-048 Secret Santa: events created by any parent](../specs/MUPP-048-santa-events/solution.md): every parent sees the Secret Santa tab and creates and administers their own groups (unique names), the master admin sees all; each member belongs to one group with their own details, wish list and sign-in, the entrance lists the groups, and the names step has Tillbaka (and Esc) instead of "Byt familj". The families of MUPP-038 became groups owned by the master admin; everyone signed in to Secret Santa signs in once more.
 * **Update** [MUPP-049 Menu names and order](../specs/MUPP-049-menu-names-and-order/solution.md): the menu reads Barnens listor, Secret Santa, Så funkar listorna, Admin; the dialog it opens is named "Så funkar listorna".
 * **Creation** [MUPP-046 Site name](../specs/MUPP-046-site-name/solution.md): the site is called Kusinportalen from one constant (page titles `<page> | Kusinportalen`, share preview, home screen name) and has a gift as its icon in the tab, on the home screen and for the mails; the icons and the manifest are the only public files.

@@ -17,6 +17,7 @@
 * [Site password](site-password.md) - How the whole site is put behind one shared password: the proxy, the signed cookie, the attempt limit, the settings, the private picture store and how the tests get past it.
 * [Secret Santa entrance](secret-santa-entrance.md) - How visitors get into Secret Santa: the menu entry, event and name choice, the sign-in with phone or email, the signed cookie and the rules that keep contact details private.
 * [Secret Santa wish list](secret-santa-wish-list.md) - How a Secret Santa member's own wish list works: one list per member, the form and limits shared with the kids' lists, and the owner check on the server.
+* [Mail](mail.md) - How the site sends mail: sendMail with a shared layout, the provider call behind RESEND_API_KEY, and the outbox file that development and tests use instead.
 * [Admin page](admin.md) - How the admin page is built: the admin sign-in and cookie, choosing who you are, the pages for parents and the master admin, the rules per kid, the tables and the private pictures.
 * [Testing on a phone](phone-testing.md) - How to look at the site on a real phone over HTTPS: the Vercel preview of a pull request, and npm run dev:https locally.
 * [Pipeline](pipeline.md) - How a change goes from a branch to the live site: the GitHub workflows, Vercel's deploys, which checks run where, and the branch protection on main.
