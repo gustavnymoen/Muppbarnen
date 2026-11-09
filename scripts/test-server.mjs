@@ -25,6 +25,8 @@ const env = {
   NEXT_DIST_DIR: ".next-test",
   PICTURES_DIR: testPicturesDir,
   BLOB_READ_WRITE_TOKEN: "",
+  // Ett fel lösenord väntar en sekund på riktigt (sajt, admin och Secret Santa); testservern hoppar över det (TECH-018)
+  SKIP_LOGIN_WAIT: "1",
 };
 
 // prebuild (scripts/db-setup.mjs) skapar testdatabasen

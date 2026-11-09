@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, clearFamily } from "./family-db";
-import { animationsDone, birthdateIn, ghost, goto, pageAnimationsDone, runsLocally, uniqueName } from "./helpers";
+import { animationsDone, birthdateIn, ghost, goto, pageAnimationsDone, runsLocally, toCard, uniqueName } from "./helpers";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
 test.skip(!runsLocally, "needs the local test database");
@@ -64,20 +64,15 @@ test("MUPP-037-R1 on a single-kid card only the surface of the list folds into t
   await expectContentFades(page);
 });
 
-test("MUPP-037-R1 on a card with several kids only the surface of the view folds into the button", async ({ page }) => {
+// De två korten med flera barn är samma kort i samma kortlek, så de delar en sida (TECH-018)
+test("MUPP-037-R1 on a card with several kids, and then on the Christmas card, only the surface of the view folds into the button", async ({ page }) => {
   await seed(page, ["Vera", "Vilda"]);
   await card(page).getByRole("button", { name: "Önskelista för Vera" }).click();
   await animationsDone(card(page));
   await card(page).getByRole("button", { name: "Stäng önskelistan" }).click();
   await expectContentFades(page);
-});
 
-test("MUPP-037-R1 on the Christmas card only the surface of the view folds into the button", async ({ page }) => {
-  await seed(page, ["Vera", "Vilda"]);
-  for (let i = 0; i < 4 && (await card(page).getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
-    await page.getByRole("button", { name: "Nästa kort" }).click();
-    await animationsDone(card(page));
-  }
+  await toCard(page, "Julafton");
   await card(page).getByRole("button", { name: /^Öppna Vera/ }).click();
   await animationsDone(card(page));
   await card(page).getByRole("button", { name: /^Tillbaka/ }).click();

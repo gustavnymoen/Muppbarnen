@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* **Update** [TECH-018 Test suite at its time budget again](../specs/TECH-018-test-suite-room-again/solution.md): the test server skips the second a wrong password costs (only with a local database), the Secret Santa tests sign in by cookie, boxes are read in the page and more tests are merged by journey, so the browser tests (121 → 111 tests) run in about 178 s instead of 203 s; the goal was relaxed from 170 s to 180 s.
 * **Update** [MUPP-047 Back button on the Secret Santa sign-in](../specs/MUPP-047-santa-back-button/solution.md): after a name is picked, a Tillbaka arrow in the top left corner (or Esc) replaces "Det är inte jag"; the welcome line is shorter and the submit button reads "Fortsätt".
 
 ## 2026-11-08

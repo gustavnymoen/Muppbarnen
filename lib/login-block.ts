@@ -57,15 +57,21 @@ async function block(ip: string, now: number) {
 
 type LoginResult = "ok" | "wrong" | "blocked";
 
+// Ett fel lösenord kostar en sekund, också i Secret Santa-inloggningen. Bara testservern hoppar över den
+// (scripts/test-server.mjs sätter SKIP_LOGIN_WAIT och har en lokal databasfil): en driftsatt sajt väntar
+// alltid, hur miljön än är satt (TECH-018-R2).
+export const wrongWait = (skip = process.env.SKIP_LOGIN_WAIT, dbUrl = process.env.TURSO_DATABASE_URL) =>
+  skip === "1" && dbUrl?.startsWith("file:") ? 0 : 1000;
+
 // Hela kontrollen av ett lösenord, gemensam för sajtlösenordet och adminlösenordet:
-// försöket skrivs in först, ett fel lösenord kostar en sekund, ett rätt räknas inte.
+// försöket skrivs in först, ett fel lösenord kostar en sekund (wait), ett rätt räknas inte.
 // expected är undefined när lösenordet saknas i miljön: då stämmer inget.
-export async function checkLogin(ip: string, supplied: unknown, expected: string | undefined): Promise<LoginResult> {
+export async function checkLogin(ip: string, supplied: unknown, expected: string | undefined, wait = wrongWait()): Promise<LoginResult> {
   const attempt = await beginAttempt(ip);
   if (attempt === null) return "blocked";
   if (expected === undefined || typeof supplied !== "string" || !passwordMatches(supplied, expected)) {
     await registerWrong(ip);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
     return "wrong";
   }
   await clearAttempt(attempt);

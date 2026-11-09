@@ -16,15 +16,17 @@ async function signInWith(page: Page, text: string) {
 test("TECH-005-R3 the sixth wrong password blocks the address, and then even the right one is refused", async ({ browser, baseURL }) => {
   test.skip(!runsLocally, "would lock this computer out of a deployed site, and x-real-ip is set by the platform there");
   const context = await newVisitor(browser, baseURL);
-  // Sex fel samtidigt, så att väntan på en sekund per fel bara tas en gång. Alla sex får
+  // Sex fel i rad på samma sida (testservern hoppar över sekundens väntan, TECH-018). Alla sex får
   // pröva, men det sjätte felet spärrar adressen. Att rätta lösenord inte räknas är ett enhetstest.
-  const pages = await Promise.all(Array.from({ length: 6 }, () => context.newPage()));
-  for (const page of pages) await goto(page, "/losenord");
-  for (const page of pages) await signInWith(page, "fel lösenord");
-  for (const page of pages) await expect(page.locator("#losenord-fel")).toHaveText("Fel lösenord.");
+  const page = await context.newPage();
+  await goto(page, "/losenord");
+  for (let i = 0; i < 6; i++) {
+    // Svaret väntas in, så att nästa försök inte skickas medan det förra pågår
+    await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), signInWith(page, "fel lösenord")]);
+    await expect(page.locator("#losenord-fel")).toHaveText("Fel lösenord.");
+  }
 
   // Därefter nekas allt, också rätt lösenord, och besökaren ser fortfarande lösenordssidan
-  const page = pages[0];
   await goto(page, "/losenord");
   await signInWith(page, password);
   await expect(page.locator("#losenord-fel")).toHaveText("För många försök. Försök igen om en stund.");

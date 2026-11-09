@@ -96,6 +96,10 @@ export const addSantaMember = (familyId: number, name: string, phone: string, em
     return Number(member.lastInsertRowid);
   });
 
+// The person a membership belongs to (the Secret Santa cookie holds the person id)
+export const personOfMember = (memberId: number) =>
+  withDb(async (db) => Number((await db.execute({ sql: "SELECT person_id FROM ss_member WHERE id = ?", args: [memberId] })).rows[0].person_id));
+
 // The same person joins another family (a new membership, MUPP-040-R3); returns the new member id
 export const joinSantaFamily = (memberId: number, familyId: number) =>
   withDb(async (db) => {

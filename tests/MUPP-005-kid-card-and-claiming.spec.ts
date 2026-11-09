@@ -40,7 +40,8 @@ async function openVerasList(page: Page) {
   await expect(region(page)).toBeVisible();
 }
 
-test("MUPP-005-R1 R2 R3 the rows: marks, order, details, links, and marking rows", async ({ page }) => {
+// Samma lista i hela testet, så att den bara byggs och öppnas en gång (TECH-018): först raderna, sedan paxningen, som ändrar dem
+test("MUPP-005-R1 R2 R3 R4 R5 the rows and marking rows, then claiming: the dialog, its errors, Escape and cancel, success, and a gift taken meanwhile", async ({ page }) => {
   await openVerasList(page);
 
   // R1: claimed gifts last, the others in their order (the full order is tested in MUPP-019); the marks show without unfolding; the texts are plain text
@@ -107,10 +108,8 @@ test("MUPP-005-R1 R2 R3 the rows: marks, order, details, links, and marking rows
   await card(page).getByRole("button", { name: /^Önskelista/ }).click();
   await expect(region(page).getByRole("checkbox", { name: "Cykel" })).not.toBeChecked();
   await expect(claimButton(page)).toHaveCount(0);
-});
 
-test("MUPP-005-R3 R4 R5 claiming: the dialog, its errors, Escape and cancel, success, and a gift taken meanwhile", async ({ page }) => {
-  await openVerasList(page);
+  // R3 R4 R5: claiming
   const tick = (title: string) => region(page).getByRole("checkbox", { name: title }).check();
 
   // R4: the dialog is modal, has the focus in the name field, lists the marked gifts and says what claiming means

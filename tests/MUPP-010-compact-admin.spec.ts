@@ -22,12 +22,16 @@ test.afterEach(clearFamily);
 const card = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
 const expanded = (button: Locator) => button.getAttribute("aria-expanded");
 
-test("MUPP-010-R1 R2 R6 Hantera starts folded: two headings, slim cards, and icon buttons that are named, have a tooltip and are at least 32 px", async ({ page }) => {
+// Samma sida i båda (TECH-018): först det hopfällda utseendet, sedan öppnandet, som ändrar det
+test("MUPP-010-R1 R2 R3 R6 Hantera starts folded: two headings, slim cards, and icon buttons that are named, have a tooltip and are at least 32 px; then a card unfolds with its form, one panel is open at a time, Esc and saving fold it, a mistake keeps it open", async ({ page }) => {
   // Short names, as real ones are: a long name wraps and makes the card higher
   const chef = "Ada";
   const chefId = await addParent(chef, true);
   const kid = "Otis";
   await addChild(chefId, kid);
+  const [first, second] = [uniqueName("Ett"), uniqueName("Två")];
+  await addChild(chefId, first, "2019-03-09");
+  await addChild(chefId, second);
   await page.setViewportSize({ width: 375, height: 667 });
   await adminSignIn(page, chef);
   await goto(page, "/admin/hantera");
@@ -68,16 +72,8 @@ test("MUPP-010-R1 R2 R6 Hantera starts folded: two headings, slim cards, and ico
   // The buttons that open a form keep their text
   for (const name of ["Ny förälder", "Nytt barn"]) await expect(page.getByRole("button", { name })).toHaveText(name);
   await expectNoA11yViolations(page);
-});
 
-test("MUPP-010-R1 R3 a card unfolds with its form, one panel is open at a time, Esc and saving fold it, a mistake keeps it open", async ({ page }) => {
-  const chef = uniqueName("Chef");
-  const chefId = await addParent(chef, true);
-  const [first, second] = [uniqueName("Ett"), uniqueName("Två")];
-  await addChild(chefId, first, "2019-03-09");
-  await addChild(chefId, second);
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  // R1 R3: a card unfolds with its form
   const [one, two] = [card(page, first), card(page, second)];
   const pencil = one.getByRole("button", { name: `Ändra ${first}` });
 
