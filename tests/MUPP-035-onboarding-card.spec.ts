@@ -59,7 +59,7 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog 
   await page.getByRole("button", { name: "Meny" }).click();
   const items = page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("listitem");
   await expect(items).toHaveText(["Barnens listor", "Secret Santa", "Så funkar listorna", "Admin"]);
-  await items.nth(2).getByRole("button").click();
+  await page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("button", { name: "Så funkar listorna" }).click();
   await expect(dialog).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Besökare" })).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Escape");

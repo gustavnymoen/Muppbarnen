@@ -6,12 +6,19 @@ import { LOGIN_PATH, SESSION_COOKIE, siteSecrets, verifySession } from "@/lib/si
 // bara lösenordssidan igenom. Sidor skickas dit; API-rutter, serveråtgärder,
 // bilder och allt som inte är en vanlig hämtning av en sida får 401 utan innehåll.
 // Det som servern läser kontrollerar kakan en gång till (lib/site-auth.ts).
+// De enda filer som syns utan kaka: ikonerna och manifestet, som webbläsare och mejlprogram hämtar
+// utan att vara inloggade (MUPP-046-R4). Exakta sökvägar, bara GET och HEAD; en enhetstest låser listan.
+export const PUBLIC_FILES = ["/icon.svg", "/icon.png", "/apple-icon.png", "/manifest.webmanifest"];
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   // Alla metoder släpps hit, för inloggningens serveråtgärd: varje annan åtgärd kontrollerar kakan själv
   if (pathname === LOGIN_PATH) return NextResponse.next();
 
-  const isPage = (request.method === "GET" || request.method === "HEAD") && !request.headers.has("next-action");
+  const isRead = request.method === "GET" || request.method === "HEAD";
+  if (isRead && PUBLIC_FILES.includes(pathname)) return NextResponse.next();
+
+  const isPage = isRead && !request.headers.has("next-action");
   if (verifySession(request.cookies.get(SESSION_COOKIE)?.value, siteSecrets()?.secret)) return adminGate(request, isPage);
 
   if (!isPage || pathname.startsWith("/api/") || pathname.startsWith("/bilder/")) {

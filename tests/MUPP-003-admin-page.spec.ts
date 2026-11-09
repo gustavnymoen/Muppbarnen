@@ -144,7 +144,7 @@ test("MUPP-003-R2 R8 with no parent the page offers one form, Skapa huvudadminis
   await page.setViewportSize({ width: 320, height: 568 });
   await adminSignIn(page);
   await expect(page.getByRole("heading", { level: 2, name: "Skapa huvudadministratör" })).toBeVisible();
-  await expect(page).toHaveTitle("Admin | Muppbarnens önskelistor");
+  await expect(page).toHaveTitle("Admin | Kusinportalen");
   const name = page.getByLabel("Namn");
   await expect(name).toHaveValue("Gustav");
   await expect(page.getByRole("textbox")).toHaveCount(1);

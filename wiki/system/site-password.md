@@ -15,7 +15,7 @@ Nothing on the site is visible before the visitor has entered the site password.
 
 | Part | Where | What |
 |---|---|---|
-| Proxy | `proxy.ts` | Runs for every request except `/_next/static`. Without a valid cookie: pages are sent to `/losenord?till=<path>`; API routes, server actions, `/bilder/…` and every other request get 401 with no content. |
+| Proxy | `proxy.ts` | Runs for every request except `/_next/static`. Without a valid cookie, `GET` and `HEAD` of the four exact paths in `PUBLIC_FILES` (`/icon.svg`, `/icon.png`, `/apple-icon.png`, `/manifest.webmanifest`) are let through, because browsers and mail programs fetch the icon and the manifest without signing in ([MUPP-046](../../specs/MUPP-046-site-name/solution.md); `proxy.test.ts` fails if the list changes or a lookalike path gets through). Otherwise: pages are sent to `/losenord?till=<path>`; API routes, server actions, `/bilder/…` and every other request get 401 with no content. |
 | Server check | `lib/site-auth.ts` | `hasSiteSession()` / `requireSiteSession()` read the cookie again. Each page checks in its own component behind `<Suspense>` and builds its content afterwards; API routes, server actions and the picture route call `hasSiteSession()` first. |
 | Cookie | `lib/site-session.ts` | `__Host-site_session` (`site_session` in development over http): expiry and HMAC-SHA256 signature made with `SITE_SESSION_SECRET`. `HttpOnly`, `Secure`, `SameSite=Lax`, path `/`, no `Domain`, 180 days. |
 | Password page | `app/losenord/` | The only page served without the cookie; asks for the password and leads on to the page the visitor asked for (only addresses on this site). |

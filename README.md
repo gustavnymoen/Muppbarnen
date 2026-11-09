@@ -1,6 +1,6 @@
 # Muppbarnen
 
-A simple app for a family to keep track of the kids' wish lists for birthdays and Christmas. Parents fill in the lists on an admin page; family and friends see them and claim presents so the same gift isn't bought twice. Built with specification-driven development as a hobby and learning project.
+Kusinportalen is the name of the site; Muppbarnen is the project. A simple app for a family to keep track of the kids' wish lists for birthdays and Christmas. Parents fill in the lists on an admin page; family and friends see them and claim presents so the same gift isn't bought twice. Built with specification-driven development as a hobby and learning project.
 
 Live site: <https://muppbarnen.vercel.app>
 

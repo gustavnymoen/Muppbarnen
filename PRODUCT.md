@@ -31,7 +31,7 @@ Visitors arrive from a link shared in the family, on their phone, and are asked 
 
 ## Brand Commitments
 
-The name is Muppbarnen. Voice in the Swedish texts: warm and plain, a little playful, kid-friendly but never childish. The current look is a dark, muted system (`DESIGN.md`); whether it stays is decided in TECH-006 step 1.
+The site is called Kusinportalen (`kusinportalen.com`; "Muppbarnen" is only the name of the project and the repository), and has a gift as its icon ([MUPP-046](specs/MUPP-046-site-name/solution.md)). Voice in the Swedish texts: warm and plain, a little playful, kid-friendly but never childish. The current look is a dark, muted system (`DESIGN.md`); whether it stays is decided in TECH-006 step 1.
 
 ## Evidence on Hand
 

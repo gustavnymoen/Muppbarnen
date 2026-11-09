@@ -38,6 +38,10 @@ A dark, muted, mobile-first look (about 90 % of visits come from phones), wide o
 
 Contrast and `DESIGN.md` against the tokens: `lib/design-tokens.test.ts`; child colours: `lib/child-colors.test.ts`; the look in the browser: `tests/design.spec.ts` ([Testing](testing.md)). After a change to a stylesheet, delete `.next-test` before `npm run test:local`, since the test build may keep the old stylesheet.
 
+## Name and icon
+
+The site's name is `SITE_NAME` in `app/components/SiteHeader.tsx`: the one source for the start page's hidden heading, the password page, the page titles (a template in `app/layout.tsx`, `%s | Kusinportalen`; the start page and the password page have the bare name), the share preview (Open Graph, no image) and the web app manifest (`app/manifest.ts`, which also sets the name on a phone's home screen together with `appleWebApp.title`). The icon files `app/icon.svg`, `app/icon.png` and `app/apple-icon.png` are found by Next.js, which links them in every page's `<head>`; the gift and its colours are in `DESIGN.md`. The icons and the manifest are the only files served without the site password ([Site password](site-password.md)). Built by [MUPP-046](../../specs/MUPP-046-site-name/solution.md).
+
 ## Phone testing
 
 See [Testing on a phone](phone-testing.md).

@@ -961,7 +961,7 @@ test("MUPP-023-R2 a wish title is on at most two lines with an ellipsis and smal
 
 // One test per phone size, to stay within the time budget of a test
 for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }]) {
-  test(`MUPP-014-R2 R3 R4 R6 MUPP-015-R1 R4 MUPP-030-R1 R2 R3 the sizes buttons, Tillbaka and the top of an open kid view at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corners of an open kid view with the date after Secret Santa, no chip or age, a small picture with the name on one line, and no scroll or overlap`, async ({ page }) => {
+  test(`MUPP-014-R2 R3 R4 R6 MUPP-015-R1 R4 MUPP-030-R1 R2 R3 the sizes buttons, Tillbaka and the top of an open kid view at ${viewport.width} × ${viewport.height}: 44 px, between the age and the wish button, 70-80 % for the wish button beside the icon, in the corners of an open kid view with the date between them, no chip or age, a small picture with the name on one line, and no scroll or overlap`, async ({ page }) => {
     test.skip(!runsLocally, "needs its own kids in the local test database");
     await clearFamily();
     try {

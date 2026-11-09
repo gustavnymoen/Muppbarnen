@@ -68,6 +68,7 @@ tags: [product, features]
 | [MUPP-053](MUPP-053-add-buttons/solution.md) | Plus buttons for adding | Shared | Review |
 | [MUPP-054](MUPP-054-toaster/solution.md) | Toast after saving | Shared | Review |
 | [MUPP-049](MUPP-049-menu-names-and-order/solution.md) | Menu names and order | Shared | Review |
+| [MUPP-046](MUPP-046-site-name/solution.md) | Site name | Shared | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
 | [TECH-018](TECH-018-test-suite-room-again/solution.md) | Test suite at its time budget again | Shared | Review |

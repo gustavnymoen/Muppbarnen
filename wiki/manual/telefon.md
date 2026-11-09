@@ -20,6 +20,10 @@ De flesta besökare använder telefonen, så en ny version bör ses där innan d
 
 Sidan `/design` (till exempel `https://muppbarnen.vercel.app/design`) visar alla färger, texter och komponenter med påhittade barn. Använd den för att bedöma looken i telefonen: bläddra, tryck på knapparna och kortet, och prova att vrida telefonen.
 
+## Sajten på hemskärmen
+
+Sajten heter Kusinportalen och har en present som ikon, i webbläsarens flik och på telefonen. På en iPhone: öppna sajten i Safari, tryck på dela-knappen och välj **Lägg till på hemskärmen**. Namnet och ikonen är redan ifyllda. Ikonen går att hämta utan lösenordet, så att den syns även i mejlen.
+
 ## Sidan står still
 
 På telefonen rör sig inte sidan själv när du drar i den, och den studsar inte; bara innehållet, till exempel en lång önskelista, rullar. Menyn finns därför alltid kvar uppe i hörnet, också efter en omladdning. Att dra ner sidan för att ladda om fungerar inte: använd webbläsarens egen omladdningsknapp.

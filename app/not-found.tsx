@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { LinkButton } from "./components/Button";
 import { Heading, Page, PageContent } from "./components/Page";
+
+export const metadata: Metadata = { title: "Sidan finns inte" };
 
 // Sidan som visas när en adress inte finns, och när en adminsida inte är till för den som ber om den
 // (en annan förälders barn, Hantera för den som inte är huvudadministratör). Innehåller ingen data.

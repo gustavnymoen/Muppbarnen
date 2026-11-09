@@ -17,7 +17,7 @@ feature: MUPP-049
 
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
-| Unit tests | Not applicable: only words and order changed; the 211 existing tests pass | local | Pass | 2026-11-09 |
+| Unit tests | Not applicable: only words and order changed; the 211 existing unit tests pass | local | Pass | 2026-11-09 |
 | Browser tests | The menu and dialog tests above, with `expectNoA11yViolations` on the open menu | local | Pass | 2026-11-09 |
 | Smoke test | The existing smoke tests name no menu entry, so none changed | local | Pass | 2026-11-09 |
 | Accessibility | axe on the open menu in the tests above; the live-site checklist is not checked yet (after the deploy) | local | Pass (live: not checked) | 2026-11-09 |
