@@ -1,16 +1,18 @@
 import { revalidatePath } from "next/cache";
-import { failed, saved, type FormState } from "@/app/components/form-state";
+import { failed, saved, savedWithNotice, type FormState } from "@/app/components/form-state";
 import { ADMIN_PATH } from "@/lib/admin-session";
 import type * as family from "@/lib/family";
+import { unsentNotice } from "@/lib/santa-notify";
 
 // Det adminens serveråtgärder delar. Ligger för sig för att en "use server"-fil bara får
 // exportera åtgärder, och för att bildåtgärden har en egen fil (app/admin/picture-actions.ts).
 
 // Svaret efter en ändring: sidorna läses om, och ett fel visas vid formuläret
-export function answer(formData: FormData, outcome: family.Outcome): FormState {
+// unsent: namnen på dem som inte fick sitt mejl; det som är sparat står kvar, men administratören får veta det
+export function answer(formData: FormData, outcome: family.Outcome, unsent: string[] = []): FormState {
   if (!outcome.ok) return failed(formData, outcome);
   revalidatePath(ADMIN_PATH, "layout");
-  return saved;
+  return unsent.length > 0 ? savedWithNotice(unsentNotice(unsent)) : saved;
 }
 
 export const text = (formData: FormData, name: string) => formData.get(name);

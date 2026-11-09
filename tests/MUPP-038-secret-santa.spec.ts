@@ -79,7 +79,7 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await expect(page.getByRole("alert").filter({ hasText: "Fyll i det här fältet." })).toBeVisible();
   await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ek");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await expect(familyCard(page, "Familjen Ek")).toContainText("0 medlemmar");
+  await expect(familyCard(page, "Familjen Ek")).toContainText("0 deltagare");
 
   // R2: rename it
   await page.getByRole("button", { name: "Byt namn på Familjen Ek" }).click();
@@ -112,7 +112,7 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
     await page.getByRole("button", { name: "Lägg till", exact: true }).click();
     await expect(memberCard(page, name)).toBeVisible();
   }
-  await expect(birch).toContainText("3 medlemmar");
+  await expect(birch).toContainText("3 deltagare");
 
   // R5: the partner list holds the other members and "Ingen", never the member; the link goes both ways
   const anna = memberCard(page, "Anna Testsson");
@@ -149,7 +149,7 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await page.getByLabel("Telefon", { exact: true }).fill(PHONE);
   await page.getByLabel("E-post", { exact: true }).fill(EMAIL);
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await expect(ash).toContainText("1 medlem");
+  await expect(ash).toContainText("1 deltagare");
   expect(await countSanta("ss_member")).toBe(4);
 
   // Editing her in one group does not change the other
@@ -164,7 +164,7 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await annaAsh.getByRole("button", { name: "Ta bort Anna Ek i Familjen Ask" }).click();
   await expect(dialog(page)).toContainText("önskelistan i Familjen Ask tas bort");
   await dialog(page).getByRole("button", { name: "Ta bort", exact: true }).click();
-  await expect(ash).toContainText("0 medlemmar");
+  await expect(ash).toContainText("0 deltagare");
   await expect(memberCard(page, "Anna Testsson")).toHaveCount(1);
 
   // R2: deleting a family asks first; Avbryt keeps it, Ta bort removes it with its members

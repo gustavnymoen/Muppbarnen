@@ -16,7 +16,7 @@ test.afterEach(clearSanta);
 // The sign-in itself is tested in MUPP-039: here the cookie is set directly (TECH-018) and the own page opened
 async function signInAs(page: Page, member: number) {
   await santaSignIn(page, member);
-  await goto(page, "/secret-santa/min-sida");
+  await goto(page, "/secret-santa/min-sida/onskelista");
 }
 
 async function twoMembers() {
@@ -126,7 +126,7 @@ test("MUPP-040-R4 another member sees no list on any page they can open", async 
   await addSantaWish(anna, "Hemlig önskning");
   await signInAs(page, bertil);
   await expect(page.getByText("Inga önskningar ännu.")).toBeVisible();
-  for (const path of ["/", "/secret-santa", "/secret-santa/min-sida", "/admin"]) {
+  for (const path of ["/", "/secret-santa", "/secret-santa/min-sida", "/secret-santa/min-sida/onskelista", "/admin"]) {
     const html = await page.context().request.get(path).then((r) => r.text());
     expect(html, path).not.toContain("Hemlig önskning");
   }

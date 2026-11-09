@@ -12,7 +12,7 @@ import type { Outcome } from "@/lib/family";
 // Önskelistans serveråtgärder (MUPP-040). Först sajtkakan och gränsen för skrivande anrop, sedan vem som är
 // inloggad (ur kakan, aldrig ur formuläret); reglerna i lib/santa-wishes.ts kontrollerar att önskningen är hens egen.
 
-const OWN_PAGE = "/secret-santa/min-sida";
+const OWN_PAGE = "/secret-santa/min-sida/onskelista";
 const field = (formData: FormData, name: string) => formData.get(name);
 
 export async function saveWish(_previous: FormState, formData: FormData): Promise<FormState> {

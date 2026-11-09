@@ -24,7 +24,7 @@ afterAll(clear);
 
 // Påhittade medlemmar
 let counter = 0;
-const event = async (name: string) => (await run("INSERT INTO ss_event (owner_id, name) VALUES (?, ?)", [owner.id, name])).lastId;
+const event = async (name: string) => (await run("INSERT INTO ss_event (owner_id, name, status) VALUES (?, ?, 'preparing')", [owner.id, name])).lastId;
 async function join(eventId: number) {
   counter++;
   return (await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, 'p@exempel.se')", [eventId, `Person ${counter}`, `070001${String(counter).padStart(4, "0")}`])).lastId;
@@ -108,5 +108,49 @@ describe("MUPP-040-R3 MUPP-048-R5 own list only, one list per member", () => {
     expect(await titles()).toEqual(["B1"]);
     expect(await santa.removeEvent(owner, String(f))).toEqual({ ok: true });
     expect(await titles()).toEqual([]);
+  });
+});
+
+describe("MUPP-051-R4 wishes only while the event is preparing or started", () => {
+  const setStatus = (eventId: number, status: string) => run("UPDATE ss_event SET status = ? WHERE id = ?", [status, eventId]);
+
+  test("MUPP-051-R4 a wish is added, changed and removed while preparing and while started", async () => {
+    const f = await event("F");
+    const a = await join(f);
+    for (const status of ["preparing", "started"]) {
+      await setStatus(f, status);
+      expect(await add(a, `Bok ${status}`)).toEqual({ ok: true });
+      const id = (await get<{ id: number }>("SELECT id FROM ss_wish WHERE title = ?", [`Bok ${status}`]))!.id;
+      expect(await add(a, "Ändrad", { wishId: String(id) })).toEqual({ ok: true });
+      expect(await wishes.removeWish(a, String(id))).toEqual({ ok: true });
+    }
+  });
+
+  test("MUPP-051-R4 an inactive event refuses every wish change and leaves the list as it was", async () => {
+    const f = await event("F");
+    const a = await join(f);
+    await add(a, "Bok");
+    const id = (await get<{ id: number }>("SELECT id FROM ss_wish"))!.id;
+    await setStatus(f, "inactive");
+    const closed = { ok: false, error: "Önskelistan är stängd just nu." };
+    expect(await add(a, "Ny")).toEqual(closed);
+    expect(await add(a, "Ändrad", { wishId: String(id) })).toEqual(closed);
+    expect(await wishes.removeWish(a, String(id))).toEqual(closed);
+    expect(await titles()).toEqual(["Bok"]);
+  });
+
+  test("MUPP-051-R4 deactivating keeps the wishes, and they are there again when the event is activated", async () => {
+    const f = await event("F");
+    const a = await join(f);
+    await add(a, "Bok");
+    expect(await santa.deactivateEvent(owner, String(f))).toMatchObject({ ok: true });
+    expect(await titles()).toEqual(["Bok"]);
+    expect(await santa.activateEvent(owner, String(f))).toMatchObject({ ok: true });
+    expect(await listed(a)).toEqual(["Bok"]);
+    expect(await add(a, "Skiva")).toEqual({ ok: true });
+  });
+
+  test("MUPP-051-R4 a member who does not exist cannot add a wish", async () => {
+    expect(await add(99999)).toEqual({ ok: false, error: "Önskelistan är stängd just nu." });
   });
 });

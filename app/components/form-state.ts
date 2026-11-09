@@ -5,6 +5,8 @@ export type FormState = {
   error?: string;
   fields?: Record<string, string>;
   values?: Record<string, string>;
+  // Något som gick fel trots att det sparades (ett mejl som inte kom iväg); visas efter bekräftelsen
+  notice?: string;
 } | null;
 
 export type FormAction = (previous: FormState, formData: FormData) => Promise<FormState>;
@@ -16,3 +18,4 @@ export function failed(formData: FormData, outcome: { error?: string; fields?: R
 }
 
 export const saved: FormState = { saved: true };
+export const savedWithNotice = (notice: string): FormState => ({ saved: true, notice });
