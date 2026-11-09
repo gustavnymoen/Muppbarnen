@@ -23,7 +23,7 @@ How each requirement was checked. Everything ran locally (local test database, a
 | Unit tests | `lib/santa-wishes.test.ts` (5); `lib/santa.test.ts` and `lib/route-checks.test.ts` keep passing | local | Pass | 2026-11-08 |
 | Browser tests | `tests/MUPP-040-secret-santa-wish-list.spec.ts` (5) with axe on the list, the form and the dialog; the list and form on a 375 x 667 phone in `tests/design.spec.ts` (1) | local | Pass | 2026-11-08 |
 | Smoke test | Not applicable: the card says none (the page is behind the sign-in the smoke tests do not have) | n/a | n/a | 2026-11-08 |
-| Accessibility | axe in the browser tests; the manual checklist on the live site: not checked | local | Pass (axe); live not checked | 2026-11-08 |
+| Accessibility | axe in the browser tests; the manual checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-08 |
 | Security | Security points in the review; `/security-review` run, no finding at confidence 8 or higher | local | Pass | 2026-11-08 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-08 |
 | Look | Phone view looked at in a screenshot (375 wide) and measured in `tests/design.spec.ts`; Impeccable's critique was not run: the page is the kids' admin pattern reused as it is | local | Looked at, no critique | 2026-11-08 |
@@ -44,7 +44,7 @@ Five unit tests and six browser tests were added; growth 4 % (under the 25 % lim
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass (browser suite as noted above)
 - [ ] Test suite: browser total 200.2 s, over the 180 s budget, growth 4 %; TECH-018 is open
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is pushed
-- [x] Accessibility (axe passes; the manual checklist on the live site is not done)
+- [x] Accessibility (axe passes; the manual checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item))
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the kids' form fields and details moved to shared components, nothing unused left

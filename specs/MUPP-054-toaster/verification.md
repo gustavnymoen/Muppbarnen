@@ -22,7 +22,7 @@ How each requirement was checked. Everything ran locally (a production build wit
 | Unit tests | Not applicable: no new logic outside the component. `npm run test:unit` passes | local | Pass | 2026-11-09 |
 | Browser tests | The two tests above; the whole suite (128) passes | local | Pass | 2026-11-09 |
 | Smoke test | Not applicable (behind the admin password) | n/a | n/a | 2026-11-09 |
-| Accessibility | axe in the changed tests; the toast is `aria-hidden`; live checklist not done | local | Pass (axe); live not checked | 2026-11-09 |
+| Accessibility | axe in the changed tests; the toast is `aria-hidden`; live checklist: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (axe); live checklist reported done | 2026-11-09 |
 | Security | The text is rendered as text; no server code changed; `/security-review` not needed | local | Pass | 2026-11-09 |
 | Code review | [review.md](review.md) | local | See the report | 2026-11-09 |
 

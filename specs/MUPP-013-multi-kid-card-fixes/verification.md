@@ -22,7 +22,7 @@ feature: MUPP-013
 | Unit tests | None planned; `npm run test:unit`: 110 pass | local | Pass | 2026-10-29 |
 | Browser tests | The three tests above in `tests/design.spec.ts`; three checks in `tests/MUPP-004-birthday-card.spec.ts` changed; `npm run test:local`: 58 pass | local | Pass | 2026-10-29 |
 | Smoke test | None new | | Not applicable | |
-| Accessibility | axe on the two-kid card, the Christmas card and an open list in the tests; the checklist in `wiki/system/accessibility.md` on the live site: not checked yet | local | Pass locally, live not checked | 2026-10-29 |
+| Accessibility | axe on the two-kid card, the Christmas card and an open list in the tests; the checklist in `wiki/system/accessibility.md` on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass locally, live checklist reported done | 2026-10-29 |
 | Security | Not needed: only looks and one button | | Not applicable | |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-29 |
 
@@ -42,7 +42,7 @@ Not run before the change; the browser count before is 58 minus the three new te
 - [x] Tests: every check in the card's test plan is done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (the Christmas part was split off to stay under 5 s)
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: the relevant items of `wiki/system/accessibility.md` checked on the live site
+- [x] Accessibility: the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the "Dölj" state of `WishButton` is deleted; `.claude/launch.json` is local only and not committed

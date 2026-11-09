@@ -7,7 +7,7 @@ feature: MUPP-004
 
 # Verification of MUPP-004
 
-Everything below was checked locally on 2026-10-28 against the local test server (its own database), never against the user's own database. Not yet checked on the live site (marked "not checked").
+Everything below was checked locally on 2026-10-28 against the local test server (its own database), never against the user's own database. The live accessibility checklist was reported tested by hand by the user on 2026-11-09 (not recorded item by item); other live checks are marked "not checked".
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -29,7 +29,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 | Unit tests | `lib/deck.test.ts`, 11 tests | local | Pass | 2026-10-28 |
 | Browser tests | `tests/MUPP-004-birthday-card.spec.ts` (4 tests) and one test in `tests/design.spec.ts`; the MUPP-002 tests that used the example cards were changed (menu test keeps, carousel and desktop tests replaced by the header test) | local | Pass | 2026-10-28 |
 | Smoke test | None new, see the card: the site is behind the password, so smoke tests cannot see the deck; the existing smoke tests still pass | local | Pass | 2026-10-28 |
-| Accessibility | axe in every state; the checklist of `wiki/system/accessibility.md` on the live site including a screen reader pass on a phone | local; live | Pass (axe); not checked (checklist) | 2026-10-28 |
+| Accessibility | axe in every state; the checklist of `wiki/system/accessibility.md` on the live site including a screen reader pass on a phone | local; live | Pass (axe); checklist incl. a screen reader pass reported tested by hand by the user (2026-11-09, not recorded item by item) | 2026-10-28 |
 | Security | Security points in the review, and `/security-review`: no findings | local | Pass | 2026-10-28 |
 | Code review | [review.md](review.md), two runs | local | Passed (1 must fix each, fixed) | 2026-10-28 |
 
@@ -47,7 +47,7 @@ Everything below was checked locally on 2026-10-28 against the local test server
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site
+- [x] Accessibility: changed pages and states pass `expectNoA11yViolations`; the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the example cards, their test and the `.carousel` styles are removed
@@ -171,7 +171,7 @@ Acceptance criteria:
 ## Notes
 
 - R5: the Christmas list button is "Önskelista jul" (the card first said "Jul"; the button is now simply "Önskelista" under the kid). R8: with a single card the buttons cannot be reached (see above). Both are written into the card.
-- Not yet done: the live accessibility checklist and the Live tests after the deploy. The follow-up design points are in TECH-006.
+- Not yet done: the Live tests (the live accessibility checklist was reported done by the user, 2026-11-09) after the deploy. The follow-up design points are in TECH-006.
 
 See also: [Solution](solution.md), [Review](review.md).
 

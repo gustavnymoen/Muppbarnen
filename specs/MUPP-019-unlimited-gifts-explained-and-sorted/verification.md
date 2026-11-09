@@ -21,7 +21,7 @@ feature: MUPP-019
 | Unit tests | `sortWishes` with all three groups mixed | local | Pass | 2026-11-02 |
 | Browser tests | info button (press, Esc, outside press, Enter), order, label with and without description, axe with the bubble shown and with a claimed row unfolded | local | Pass | 2026-11-02 |
 | Smoke test | not applicable: the main flow does not change | | | |
-| Accessibility | axe in the browser tests; looked at the bubble on a 375 px screenshot. Live checklist, on the wish "test 2" of a kid's list at 375 px in the built-in browser (not a real phone, no screen reader): the info button is named "Kan köpas flera gånger", is 44 × 44 px, has `aria-expanded` and `aria-controls` pointing at the bubble; Tab reaches it before the row's own arrow and Enter shows the bubble (a `status` with the text); Esc hides it and the list stays open; the order of the rows is claimable, unlimited, claimed. Not checked: that a screen reader reads the bubble aloud, and a long title on an unlimited row (the long title found lives on a claimable row; there it pushes the row's arrow out of the list, see MUPP-023). The bubble covers the row's own arrow while it is shown, as designed | live | Pass (screen reader and long unlimited title: not checked) | 2026-11-02 |
+| Accessibility | axe in the browser tests; looked at the bubble on a 375 px screenshot. Live checklist, on the wish "test 2" of a kid's list at 375 px in the built-in browser (not a real phone, no screen reader): the info button is named "Kan köpas flera gånger", is 44 × 44 px, has `aria-expanded` and `aria-controls` pointing at the bubble; Tab reaches it before the row's own arrow and Enter shows the bubble (a `status` with the text); Esc hides it and the list stays open; the order of the rows is claimable, unlimited, claimed. Not checked: that a screen reader reads the bubble aloud, and a long title on an unlimited row (the long title found lives on a claimable row; there it pushes the row's arrow out of the list, see MUPP-023). The bubble covers the row's own arrow while it is shown, as designed | live | Pass; the user reports the live checklist tested by hand, screen reader items included (2026-11-09, not recorded item by item) | 2026-11-02 |
 | Live tests | "Live tests" run 41430693065 on merge commit f47a1e5 | live | Pass | 2026-11-02 |
 | Security | not applicable: no data or route changes | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
@@ -38,7 +38,7 @@ feature: MUPP-019
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 41430693065 on f47a1e5
-- [ ] Accessibility: axe passes; the live checklist is done except a screen reader reading the bubble and a long title on an unlimited row (see the table)
+- [x] Accessibility: axe passes; the live checklist is done (partly by me, see the table), and the user reports it tested by hand including the screen reader items (2026-11-09, not recorded item by item); a long title on an unlimited row was not checked by me and is accepted as done by the user (2026-11-09)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

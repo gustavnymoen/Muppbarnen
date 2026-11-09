@@ -7,7 +7,7 @@ feature: MUPP-017
 
 # Verification of MUPP-017
 
-The checks below were run locally on 2026-11-02 (`npm run test:time`, production build on port 3100). Not yet deployed: the live checks and the accessibility checklist on the live site are not done.
+The checks below were run locally on 2026-11-02 (`npm run test:time`, production build on port 3100). Not yet deployed: the live checks are not done (the user reported the accessibility checklist on the live site tested by hand on 2026-11-09).
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -23,7 +23,7 @@ The checks below were run locally on 2026-11-02 (`npm run test:time`, production
 | Unit tests | Not applicable: the logic is in a component, no separate function | local | Not applicable | 2026-11-02 |
 | Browser tests | `tests/MUPP-017-browse-with-open-list.spec.ts` (7 tests, the R3 one also covers the sizes dialog); the `MUPP-004`, `MUPP-015` and `design.spec.ts` tests updated to the new rule | local | Pass | 2026-11-02 |
 | Smoke test | Not applicable: no new smoke test, the read-only smoke test is unchanged | | Not applicable | |
-| Accessibility | axe on the open states in the tests; the checklist in `wiki/system/accessibility.md` on the live site | local; live not checked | Local pass, live not checked | 2026-11-02 |
+| Accessibility | axe on the open states in the tests; the checklist in `wiki/system/accessibility.md` on the live site | local, live | Local pass; live checklist reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | 2026-11-02 |
 | Security | Not applicable: no route, action, query, sign-in or personal data touched; `/security-review` not needed | | Not applicable | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -41,7 +41,7 @@ Seven browser tests added. Total time is within the 180 s budget.
 - [x] Tests: every check in the card's test plan is done locally; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: axe passes locally; the checklist on the live site is not done
+- [x] Accessibility: axe passes locally; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built (below), no open questions left; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the lock text, the lock announcements and the `Button` import are removed

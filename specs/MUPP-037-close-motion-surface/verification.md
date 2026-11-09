@@ -21,7 +21,7 @@ How each requirement was checked.
 | Unit tests | None: nothing to test outside the browser; `npm run test:unit`: 163 passed | local | Pass | 2026-11-04 |
 | Browser tests | `tests/MUPP-037-close-motion-surface.spec.ts` (2 tests); the MUPP-016, -022, -029 tests pass unchanged | local | Pass | 2026-11-04 |
 | Smoke test | Not applicable: no page or flow is added or changed | – | Not applicable | 2026-11-04 |
-| Accessibility | The copy stays `inert` and `aria-hidden` (unchanged); the closed state is checked by axe in the MUPP-029 test. The checklist on the live site: not checked yet | local | Pass (live not checked) | 2026-11-04 |
+| Accessibility | The copy stays `inert` and `aria-hidden` (unchanged); the closed state is checked by axe in the MUPP-029 test. The checklist on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (live checklist reported done) | 2026-11-04 |
 | Security | Not needed: presentation only | – | Not applicable | 2026-11-04 |
 | Code review | [review.md](review.md) | local | See review.md | 2026-11-04 |
 
@@ -40,7 +40,7 @@ The two new tests add about 2.5 s. The total is under the 180 s budget but 3.7 s
 ## Definition of Done
 
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility checklist on the live site: after the merge
+- [x] Accessibility checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 
 ## Requirements as built
 

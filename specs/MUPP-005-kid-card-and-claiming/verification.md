@@ -25,7 +25,7 @@ feature: MUPP-005
 | Unit tests | `lib/wishes.test.ts` (4), `lib/family.test.ts` (7 claim tests), `lib/deck.test.ts` adjusted; `npm run test:unit`: 121 pass | local | Pass | 2026-10-30 |
 | Browser tests | `tests/MUPP-005-kid-card-and-claiming.spec.ts` (2), `tests/design.spec.ts` (1 new, 2 renamed); `npm run test:local` equivalent on port 3177: 61 pass | local | Pass | 2026-10-30 |
 | Smoke test | None new (nothing writes against production) | | Not applicable | |
-| Accessibility | axe on the unfolded list, an unfolded row and the open dialog with an error; the checklist in `wiki/system/accessibility.md` on the live site: not checked yet | local | Pass locally, live not checked | 2026-10-30 |
+| Accessibility | axe on the unfolded list, an unfolded row and the open dialog with an error; the checklist in `wiki/system/accessibility.md` on the live site: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass locally, live checklist reported done | 2026-10-30 |
 | Security | Security points in the review; `/security-review` run: no finding | local | Pass | 2026-10-30 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-30 |
 
@@ -45,7 +45,7 @@ Time grew by about 15 %, within the 25 % limit; the browser suite is within the 
 - [x] Tests: every check in the card's test plan is done; `npm run test:unit` and the browser tests pass
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (combined by journey, no fixed waits, data cleaned up)
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: the relevant items of `wiki/system/accessibility.md` checked on the live site
+- [x] Accessibility: the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the unused `count` prop and "Visa mer" text are gone; no unused ref; no debug output

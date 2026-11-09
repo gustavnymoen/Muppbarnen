@@ -20,7 +20,7 @@ feature: MUPP-023
 | Unit tests | `lib/wishes.test.ts`, `lib/family.test.ts` | local | Pass | 2026-11-02 |
 | Browser tests | the three tests above | local | Pass | 2026-11-02 |
 | Smoke test | not applicable: none new in the plan | | | |
-| Accessibility | axe on the list, the dialog and the opened row; the live checklist is not checked | local | Pass (live: not checked) | 2026-11-02 |
+| Accessibility | axe on the list, the dialog and the opened row; the live checklist: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass (live checklist reported done) | 2026-11-02 |
 | Security | not applicable: no `/security-review` planned (only a shorter length check in an existing validation); the security points are in the review | local | Pass | 2026-11-02 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -36,7 +36,7 @@ feature: MUPP-023
 - [x] Tests: all checks of the test plan done; unit and local browser tests pass
 - [x] Test suite: within the budgets (176.7 s, +6 % on 166 s)
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
-- [ ] Accessibility: axe passes; the live checklist is not checked (not done)
+- [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
@@ -76,7 +76,7 @@ Acceptance criteria:
 
 ## Notes
 
-- Not checked: a real iPhone and the live accessibility checklist.
+- Not checked by me: a real iPhone. The live accessibility checklist was reported done by the user (2026-11-09).
 - The threshold for the smaller text is 24 characters (written in the card and in `solution.md`).
 - Existing titles longer than 60 are not changed; the server refuses them when their wish is saved again, so the administrator shortens them then.
 - A line was removed by mistake from another test while working and restored (the Christmas Eve tile's `text-overflow` check, MUPP-013-R3).

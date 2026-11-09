@@ -22,7 +22,7 @@ How each kind of check in the card's test plan was done (see `wiki/system/testin
 | Unit tests | `saveItem` with 100 and 101 characters | local | Pass | 2026-11-02 |
 | Browser tests | the admin form stops at 100; server message; axe on the error state | local | Pass | 2026-11-02 |
 | Smoke test | not applicable: no main page or flow changes | | | |
-| Accessibility | axe in the browser test; the error is a `role=alert` tied to the field (`aria-invalid`). Live checklist not checked | local | Pass | 2026-11-02 |
+| Accessibility | axe in the browser test; the error is a `role=alert` tied to the field (`aria-invalid`). Live checklist: reported tested by hand by the user, screen reader items included (2026-11-09, not recorded item by item) | local, live | Pass | 2026-11-02 |
 | Security | limit enforced on the server; `/security-review` not needed (no new route, action or query) | local | Pass | 2026-11-02 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-02 |
 
@@ -62,7 +62,7 @@ The site shall refuse a description longer than 100 characters when a wish is sa
 
 ## Notes
 
-No deviations. `npm run lint`, `lint:docs`, `typecheck`, `build` and `test:time` were run on 2026-11-02. Not checked: the live site (Live tests run after the merge) and the live accessibility checklist.
+No deviations. `npm run lint`, `lint:docs`, `typecheck`, `build` and `test:time` were run on 2026-11-02. Not checked: the live site (Live tests run after the merge). The live accessibility checklist was reported done by the user (2026-11-09).
 
 See also: [Solution](solution.md), [Review](review.md).
 

@@ -25,7 +25,7 @@ feature: MUPP-025
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (see above)
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-02
-- [ ] Accessibility: no visible state added; the live checklist is not checked
+- [x] Accessibility: no visible state added; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated (no manual change: the visitor sees no new function)
 - [x] No leftovers
