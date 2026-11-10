@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-10
+
+* **Creation** [MUPP-058 Install tip in Secret Santa mails](../specs/MUPP-058-santa-mail-install-tip/solution.md): mails 1, 3 and 8 end with the tip "Tomtenissen tipsar" on adding the site to the home screen (a numbered list in HTML, numbered lines in plain text), one text in `lib/mail.ts` switched on by `installTip`.
+
 ## 2026-11-09
 
 * **Creation** [MUPP-055 Back arrow on the Secret Santa own page](../specs/MUPP-055-santa-back-arrow/solution.md): "Byt person" is gone; the own page has a back arrow in the top left corner that signs out and shows the groups (several groups) or a cross to the start page that keeps the sign-in (one group).

@@ -38,6 +38,6 @@ Ingen annan kan se ditt nummer eller din e-post på sidan. Hör av dig till Gust
 
 ## Mejlen du får
 
-Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
+Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. I mejlet om att gruppen har öppnat, om att dragningen är gjord och om att du har lagts till i en grupp finns också ett tips från Tomtenissen om hur du lägger sajten på telefonens hemskärm så att den öppnas som en app (notiser fungerar inte som i en vanlig app). Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
 
 [Manual](index.md)
