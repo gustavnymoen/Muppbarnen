@@ -75,6 +75,7 @@ tags: [product, features]
 | [MUPP-048](MUPP-048-santa-events/solution.md) | Secret Santa: events created by any parent | Administration | Review |
 | [MUPP-051](MUPP-051-santa-status/solution.md) | Secret Santa: event status | Administration | Ongoing |
 | [MUPP-041](MUPP-041-secret-santa-draw/solution.md) | Secret Santa: the draw | Administration | Review |
+| [MUPP-044](MUPP-044-secret-santa-cleanup/solution.md) | Secret Santa: yearly cleanup | Administration | Ongoing |
 | [MUPP-057](MUPP-057-santa-own-page-cards/solution.md) | Secret Santa own page cards | Shared | Review |
 | [MUPP-056](MUPP-056-santa-admin-groups/solution.md) | Foldable groups in Secret Santa admin | Administration | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |

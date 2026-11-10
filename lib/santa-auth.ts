@@ -4,6 +4,7 @@ import { all, get } from "./db";
 import { beginAttempt, clearAttempt, registerWrong, wrongWait } from "./login-block";
 import { parseId } from "./form-input";
 import type { EventStatus } from "./santa";
+import { cleanupYear } from "./santa-cleanup";
 import { createSantaSession, SANTA_COOKIE, SANTA_SESSION_SECONDS, verifySantaSession } from "./santa-session";
 import { siteSecrets } from "./site-session";
 
@@ -77,10 +78,12 @@ export async function checkSantaSignIn(ip: string, input: Attempt, wait = wrongW
 
 // ---- Kakan
 
-// Den inloggade medlemmen, eller null. Medlemmen läses ur databasen vid varje förfrågan; är hen borttagen gäller kakan inte längre.
+// Den inloggade medlemmen, eller null. Medlemmen läses ur databasen vid varje förfrågan; är hen borttagen gäller kakan inte längre,
+// och inte heller en kaka från före den årliga rensningen (MUPP-044-R4).
 export async function currentSantaMember() {
-  const id = verifySantaSession((await cookies()).get(SANTA_COOKIE)?.value, siteSecrets()?.secret);
-  return id === null ? null : ((await findMember(id)) ?? null);
+  const session = verifySantaSession((await cookies()).get(SANTA_COOKIE)?.value, siteSecrets()?.secret);
+  if (session === null || session.cleanupYear !== (await cleanupYear())) return null;
+  return (await findMember(session.memberId)) ?? null;
 }
 
 const cookieRules = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" } as const;
@@ -88,7 +91,7 @@ const cookieRules = { httpOnly: true, secure: process.env.NODE_ENV === "producti
 export async function setSantaCookie(memberId: number) {
   const secret = siteSecrets()?.secret;
   if (!secret) return;
-  (await cookies()).set(SANTA_COOKIE, createSantaSession(secret, memberId), { ...cookieRules, maxAge: SANTA_SESSION_SECONDS });
+  (await cookies()).set(SANTA_COOKIE, createSantaSession(secret, memberId, await cleanupYear()), { ...cookieRules, maxAge: SANTA_SESSION_SECONDS });
 }
 
 // Tas bort med samma regler som när den sattes: en __Host-kaka utan Secure godtas inte ens för att tömmas

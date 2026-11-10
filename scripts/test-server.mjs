@@ -29,6 +29,9 @@ const env = {
   RESEND_API_KEY: "",
   // Ett fel lösenord väntar en sekund på riktigt (sajt, admin och Secret Santa); testservern hoppar över det (TECH-018)
   SKIP_LOGIN_WAIT: "1",
+  // Den årliga rensningen (MUPP-044): en påhittad hemlighet och ett datum efter 24 januari, så att testerna kan köra den
+  CRON_SECRET: "påhittad-cronhemlighet",
+  SANTA_CLEANUP_TODAY: "2099-02-01",
 };
 
 // prebuild (scripts/db-setup.mjs) skapar testdatabasen

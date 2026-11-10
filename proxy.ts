@@ -10,6 +10,9 @@ import { LOGIN_PATH, SESSION_COOKIE, siteSecrets, verifySession } from "@/lib/si
 // utan att vara inloggade (MUPP-046-R4). Exakta sökvägar, bara GET och HEAD; en enhetstest låser listan.
 export const PUBLIC_FILES = ["/icon.svg", "/icon.png", "/apple-icon.png", "/manifest.webmanifest"];
 
+// Vercel Cron anropar den årliga rensningen utan kaka (MUPP-044); rutten kräver hemligheten CRON_SECRET själv
+export const CLEANUP_PATH = "/api/santa-cleanup";
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   // Alla metoder släpps hit, för inloggningens serveråtgärd: varje annan åtgärd kontrollerar kakan själv
@@ -17,6 +20,7 @@ export function proxy(request: NextRequest) {
 
   const isRead = request.method === "GET" || request.method === "HEAD";
   if (isRead && PUBLIC_FILES.includes(pathname)) return NextResponse.next();
+  if (isRead && pathname === CLEANUP_PATH) return NextResponse.next();
 
   const isPage = isRead && !request.headers.has("next-action");
   if (verifySession(request.cookies.get(SESSION_COOKIE)?.value, siteSecrets()?.secret)) return adminGate(request, isPage);

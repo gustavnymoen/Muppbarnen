@@ -158,7 +158,7 @@ test("MUPP-039-R4 the saved phone in other writings, and the email in other lett
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
 });
 
-test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id; it is remembered and Tillbaka removes it", async ({ page }) => {
+test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id, the cleanup year and a signature; it is remembered and Tillbaka removes it", async ({ page }) => {
   await oneFamily();
   await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka on the own page signs out (MUPP-055)
   // R6: no cookie gives the entrance
@@ -173,7 +173,7 @@ test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is 
   // R5: the cookie
   const cookie = (await santaCookie(page))!;
   expect(cookie).toMatchObject({ httpOnly: true, secure: true, path: "/", sameSite: "Lax" });
-  expect(cookie.value).toMatch(/^\d+\.[0-9a-f]{64}$/);
+  expect(cookie.value).toMatch(/^\d+\.\d{4}\.[0-9a-f]{64}$/);
   expect(cookie.value).not.toContain(PHONE);
   expect(cookie.domain).not.toMatch(/^\./);
 
@@ -193,9 +193,9 @@ test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is 
   expect(await santaCookie(page)).toBeUndefined();
 
   // R6: the same signature on another person's id is not accepted
-  const [, signature] = cookie.value.split(".");
+  const [, year, signature] = cookie.value.split(".");
   const bertil = Number(cookie.value.split(".")[0]) + 1;
-  await page.context().addCookies([{ ...cookie, value: `${bertil}.${signature}` }]);
+  await page.context().addCookies([{ ...cookie, value: `${bertil}.${year}.${signature}` }]);
   await goto(page, "/secret-santa/min-sida");
   await expect(page).toHaveURL(/\/secret-santa$/);
   await expect(page.getByRole("heading", { name: /Hej/ })).toHaveCount(0);
