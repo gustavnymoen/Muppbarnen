@@ -1,6 +1,7 @@
 import "server-only";
 import { sendMail, type Mail } from "./mail";
 import type { NewMember, Recipient } from "./santa";
+import type { SetAside } from "./santa-draw";
 import { activatedMail, addedMail } from "./santa-mail";
 
 // Skickar Secret Santas mejl (MUPP-051) efter att en ändring är sparad. Ett mejl som inte går iväg ändrar inget som redan är sparat:
@@ -21,3 +22,9 @@ export async function mailNewMember(member: NewMember): Promise<boolean> {
 
 // Texten som administratören ser när något mejl inte gick iväg
 export const unsentNotice = (names: string[]) => `Sparat, men ${names.join(", ")} fick inget mejl.`;
+
+// Texten som administratören ser när dragningen fick släppa en regel (MUPP-041-R3); aldrig vem som drog vem
+export const setAsideNotice = (rules: SetAside[]) =>
+  rules.length === 0
+    ? ""
+    : `Dragningen är gjord, men ${rules.map((r) => (r === "lastYear" ? "regeln om att inte få förra årets person" : "regeln om att inte få sin partner")).join(" och ")} gick inte att följa.`;

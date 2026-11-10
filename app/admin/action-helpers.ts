@@ -9,10 +9,12 @@ import { unsentNotice } from "@/lib/santa-notify";
 
 // Svaret efter en ändring: sidorna läses om, och ett fel visas vid formuläret
 // unsent: namnen på dem som inte fick sitt mejl; det som är sparat står kvar, men administratören får veta det
-export function answer(formData: FormData, outcome: family.Outcome, unsent: string[] = []): FormState {
+// notice: en text som alltid visas efter ett lyckat svar (dragningens släppta regler, MUPP-041)
+export function answer(formData: FormData, outcome: family.Outcome, unsent: string[] = [], notice = ""): FormState {
   if (!outcome.ok) return failed(formData, outcome);
   revalidatePath(ADMIN_PATH, "layout");
-  return unsent.length > 0 ? savedWithNotice(unsentNotice(unsent)) : saved;
+  const texts = [notice, unsent.length > 0 ? unsentNotice(unsent) : ""].filter(Boolean);
+  return texts.length > 0 ? savedWithNotice(texts.join(" ")) : saved;
 }
 
 export const text = (formData: FormData, name: string) => formData.get(name);

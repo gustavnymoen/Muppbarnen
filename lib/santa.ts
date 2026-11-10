@@ -2,13 +2,15 @@ import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
 import { collect, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
+import { drawPairs, type SetAside } from "./santa-draw";
 
 // Secret Santa: grupper (events) och deras medlemmar (MUPP-038, MUPP-048). Vilken förälder som helst skapar en
 // grupp och administrerar den; huvudadministratören ser och ändrar alla. Telefon och e-post lämnar aldrig de här
 // funktionerna till någon annan sida. Allt som ändrar något tar emot vem som gör det (läst ur databasen vid varje
 // förfrågan) och kontrollerar både rättigheten och indatan här.
 
-export type SantaMember = { id: number; name: string; phone: string; email: string; partnerId: number | null };
+// hasWishes: deltagaren har skrivit minst en önskning (kryssen i adminen, MUPP-041-R1)
+export type SantaMember = { id: number; name: string; phone: string; email: string; partnerId: number | null; hasWishes: boolean };
 // Gruppens status (MUPP-051): inaktiv tills administratören aktiverar den, förbereder medan medlemmar läggs till och
 // önskelistor skrivs, startad när dragningen är gjord (MUPP-041)
 export type EventStatus = "inactive" | "preparing" | "started";
@@ -62,8 +64,8 @@ export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
     "SELECT e.id, e.owner_id, e.name, e.status, p.name AS owner_name FROM ss_event e JOIN parent p ON p.id = e.owner_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY e.name, e.id",
     args,
   );
-  const rows = await all<{ id: number; event_id: number; name: string; phone: string; email: string; partner_member_id: number | null }>(
-    "SELECT m.id, m.event_id, m.name, m.phone, m.email, m.partner_member_id FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY m.name, m.id",
+  const rows = await all<{ id: number; event_id: number; name: string; phone: string; email: string; partner_member_id: number | null; wishes: number }>(
+    "SELECT m.id, m.event_id, m.name, m.phone, m.email, m.partner_member_id, (SELECT COUNT(*) FROM ss_wish w WHERE w.member_id = m.id) AS wishes FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY m.name, m.id",
     args,
   );
   return events.map((e) => ({
@@ -72,7 +74,7 @@ export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
     status: e.status,
     ownerId: e.owner_id,
     ownerName: e.owner_name,
-    members: rows.filter((r) => r.event_id === e.id).map((r) => ({ id: r.id, name: r.name, phone: r.phone, email: r.email, partnerId: r.partner_member_id })),
+    members: rows.filter((r) => r.event_id === e.id).map((r) => ({ id: r.id, name: r.name, phone: r.phone, email: r.email, partnerId: r.partner_member_id, hasWishes: r.wishes > 0 })),
   }));
 }
 
@@ -108,6 +110,7 @@ export async function removeEvent(actor: Parent | null, rawId: unknown): Promise
     if (isOutcome(event)) return event;
     await run("UPDATE ss_member SET partner_member_id = NULL WHERE event_id = ?", [event.id], tx);
     await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE event_id = ?)", [event.id], tx);
+    await run("DELETE FROM ss_draw WHERE event_id = ?", [event.id], tx);
     await run("DELETE FROM ss_member WHERE event_id = ?", [event.id], tx);
     await run("DELETE FROM ss_event WHERE id = ?", [event.id], tx);
     return { ok: true };
@@ -134,6 +137,60 @@ async function changeStatus(actor: Parent | null, rawId: unknown, from: EventSta
 
 export const activateEvent = (actor: Parent | null, rawId: unknown) => changeStatus(actor, rawId, "inactive", "preparing");
 export const deactivateEvent = (actor: Parent | null, rawId: unknown) => changeStatus(actor, rawId, "preparing", "inactive");
+
+// ---- Dragningen (MUPP-041)
+
+export type DrawStart = StatusChange & { setAside: SetAside[] };
+const NEEDS_TWO = { ok: false, error: "Dragningen går inte att göra: det behövs minst två deltagare." } as const;
+const thisYear = () => new Date().getFullYear();
+
+// Startar dragningen (förbereder → startad): alla dras, raderna sparas och gruppen blir startad, allt i en transaktion. Svaret säger
+// vilka regler som fick släppas, aldrig vem som drog vem (R5). Att skicka mejlet gör anroparen.
+export async function startDraw(actor: Parent | null, rawId: unknown): Promise<Outcome<DrawStart>> {
+  return withTransaction(async (tx) => {
+    const event = await manageableEvent(actor, rawId, tx);
+    if (isOutcome(event)) return event;
+    if (event.status !== "preparing") return WRONG_STATUS;
+    const members = await all<{ id: number; name: string; email: string; partner_member_id: number | null }>(
+      "SELECT id, name, email, partner_member_id FROM ss_member WHERE event_id = ? ORDER BY name, id",
+      [event.id],
+      tx,
+    );
+    // Förra årets dragning: raderna från det senaste tidigare året. Ett stoppat försök har inga rader kvar och räknas inte.
+    const previous = await all<{ giver_id: number; receiver_id: number }>(
+      "SELECT giver_id, receiver_id FROM ss_draw WHERE event_id = ? AND year = (SELECT MAX(year) FROM ss_draw WHERE event_id = ? AND year < ?)",
+      [event.id, event.id, thisYear()],
+      tx,
+    );
+    const result = drawPairs(
+      members.map((m) => ({ id: m.id, partnerId: m.partner_member_id })),
+      new Map(previous.map((r) => [r.giver_id, r.receiver_id])),
+    );
+    if (!result.ok) return NEEDS_TWO;
+    // Rader som blev kvar av en tidigare dragning samma år (efter en rensning) ersätts
+    await run("DELETE FROM ss_draw WHERE event_id = ? AND year = ?", [event.id, thisYear()], tx);
+    for (const [giver, receiver] of result.pairs) {
+      await run("INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", [event.id, thisYear(), giver, receiver], tx);
+    }
+    await run("UPDATE ss_event SET status = 'started' WHERE id = ? AND status = 'preparing'", [event.id], tx);
+    return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
+  });
+}
+
+// Stoppar dragningen (startad → förbereder): årets rader tas bort, så de inte räknas som förra året; önskelistorna finns kvar.
+// Samtalen (MUPP-043) tas bort här när de finns.
+export async function stopDraw(actor: Parent | null, rawId: unknown): Promise<Outcome<StatusChange>> {
+  return withTransaction(async (tx) => {
+    const event = await manageableEvent(actor, rawId, tx);
+    if (isOutcome(event)) return event;
+    if (event.status !== "started") return WRONG_STATUS;
+    // Det senaste året, inte innevarande: en dragning i december som stoppas i januari ska också tas bort
+    await run("DELETE FROM ss_draw WHERE event_id = ? AND year = (SELECT MAX(year) FROM ss_draw WHERE event_id = ?)", [event.id, event.id], tx);
+    await run("UPDATE ss_event SET status = 'preparing' WHERE id = ? AND status = 'started'", [event.id], tx);
+    const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
+    return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients };
+  });
+}
 
 // Den som mejlen säger att man ska höra av sig till: gruppens ägare
 async function ownerName(ownerId: number, tx: Executor) {
@@ -221,6 +278,7 @@ export async function removeMember(actor: Parent | null, rawId: unknown): Promis
     if (isOutcome(member)) return member;
     await setPartner(member.id, null, tx);
     await run("DELETE FROM ss_wish WHERE member_id = ?", [member.id], tx);
+    await run("DELETE FROM ss_draw WHERE event_id = ? AND (giver_id = ? OR receiver_id = ?)", [member.event_id, member.id, member.id], tx);
     await run("DELETE FROM ss_member WHERE id = ?", [member.id], tx);
     return { ok: true };
   });

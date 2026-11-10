@@ -16,6 +16,12 @@ export const PencilIcon = () => (
   </Icon>
 );
 
+export const CheckIcon = () => (
+  <Icon>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </Icon>
+);
+
 export const TrashIcon = () => (
   <Icon>
     <path d="M4 7h16M10 11v6M14 11v6" />

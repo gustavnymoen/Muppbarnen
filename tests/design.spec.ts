@@ -1366,7 +1366,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
   }
 });
 
-test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal with aligned symbols, centred text and a divider in the gap, and the toggle Aktiv and its question fit the width", async ({ page }) => {
+test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal with aligned symbols, centred text and a divider in the gap, and the toggles Aktiv and Startad, the check mark and their questions fit the width", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1429,14 +1429,28 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 the Secret Santa status on a 375 x 
     await page.getByRole("tab", { name: "Secret Santa" }).click();
     const activate = page.getByRole("switch", { name: "Aktiv Familjen Ek" });
     expect((await settledBox(activate)).height).toBeGreaterThanOrEqual(44);
-    // Under the plus button of the group, and centred in the screen (the centred proposal of MUPP-051-R2)
-    const [toggleBox, plusBox] = [await settledBox(activate), await settledBox(page.getByRole("button", { name: "Ny person i Familjen Ek" }))];
+    // MUPP-041-R2 R7: the two toggles sit under the plus button, side by side, as a pair centred in the screen and 44 px high
+    const started = page.getByRole("switch", { name: "Startad Familjen Ek" });
+    const [toggleBox, startedBox, plusBox] = [await settledBox(activate), await settledBox(started), await settledBox(page.getByRole("button", { name: "Ny person i Familjen Ek" }))];
     expect(toggleBox.y).toBeGreaterThanOrEqual(plusBox.y + plusBox.height);
-    expect(Math.abs(toggleBox.x + toggleBox.width / 2 - 187.5)).toBeLessThan(8);
+    expect(startedBox.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(startedBox.y - toggleBox.y)).toBeLessThan(1);
+    expect(Math.abs((toggleBox.x + startedBox.x + startedBox.width) / 2 - 187.5)).toBeLessThan(8);
     expect(await hasHorizontalScroll(page)).toBe(false);
     await activate.click();
     const question = page.getByRole("alertdialog", { name: "Är du säker?" });
     expect(inside(await settledBox(question), { x: 0, y: 0, width: 375, height: 667 })).toBe(true);
+    await expectNoA11yViolations(page);
+    await page.keyboard.press("Escape");
+    // MUPP-041-R1 R2: a preparing group shows the check mark by the participant with a wish, and the question of Startad fits the screen
+    await addSantaWish(member, "Bok");
+    await setSantaStatus(family, "preparing");
+    await page.reload();
+    await page.getByRole("tab", { name: "Secret Santa" }).click();
+    const mark = page.getByRole("img", { name: "Har skrivit en önskelista" });
+    expect((await settledBox(mark)).width).toBeGreaterThan(0);
+    await started.click();
+    expect(inside(await settledBox(page.getByRole("alertdialog", { name: "Är du säker?" })), { x: 0, y: 0, width: 375, height: 667 })).toBe(true);
     await expectNoA11yViolations(page);
   } finally {
     await clearSanta();

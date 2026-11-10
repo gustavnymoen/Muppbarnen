@@ -9,7 +9,7 @@ tags: [secret-santa, status, security]
 
 # Secret Santa event status
 
-An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a status in `ss_event.status`: **inactive** (every new event, and every event that existed before migration `008`), **preparing** and **started**. The administrator moves it between inactive and preparing; the move to and from started is the draw ([MUPP-041](https://github.com/gustavnymoen/Muppbarnen/issues/139)). Built by [MUPP-051](../../specs/MUPP-051-santa-status/solution.md).
+An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a status in `ss_event.status`: **inactive** (every new event, and every event that existed before migration `008`), **preparing** and **started**. The administrator moves it between inactive and preparing; the move to and from started is the draw ([Secret Santa draw](secret-santa-draw.md)). Built by [MUPP-051](../../specs/MUPP-051-santa-status/solution.md).
 
 ## What each status allows
 
@@ -17,7 +17,7 @@ An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a statu
 |---|---|---|---|
 | Members added, changed, removed (`lib/santa.ts`) | yes | yes | no ("Gruppen är startad. Deltagarna kan inte ändras nu.") |
 | Wishes added, changed, removed (`lib/santa-wishes.ts`) | no ("Önskelistan är stängd just nu.") | yes | yes |
-| What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" (the rest comes with MUPP-041) |
+| What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" (the rest comes with MUPP-042) |
 | The toggle "Aktiv" | off; switch on to activate | on; switch off to deactivate | on and locked, "Stoppa gruppen först" |
 
 The two cards are equal in size, with their symbols aligned, the text centred in height and the divider of the multi-kid birthday card in the gap between them; with one card there is no divider ([MUPP-057](../../specs/MUPP-057-santa-own-page-cards/solution.md), [Design](../../DESIGN.md)).
@@ -28,7 +28,7 @@ The group's name can still be changed and the group deleted in every status.
 
 ## The admin controls
 
-Under the group's plus button, `ActiveToggle` in `app/admin/SantaTab.tsx` shows the toggle **Aktiv** (`SwitchButton`, `role="switch"`, 44 px high, centred). Switching it asks "Är du säker?" (`ConfirmAction` with `switchLabel`), then calls `activateEvent` or `deactivateEvent`. Beside the status text `StatusInfo` (an "i" button, "Vad betyder statusen?") opens a card with the three explanations; Esc, the cross and a press outside close it. Started has no second toggle yet (MUPP-041).
+Under the group's plus button, `ActiveToggle` in `app/admin/SantaTab.tsx` shows the toggle **Aktiv** (`SwitchButton`, `role="switch"`, 44 px high, centred). Switching it asks "Är du säker?" (`ConfirmAction` with `switchLabel`), then calls `activateEvent` or `deactivateEvent`. Beside the status text `StatusInfo` (an "i" button, "Vad betyder statusen?") opens a card with the three explanations; Esc, the cross and a press outside close it. Next to it the toggle **Startad** (preparing ↔ started) starts and stops the draw ([Secret Santa draw](secret-santa-draw.md)); it is off and locked while the event is inactive.
 
 ## Rules
 
