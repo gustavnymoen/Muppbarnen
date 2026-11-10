@@ -67,6 +67,7 @@ tags: [product, features]
 | [MUPP-045](MUPP-045-form-cards/solution.md) | Form cards with focus and Enter | Shared | Review |
 | [MUPP-053](MUPP-053-add-buttons/solution.md) | Plus buttons for adding | Shared | Review |
 | [MUPP-054](MUPP-054-toaster/solution.md) | Toast after saving | Shared | Review |
+| [MUPP-055](MUPP-055-santa-back-arrow/solution.md) | Back arrow on the Secret Santa own page | Shared | Review |
 | [MUPP-052](MUPP-052-santa-mail-texts/solution.md) | Secret Santa: mail texts | Shared | Review |
 | [MUPP-049](MUPP-049-menu-names-and-order/solution.md) | Menu names and order | Shared | Review |
 | [MUPP-046](MUPP-046-site-name/solution.md) | Site name | Shared | Review |

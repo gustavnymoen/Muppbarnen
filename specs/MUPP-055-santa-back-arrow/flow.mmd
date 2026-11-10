@@ -1,0 +1,5 @@
+%% MUPP-055 Back arrow on the Secret Santa own page
+%% With several groups the arrow signs out and shows the groups; with one group the cross goes to the start page and keeps the sign-in.
+flowchart TD
+    A[Own page] -->|several groups: Tillbaka, form post leave: R1 R2| B[Entrance: choice of group, cookie removed]
+    A -->|one group: Stäng, plain link: R1| C[Start page, still signed in]

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
-import { Button } from "@/app/components/Button";
+import { IconButton, IconLink } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
-import { ChecklistIcon, SantaHatIcon } from "@/app/components/icons";
+import { ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
-import { currentSantaMember } from "@/lib/santa-auth";
+import { currentSantaMember, entranceEvents } from "@/lib/santa-auth";
 import { requireSiteSession } from "@/lib/site-auth";
 import { leave } from "../actions";
 
@@ -26,8 +26,25 @@ async function Own() {
   await requireSiteSession();
   const member = await currentSantaMember();
   if (!member) redirect("/secret-santa");
+  // Med flera grupper loggar pilen ut ur gruppen så att en annan kan väljas; med en enda finns inget att välja, så korset går
+  // bara till startsidan och lämnar inloggningen kvar. Ingen kan byta till någon annans sida härifrån (MUPP-055-R1)
+  const severalGroups = (await entranceEvents()).length > 1;
   return (
-    <Page>
+    <Page
+      back={
+        severalGroups ? (
+          <form action={leave}>
+            <IconButton type="submit" label="Tillbaka">
+              <ReturnIcon />
+            </IconButton>
+          </form>
+        ) : (
+          <IconLink label="Stäng" href="/">
+            <CrossIcon />
+          </IconLink>
+        )
+      }
+    >
       <PageContent>
         <div className="mx-auto max-w-md space-y-4">
           <Heading level={1}>Hej {member.name}!</Heading>
@@ -52,11 +69,6 @@ async function Own() {
               )}
             </ul>
           )}
-          <form action={leave}>
-            <Button type="submit" variant="secondary">
-              Byt person
-            </Button>
-          </form>
         </div>
       </PageContent>
     </Page>

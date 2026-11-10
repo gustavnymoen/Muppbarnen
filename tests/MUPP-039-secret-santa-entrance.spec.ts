@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { addSantaEvent, addSantaMember, clearSanta } from "./family-db";
 import { testIp } from "./site-session";
-import { openSignInForm, pickName, SANTA_COOKIE, sendPhone } from "./santa";
+import { openSignInForm, pickName, SANTA_COOKIE, santaSignIn, sendPhone } from "./santa";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
 test.skip(!runsLocally, "the Secret Santa tests need the local test server (its own database and passwords)");
@@ -141,13 +141,15 @@ test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switch
 });
 
 test("MUPP-039-R4 the saved phone in other writings, and the email in other letters, sign in", async ({ page }) => {
-  await oneFamily();
-  await openSignInForm(page, "Anna Testsson");
+  const family = await oneFamily();
+  await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka on the own page signs out (MUPP-055)
+  await goto(page, `/secret-santa?grupp=${family}`);
+  await pickName(page, "Anna Testsson");
   for (const typed of ["070-000 11 11", "+46700001111"]) {
     await sendPhone(page, typed);
     await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
-    await page.getByRole("button", { name: "Byt person" }).click();
-    await expect(page.getByRole("heading", { level: 1, name: "Secret Santa" })).toBeVisible();
+    await page.getByRole("button", { name: "Tillbaka" }).click();
+    await page.getByRole("link", { name: "Familjen Test" }).click();
     await pickName(page, "Anna Testsson");
   }
   await page.getByRole("radio", { name: "E-post" }).check();
@@ -156,12 +158,14 @@ test("MUPP-039-R4 the saved phone in other writings, and the email in other lett
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
 });
 
-test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id; it is remembered and 'Byt person' removes it", async ({ page }) => {
+test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id; it is remembered and Tillbaka removes it", async ({ page }) => {
   await oneFamily();
+  await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka on the own page signs out (MUPP-055)
   // R6: no cookie gives the entrance
   await goto(page, "/secret-santa/min-sida");
   await expect(page).toHaveURL(/\/secret-santa$/);
 
+  await page.getByRole("link", { name: "Familjen Test" }).click();
   await pickName(page, "Anna Testsson");
   await sendPhone(page, PHONE);
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
@@ -183,9 +187,9 @@ test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is 
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
   await expectNoA11yViolations(page);
 
-  // R5: "Byt person" removes the cookie
-  await page.getByRole("button", { name: "Byt person" }).click();
-  await expect(page.getByRole("link", { name: "Bertil Testsson" })).toBeVisible();
+  // R5: Tillbaka removes the cookie
+  await page.getByRole("button", { name: "Tillbaka" }).click();
+  await expect(page.getByRole("link", { name: "Familjen Test" })).toBeVisible();
   expect(await santaCookie(page)).toBeUndefined();
 
   // R6: the same signature on another person's id is not accepted
@@ -199,6 +203,43 @@ test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is 
   // R6: a removed person's cookie is no longer worth anything
   await page.context().addCookies([cookie]);
   await clearSanta();
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page).toHaveURL(/\/secret-santa$/);
+});
+
+test("MUPP-055-R1 R2 the own page has no 'Byt person': several groups give the arrow Tillbaka, a form post that signs out and shows the groups; one group gives the cross Stäng to the start page and keeps the sign-in", async ({ page }) => {
+  const family = await oneFamily();
+  const anna = await addSantaMember(family, "Anna Extra", "0700003333", "anna.extra@exempel.invalid");
+  await santaSignIn(page, anna);
+
+  // R1: one group: the cross, not the arrow, no text button
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Extra!" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Byt person" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Tillbaka" })).toHaveCount(0);
+  await expectNoA11yViolations(page);
+  const cross = page.getByRole("link", { name: "Stäng" });
+  await cross.focus();
+  await expect(cross).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/$/);
+  expect(await santaCookie(page)).toBeDefined();
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Extra!" })).toBeVisible();
+
+  // R1 R2: several groups: the arrow is a button in a form; the form post is what a request without the site session is refused on (lib/route-checks.test.ts)
+  await addSantaEvent("Familjen Annan");
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page.getByRole("link", { name: "Stäng" })).toHaveCount(0);
+  const arrow = page.getByRole("button", { name: "Tillbaka" });
+  await expect(arrow).toHaveAttribute("type", "submit");
+  await expect(page.locator("form").filter({ has: arrow })).toHaveCount(1);
+  await expectNoA11yViolations(page);
+  // R1: the arrow in the page itself signs out and the own page then leads to the entrance
+  await arrow.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("link", { name: "Familjen Test" })).toBeVisible();
+  expect(await santaCookie(page)).toBeUndefined();
   await goto(page, "/secret-santa/min-sida");
   await expect(page).toHaveURL(/\/secret-santa$/);
 });

@@ -25,7 +25,7 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
   redirect(OWN_PAGE);
 }
 
-// "Byt person": kakan tas bort och besökaren går tillbaka till ingången
+// Pilen på den egna sidan: kakan tas bort och besökaren går tillbaka till valet av grupp (MUPP-055)
 export async function leave() {
   await requireSiteSession();
   if ((await guardWrite()) !== "ok") return;
