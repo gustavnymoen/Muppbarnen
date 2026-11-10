@@ -40,7 +40,7 @@ The full run before the MUPP-045 fix had 142 passed and that one failed; after t
 
 - [x] Tests: the checks in the plan are done (live accessibility pending)
 - [ ] Test suite: over budget because of TECH-019; the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests on `main` after the merge of #180, 2026-11-10)
 - [ ] Accessibility on the live site: not checked yet
 - [x] Requirements match what was built, below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
