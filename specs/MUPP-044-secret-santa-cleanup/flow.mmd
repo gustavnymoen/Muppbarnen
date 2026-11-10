@@ -1,0 +1,12 @@
+%% MUPP-044 Secret Santa: yearly cleanup
+%% Vercel Cron calls the route once a day; the cleanup runs once a year.
+flowchart TD
+    A[Vercel Cron, daily] --> B{Right CRON_SECRET?}
+    B -- no --> C[401, nothing happens]
+    B -- yes --> D{24 January or later, and not cleaned this year? R1}
+    D -- no --> E[Nothing changes]
+    D -- yes --> F[Per event, one transaction: delete wishes, set inactive R1]
+    F --> G[Save the year in ss_cleanup]
+    G --> H[Cookies with the old year are refused R4]
+    F -.-> I[Log ss_draw, events and members stay R2]
+    H --> J[Administrator activates and starts, draw reads the log R3]

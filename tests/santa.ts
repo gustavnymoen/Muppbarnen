@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { createSantaSession } from "../lib/santa-session";
 import { goto } from "./helpers";
+import { santaCleanupYear } from "./family-db";
 
 // Shared by the Secret Santa tests (MUPP-039, MUPP-040, design.spec.ts). The cookie is __Host- on the
 // production build the tests run against; its name in lib/santa-session.ts depends on NODE_ENV.
@@ -9,7 +10,7 @@ export const SANTA_COOKIE = "__Host-santa_session";
 // Signs in without the form (TECH-018): the cookie the site would set, signed with the test server's
 // made-up key (set in playwright.config.ts). Tests of the sign-in itself use the form.
 export async function santaSignIn(page: Page, memberId: number) {
-  const value = createSantaSession(process.env.SITE_SESSION_SECRET!, memberId);
+  const value = createSantaSession(process.env.SITE_SESSION_SECRET!, memberId, await santaCleanupYear());
   await page.context().addCookies([{ name: SANTA_COOKIE, value, domain: "localhost", path: "/", secure: true, httpOnly: true, sameSite: "Lax" }]);
 }
 
