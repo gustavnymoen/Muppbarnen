@@ -9,7 +9,8 @@ export const MAIL_FOOTER = "Detta mail går inte att svara på.";
 const FROM = "Tomten <tomten@kusinportalen.com>";
 const API = "https://api.resend.com/emails";
 
-export type Mail = { subject: string; text: string };
+// installTip: mejlet får tipset om hemskärmen under knappen och raden om att det inte går att svara (MUPP-058)
+export type Mail = { subject: string; text: string; installTip?: true };
 export type MailResult = { ok: true } | { ok: false };
 
 const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -23,8 +24,23 @@ const BUTTON_LABEL = `Gå till ${SITE_NAME}`;
 const BUTTON_STYLE =
   "display:inline-block;padding:12px 20px;border-radius:14px;background:#9AA9E0;color:#0C1015;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;font-weight:500;text-decoration:none";
 
-export function layout({ text }: Pick<Mail, "text">) {
-  const plain = `${text}\n\n${BUTTON_LABEL}: ${SITE_URL}\n${MAIL_FOOTER}`;
+// Tipset om hemskärmen (MUPP-058): en enda text, adressen ur SITE_URL (utan www, som i texten kortet godkände)
+const SITE_HOST = new URL(SITE_URL).host.replace(/^www\./, "");
+export const INSTALL_TIP = {
+  intro: "Tomtenissen tipsar: Vill du ha en bättre och smidigare upplevelse? Gör så här:",
+  steps: [
+    `Öppna ${SITE_HOST} i Safari (iPhone) eller Chrome (Android).`,
+    'I Safari på iPhone klickar du på dela-symbolen, sedan "Lägg till på hemskärm". I Chrome på Android klickar du på de tre punkterna och sedan "Lägg till på hemskärm" eller "Installera och skapa genväg" (beroende på version).',
+    `Nu är ${SITE_NAME} tillagd som en "app" på din startskärm och körs i fullt fönster, mycket smidigt! Obs, notiser fungerar inte som en vanlig app.`,
+  ],
+};
+
+export function layout({ text, installTip }: Pick<Mail, "text" | "installTip">) {
+  const tipPlain = installTip ? `\n\n${INSTALL_TIP.intro}\n${INSTALL_TIP.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}` : "";
+  const plain = `${text}\n\n${BUTTON_LABEL}: ${SITE_URL}\n${MAIL_FOOTER}${tipPlain}`;
+  const tipHtml = installTip
+    ? `<p>${escapeHtml(INSTALL_TIP.intro)}</p><ol>${INSTALL_TIP.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>`
+    : "";
   const paragraphs = text
     .split(/\n\s*\n/)
     .map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
@@ -35,6 +51,7 @@ export function layout({ text }: Pick<Mail, "text">) {
     paragraphs +
     `<p><a href="${SITE_URL}" style="${BUTTON_STYLE}">${BUTTON_LABEL}</a></p>` +
     `<p style="font-size:13px;color:#666">${MAIL_FOOTER}</p>` +
+    tipHtml +
     `</div>`;
   return { html, plain };
 }

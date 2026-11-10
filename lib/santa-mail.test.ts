@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { MAIL_FOOTER, layout } from "./mail";
+import { INSTALL_TIP, MAIL_FOOTER, SITE_URL, layout } from "./mail";
 import { STATUS_CONFIRMATIONS, activatedMail, addedMail, deactivatedMail, listChangedMail, messageFromGiverMail, messageFromReceiverMail, startedMail, stoppedMail } from "./santa-mail";
 
 const G = "Familjen Test";
@@ -66,15 +66,19 @@ const mails = [
   },
 ];
 
+// Mejlen som får tipset om hemskärmen (MUPP-058-R1)
+const TIP_MAILS = [1, 3, 8];
+
 describe("MUPP-052-R1 the mails", () => {
-  test.each(mails)("MUPP-052-R1 mail $n has exactly the subject and text of the card", ({ mail, subject, text }) => {
-    expect(mail).toEqual({ subject, text });
+  test.each(mails)("MUPP-052-R1 mail $n has exactly the subject and text of the card", ({ n, mail, subject, text }) => {
+    expect(mail).toEqual({ subject, text, ...(TIP_MAILS.includes(n) && { installTip: true }) });
   });
 
-  test.each(mails)("MUPP-052-R1 mail $n names the event and ends with the shared layout", ({ mail }) => {
+  test.each(mails)("MUPP-052-R1 mail $n names the event and ends with the shared layout", ({ n, mail }) => {
     const { html, plain } = layout(mail);
     expect(mail.subject.startsWith(`Secret Santa: ${G} – `)).toBe(true);
-    expect(plain.endsWith(MAIL_FOOTER)).toBe(true);
+    // Mejlen med tipset (MUPP-058) har det efter raden, de andra slutar med raden
+    if (!TIP_MAILS.includes(n)) expect(plain.endsWith(MAIL_FOOTER)).toBe(true);
     expect(html).toContain(MAIL_FOOTER);
   });
 
@@ -96,5 +100,30 @@ describe("MUPP-052-R2 the confirmations", () => {
     expect(deactivate.text).toMatch(/mail.*Önskelistorna finns kvar/);
     expect(start.text).toMatch(/person att handla åt.*mail.*inte.*lägga till, ändra eller ta bort/);
     expect(stop.text).toMatch(/Dragningen och alla samtal tas bort.*önskelistorna finns kvar.*mail/);
+  });
+});
+
+describe("MUPP-058-R1 the install tip", () => {
+  const STEP_1 = "Öppna kusinportalen.com i Safari (iPhone) eller Chrome (Android).";
+
+  test.each(mails.filter(({ n }) => TIP_MAILS.includes(n)))("MUPP-058-R1 mail $n has the tip after the button and the footer line, as a numbered list in HTML", ({ mail }) => {
+    const { html, plain } = layout(mail);
+    expect(html).toMatch(new RegExp(`${MAIL_FOOTER}</p><p>Tomtenissen tipsar: Vill du ha en bättre och smidigare upplevelse\\? Gör så här:</p><ol><li>${STEP_1.replace(/[()]/g, "\\$&")}</li><li>.*</li><li>.*</li></ol></div>$`));
+    expect(html.indexOf(INSTALL_TIP.intro)).toBeGreaterThan(html.indexOf("Gå till Kusinportalen"));
+    expect(plain).toContain(`${MAIL_FOOTER}\n\nTomtenissen tipsar: Vill du ha en bättre och smidigare upplevelse? Gör så här:\n1. ${STEP_1}\n2. I Safari på iPhone`);
+    expect(plain).toMatch(/\n3\. Nu är Kusinportalen tillagd som en "app" på din startskärm.*notiser fungerar inte som en vanlig app\.$/);
+  });
+
+  test.each(mails.filter(({ n }) => !TIP_MAILS.includes(n)))("MUPP-058-R1 mail $n has no tip", ({ mail }) => {
+    const { html, plain } = layout(mail);
+    expect(html).not.toContain("Tomtenissen tipsar");
+    expect(html).not.toContain("<ol>");
+    expect(plain).not.toContain("Tomtenissen tipsar");
+  });
+
+  test("MUPP-058-R1 the tip is one text in one place: three steps, the first with the site address from SITE_URL", () => {
+    expect(INSTALL_TIP.steps).toHaveLength(3);
+    expect(INSTALL_TIP.steps[0]).toBe(STEP_1);
+    expect(SITE_URL).toBe("https://www.kusinportalen.com");
   });
 });
