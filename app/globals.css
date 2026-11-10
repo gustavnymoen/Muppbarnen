@@ -116,10 +116,10 @@ body:has(dialog:modal) main { overflow: hidden; }
 }
 .wish-button:hover { background: var(--child); }
 
-/* Avdelare mellan barn på samma kort: en tunn linje på 60 % av bredden i dämpad textfärg, ovanför varje barn utom det första */
+/* Avdelare mellan barn på samma kort: en tunn linje på 60 % av bredden i dämpad textfärg, ovanför varje barn utom det första; --divider-pad och --divider-top flyttar den ut i ett mellanrum mellan kort (MUPP-057) */
 .divider-short { position: relative; }
-.divider-short:not(:first-child) { padding-top: 0.75rem; }
-.divider-short:not(:first-child)::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 1px; background: color-mix(in srgb, var(--color-muted) 45%, transparent); }
+.divider-short:not(:first-child) { padding-top: var(--divider-pad, 0.75rem); }
+.divider-short:not(:first-child)::before { content: ""; position: absolute; top: var(--divider-top, 0); left: 20%; right: 20%; height: 1px; background: color-mix(in srgb, var(--color-muted) 45%, transparent); }
 
 /* Meddelandet överst (Toaster.tsx, MUPP-054): grönt när något sparats, rött när något gick fel */
 .toast-saved {

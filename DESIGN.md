@@ -78,6 +78,10 @@ How something new is added is the same everywhere in the admin and on a particip
 - **Swap icon** (`SwapIcon`, two arrows around a circle, drawn like the pencil and the trash can): the round 44 px icon button "Byt förälder" beside "Inloggad som <förälder>" on `/admin`. It replaces a text button that wrapped badly on a phone.
 - "Event" is never shown to visitors; the word is "grupp".
 
+## Own page cards (MUPP-057)
+
+The two cards on a participant's own Secret Santa page ("Min önskelista", and "Min matchnings önskelista" while the group is preparing) are equal in width and height (a grid with equal rows), their 18 px symbols sit at the same place at the left with 1 rem of padding, and the symbol and the text are centred in the card's height; the text stays left-aligned. They are two cards with a 1.5 rem gap, and the divider of the multi-kid birthday card (`divider-short`, a 1 px line at 60 % of the width in the muted colour at 45 %) sits halfway down the gap. One card has no divider. Chosen with the user, who preferred two cards and a line in the gap to one card with two rows.
+
 ## Concept (TECH-006, step 1)
 
 The concept is decided: **the look above stays** (dark blue-grey night, thin edges, layered shadows with a short hard offset, a soft lilac-blue main button, Fredoka and Nunito). Eight proposals in four rounds were tried on a phone in the running site, among them a warm brown, a deep violet, a forest green, a light paper, a wine-red on cream, an arcade look, a graphite with wine-red and leaf-shaped buttons, and a black with gold. None was preferred over the current look, which stays the base for the admin (step 2) and the cards (step 3). Ideas liked from the proposals may be tried inside this concept in those steps, but the tokens above do not change.

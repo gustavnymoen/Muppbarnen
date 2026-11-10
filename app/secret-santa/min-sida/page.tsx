@@ -51,10 +51,10 @@ async function Own() {
           {member.status === "inactive" ? (
             <p>Vi har inte kört igång än</p>
           ) : (
-            <ul className="space-y-3">
-              <li>
-                <Card pressable className="p-0">
-                  <Link href="/secret-santa/min-sida/onskelista" className="flex items-center gap-3 p-4">
+            <ul className="grid auto-rows-fr gap-6">
+              <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
+                <Card pressable className="h-full !p-0">
+                  <Link href="/secret-santa/min-sida/onskelista" className="flex h-full items-center gap-3 p-4">
                     <ChecklistIcon />
                     <Heading level={2} small>
                       Min önskelista
@@ -63,7 +63,7 @@ async function Own() {
                 </Card>
               </li>
               {member.status === "preparing" && (
-                <li>
+                <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
                   <GreyCard title="Min matchnings önskelista" note="Inte tilldelad än" />
                 </li>
               )}
@@ -78,7 +78,7 @@ async function Own() {
 // Ett kort som ännu inte går att öppna: ingen länk, och en text som säger varför så att det inte är färgen ensam som visar det
 function GreyCard({ title, note }: { title: string; note: ReactNode }) {
   return (
-    <Card className="flex items-center gap-3 border-dashed text-muted shadow-none">
+    <Card className="flex h-full items-center gap-3 border-dashed text-muted shadow-none">
       <SantaHatIcon />
       <div>
         <Heading level={2} small>

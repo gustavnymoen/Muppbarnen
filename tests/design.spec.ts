@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
+import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
 import { addChild, addParent, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaStatus } from "./family-db";
 import { santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
@@ -1358,7 +1358,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
   }
 });
 
-test("MUPP-051-R2 R6 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, and the toggle Aktiv and its question fit the width", async ({ page }) => {
+test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal with aligned symbols, centred text and a divider in the gap, and the toggle Aktiv and its question fit the width", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1376,6 +1376,44 @@ test("MUPP-051-R2 R6 the Secret Santa status on a 375 x 667 phone: the match car
     const reason = page.getByText("Inte tilldelad än");
     expect(contrast(await css(reason, "color"), await backgroundOf(reason))).toBeGreaterThanOrEqual(4.5);
     expect(await hasHorizontalScroll(page)).toBe(false);
+    // MUPP-057-R1 R2 R3 R4, at 375 px and then at 320 px: equal cards, symbols and text centred in height, one divider in the gap
+    const link = page.getByRole("link", { name: "Min önskelista" });
+    const grey = page.getByRole("heading", { level: 2, name: "Min matchnings önskelista" }).locator("xpath=ancestor::*[contains(@class,'border-dashed')][1]");
+    for (const width of [375, 320]) {
+      await page.setViewportSize({ width, height: 667 });
+      const [a, b] = await Promise.all([settledBox(link.locator("xpath=..")), settledBox(grey)]);
+      expect(Math.abs(a.width - b.width)).toBeLessThan(1);
+      expect(Math.abs(a.height - b.height)).toBeLessThan(1);
+      const centreY = (box: Box) => box.y + box.height / 2;
+      for (const [card, symbol, text] of [
+        [a, link.locator("svg"), link.getByRole("heading")],
+        [b, grey.locator("svg"), grey.locator("div")],
+      ] as const) {
+        const [s, t] = await Promise.all([settledBox(symbol), settledBox(text)]);
+        expect(Math.abs(centreY(s) - centreY(card))).toBeLessThan(1);
+        expect(Math.abs(centreY(t) - centreY(card))).toBeLessThan(1);
+        expect(s.x - card.x).toBeCloseTo(17, 0); // the border and 1 rem of padding, the same in both cards
+        expect(s.width).toBe(18);
+      }
+      // 60 % of the card width, 1 px thick, halfway down the gap, in the muted colour at 45 % (the divider-short style of MUPP-013)
+      const line = await page.locator("li.divider-short").nth(1).evaluate((li) => {
+        const style = getComputedStyle(li, "::before");
+        return { width: parseFloat(style.width), height: parseFloat(style.height), top: parseFloat(style.top) };
+      });
+      expect(line.height).toBe(1);
+      expect(Math.abs(line.width - a.width * 0.6)).toBeLessThan(1);
+      expect(Math.abs(line.top + (b.y - (a.y + a.height)) / 2)).toBeLessThan(1);
+    }
+    await expectNoA11yViolations(page);
+    await page.setViewportSize({ width: 375, height: 667 });
+    // The started page has one card and no divider
+    await setSantaStatus(family, "started");
+    await goto(page, "/secret-santa/min-sida");
+    await expect(page.getByRole("link", { name: "Min önskelista" })).toBeVisible();
+    await expect(page.locator("li.divider-short")).toHaveCount(1);
+    expect(await page.locator("li.divider-short").evaluate((li) => getComputedStyle(li, "::before").content)).toBe("none");
+    await expectNoA11yViolations(page);
+    await setSantaStatus(family, "preparing");
 
     // The admin: the status with its button, and the question inside the screen
     await setSantaStatus(family, "inactive");

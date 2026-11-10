@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-10
+
+* **Update** [MUPP-057 Secret Santa own page cards](../specs/MUPP-057-santa-own-page-cards/solution.md): the two cards on the own page are equal in width and height, their symbols sit at the same place and the text is centred in height, with the divider of the multi-kid birthday card in the gap between them.
+
 ## 2026-11-09
 
 * **Creation** [MUPP-055 Back arrow on the Secret Santa own page](../specs/MUPP-055-santa-back-arrow/solution.md): "Byt person" is gone; the own page has a back arrow in the top left corner that signs out and shows the groups (several groups) or a cross to the start page that keeps the sign-in (one group).
