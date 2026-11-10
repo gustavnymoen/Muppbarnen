@@ -9,8 +9,9 @@ import { arrangeEvents, type ArrangedEvent } from "@/lib/santa-groups";
 import { STATUS_CONFIRMATIONS } from "@/lib/santa-mail";
 import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
 import { EventFold, EventFoldList } from "./EventFold";
+import { MemberEdit } from "./MemberEdit";
 import { StatusInfo } from "./StatusInfo";
-import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember, startDraw, stopDraw } from "./santa-actions";
+import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, startDraw, stopDraw } from "./santa-actions";
 
 const STATUS_LABEL: Record<EventStatus, string> = { inactive: "Inaktiv", preparing: "Förbereder", started: "Startad" };
 
@@ -79,7 +80,7 @@ function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged:
           ))}
         </ul>
       )}
-      {/* Deltagarna ändras inte i en startad grupp (MUPP-051-R3) */}
+      {/* Ingen läggs till i en startad grupp (MUPP-051-R3) */}
       {event.status !== "started" && (
         <div className="mt-3 pb-1">
           <AddRow>
@@ -188,21 +189,21 @@ function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent 
         ) : undefined
       }
       actions={
-        event.status === "started" ? null : (
-          <>
-            <FormCard title={`Ändra ${where}`} label={`Ändra ${where}`} icon={<PencilIcon />}>
-              <Form action={saveMember} submit="Spara" says={{ field: "name" }}>
-                <input type="hidden" name="memberId" value={member.id} />
-                <ContactFields member={member} />
-                <Field
-                  name="partnerId"
-                  type="select"
-                  label="Partner"
-                  defaultValue={member.partnerId ? String(member.partnerId) : ""}
-                  options={[{ value: "", label: "Ingen" }, ...event.members.filter((m) => m.id !== member.id).map((m) => ({ value: String(m.id), label: m.name }))]}
-                />
-              </Form>
-            </FormCard>
+        <>
+          <MemberEdit memberId={member.id} title={`Ändra ${where}`}>
+            <ContactFields member={member} />
+            {/* Partnern ändras inte i en startad grupp (MUPP-060-R2) */}
+            {event.status !== "started" && (
+              <Field
+                name="partnerId"
+                type="select"
+                label="Partner"
+                defaultValue={member.partnerId ? String(member.partnerId) : ""}
+                options={[{ value: "", label: "Ingen" }, ...event.members.filter((m) => m.id !== member.id).map((m) => ({ value: String(m.id), label: m.name }))]}
+              />
+            )}
+          </MemberEdit>
+          {event.status !== "started" && (
             <ConfirmAction
               action={removeMember}
               fields={{ memberId: String(member.id) }}
@@ -211,8 +212,8 @@ function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent 
               title={`Ta bort ${member.name} ur ${event.name}?`}
               text={`${member.name}, kontaktuppgifterna och önskelistan i ${event.name} tas bort. Det går inte att ångra.`}
             />
-          </>
-        )
+          )}
+        </>
       }
     />
   );

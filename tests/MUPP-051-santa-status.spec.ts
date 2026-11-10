@@ -82,7 +82,7 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
   const card = eventCard(page, "Startad grupp");
   await openEventCard(card);
   await expect(card).toContainText("Status: Startad");
-  await expect(card.getByRole("button", { name: /^(Ny person|Ändra Anna|Ta bort Anna)/ })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: /^(Ny person|Ta bort Anna)/ })).toHaveCount(0);
   // R2: the toggle is on and locked, with the note
   const locked = card.getByRole("switch", { name: "Aktiv Startad grupp" });
   await expect(locked).toBeDisabled();
