@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, addSantaEvent, addSantaMember, clearFamily, clearSanta } from "./family-db";
-import { santaSignIn } from "./santa";
+import { eventCard, openEventCard, santaSignIn } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -78,7 +78,9 @@ test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text b
   await expect(page.getByRole("button", { name: "Ny grupp", exact: true })).toHaveText("Ny grupp");
 
   // R1: a plus for a new person, in the group's card
-  const ek = page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name: "Familjen Ek" }) });
+  const ek = eventCard(page, "Familjen Ek");
+  // The group is someone else's, so the master admin sees it closed (MUPP-056)
+  await openEventCard(ek);
   await expectPlus(page, ek.getByRole("button", { name: "Ny person i Familjen Ek" }), "Ny person i Familjen Ek");
   await expectNoA11yViolations(page);
 

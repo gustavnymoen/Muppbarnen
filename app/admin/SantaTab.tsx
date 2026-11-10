@@ -5,8 +5,10 @@ import { CheckIcon, PencilIcon } from "@/app/components/icons";
 import { SwitchButton } from "@/app/components/SwitchButton";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
+import { arrangeEvents, type ArrangedEvent } from "@/lib/santa-groups";
 import { STATUS_CONFIRMATIONS } from "@/lib/santa-mail";
 import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
+import { EventFold, EventFoldList } from "./EventFold";
 import { StatusInfo } from "./StatusInfo";
 import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember, startDraw, stopDraw } from "./santa-actions";
 
@@ -21,13 +23,13 @@ export function SantaTab({ events, adminId }: { events: SantaEvent[]; adminId: n
         Grupper
       </Heading>
       {events.length === 0 && <p className="text-muted">Inga grupper ännu.</p>}
-      <ul className="space-y-2">
-        {events.map((event) => (
-          <li key={event.id}>
-            <EventCard event={event} adminId={adminId} />
+      <EventFoldList>
+        {arrangeEvents(events, adminId).map((arranged) => (
+          <li key={arranged.event.id}>
+            <EventCard arranged={arranged} adminId={adminId} />
           </li>
         ))}
-      </ul>
+      </EventFoldList>
       <AddRow>
         <FormCard title="Ny grupp" label="Ny grupp" text="Ny grupp">
           <EventForm submit="Lägg till" />
@@ -37,13 +39,15 @@ export function SantaTab({ events, adminId }: { events: SantaEvent[]; adminId: n
   );
 }
 
-function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
-  const count = `${event.members.length} deltagare`;
+function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged: ArrangedEvent; adminId: number }) {
+  // Det stängda kortet visar status och antal (MUPP-056); huvudadministratören ser också andras grupper: då står det vems de är
+  const parts = [...(foldable ? [STATUS_LABEL[event.status]] : []), `${event.members.length} deltagare`, ...(event.ownerId === adminId ? [] : [`administreras av ${event.ownerName}`])];
   return (
-    <SlimCard
+    <EventFold
       title={event.name}
-      // Huvudadministratören ser också andras grupper: då står det vems de är
-      note={event.ownerId === adminId ? count : `${count}, administreras av ${event.ownerName}`}
+      note={parts.join(", ")}
+      foldable={foldable}
+      startsOpen={open}
       actions={
         <>
           <FormCard title={`Byt namn på ${event.name}`} label={`Byt namn på ${event.name}`} icon={<PencilIcon />}>
@@ -87,7 +91,7 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
         <ActiveToggle event={event} />
         <StartedToggle event={event} />
       </div>
-    </SlimCard>
+    </EventFold>
   );
 }
 

@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaStatusOf, santaWishes, setSantaStatus } from "./family-db";
 import { clearOutbox, readOutbox } from "../lib/mail-sink";
-import { santaSignIn } from "./santa";
+import { eventCard, openEventCard, santaSignIn } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -17,8 +17,6 @@ test.afterEach(async () => {
   await clearSanta();
   await clearFamily();
 });
-
-const eventCard = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
 
 async function openSantaTab(page: Page, parent: string) {
   await adminSignIn(page, parent);
@@ -82,6 +80,7 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
   // R2 R3: a started group: the status is shown, nothing can be changed
   await openSantaTab(page, emma);
   const card = eventCard(page, "Startad grupp");
+  await openEventCard(card);
   await expect(card).toContainText("Status: Startad");
   await expect(card.getByRole("button", { name: /^(Ny person|Ändra Anna|Ta bort Anna)/ })).toHaveCount(0);
   // R2: the toggle is on and locked, with the note
@@ -92,6 +91,7 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
   await expectNoA11yViolations(page);
 
   // R3: the group that is not started still has its buttons
+  await openEventCard(eventCard(page, "Öppen grupp"));
   await expect(eventCard(page, "Öppen grupp").getByRole("button", { name: "Ny person i Öppen grupp" })).toBeVisible();
 
   // R2: another parent does not see the group, so there is no button to press
@@ -100,6 +100,7 @@ test("MUPP-051-R2 R3 a started group shows its status but no buttons for the sta
 
   // R2: the page was loaded while the group was inactive; the server refuses the second activation and the status stays
   await openSantaTab(page, emma);
+  await openEventCard(eventCard(page, "Öppen grupp"));
   await eventCard(page, "Öppen grupp").getByRole("switch", { name: "Aktiv Öppen grupp" }).click();
   await setSantaStatus(open, "preparing");
   await page.getByRole("alertdialog").getByRole("button", { name: "Aktivera", exact: true }).click();

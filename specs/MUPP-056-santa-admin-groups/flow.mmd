@@ -1,0 +1,12 @@
+%% MUPP-056 Foldable groups in Secret Santa admin
+%% Which groups start open, closed and where they stand.
+flowchart TD
+    A[Secret Santa tab] --> B{One group, and it is the visitor's own?}
+    B -- yes --> C[Open, no fold control - R1]
+    B -- no --> D[Own groups first, other parents' groups last by administrator name - R3]
+    D --> E{Exactly one own group?}
+    E -- yes --> F[Own group open, the others closed - R3]
+    E -- no --> G[All closed - R2]
+    F --> H[Header button opens and closes - R2, R4]
+    G --> H
+    H --> I[Open state kept while the page is open, a new group opens - R5]
