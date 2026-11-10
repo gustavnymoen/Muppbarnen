@@ -7,28 +7,29 @@ feature: MUPP-000
 
 # Code review of MUPP-000
 
-**Result:** Passed | Stopped (n must fix)
-**Date:** YYYY-MM-DD, review run 1
-**Summary:** One or two sentences.
-**Security:** The security points of the review: passed, or the findings below. `/security-review`: run, with its result, or not needed and why (see `wiki/system/code-review.md`).
+**Result:** Passed
+**Date:** 2026-11-10, review run 1
+**Summary:** R1 to R4 are met: a started group accepts only name, phone and e-mail, any `partnerId` is refused, add and remove stay refused, and the new-address mail is built from the saved row. No must-fix findings.
+**Security:** Passed on every point of the guide: sign-in, `guardWrite()` and `canManage` come first in both actions, input is checked on the server with bound queries, the mail target is read from the database (the request carries only the member id), the answers never carry the draw, the session is untouched. `/security-review`: run, no findings with confidence of 8 or more.
 
 How the review works: `wiki/system/code-review.md`. A later run is added at the top as "Review run 2".
 
 ## Must fix
 
-- `file:line` What is wrong and why. **Done:** how it was fixed.
+None.
 
 ## Should fix
 
-- `file:line` What and why. **Done:** fixed in this change, or added to the board as TECH-00n.
+- `lib/santa.ts` (`memberToMail`): a second query only for the event name, with a `?? ""` fallback. **Done:** `manageableMember` now selects `e.name AS event_name`.
+- `app/admin/santa-actions.ts` (`mailNewAddress`): mails the saved address of any managed member each time, without checking that the e-mail changed. **Done:** left as it is; only the owner or master admin can call it, `guardWrite` limits the rate, and the worst case is one extra mail.
 
 ## Suggestions
 
-- `file:line` What could be learned. **Done:** fixed, or left as it is and why.
+- `lib/santa.ts` (`saveMember`) `!= null` and `app/admin/MemberEdit.tsx` `asked` next to `ask`. **Done:** a comment on each says why.
 
 ## Outside the change
 
-- Candidate for the backlog, and whether it was added.
+None.
 
 See also: [Solution](solution.md), [Verification](verification.md).
 

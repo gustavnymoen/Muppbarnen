@@ -16,6 +16,7 @@ type Ask = NonNullable<NonNullable<FormState>["ask"]>;
 // Frågan kommer först när kortet har stängts, och växer ur pennan.
 export function MemberEdit({ memberId, title, children }: { memberId: number; title: string; children: ReactNode }) {
   const question = useRef<DialogHandle>(null);
+  // asked (ref) avgör om frågan ska öppnas när kortet stängs; ask (state) är det frågan visar
   const asked = useRef<Ask | null>(null);
   const [ask, setAsk] = useState<Ask | null>(null);
 

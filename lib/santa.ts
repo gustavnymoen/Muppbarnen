@@ -204,13 +204,13 @@ async function ownerName(ownerId: number, tx: Executor) {
 // ---- Medlemmar
 
 type MemberRow = { id: number; event_id: number };
-type ManageableMember = MemberRow & { owner_id: number; status: EventStatus; name: string; email: string };
+type ManageableMember = MemberRow & { owner_id: number; status: EventStatus; name: string; email: string; event_name: string };
 
 // Medlemmen, om aktören får ändra gruppen den ligger i. Också i en startad grupp: namn, telefon och e-post får rättas hela tiden (MUPP-060-R1);
 // vad som annars är låst i en startad grupp (MUPP-051-R3) avgör den som anropar.
 async function manageableMember(actor: Parent | null, rawId: unknown, tx: Executor): Promise<ManageableMember | Failure> {
   const id = parseId(rawId);
-  const member = id === null ? undefined : await get<ManageableMember>("SELECT m.id, m.event_id, m.name, m.email, e.owner_id, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
+  const member = id === null ? undefined : await get<ManageableMember>("SELECT m.id, m.event_id, m.name, m.email, e.owner_id, e.status, e.name AS event_name FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
   if (!member) return GONE;
   return canManage(actor, member) ? member : NOT_ALLOWED;
 }
@@ -252,6 +252,7 @@ export async function saveMember(actor: Parent | null, input: { memberId: unknow
     const member = await manageableMember(actor, input.memberId, tx);
     if (isOutcome(member)) return member;
     const started = member.status === "started";
+    // != null: formuläret i en startad grupp har inget partnerfält, så åtgärden skickar null; "" och alla andra värden är ett försök att ändra partnern
     if (started && input.partnerId != null) return PARTNER_LOCKED;
     if (!checked.ok) return { ok: false, fields: checked.errors };
     const { name, phone, email } = checked.values;
@@ -274,8 +275,7 @@ export async function memberToMail(actor: Parent | null, rawId: unknown): Promis
   return withTransaction(async (tx) => {
     const member = await manageableMember(actor, rawId, tx);
     if (isOutcome(member)) return member;
-    const event = await get<{ name: string }>("SELECT name FROM ss_event WHERE id = ?", [member.event_id], tx);
-    return { ok: true, name: member.name, email: member.email, eventName: event?.name ?? "", adminName: await ownerName(member.owner_id, tx), status: member.status };
+    return { ok: true, name: member.name, email: member.email, eventName: member.event_name, adminName: await ownerName(member.owner_id, tx), status: member.status };
   });
 }
 
