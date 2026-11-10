@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaDraw, santaStatusOf } from "./family-db";
 import { clearOutbox, readOutbox } from "../lib/mail-sink";
+import { eventCard, openEventCard } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -17,7 +18,6 @@ test.afterEach(async () => {
   await clearFamily();
 });
 
-const eventCard = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
 
 async function openSantaTab(page: Page, parent: string) {
   await adminSignIn(page, parent);
@@ -96,6 +96,8 @@ test("MUPP-041-R2 the toggle Startad is off and locked in an inactive group, the
   await addSantaMember(bad, "Cia Testsson", "0700003333", "cia@exempel.invalid");
   await addSantaMember(bad, "Dan Testsson", "0700004444", "dan@invalid");
   await openSantaTab(page, emma);
+  // Several own groups fold (MUPP-056): open each
+  for (const name of ["Inaktiv grupp", "Ensam grupp", "Mejlgrupp"]) await openEventCard(eventCard(page, name));
 
   await expect(eventCard(page, "Inaktiv grupp").getByRole("switch", { name: "Startad Inaktiv grupp" })).toBeDisabled();
 
