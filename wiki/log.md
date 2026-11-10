@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* **Creation** [MUPP-058 Install tip in Secret Santa mails](../specs/MUPP-058-santa-mail-install-tip/solution.md): mails 1, 3 and 8 end with the tip "Tomtenissen tipsar" on adding the site to the home screen (a numbered list in HTML, numbered lines in plain text), one text in `lib/mail.ts` switched on by `installTip`.
 * **Update** [MUPP-057 Secret Santa own page cards](../specs/MUPP-057-santa-own-page-cards/solution.md): the two cards on the own page are equal in width and height, their symbols sit at the same place and the text is centred in height, with the divider of the multi-kid birthday card in the gap between them.
 
 ## 2026-11-09
