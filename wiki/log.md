@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* **Update** [MUPP-061](../specs/MUPP-061-santa-wish-note/verification.md): Live tests passed after the merge, and the wish note was checked on the live site at 320 px (reflow, contrast 5.53:1 for the text and 5.34:1 for the symbol); VoiceOver, 200 % zoom and the light theme are not checked.
 * **Creation** [MUPP-061 Wish note instead of check mark](../specs/MUPP-061-santa-wish-note/solution.md): a participant with at least one wish shows the small muted text "Önskelista påbörjad" with a green check circle in front, under the name in the Secret Santa admin.
 * **Update** [MUPP-059](../specs/MUPP-059-santa-group-card-text/verification.md): the Live tests passed after the merge, and the Secret Santa tab was checked on the live site at 320 px (reflow, contrast 5.53:1, target size); the own page and VoiceOver are not checked live. Every changed state already has an axe call, so no test was added.
 * **Creation** [TECH-021 Mail deliverability](../specs/TECH-021-mail-deliverability/solution.md): the HTML of every mail is a complete document (doctype, `lang="sv"`, head with title, body) that starts with a hidden preview text from the first paragraph; open and click tracking are off in Resend. The look of the mail is unchanged.

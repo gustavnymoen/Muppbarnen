@@ -7,7 +7,7 @@ feature: MUPP-061
 
 # Verification of MUPP-061
 
-Browser tests ran locally (a production build, the local test database), 2026-11-10. Not yet deployed: the live checks are not done.
+Browser tests ran locally (a production build, the local test database), 2026-11-10. Deployed the same day (PR #195); the live checks are at the end of this file.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -21,10 +21,21 @@ Browser tests ran locally (a production build, the local test database), 2026-11
 | Unit tests | Not applicable: no logic changed; the 344 existing ones pass | local | Pass | 2026-11-10 |
 | Browser tests | Existing checks changed in 3 files, no new test and no new page load | local | Pass (151) | 2026-11-10 |
 | Design test | In the existing Secret Santa phone test (above) | local | Pass | 2026-11-10 |
-| Smoke test | Not applicable: no main page or flow added | – | – | – |
-| Accessibility | axe in the changed state (above); the live checklist items 3, 4 and 6 not checked yet | local | Pass locally; live not checked | 2026-11-10 |
+| Smoke test | Not applicable: no main page or flow added; the Live tests run on `main` after the merge passed | live | Pass | 2026-11-10 |
+| Accessibility | axe in the changed state (above); live checklist: see "Live checks" below | local and live | Pass; VoiceOver, 200 % zoom and the light theme not checked | 2026-11-10 |
 | Security | Not applicable: text only | – | – | – |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-10 |
+
+## Live checks
+
+On https://muppbarnen.vercel.app after the merge, in the built-in browser pane at 320 px, signed in as the master admin, group Bollnäs (started, 4 participants), 2026-11-10. Checklist numbers from [accessibility.md](../../wiki/system/accessibility.md).
+
+| Item | Result |
+|---|---|
+| 4 Reflow at 320 px | Pass: the page is 320 px wide, no sideways scroll; the cards, with the partner line and the wish note on their own lines, end at 291 px. 200 % zoom not checked |
+| 6 Contrast | Pass: the text 5.53:1 (14 px, muted on the card, dark theme), the green symbol 5.34:1 (needs 3:1); the light theme not checked |
+| Symbol hidden from screen readers | Pass: the symbol has `aria-hidden="true"`; the text is plain text. VoiceOver itself not checked (item 3) |
+| 7 Target size | Not measured; the cards were 54 and 70 px high and nothing new is clickable |
 
 ## Test suite
 
@@ -39,8 +50,8 @@ The suite is over its budget with and without this change (TECH-019). This chang
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; the live checklist after the deploy
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-10)
+- [ ] Accessibility: axe passes locally and live items 4 and 6 are done; VoiceOver (item 3), 200 % zoom and the light theme are not checked
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the old `CheckIcon` and the old check-mark checks are removed
