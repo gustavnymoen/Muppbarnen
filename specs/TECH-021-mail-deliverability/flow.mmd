@@ -1,0 +1,9 @@
+%% TECH-021 Mail deliverability
+%% How layout builds the HTML part of a mail. Steps are labelled with requirement IDs.
+flowchart TD
+    A[layout gets subject, text and installTip] --> B[Preview: first paragraph, 90 characters, escaped, hidden, R2]
+    A --> C[Visible layout: logo, paragraphs, button, footer line, tip]
+    B --> D[Wrap in doctype, html lang sv, head with charset and title, body, R1]
+    C --> D
+    D --> E[html and plain text go to sendMail]
+    E --> F[Resend with open and click tracking off for the domain, R3]

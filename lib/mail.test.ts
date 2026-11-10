@@ -22,7 +22,7 @@ describe("TECH-017-R0 mail layout", () => {
   });
 
   test("TECH-017-R0 HTML characters in the text are escaped in the HTML part", () => {
-    const { html, plain } = layout({ text: 'a & "b" <script>' });
+    const { html, plain } = layout({ subject: "x", text: 'a & "b" <script>' });
     expect(html).not.toContain("<script>");
     expect(html).toContain("a &amp; &quot;b&quot; &lt;script&gt;");
     expect(plain).toContain('a & "b" <script>');
@@ -30,7 +30,7 @@ describe("TECH-017-R0 mail layout", () => {
 });
 
 describe("MUPP-052-R3 layout of every mail", () => {
-  const { html, plain } = layout({ text: "Första raden\nandra raden\n\nNytt stycke" });
+  const { html, plain } = layout({ subject: "x", text: "Första raden\nandra raden\n\nNytt stycke" });
 
   test("MUPP-052-R3 a blank line starts a paragraph and a single line break stays a line break", () => {
     expect(html).toContain("<p>Första raden<br>andra raden</p><p>Nytt stycke</p>");
@@ -44,6 +44,25 @@ describe("MUPP-052-R3 layout of every mail", () => {
 
   test("MUPP-052-R3 the plain-text version has the same text, the address and the same line", () => {
     expect(plain).toBe(`Första raden\nandra raden\n\nNytt stycke\n\nGå till Kusinportalen: ${SITE_URL}\n${MAIL_FOOTER}`);
+  });
+});
+
+describe("TECH-021 deliverability", () => {
+  test("TECH-021-R1 the HTML is a complete document in Swedish with the subject as title", () => {
+    const { html, plain } = layout({ subject: 'Hej & "välkommen"', text: "Hej" });
+    expect(html).toMatch(/^<!doctype html><html lang="sv"><head><meta charset="utf-8"><title>Hej &amp; &quot;välkommen&quot;<\/title><\/head><body>/);
+    expect(html).toMatch(/<\/body><\/html>$/);
+    expect(plain).toBe(`Hej\n\nGå till Kusinportalen: ${SITE_URL}\n${MAIL_FOOTER}`);
+  });
+
+  test("TECH-021-R2 the first element of the body is a hidden preview of the first paragraph, cut at 90 characters and escaped", () => {
+    const long = `${"a".repeat(80)} <b>${"c".repeat(40)}`;
+    const { html } = layout({ subject: "x", text: `${long}\n\nAndra stycket` });
+    const preview = html.match(/<body><div style="([^"]*)">([^<]*)<\/div>/);
+    expect(preview?.[1]).toContain("display:none");
+    expect(preview?.[2]).toBe(`${"a".repeat(80)} &lt;b&gt;${"c".repeat(6)}`);
+    expect(preview?.[2]).not.toContain("Andra");
+    expect(layout({ subject: "x", text: "Rad ett\nrad två\n\nNytt" }).html).toContain(">Rad ett rad två</div>");
   });
 });
 

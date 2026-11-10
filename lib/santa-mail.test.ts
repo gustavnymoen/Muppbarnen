@@ -108,7 +108,7 @@ describe("MUPP-058-R1 the install tip", () => {
 
   test.each(mails.filter(({ n }) => TIP_MAILS.includes(n)))("MUPP-058-R1 mail $n has the tip after the button and the footer line, as a numbered list in HTML", ({ mail }) => {
     const { html, plain } = layout(mail);
-    expect(html).toMatch(new RegExp(`${MAIL_FOOTER}</p><p>Tomtenissen tipsar: Vill du ha en bättre och smidigare upplevelse\\? Gör så här:</p><ol><li>${STEP_1.replace(/[()]/g, "\\$&")}</li><li>.*</li><li>.*</li></ol></div>$`));
+    expect(html).toMatch(new RegExp(`${MAIL_FOOTER}</p><p>Tomtenissen tipsar: Vill du ha en bättre och smidigare upplevelse\\? Gör så här:</p><ol><li>${STEP_1.replace(/[()]/g, "\\$&")}</li><li>.*</li><li>.*</li></ol></div></body></html>$`));
     expect(html.indexOf(INSTALL_TIP.intro)).toBeGreaterThan(html.indexOf("Gå till Kusinportalen"));
     expect(plain).toContain(`${MAIL_FOOTER}\n\nTomtenissen tipsar: Vill du ha en bättre och smidigare upplevelse? Gör så här:\n1. ${STEP_1}\n2. I Safari på iPhone`);
     expect(plain).toMatch(/\n3\. Nu är Kusinportalen tillagd som en "app" på din startskärm.*notiser fungerar inte som en vanlig app\.$/);
