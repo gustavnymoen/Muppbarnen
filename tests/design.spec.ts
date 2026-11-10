@@ -423,11 +423,11 @@ test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 the Secret Santa tab on a phone: tabs 44 
     // R2 R3: the family is one slim card with eight slim member rows, nothing wider than the screen
     await santa.click();
     const card = eventCard(page, "Familjen Ek");
-    // MUPP-056: the group is someone else's, so it is a closed card: a header button of at least 44 px and the note (status, count, administrator) wrapped on 320 px, the arrow down
+    // MUPP-056: the group is someone else's, so it is a closed card: a header button of at least 44 px that is the whole card (the note wraps on 320 px, and by more or less lines with the font), the arrow down
     const header = card.getByRole("heading", { level: 3 }).getByRole("button");
     await expect(card.getByRole("heading", { level: 4 })).toHaveCount(0);
     expect((await settledBox(header)).height).toBeGreaterThanOrEqual(44);
-    expect((await settledBox(card)).height).toBeLessThanOrEqual(96);
+    expect((await settledBox(card)).height).toBeLessThanOrEqual((await settledBox(header)).height + 16); // nothing but the header row
     expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
     await header.click();
