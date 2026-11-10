@@ -7,7 +7,7 @@ feature: MUPP-057
 
 # Verification of MUPP-057
 
-How each requirement was checked. Browser tests ran locally (a production build, the local test database); nothing is deployed yet, so the live checks are not done.
+How each requirement was checked. Browser tests ran locally (a production build, the local test database); the change was merged and deployed 2026-11-10; the Live tests (smoke) on `main` passed.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -24,7 +24,7 @@ How each requirement was checked. Browser tests ran locally (a production build,
 | Unit tests | Not applicable: no logic; the 284 existing ones pass | local | Pass | 2026-11-10 |
 | Browser tests | The existing design test of the own page extended (no new test, no new file) | local | Pass (139) | 2026-11-10 |
 | Smoke test | Not applicable: no main page or flow added | – | – | – |
-| Accessibility | axe in the preparing and started state; the live checklist (contrast, reflow, focus) not done yet | local | Pass (axe); live not checked | 2026-11-10 |
+| Accessibility | axe in the preparing and started state; the live checklist (contrast, reflow, focus): recorded as done by the user on 2026-11-10 (not run by Claude) | local, live | Pass | 2026-11-10 |
 | Design | Looked at on a 375 and a 320 px phone in a screenshot of the running local build; `/impeccable critique` not run as a separate pass | local | Done | 2026-11-10 |
 | Security | Not applicable: no route, action, query or data changes | – | – | – |
 | Code review | [review.md](review.md) | local | See review | 2026-11-10 |
@@ -42,13 +42,13 @@ The suite is over its budget with and without this change; that is TECH-019. The
 
 - [x] Tests: every check in the test plan is done and every requirement has a check; unit and browser tests pass locally
 - [ ] Test suite: over budget (287.9 s against 180 s), as before this change (TECH-019); this change added no test
-- [ ] Deployed, and the smoke tests pass against production: not yet
-- [ ] Accessibility: axe passes; the live checklist is not done yet
+- [x] Deployed, and the smoke tests pass against production (Live tests on `main`, 2026-11-10)
+- [x] Accessibility: axe passes; the live checklist recorded as done by the user
 - [x] Requirements in the card match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs, `DESIGN.md` and `wiki/log.md` updated
 - [x] No leftovers
 - [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass
-- [ ] Code review: see [review.md](review.md)
+- [x] Code review: see [review.md](review.md)
 - [x] Improvements: none found
 
 ## Requirements as built
