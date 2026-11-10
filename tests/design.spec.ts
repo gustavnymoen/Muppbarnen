@@ -399,13 +399,13 @@ test("MUPP-003-R8 MUPP-010-R2 R6 MUPP-053-R1 the admin link is quiet, and the ad
   }
 });
 
-test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 the Secret Santa tab on a phone: tabs 44 px high with the selected one marked, a family of 8 as slim rows that fit the width", async ({ page }) => {
+test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 MUPP-059-R1 the Secret Santa tab on a phone: tabs 44 px high with the selected one marked, the closed card with \"Admin: <name>\" on a line of its own, a family of 8 as slim rows that fit the width", async ({ page }) => {
   test.skip(!runsLocally, "needs the admin password of the local test server");
   await clearFamily();
   await clearSanta();
   const chef = uniqueName("Chef");
   await addParent(chef, true);
-  const family = await addSantaEvent("Familjen Ek");
+  const family = await addSantaEvent("Familjen Ek", await addParent("E2E Eva"));
   for (let i = 1; i <= 8; i++) await addSantaMember(family, `Person Nummer${i}`, `070000${String(i).padStart(4, "0")}`, `person${i}@exempel.invalid`);
   try {
     await page.setViewportSize({ width: 320, height: 640 });
@@ -428,6 +428,12 @@ test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 the Secret Santa tab on a phone: tabs 44 
     await expect(card.getByRole("heading", { level: 4 })).toHaveCount(0);
     expect((await settledBox(header)).height).toBeGreaterThanOrEqual(44);
     expect((await settledBox(card)).height).toBeLessThanOrEqual((await settledBox(header)).height + 16); // nothing but the header row
+    // MUPP-059-R1: "Admin: <name>" is one line (a 16 px line, not split on 320 px) below the status line, and nothing is wider than the screen
+    const admin = header.getByText(/^Admin: /);
+    await expect(header).toContainText(", 8 deltagare");
+    expect((await settledBox(admin)).height).toBeLessThanOrEqual(16);
+    const lineAboveAdmin = 39; // the 24 px title and the 16 px status line, less a pixel of rounding
+    expect((await settledBox(admin)).y).toBeGreaterThanOrEqual((await settledBox(header.locator("xpath=./span[1]"))).y + lineAboveAdmin);
     expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
     await header.click();
@@ -1366,7 +1372,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
   }
 });
 
-test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 MUPP-042-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal with aligned symbols, centred text and a divider in the gap, and the toggles Aktiv and Startad, the check mark and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
+test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-042-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal, at least 11 rem high with a 40 px symbol over centred 30 px text, and a divider in the gap, and the toggles Aktiv and Startad, the check mark and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1392,17 +1398,22 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 MUPP-042-R1 the S
       const [a, b] = await Promise.all([settledBox(link.locator("xpath=..")), settledBox(grey)]);
       expect(Math.abs(a.width - b.width)).toBeLessThan(1);
       expect(Math.abs(a.height - b.height)).toBeLessThan(1);
-      const centreY = (box: Box) => box.y + box.height / 2;
+      // MUPP-059-R2: the symbol (40 px) sits over the text, and both are centred in the card, across and in height as a group
+      const centreX = (box: Box) => box.x + box.width / 2;
       for (const [card, symbol, text] of [
         [a, link.locator("svg"), link.getByRole("heading")],
         [b, grey.locator("svg"), grey.locator("div")],
       ] as const) {
         const [s, t] = await Promise.all([settledBox(symbol), settledBox(text)]);
-        expect(Math.abs(centreY(s) - centreY(card))).toBeLessThan(1);
-        expect(Math.abs(centreY(t) - centreY(card))).toBeLessThan(1);
-        expect(s.x - card.x).toBeCloseTo(17, 0); // the border and 1 rem of padding, the same in both cards
-        expect(s.width).toBe(18);
+        expect(Math.abs(centreX(s) - centreX(card))).toBeLessThan(1);
+        expect(Math.abs(centreX(t) - centreX(card))).toBeLessThan(1);
+        expect(Math.abs((s.y + t.y + t.height) / 2 - (card.y + card.height / 2))).toBeLessThan(1);
+        expect(s.y + s.height).toBeLessThanOrEqual(t.y);
+        expect(s.width).toBe(40);
+        expect(a.height).toBeGreaterThanOrEqual(176); // at least 11 rem, before: about 52 px
       }
+      await expect(link.getByRole("heading")).toHaveCSS("font-size", "30px");
+      expect(await hasHorizontalScroll(page)).toBe(false);
       // 60 % of the card width, 1 px thick, halfway down the gap, in the muted colour at 45 % (the divider-short style of MUPP-013)
       const line = await page.locator("li.divider-short").nth(1).evaluate((li) => {
         const style = getComputedStyle(li, "::before");

@@ -15,7 +15,7 @@ export function SlimCard({
 }: {
   thumb?: ReactNode;
   title: string;
-  note?: string;
+  note?: ReactNode;
   level?: 2 | 3 | 4;
   actions: ReactNode;
   // Hela rubrikraden är en knapp som fäller kortet (MUPP-056); kortet som använder den håller själv reda på öppet/stängt

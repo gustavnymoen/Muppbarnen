@@ -20,7 +20,7 @@ export function EventFoldList({ children }: { children: ReactNode }) {
 
 // En grupp som kort (MUPP-056): ett kort som fälls ut och in. Utan fällning (en enda grupp) är det öppet och rubriken en vanlig rubrik.
 // Öppet eller stängt sparas bara i kortet, så det består när sidan ritas om efter en ändring och glöms vid nästa besök.
-export function EventFold({ title, note, actions, foldable, startsOpen, children }: { title: string; note: string; actions: ReactNode; foldable: boolean; startsOpen: boolean; children: ReactNode }) {
+export function EventFold({ title, note, actions, foldable, startsOpen, children }: { title: string; note: ReactNode; actions: ReactNode; foldable: boolean; startsOpen: boolean; children: ReactNode }) {
   const first = useContext(FirstRender);
   const [open, setOpen] = useState(startsOpen || !first.current);
   if (!foldable) return <SlimCard title={title} note={note} actions={actions}>{children}</SlimCard>;
