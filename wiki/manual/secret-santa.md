@@ -21,7 +21,7 @@ Står det "Det stämde inte" har du valt fel namn eller skrivit något annat än
 Vad du ser på din sida beror på hur långt gruppen har kommit:
 
 - **Vi har inte kört igång än:** gruppen är inte öppnad. Du får ett mejl när den öppnas, och då kan du skriva din önskelista.
-- **Två kort:** gruppen är öppen. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord (då får du ett mejl).
+- **Två kort:** gruppen är öppen. Korten är höga med stor text, och symbolen ligger över texten. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord (då får du ett mejl).
 - **Efter lottningen:** det andra kortet heter **Min matchning: <namn>** och öppnar önskelistan hos den du ska handla åt. Den går bara att läsa. Du kan fortfarande ändra din egen lista. Ingen får veta vem som drog vem, inte heller vem som ska handla åt dig. Korten är lika stora och har en tunn linje mellan sig.
 
 ## Din önskelista

@@ -41,11 +41,16 @@ export function SantaTab({ events, adminId }: { events: SantaEvent[]; adminId: n
 
 function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged: ArrangedEvent; adminId: number }) {
   // Det stängda kortet visar status och antal (MUPP-056); huvudadministratören ser också andras grupper: då står det vems de är
-  const parts = [...(foldable ? [STATUS_LABEL[event.status]] : []), `${event.members.length} deltagare`, ...(event.ownerId === adminId ? [] : [`administreras av ${event.ownerName}`])];
+  const counts = [...(foldable ? [STATUS_LABEL[event.status]] : []), `${event.members.length} deltagare`].join(", ");
   return (
     <EventFold
       title={event.name}
-      note={parts.join(", ")}
+      note={
+        <>
+          {counts}
+          {event.ownerId !== adminId && <span className="block">Admin: {event.ownerName}</span>}
+        </>
+      }
       foldable={foldable}
       startsOpen={open}
       actions={

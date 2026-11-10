@@ -77,6 +77,7 @@ tags: [product, features]
 | [MUPP-041](MUPP-041-secret-santa-draw/solution.md) | Secret Santa: the draw | Administration | Done |
 | [MUPP-042](MUPP-042-secret-santa-your-person/solution.md) | Secret Santa: your person and change mails | Önskelista | Review |
 | [MUPP-057](MUPP-057-santa-own-page-cards/solution.md) | Secret Santa own page cards | Shared | Review |
+| [MUPP-059](MUPP-059-santa-group-card-text/solution.md) | Santa group card text and bigger own page cards | Shared | Ongoing |
 | [MUPP-056](MUPP-056-santa-admin-groups/solution.md) | Foldable groups in Secret Santa admin | Administration | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
