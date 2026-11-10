@@ -67,6 +67,7 @@ export const setPicture = (childId: number, name: string) =>
 // Everything the tests made. The test database is only theirs, so it is all removed.
 // The Secret Santa tables first: an event is owned by a parent, and a parent who owns one cannot be deleted
 async function clearSantaTables(db: ReturnType<typeof createClient>) {
+  await db.execute("DELETE FROM ss_draw");
   await db.execute("DELETE FROM ss_wish");
   await db.execute("DELETE FROM ss_member");
   await db.execute("DELETE FROM ss_event");
@@ -135,6 +136,10 @@ export const clearSanta = () =>
 
 export const countSanta = (table: "ss_event" | "ss_member") =>
   withDb(async (db) => Number((await db.execute(`SELECT COUNT(*) AS n FROM ${table}`)).rows[0].n));
+
+// Who drew whom, as the database holds it (the admin pages never show it): [giver, receiver] pairs of member ids
+export const santaDraw = (eventId: number) =>
+  withDb(async (db) => (await db.execute({ sql: "SELECT giver_id, receiver_id FROM ss_draw WHERE event_id = ? ORDER BY giver_id", args: [eventId] })).rows.map((r) => [Number(r.giver_id), Number(r.receiver_id)]));
 
 // The events of the test database by name, in name order
 export const santaEventNames = () => withDb(async (db) => (await db.execute("SELECT name FROM ss_event ORDER BY name")).rows.map((r) => String(r.name)));

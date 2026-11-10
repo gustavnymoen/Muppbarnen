@@ -1,0 +1,20 @@
+%% MUPP-041 Secret Santa: the draw
+%% Start and stop of the draw by the administrator, the rules and their fallbacks, and what is kept and mailed.
+flowchart TD
+    P[Förbereder] -->|toggle Startad on, Är du säker? R2| C{two or more participants?}
+    C -->|no| X[Nothing saved, nothing mailed, the admin is told why, R3]
+    C -->|yes| D[Draw with all rules]
+    D -->|not possible| D2[Drop last year's rule]
+    D2 -->|not possible| D3[Drop the partner rule]
+    D --> R[One row per giver in ss_draw, R4]
+    D2 --> R
+    D3 --> R
+    R --> S[Startad; Aktiv locked on, members locked]
+    S --> M[Mail 3 to everyone, R6]
+    S --> N[The admin is told which rule was set aside, never who drew whom, R3 R5]
+    M -->|a mail fails| W[The draw stands, the admin sees who got none]
+    S -->|toggle Startad off, Är du säker? R7| T[Delete this year's rows; wishes kept]
+    T --> P
+    T --> M4[Mail 4 to everyone]
+    I[Inaktiv] -. Startad off and locked .-> I
+    R -->|next year| L[Last year's rows feed the rule, R4]

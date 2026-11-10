@@ -171,4 +171,20 @@ describe("MUPP-051-R1 the status of an event", () => {
       db.close();
     }
   });
+
+  test("MUPP-041-R4 the draw table keeps one row per giver and year, and a receiver once a year, and never draws a person themself", async () => {
+    const db = createClient({ url: ":memory:" });
+    try {
+      for (const name of readdirSync(path.join(import.meta.dirname, "migrations")).sort()) await db.executeMultiple(migration(name));
+      const draw = (giver: number, receiver: number, year = 2026) => db.execute({ sql: "INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (1, ?, ?, ?)", args: [year, giver, receiver] });
+      await draw(1, 2);
+      await draw(2, 1);
+      await draw(1, 2, 2025);
+      await expect(draw(1, 3)).rejects.toThrow(/constraint/i);
+      await expect(draw(3, 2)).rejects.toThrow(/constraint/i);
+      await expect(draw(3, 3)).rejects.toThrow(/constraint/i);
+    } finally {
+      db.close();
+    }
+  });
 });

@@ -1,14 +1,14 @@
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Field, Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
-import { PencilIcon } from "@/app/components/icons";
+import { CheckIcon, PencilIcon } from "@/app/components/icons";
 import { SwitchButton } from "@/app/components/SwitchButton";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
 import { STATUS_CONFIRMATIONS } from "@/lib/santa-mail";
 import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
 import { StatusInfo } from "./StatusInfo";
-import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember } from "./santa-actions";
+import { activateEvent, addMember, deactivateEvent, removeEvent, removeMember, saveEvent, saveMember, startDraw, stopDraw } from "./santa-actions";
 
 const STATUS_LABEL: Record<EventStatus, string> = { inactive: "Inaktiv", preparing: "Förbereder", started: "Startad" };
 
@@ -83,7 +83,10 @@ function EventCard({ event, adminId }: { event: SantaEvent; adminId: number }) {
           </AddRow>
         </div>
       )}
-      <ActiveToggle event={event} />
+      <div className="mt-2 flex flex-wrap items-start justify-center gap-x-6">
+        <ActiveToggle event={event} />
+        <StartedToggle event={event} />
+      </div>
     </SlimCard>
   );
 }
@@ -100,13 +103,13 @@ function StatusRow({ event }: { event: SantaEvent }) {
   );
 }
 
-// Reglaget Aktiv (av = inaktiv, på = förbereder), centrerat under plusknappen (MUPP-051-R2; vänsterställt prövas när det byggts).
+// Reglaget Aktiv (av = inaktiv, på = förbereder), under plusknappen (MUPP-051-R2).
 // I en startad grupp är det på och låst: dragningen måste stoppas först (MUPP-041). En enda ConfirmAction för båda lägena, så att
 // frågan och dess svar finns kvar när statusen har bytts.
 function ActiveToggle({ event }: { event: SantaEvent }) {
   if (event.status === "started") {
     return (
-      <div className="mt-2 flex flex-col items-center">
+      <div className="flex flex-col items-center">
         <SwitchButton label="Aktiv" checked disabled aria-label={`Aktiv ${event.name}`} aria-describedby={`locked-${event.id}`} />
         <p id={`locked-${event.id}`} className="text-sm text-muted">
           Stoppa gruppen först
@@ -117,7 +120,7 @@ function ActiveToggle({ event }: { event: SantaEvent }) {
   const activating = event.status === "inactive";
   const confirmation = activating ? STATUS_CONFIRMATIONS.activate : STATUS_CONFIRMATIONS.deactivate;
   return (
-    <div className="mt-2 flex justify-center">
+    <div className="flex justify-center">
       <ConfirmAction
         action={activating ? activateEvent : deactivateEvent}
         fields={{ eventId: String(event.id) }}
@@ -132,12 +135,34 @@ function ActiveToggle({ event }: { event: SantaEvent }) {
   );
 }
 
+// Reglaget Startad (MUPP-041-R2, R7) hör ihop med Aktiv: det går bara att slå på när gruppen förbereder, och av när den är startad
+// (det är stoppet). I en inaktiv grupp är det av och låst. Frågan nämner dem som inte skrivit någon önskelista, men dragningen får ändå göras.
+function StartedToggle({ event }: { event: SantaEvent }) {
+  if (event.status === "inactive") return <SwitchButton label="Startad" checked={false} disabled aria-label={`Startad ${event.name}`} />;
+  const starting = event.status === "preparing";
+  const without = event.members.filter((m) => !m.hasWishes).map((m) => m.name);
+  const confirmation = starting ? STATUS_CONFIRMATIONS.start : STATUS_CONFIRMATIONS.stop;
+  return (
+    <ConfirmAction
+      action={starting ? startDraw : stopDraw}
+      fields={{ eventId: String(event.id) }}
+      label={starting ? "Starta" : "Stoppa"}
+      switchLabel="Startad"
+      switchOn={!starting}
+      subject={event.name}
+      title={confirmation.title}
+      text={starting && without.length > 0 ? `${confirmation.text} Ännu ingen önskelista från: ${without.join(", ")}.` : confirmation.text}
+    />
+  );
+}
+
 function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent }) {
   const partner = event.members.find((m) => m.id === member.partnerId);
   const where = `${member.name} i ${event.name}`;
   return (
     <SlimCard
       level={4}
+      thumb={member.hasWishes ? <span role="img" aria-label="Har skrivit en önskelista" className="self-center text-brand"><CheckIcon /></span> : undefined}
       title={member.name}
       note={partner ? `Partner: ${partner.name}` : undefined}
       actions={

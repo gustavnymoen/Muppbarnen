@@ -9,6 +9,7 @@ const family = await import("./family");
 type Parent = import("./family").Parent;
 
 const clear = async () => {
+  await run("DELETE FROM ss_draw");
   await run("DELETE FROM ss_wish");
   await run("DELETE FROM ss_member");
   await run("DELETE FROM ss_event");
@@ -363,5 +364,139 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
     const id = await event(emma, "Emmas jul");
     expect(await santa.addMember(emma, { eventId: String(id), name: "", phone: "1", email: "x" })).toMatchObject({ ok: false, fields: { name: expect.any(String) } });
     expect(await count("ss_member")).toBe(0);
+  });
+});
+
+// Påhittade rader i dragningen: en tidigare dragning (år, givare → mottagare)
+const addDraw = (eventId: number, year: number, giver: number, receiver: number) =>
+  run("INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", [eventId, year, giver, receiver]);
+const drawRows = (eventId: number) => all<{ year: number; giver_id: number; receiver_id: number }>("SELECT year, giver_id, receiver_id FROM ss_draw WHERE event_id = ? ORDER BY giver_id", [eventId]);
+const thisYear = new Date().getFullYear();
+
+async function preparing(owner: Parent, names: string[], eventName = "Emmas jul") {
+  const id = await event(owner, eventName);
+  const ids = [];
+  for (const name of names) ids.push(await person(owner, id, name));
+  await santa.activateEvent(owner, String(id));
+  return { id, ids };
+}
+
+describe("MUPP-041-R2 R3 R4 start the draw", () => {
+  test("MUPP-041-R2 R4 a preparing event is drawn once: one row per giver for this year, the event is started, and the answer has the mail data but no pair", async () => {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
+    const outcome = await santa.startDraw(emma, String(id));
+    expect(outcome).toEqual({ ok: true, eventName: "Emmas jul", adminName: "Emma", setAside: [], recipients: [{ name: "Anna", email: "anna@exempel.se" }, { name: "Bo", email: "bo@exempel.se" }, { name: "Cia", email: "cia@exempel.se" }] });
+    expect(await statusOf(id)).toBe("started");
+    const rows = await drawRows(id);
+    expect(rows.map((r) => r.giver_id)).toEqual(ids);
+    expect(rows.every((r) => r.year === thisYear && r.giver_id !== r.receiver_id)).toBe(true);
+    expect(rows.map((r) => r.receiver_id).sort()).toEqual(ids);
+  });
+
+  test("MUPP-041-R2 only a preparing event is started: inactive and started are refused and nothing is saved, and only the owner or the master admin may", async () => {
+    const id = await event(emma, "Emmas jul");
+    await person(emma, id, "Anna");
+    await person(emma, id, "Bo");
+    expect(await santa.startDraw(emma, String(id))).toEqual({ ok: false, error: "Gruppens status har redan ändrats. Ladda om sidan." });
+    await santa.activateEvent(emma, String(id));
+    expect(await santa.startDraw(erik, String(id))).toEqual(refused);
+    expect(await santa.startDraw(null, String(id))).toEqual(refused);
+    expect(await santa.startDraw(emma, "abc")).toMatchObject({ ok: false });
+    expect(await drawRows(id)).toEqual([]);
+    expect(await santa.startDraw(master, String(id))).toMatchObject({ ok: true });
+    expect(await santa.startDraw(emma, String(id))).toMatchObject({ ok: false });
+    expect(await drawRows(id)).toHaveLength(2);
+  });
+
+  test("MUPP-041-R3 a draw with one participant saves and changes nothing and says why", async () => {
+    const { id } = await preparing(emma, ["Anna"]);
+    expect(await santa.startDraw(emma, String(id))).toEqual({ ok: false, error: "Dragningen går inte att göra: det behövs minst två deltagare." });
+    expect(await statusOf(id)).toBe("preparing");
+    expect(await drawRows(id)).toEqual([]);
+  });
+
+  test("MUPP-041-R3 partners are not drawn together, and when that is impossible the admin is told which rule was set aside, never who drew whom", async () => {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia", "Dan"]);
+    await santa.saveMember(emma, edit(ids[0], { partnerId: String(ids[1]) }));
+    for (let run = 0; run < 20; run++) {
+      await santa.startDraw(emma, String(id));
+      const rows = await drawRows(id);
+      expect(rows.find((r) => r.giver_id === ids[0])!.receiver_id).not.toBe(ids[1]);
+      expect(rows.find((r) => r.giver_id === ids[1])!.receiver_id).not.toBe(ids[0]);
+      await santa.stopDraw(emma, String(id));
+    }
+    const pair = await preparing(erik, ["Eva", "Fia"], "Eriks jul");
+    await santa.saveMember(erik, edit(pair.ids[0], { partnerId: String(pair.ids[1]) }));
+    expect(await santa.startDraw(erik, String(pair.id))).toMatchObject({ ok: true, setAside: ["lastYear", "partner"] });
+  });
+
+  test("MUPP-041-R3 R4 next year's draw reads last year's rows: nobody gets the person they had", async () => {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
+    // Förra året gav Anna till Bo, Bo till Cia och Cia till Anna; i år går bara den andra cirkeln
+    await addDraw(id, thisYear - 1, ids[0], ids[1]);
+    await addDraw(id, thisYear - 1, ids[1], ids[2]);
+    await addDraw(id, thisYear - 1, ids[2], ids[0]);
+    expect(await santa.startDraw(emma, String(id))).toMatchObject({ ok: true, setAside: [] });
+    expect((await drawRows(id)).filter((r) => r.year === thisYear).map((r) => [r.giver_id, r.receiver_id])).toEqual([[ids[0], ids[2]], [ids[1], ids[0]], [ids[2], ids[1]]]);
+    // Förra årets rader finns kvar som historik
+    expect((await drawRows(id)).filter((r) => r.year === thisYear - 1)).toHaveLength(3);
+  });
+});
+
+describe("MUPP-041-R5 the result is secret", () => {
+  test("MUPP-041-R5 nothing that lists events or members, for any administrator, holds who drew whom", async () => {
+    const { id } = await preparing(emma, ["Anna", "Bo", "Cia"]);
+    await santa.startDraw(emma, String(id));
+    expect(await drawRows(id)).toHaveLength(3);
+    for (const actor of [emma, master]) expect(JSON.stringify(await santa.listEvents(actor))).not.toMatch(/giver|receiver|draw/i);
+  });
+});
+
+describe("MUPP-041-R7 stop the draw", () => {
+  test("MUPP-041-R7 stopping deletes this year's rows, keeps the wishes and last year's rows, and returns the event to preparing with the mail data", async () => {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo"]);
+    await run("INSERT INTO ss_wish (member_id, title) VALUES (?, 'Bok')", [ids[0]]);
+    await addDraw(id, thisYear - 1, ids[0], ids[1]);
+    await addDraw(id, thisYear - 1, ids[1], ids[0]);
+    await santa.startDraw(emma, String(id));
+    expect(await santa.stopDraw(emma, String(id))).toMatchObject({ ok: true, eventName: "Emmas jul", recipients: [{ name: "Anna" }, { name: "Bo" }] });
+    expect(await statusOf(id)).toBe("preparing");
+    expect((await drawRows(id)).map((r) => r.year)).toEqual([thisYear - 1, thisYear - 1]);
+    expect(await count("ss_wish")).toBe(1);
+    // Ett nytt försök är en ny dragning; det stoppade försökets rader räknas inte som förra året
+    expect(await santa.startDraw(emma, String(id))).toMatchObject({ ok: true });
+    expect(await santa.addMember(emma, { eventId: String(id), name: "Ny", phone: "0700099999", email: "ny@exempel.se" })).toMatchObject({ ok: false });
+  });
+
+  test("MUPP-041-R7 only a started event is stopped, and only by its owner or the master admin", async () => {
+    const { id } = await preparing(emma, ["Anna", "Bo"]);
+    expect(await santa.stopDraw(emma, String(id))).toMatchObject({ ok: false });
+    await santa.startDraw(emma, String(id));
+    expect(await santa.stopDraw(erik, String(id))).toEqual(refused);
+    expect(await santa.stopDraw(null, String(id))).toEqual(refused);
+    expect(await statusOf(id)).toBe("started");
+    expect(await drawRows(id)).toHaveLength(2);
+    expect(await santa.stopDraw(master, String(id))).toMatchObject({ ok: true });
+  });
+
+  test("MUPP-041-R4 removing a participant or the event removes their draw rows, so an id used again never inherits history", async () => {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
+    await addDraw(id, thisYear - 1, ids[0], ids[1]);
+    await addDraw(id, thisYear - 1, ids[1], ids[2]);
+    await addDraw(id, thisYear - 1, ids[2], ids[0]);
+    await santa.removeMember(emma, String(ids[2]));
+    expect((await drawRows(id)).map((r) => [r.giver_id, r.receiver_id])).toEqual([[ids[0], ids[1]]]);
+    await santa.removeEvent(emma, String(id));
+    expect(await count("ss_draw")).toBe(0);
+  });
+});
+
+describe("MUPP-041-R1 the check mark", () => {
+  test("MUPP-041-R1 a participant has wishes once at least one is written", async () => {
+    const id = await event(emma, "Emmas jul");
+    const anna = await person(emma, id, "Anna");
+    expect((await members(id))[0].hasWishes).toBe(false);
+    await run("INSERT INTO ss_wish (member_id, title) VALUES (?, 'Bok')", [anna]);
+    expect((await members(id))[0].hasWishes).toBe(true);
   });
 });

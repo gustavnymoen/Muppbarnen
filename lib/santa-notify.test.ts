@@ -9,7 +9,7 @@ vi.mock("./mail", () => ({
     return { ok: true };
   },
 }));
-const { mailEveryone, mailNewMember, unsentNotice } = await import("./santa-notify");
+const { mailEveryone, mailNewMember, setAsideNotice, unsentNotice } = await import("./santa-notify");
 const { activatedMail, addedMail, deactivatedMail } = await import("./santa-mail");
 
 beforeEach(() => void (sent.length = 0));
@@ -48,5 +48,13 @@ describe("MUPP-051-R3 the mails to a new member", () => {
   test("MUPP-051-R3 a failing address gives false and no second mail", async () => {
     expect(await mailNewMember({ ...member, email: "fel@exempel.se", preparing: true })).toBe(false);
     expect(sent).toEqual([]);
+  });
+});
+
+describe("MUPP-041-R3 the notice about a set-aside rule", () => {
+  test("MUPP-041-R3 it names the rules that were set aside and nobody else, and is empty when none was", () => {
+    expect(setAsideNotice([])).toBe("");
+    expect(setAsideNotice(["lastYear"])).toBe("Dragningen är gjord, men regeln om att inte få förra årets person gick inte att följa.");
+    expect(setAsideNotice(["lastYear", "partner"])).toBe("Dragningen är gjord, men regeln om att inte få förra årets person och regeln om att inte få sin partner gick inte att följa.");
   });
 });
