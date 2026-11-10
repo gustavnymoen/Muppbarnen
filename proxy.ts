@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ADMIN_COOKIE, ADMIN_PATH, adminSecrets, verifyAdminSession } from "@/lib/admin-session";
+import { SANTA_JOB_PATH } from "@/lib/santa-job";
 import { LOGIN_PATH, SESSION_COOKIE, siteSecrets, verifySession } from "@/lib/site-session";
 
 // Hela sajten ligger bakom sajtlösenordet (MUPP-009). Utan giltig kaka släpps
@@ -14,6 +15,9 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   // Alla metoder släpps hit, för inloggningens serveråtgärd: varje annan åtgärd kontrollerar kakan själv
   if (pathname === LOGIN_PATH) return NextResponse.next();
+
+  // Jobbet som mejlar om ändrade önskelistor (MUPP-042): en POST med en egen hemlighet, som rutten kontrollerar
+  if (pathname === SANTA_JOB_PATH && request.method === "POST") return NextResponse.next();
 
   const isRead = request.method === "GET" || request.method === "HEAD";
   if (isRead && PUBLIC_FILES.includes(pathname)) return NextResponse.next();

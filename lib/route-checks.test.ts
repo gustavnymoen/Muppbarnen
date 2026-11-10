@@ -13,6 +13,7 @@ const root = path.resolve(import.meta.dirname, "..");
 // Det enda som får sakna inloggningskontrollen, med skälet
 const NO_SIGN_IN_CHECK: Record<string, string> = {
   "app/losenord/actions.ts#login": "den är själva inloggningen; den har gränsen och spärren i stället",
+  "app/api/santa-mails/route.ts#POST": "ett schemalagt jobb utan kaka; den har gränsen och en egen hemlighet (lib/santa-job.ts) i stället",
 };
 
 // Det enda under admin som får sakna adminkontrollen, med skälet
@@ -173,8 +174,8 @@ describe("TECH-005-R1 every route and server action checks the sign-in first", (
     expect(findProblems([{ file: "app/onskelista/actions.ts", text: ok }])).toEqual([]);
   });
 
-  test("TECH-005-R1 the login action is the one listed exception", () => {
-    expect(Object.keys(NO_SIGN_IN_CHECK)).toEqual(["app/losenord/actions.ts#login"]);
+  test("TECH-005-R1 the login action and the Secret Santa job are the listed exceptions", () => {
+    expect(Object.keys(NO_SIGN_IN_CHECK)).toEqual(["app/losenord/actions.ts#login", "app/api/santa-mails/route.ts#POST"]);
     const text = `"use server";\nexport async function login() {\n  await guardWrite();\n}`;
     expect(findProblems([{ file: "app/losenord/actions.ts", text }])).toEqual([]);
     expect(findProblems([{ file: "app/annat/actions.ts", text }])).toHaveLength(1);

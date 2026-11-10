@@ -2,6 +2,7 @@ import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
 import { collect, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
+import { clearListChanges } from "./santa-changes";
 import { drawPairs, type SetAside } from "./santa-draw";
 
 // Secret Santa: grupper (events) och deras medlemmar (MUPP-038, MUPP-048). Vilken förälder som helst skapar en
@@ -173,6 +174,7 @@ export async function startDraw(actor: Parent | null, rawId: unknown): Promise<O
       await run("INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", [event.id, thisYear(), giver, receiver], tx);
     }
     await run("UPDATE ss_event SET status = 'started' WHERE id = ? AND status = 'preparing'", [event.id], tx);
+    await clearListChanges(event.id, tx);
     return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
   });
 }
@@ -187,6 +189,7 @@ export async function stopDraw(actor: Parent | null, rawId: unknown): Promise<Ou
     // Det senaste året, inte innevarande: en dragning i december som stoppas i januari ska också tas bort
     await run("DELETE FROM ss_draw WHERE event_id = ? AND year = (SELECT MAX(year) FROM ss_draw WHERE event_id = ?)", [event.id, event.id], tx);
     await run("UPDATE ss_event SET status = 'preparing' WHERE id = ? AND status = 'started'", [event.id], tx);
+    await clearListChanges(event.id, tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
     return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients };
   });

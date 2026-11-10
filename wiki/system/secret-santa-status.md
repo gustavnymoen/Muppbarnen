@@ -17,7 +17,7 @@ An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a statu
 |---|---|---|---|
 | Members added, changed, removed (`lib/santa.ts`) | yes | yes | no ("Gruppen är startad. Deltagarna kan inte ändras nu.") |
 | Wishes added, changed, removed (`lib/santa-wishes.ts`) | no ("Önskelistan är stängd just nu.") | yes | yes |
-| What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" (the rest comes with MUPP-042) |
+| What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" and the link card "Min matchning: <name>" ([Secret Santa match](secret-santa-match.md)) |
 | The toggle "Aktiv" | off; switch on to activate | on; switch off to deactivate | on and locked, "Stoppa gruppen först" |
 
 The two cards are equal in size, with their symbols aligned, the text centred in height and the divider of the multi-kid birthday card in the gap between them; with one card there is no divider ([MUPP-057](../../specs/MUPP-057-santa-own-page-cards/solution.md), [Design](../../DESIGN.md)).
