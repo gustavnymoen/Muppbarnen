@@ -10,7 +10,7 @@ vi.mock("./mail", () => ({
   },
 }));
 const { mailEveryone, mailNewMember, setAsideNotice, unsentNotice } = await import("./santa-notify");
-const { activatedMail, addedMail, deactivatedMail } = await import("./santa-mail");
+const { activatedMail, addedMail, deactivatedMail, startedMail } = await import("./santa-mail");
 
 beforeEach(() => void (sent.length = 0));
 
@@ -36,17 +36,22 @@ describe("MUPP-051-R3 the mails to a new member", () => {
   const member = { name: "Anna", email: "anna@exempel.se", eventName: "Emmas jul", adminName: "Emma" };
 
   test("MUPP-051-R3 an inactive group gives the welcome mail only", async () => {
-    expect(await mailNewMember({ ...member, preparing: false })).toBe(true);
+    expect(await mailNewMember({ ...member, status: "inactive" as const })).toBe(true);
     expect(sent).toEqual([{ to: "anna@exempel.se", subject: addedMail("Emmas jul", "Emma").subject }]);
   });
 
   test("MUPP-051-R3 a preparing group gives the welcome mail and right after it the activation mail", async () => {
-    expect(await mailNewMember({ ...member, preparing: true })).toBe(true);
+    expect(await mailNewMember({ ...member, status: "preparing" as const })).toBe(true);
     expect(sent.map((m) => m.subject)).toEqual([addedMail("Emmas jul", "Emma").subject, activatedMail("Emmas jul", "Emma").subject]);
   });
 
+  test("MUPP-060-R4 a started group gives the started mail and nothing else", async () => {
+    expect(await mailNewMember({ ...member, status: "started" as const })).toBe(true);
+    expect(sent).toEqual([{ to: "anna@exempel.se", subject: startedMail("Emmas jul").subject }]);
+  });
+
   test("MUPP-051-R3 a failing address gives false and no second mail", async () => {
-    expect(await mailNewMember({ ...member, email: "fel@exempel.se", preparing: true })).toBe(false);
+    expect(await mailNewMember({ ...member, email: "fel@exempel.se", status: "preparing" as const })).toBe(false);
     expect(sent).toEqual([]);
   });
 });

@@ -139,7 +139,7 @@ describe("MUPP-048-R3 own events only", () => {
   test("MUPP-048-R3 the master admin can change every event", async () => {
     const id = await event(emma, "Emmas jul");
     const m = await person(master, id, "Anna");
-    expect(await santa.saveMember(master, edit(m, { name: "Anna" }))).toEqual({ ok: true });
+    expect(await santa.saveMember(master, edit(m, { name: "Anna" }))).toMatchObject({ ok: true });
     expect(await santa.saveEvent(master, { id: String(id), name: "Julen" })).toEqual({ ok: true });
     expect(await santa.removeMember(master, String(m))).toEqual({ ok: true });
     expect(await santa.removeEvent(master, String(id))).toEqual({ ok: true });
@@ -170,7 +170,7 @@ describe("MUPP-038-R3 MUPP-048-R5 members", () => {
     expect(await santa.saveMember(emma, edit(bo, { phone: "0701111111", email: "bo@exempel.se" }))).toMatchObject({ ok: false, fields: { phone: expect.any(String) } });
     expect(await santa.saveMember(emma, edit(bo, { phone: "0702222222", email: "Anna@exempel.se" }))).toMatchObject({ ok: false, fields: { email: expect.any(String) } });
     // Sina egna uppgifter får man spara om
-    expect(await santa.saveMember(emma, edit(bo, { phone: "0702222222", email: "bo@exempel.se" }))).toEqual({ ok: true });
+    expect(await santa.saveMember(emma, edit(bo, { phone: "0702222222", email: "bo@exempel.se" }))).toMatchObject({ ok: true });
     expect(await count("ss_member")).toBe(2);
   });
 
@@ -180,7 +180,7 @@ describe("MUPP-038-R3 MUPP-048-R5 members", () => {
     const annaA = await person(emma, a, "Anna", "0701111111", "anna@exempel.se");
     const annaB = await person(erik, b, "Anna", "0701111111", "anna@exempel.se");
     expect(annaA).not.toBe(annaB);
-    expect(await santa.saveMember(emma, edit(annaA, { name: "Anna Ny", phone: "0708888888", email: "ny@exempel.se" }))).toEqual({ ok: true });
+    expect(await santa.saveMember(emma, edit(annaA, { name: "Anna Ny", phone: "0708888888", email: "ny@exempel.se" }))).toEqual({ ok: true, newEmail: "ny@exempel.se" });
     expect(await members(a)).toMatchObject([{ name: "Anna Ny", phone: "0708888888" }]);
     expect(await members(b)).toMatchObject([{ name: "Anna", phone: "0701111111", email: "anna@exempel.se" }]);
     expect(await santa.removeMember(emma, String(annaA))).toEqual({ ok: true });
@@ -205,7 +205,7 @@ describe("MUPP-038-R5 partner", () => {
     const f = await event(emma, "Grupp A");
     const [anna, bo, cia, dan] = [await person(emma, f, "Anna"), await person(emma, f, "Bo"), await person(emma, f, "Cia"), await person(emma, f, "Dan")];
 
-    expect(await santa.saveMember(emma, edit(anna, { name: "Anna", partnerId: String(bo) }))).toEqual({ ok: true });
+    expect(await santa.saveMember(emma, edit(anna, { name: "Anna", partnerId: String(bo) }))).toMatchObject({ ok: true });
     expect(await partnersOf(f)).toEqual({ Anna: bo, Bo: anna, Cia: null, Dan: null });
 
     // Anna får en ny partner: Bo blir ensam
@@ -326,20 +326,21 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
     for (const status of ["inactive", "preparing"]) {
       await setStatus(id, status);
       const member = await person(emma, id, `Anna${status}`);
-      expect(await santa.saveMember(emma, edit(member, { name: "Nytt namn" }))).toEqual({ ok: true });
+      expect(await santa.saveMember(emma, edit(member, { name: "Nytt namn" }))).toMatchObject({ ok: true });
       expect(await santa.removeMember(emma, String(member))).toEqual({ ok: true });
     }
   });
 
-  test("MUPP-051-R3 a started event refuses adding, changing and removing, also for the master admin, and keeps its members as they were", async () => {
+  test("MUPP-051-R3 MUPP-060-R2 a started event refuses adding, a partner and removing, also for the master admin, and keeps its members as they were", async () => {
     const id = await event(emma, "Emmas jul");
     const anna = await person(emma, id, "Anna");
     const bo = await person(emma, id, "Bo");
     await setStatus(id, "started");
-    const closed = { ok: false, error: "Gruppen är startad. Deltagarna kan inte ändras nu." };
+    const closed = { ok: false, error: "Gruppen är startad. Deltagare kan inte läggas till eller tas bort nu." };
+    const partnerLocked = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." };
     for (const actor of [emma, master]) {
       expect(await santa.addMember(actor, { eventId: String(id), name: "Ny", phone: "0700099999", email: "ny@exempel.se" })).toEqual(closed);
-      expect(await santa.saveMember(actor, edit(anna, { partnerId: String(bo) }))).toEqual(closed);
+      expect(await santa.saveMember(actor, edit(anna, { partnerId: String(bo) }))).toEqual(partnerLocked);
       expect(await santa.removeMember(actor, String(anna))).toEqual(closed);
     }
     expect((await members(id)).map((m) => [m.name, m.partnerId])).toEqual([["Anna", null], ["Bo", null]]);
@@ -352,12 +353,12 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
     expect(await santa.removeMember(erik, String(anna))).toEqual(refused);
   });
 
-  test("MUPP-051-R3 an added member answers with what the welcome mail needs: the address, the event, the administrator and whether it is preparing", async () => {
+  test("MUPP-051-R3 an added member answers with what the welcome mail needs: the address, the event, the administrator and the status", async () => {
     const id = await event(emma, "Emmas jul");
     const input = (n: number) => ({ eventId: String(id), name: `Ny ${n}`, phone: `070009999${n}`, email: `ny${n}@exempel.se` });
-    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", adminName: "Emma", preparing: false });
+    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", adminName: "Emma", status: "inactive" });
     await santa.activateEvent(emma, String(id));
-    expect(await santa.addMember(emma, input(2))).toMatchObject({ ok: true, preparing: true });
+    expect(await santa.addMember(emma, input(2))).toMatchObject({ ok: true, status: "preparing" });
   });
 
   test("MUPP-051-R3 an input error adds no member and no mail data", async () => {
@@ -498,5 +499,72 @@ describe("MUPP-041-R1 the check mark", () => {
     expect((await members(id))[0].hasWishes).toBe(false);
     await run("INSERT INTO ss_wish (member_id, title) VALUES (?, 'Bok')", [anna]);
     expect((await members(id))[0].hasWishes).toBe(true);
+  });
+});
+
+describe("MUPP-060 change a participant in a started group", () => {
+  // En startad grupp med dragning, en önskelista och ett par: Anna och Bo är partner
+  async function started() {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
+    await santa.saveMember(emma, edit(ids[0], { name: "Anna", phone: "0701111111", email: "anna@exempel.se", partnerId: String(ids[1]) }));
+    await run("INSERT INTO ss_wish (member_id, title) VALUES (?, 'Bok')", [ids[0]]);
+    await santa.startDraw(emma, String(id));
+    return { id, ids };
+  }
+  // Som formuläret i en startad grupp: partnerId saknas helt (åtgärden gör det till null)
+  const change = (memberId: number, extra = {}) => ({ memberId: String(memberId), name: "Anna", phone: "0701111111", email: "anna@exempel.se", partnerId: null, ...extra });
+
+  test("MUPP-060-R1 name, phone and email change in an inactive, a preparing and a started group, and the partner stays as it was when started", async () => {
+    const { id, ids } = await started();
+    expect(await santa.saveMember(emma, change(ids[0], { name: "Anna Ny", phone: "0709999999", email: "ny@exempel.se" }))).toEqual({ ok: true, newEmail: "ny@exempel.se" });
+    expect(await members(id)).toMatchObject([{ name: "Anna Ny", phone: "0709999999", email: "ny@exempel.se", partnerId: ids[1] }, { name: "Bo", partnerId: ids[0] }, { name: "Cia" }]);
+    expect(await santa.saveMember(master, change(ids[2], { name: "Cia", phone: "0702222222", email: "cia@exempel.se" }))).toMatchObject({ ok: true });
+  });
+
+  test("MUPP-060-R1 a changed name or phone alone gives no new address; the same address in other letters is not a change", async () => {
+    const { ids } = await started();
+    expect(await santa.saveMember(emma, change(ids[0], { name: "Anna Ny", phone: "0709999999" }))).toMatchObject({ ok: true });
+    expect(await santa.saveMember(emma, change(ids[0], { phone: "0709999999", email: "ANNA@exempel.se" }))).toMatchObject({ ok: true });
+  });
+
+  test("MUPP-060-R1 phone and email stay unique in a started group, and someone who may not manage it is refused", async () => {
+    const { id, ids } = await started();
+    const bo = (await members(id))[1];
+    expect(await santa.saveMember(emma, change(ids[0], { phone: bo.phone }))).toMatchObject({ ok: false, fields: { phone: expect.any(String) } });
+    expect(await santa.saveMember(emma, change(ids[0], { email: bo.email.toUpperCase() }))).toMatchObject({ ok: false, fields: { email: expect.any(String) } });
+    expect(await santa.saveMember(erik, change(ids[0], { name: "Fel" }))).toEqual(refused);
+    expect(await santa.saveMember(null, change(ids[0], { name: "Fel" }))).toEqual(refused);
+  });
+
+  test("MUPP-060-R2 a started group refuses any partner value, also an empty one, and nothing is changed; stopping the draw allows everything again", async () => {
+    const { id, ids } = await started();
+    const locked = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." };
+    for (const partnerId of ["", String(ids[2]), "abc"]) expect(await santa.saveMember(emma, change(ids[0], { name: "Fel", partnerId }))).toEqual(locked);
+    expect(await santa.addMember(emma, { eventId: String(id), name: "Ny", phone: "0700099999", email: "ny@exempel.se" })).toMatchObject({ ok: false });
+    expect(await santa.removeMember(emma, String(ids[0]))).toMatchObject({ ok: false });
+    expect(await members(id)).toMatchObject([{ name: "Anna", partnerId: ids[1] }, { name: "Bo", partnerId: ids[0] }, { name: "Cia", partnerId: null }]);
+    await santa.stopDraw(emma, String(id));
+    expect(await santa.saveMember(emma, change(ids[0], { partnerId: String(ids[2]) }))).toMatchObject({ ok: true });
+    expect(await santa.removeMember(emma, String(ids[1]))).toEqual({ ok: true });
+  });
+
+  test("MUPP-060-R3 a change leaves the draw and the wishes as they were", async () => {
+    const { id, ids } = await started();
+    const before = await drawRows(id);
+    await santa.saveMember(emma, change(ids[0], { name: "Anna Ny", phone: "0709999999", email: "ny@exempel.se" }));
+    expect(await drawRows(id)).toEqual(before);
+    expect(await count("ss_wish")).toBe(1);
+  });
+
+  test("MUPP-060-R4 the mail data is read from the saved address, per status, and only for someone who may manage the group", async () => {
+    const { id, ids } = await started();
+    await santa.saveMember(emma, change(ids[0], { email: "ny@exempel.se" }));
+    expect(await santa.memberToMail(emma, String(ids[0]))).toEqual({ ok: true, name: "Anna", email: "ny@exempel.se", eventName: "Emmas jul", adminName: "Emma", status: "started" });
+    expect(await santa.memberToMail(master, String(ids[0]))).toMatchObject({ ok: true });
+    expect(await santa.memberToMail(erik, String(ids[0]))).toEqual(refused);
+    expect(await santa.memberToMail(null, String(ids[0]))).toEqual(refused);
+    expect(await santa.memberToMail(emma, "99999")).toMatchObject({ ok: false });
+    await setStatus(id, "preparing");
+    expect(await santa.memberToMail(emma, String(ids[0]))).toMatchObject({ ok: true, status: "preparing" });
   });
 });

@@ -95,7 +95,19 @@ export async function saveMember(_previous: FormState, formData: FormData): Prom
     email: text(formData, "email"),
     partnerId: text(formData, "partnerId"),
   });
-  return answer(formData, outcome);
+  const result = answer(formData, outcome);
+  // Ändrades e-posten frågar sidan om den nya adressen ska få mejlet (MUPP-060-R4); inget har skickats ännu
+  return outcome.ok && outcome.newEmail ? { ...result, ask: { memberId: String(text(formData, "memberId")), email: outcome.newEmail } } : result;
+}
+
+// Svaret ja på frågan efter en ändrad e-post (MUPP-060-R4): mejlet går till deltagarens sparade adress, aldrig till en adress ur förfrågan
+export async function mailNewAddress(_previous: FormState, formData: FormData): Promise<FormState> {
+  await requireSiteSession();
+  const { parent } = await requireAdminSession();
+  const guard = await guardWrite();
+  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const outcome = await santa.memberToMail(parent, text(formData, "memberId"));
+  return answer(formData, outcome, outcome.ok && !(await mailNewMember(outcome)) ? [outcome.name] : []);
 }
 
 export async function removeMember(_previous: FormState, formData: FormData): Promise<FormState> {

@@ -2,7 +2,7 @@ import "server-only";
 import { sendMail, type Mail } from "./mail";
 import type { NewMember, Recipient } from "./santa";
 import type { SetAside } from "./santa-draw";
-import { activatedMail, addedMail } from "./santa-mail";
+import { activatedMail, addedMail, startedMail } from "./santa-mail";
 
 // Skickar Secret Santas mejl (MUPP-051) efter att en ändring är sparad. Ett mejl som inte går iväg ändrar inget som redan är sparat:
 // svaret är namnen på dem som inte fick något, så att administratören kan höra av sig. Texterna finns i lib/santa-mail.ts.
@@ -14,10 +14,12 @@ export async function mailEveryone(recipients: Recipient[], mail: Mail): Promise
   return results.filter((name): name is string => name !== null);
 }
 
-// En ny deltagare: välkomstmejlet, och i en grupp som förbereder direkt efter det aktiveringsmejlet (MUPP-051-R3). Sant om allt gick iväg.
+// En ny adress får mejlet en ny deltagare skulle fått i gruppens status: välkomstmejlet, och i en grupp som förbereder direkt efter det
+// aktiveringsmejlet (MUPP-051-R3); i en startad grupp startmejlet (MUPP-060-R4). Sant om allt gick iväg.
 export async function mailNewMember(member: NewMember): Promise<boolean> {
+  if (member.status === "started") return (await sendMail(member.email, startedMail(member.eventName))).ok;
   if (!(await sendMail(member.email, addedMail(member.eventName, member.adminName))).ok) return false;
-  return !member.preparing || (await sendMail(member.email, activatedMail(member.eventName, member.adminName))).ok;
+  return member.status !== "preparing" || (await sendMail(member.email, activatedMail(member.eventName, member.adminName))).ok;
 }
 
 // Texten som administratören ser när något mejl inte gick iväg

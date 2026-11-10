@@ -7,6 +7,8 @@ export type FormState = {
   values?: Record<string, string>;
   // Något som gick fel trots att det sparades (ett mejl som inte kom iväg); visas efter bekräftelsen
   notice?: string;
+  // Efter ett sparat formulär: en fråga som ska ställas (Secret Santa, MUPP-060: skicka mejlet till den nya adressen?)
+  ask?: { memberId: string; email: string };
 } | null;
 
 export type FormAction = (previous: FormState, formData: FormData) => Promise<FormState>;

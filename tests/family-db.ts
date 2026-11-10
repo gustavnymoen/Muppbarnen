@@ -116,6 +116,9 @@ export const addSantaEvent = (name: string, ownerId?: number, status: SantaStatu
 export const addSantaMember = (eventId: number, name: string, phone: string, email: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", args: [eventId, name, phone, email] })).lastInsertRowid));
 
+// An address that the site's own form would not accept, to see what happens when a mail cannot be sent (MUPP-060)
+export const setSantaEmail = (memberId: number, email: string) => withDb((db) => db.execute({ sql: "UPDATE ss_member SET email = ? WHERE id = ?", args: [email, memberId] }));
+
 // Secret Santa wish lists (MUPP-040): made straight in the test database, read back as the database holds them
 export const addSantaWish = (memberId: number, title: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_wish (member_id, title) VALUES (?, ?)", args: [memberId, title] })).lastInsertRowid));

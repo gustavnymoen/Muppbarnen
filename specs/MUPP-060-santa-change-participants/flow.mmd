@@ -1,0 +1,24 @@
+%% MUPP-060 Change participants in a started group
+%% What the administrator can change in each status, and the question after a changed e-mail.
+flowchart TD
+    A[Administrator presses the pencil on a participant] --> S{Group status}
+    S -->|inactive or preparing| F1[Form: name, phone, e-mail, partner, R1]
+    S -->|started| F2[Form: name, phone, e-mail, no partner, R1 R2]
+    F1 --> V
+    F2 --> V{Server: owner or master admin, input valid, phone and e-mail unique?}
+    V -- no --> E[Error at the field, nothing saved]
+    V -- yes --> D[Saved; draw, wishes and the participant's session untouched, R3]
+    D --> Q{E-mail changed?}
+    Q -- no --> Z[Done, no question]
+    Q -- yes --> K[Skicka mejlet till den nya adressen?, R4]
+    K -->|Inte nu| Z
+    K -->|Skicka| M[Server reads the saved address and the status]
+    M -->|inactive| M1[Added mail]
+    M -->|preparing| M2[Added mail and activated mail]
+    M -->|started| M3[Started mail]
+    M1 --> R
+    M2 --> R
+    M3 --> R{Mail sent?}
+    R -- no --> N[The administrator is told who got no mail; the change stays saved]
+    R -- yes --> Z
+    X[Add, remove or partner request to a started group] -->|server refuses, R2| Y[Nothing changed]
