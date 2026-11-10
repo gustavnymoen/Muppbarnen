@@ -28,6 +28,8 @@ export async function runCleanup(today: Today = swedishToday()) {
   for (const { id } of events) {
     await withTransaction(async (tx) => {
       await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE event_id = ?)", [id], tx);
+      // En ändring som väntar på sitt mejl (MUPP-042) ska inte mejlas efter rensningen
+      await run("UPDATE ss_member SET list_changed_at = NULL WHERE event_id = ?", [id], tx);
       await run("UPDATE ss_event SET status = 'inactive' WHERE id = ?", [id], tx);
     });
   }

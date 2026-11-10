@@ -21,7 +21,8 @@ Står det "Det stämde inte" har du valt fel namn eller skrivit något annat än
 Vad du ser på din sida beror på hur långt gruppen har kommit:
 
 - **Vi har inte kört igång än:** gruppen är inte öppnad. Du får ett mejl när den öppnas, och då kan du skriva din önskelista.
-- **Två kort:** gruppen är öppen. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord (då får du ett mejl, och kortet med den du ska handla åt kommer i nästa steg). Korten är lika stora och har en tunn linje mellan sig.
+- **Två kort:** gruppen är öppen. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord (då får du ett mejl).
+- **Efter lottningen:** det andra kortet heter **Min matchning: <namn>** och öppnar önskelistan hos den du ska handla åt. Den går bara att läsa. Du kan fortfarande ändra din egen lista. Ingen får veta vem som drog vem, inte heller vem som ska handla åt dig. Korten är lika stora och har en tunn linje mellan sig.
 
 ## Din önskelista
 
@@ -42,6 +43,6 @@ En månad efter julafton, den 24 januari, städas Secret Santa av sig själv: al
 
 ## Mejlen du får
 
-Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. I mejlet om att gruppen har öppnat, om att dragningen är gjord och om att du har lagts till i en grupp finns också ett tips från Tomtenissen om hur du lägger sajten på telefonens hemskärm så att den öppnas som en app (notiser fungerar inte som i en vanlig app). Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
+Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig. Ändrar den du ska handla åt sin lista efter lottningen får du ett kort mejl om det, högst ett i timmen, även om det gjorts många ändringar; mejlet säger inte vad som ändrats, så titta in på matchningens lista. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. I mejlet om att gruppen har öppnat, om att dragningen är gjord och om att du har lagts till i en grupp finns också ett tips från Tomtenissen om hur du lägger sajten på telefonens hemskärm så att den öppnas som en app (notiser fungerar inte som i en vanlig app). Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
 
 [Manual](index.md)

@@ -2,6 +2,7 @@ import "server-only";
 import { all, get, run } from "./db";
 import { parseId, parseWish } from "./form-input";
 import type { Outcome } from "./family";
+import { markListChanged } from "./santa-changes";
 
 // Secret Santa-önskelistan (MUPP-040): en lista per medlem (ss_member), alltså en per person och grupp.
 // Allt tar emot medlemmen ur inloggningskakan (aldrig ett id från formuläret) och kontrollerar att
@@ -34,6 +35,7 @@ export async function saveWish(memberId: number, input: { wishId?: unknown; titl
   const { title, size, description, url } = checked.values;
   if (wish) await run("UPDATE ss_wish SET title = ?, description = ?, size = ?, url = ? WHERE id = ?", [title, description, size, url, wish.id]);
   else await run("INSERT INTO ss_wish (member_id, title, description, size, url) VALUES (?, ?, ?, ?, ?)", [memberId, title, description, size, url]);
+  await markListChanged(memberId);
   return { ok: true };
 }
 
@@ -42,6 +44,7 @@ export async function removeWish(memberId: number, rawId: unknown): Promise<Outc
   const wish = await ownWish(memberId, rawId);
   if (!wish) return NOT_ALLOWED;
   await run("DELETE FROM ss_wish WHERE id = ?", [wish.id]);
+  await markListChanged(memberId);
   return { ok: true };
 }
 

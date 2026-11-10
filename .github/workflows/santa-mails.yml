@@ -1,0 +1,23 @@
+# Mejlar givarna i Secret Santa vars matchning har ändrat sin önskelista (MUPP-042). Anropar sajtens jobbrutt var tionde minut;
+# rutten skickar högst ett mejl i timmen per lista. Behöver secret SANTA_JOB_SECRET (samma värde som i Vercel); saknas den
+# gör arbetsflödet ingenting. Kan också startas för hand under Actions → Secret Santa-mejl.
+name: Secret Santa-mejl
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Anropa jobbet
+        env:
+          SANTA_JOB_SECRET: ${{ secrets.SANTA_JOB_SECRET }}
+        run: |
+          if [ -z "$SANTA_JOB_SECRET" ]; then echo "SANTA_JOB_SECRET saknas, inget gjordes"; exit 0; fi
+          curl --fail --silent --show-error --max-time 60 -X POST -H "Authorization: Bearer $SANTA_JOB_SECRET" https://muppbarnen.vercel.app/api/santa-mails

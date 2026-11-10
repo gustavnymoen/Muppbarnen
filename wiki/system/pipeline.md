@@ -33,6 +33,7 @@ The diagram can be exported as a picture, for example with the Mermaid Live Edit
 | **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with its own fresh test database, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`, `npm run test:local` (every browser test) |
 | **CI**, job `security` | Every pull request to `main`; by hand | The code and its whole Git history | `npm audit`, Semgrep, Gitleaks ([Testing](testing.md#security)) |
 | **Preview tests** (`preview-tests.yml`) | When Vercel reports a preview as ready (`deployment_status`) | The pull request's preview on Vercel | `npm run test:smoke` |
+| **Secret Santa-mejl** (`santa-mails.yml`) | Every ten minutes; by hand | <https://muppbarnen.vercel.app/api/santa-mails> | One `POST` with the secret `SANTA_JOB_SECRET`, which makes the site mail the givers whose receiver changed their list ([Secret Santa match](secret-santa-match.md)); does nothing without the secret |
 | **Live tests** (`live-tests.yml`) | When Vercel reports a production deploy as ready (`deployment_status`); by hand | <https://muppbarnen.vercel.app> | `npm run test:smoke` |
 
 - **The whole suite runs once.** It runs in CI, where it also covers the tests that read the database (`runsLocally`). The preview and production get the smoke tests only: they show that the deploy works, and since they only read, production never gets test data and no production secret is used by a test.

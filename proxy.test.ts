@@ -40,3 +40,11 @@ describe("MUPP-044 the cleanup route is open to Vercel Cron", () => {
     expect(ask(`${CLEANUP_PATH}/x`).status).toBe(401);
   });
 });
+
+describe("MUPP-042-R3 the Secret Santa job", () => {
+  test("MUPP-042-R3 only a POST to the job's exact path passes without the cookie", () => {
+    expect(ask("/api/santa-mails", "POST").status).toBe(200);
+    for (const method of ["GET", "HEAD", "PUT", "DELETE"]) expect(ask("/api/santa-mails", method).status, method).toBe(401);
+    for (const path of ["/api/santa-mails/", "/api/santa-mails/x", "/api/santa-mail", "/Api/santa-mails"]) expect(ask(path, "POST").status, path).toBe(401);
+  });
+});

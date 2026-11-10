@@ -14,6 +14,7 @@ const root = path.resolve(import.meta.dirname, "..");
 const NO_SIGN_IN_CHECK: Record<string, string> = {
   "app/losenord/actions.ts#login": "den är själva inloggningen; den har gränsen och spärren i stället",
   "app/api/santa-cleanup/route.ts#GET": "Vercel Cron anropar den utan kaka; den kräver hemligheten CRON_SECRET i stället (MUPP-044)",
+  "app/api/santa-mails/route.ts#POST": "ett schemalagt jobb utan kaka; den har gränsen och en egen hemlighet (lib/santa-job.ts) i stället",
 };
 
 // Det enda under admin som får sakna adminkontrollen, med skälet
@@ -174,8 +175,8 @@ describe("TECH-005-R1 every route and server action checks the sign-in first", (
     expect(findProblems([{ file: "app/onskelista/actions.ts", text: ok }])).toEqual([]);
   });
 
-  test("TECH-005-R1 the login action and the cleanup route are the listed exceptions", () => {
-    expect(Object.keys(NO_SIGN_IN_CHECK)).toEqual(["app/losenord/actions.ts#login", "app/api/santa-cleanup/route.ts#GET"]);
+  test("TECH-005-R1 the login action, the cleanup route and the Secret Santa job are the listed exceptions", () => {
+    expect(Object.keys(NO_SIGN_IN_CHECK)).toEqual(["app/losenord/actions.ts#login", "app/api/santa-cleanup/route.ts#GET", "app/api/santa-mails/route.ts#POST"]);
     const text = `"use server";\nexport async function login() {\n  await guardWrite();\n}`;
     expect(findProblems([{ file: "app/losenord/actions.ts", text }])).toEqual([]);
     expect(findProblems([{ file: "app/annat/actions.ts", text }])).toHaveLength(1);

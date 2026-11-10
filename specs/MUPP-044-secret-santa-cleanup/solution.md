@@ -13,7 +13,7 @@ How it is built. What is built and why (goal, scope, requirements) is in the car
 
 ## Data
 
-Migration `010_santa_cleanup.sql` adds `ss_cleanup`, one row (`id = 1`) with the `year` of the last cleanup. It starts at the current year, so a site that gets the migration is not wiped at once but first the next 24 January. No other table changes.
+Migration `011_santa_cleanup.sql` adds `ss_cleanup`, one row (`id = 1`) with the `year` of the last cleanup. It starts at the current year, so a site that gets the migration is not wiped at once but first the next 24 January. No other table changes.
 
 ## Interface
 
