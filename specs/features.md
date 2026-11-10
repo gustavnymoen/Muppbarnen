@@ -85,6 +85,7 @@ tags: [product, features]
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |
 | [TECH-017](TECH-017-sending-email/solution.md) | Sending email | Shared | Review |
 | [TECH-018](TECH-018-test-suite-room-again/solution.md) | Test suite at its time budget again | Shared | Review |
+| [TECH-021](TECH-021-mail-deliverability/solution.md) | Mail deliverability | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 
