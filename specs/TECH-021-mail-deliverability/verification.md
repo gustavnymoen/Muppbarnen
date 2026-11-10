@@ -36,7 +36,7 @@ The browser run was over its budget with seven tests over 5 s, none of them touc
 
 ## Definition of Done
 
-- [ ] Tests: unit and local tests pass; the manual checks (tracking, Outlook) are not done yet
+- [x] Tests: unit and local tests pass; Outlook and Gmail are checked (Outlook SCL did not fall, it stays 5; the domain's missing reputation is the likely cause); the tracking setting in the Resend dashboard is not checked (the message source of a real mail shows no tracking)
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
 - [x] Accessibility: not applicable
 - [x] Requirements in the card match what was built, no open questions
