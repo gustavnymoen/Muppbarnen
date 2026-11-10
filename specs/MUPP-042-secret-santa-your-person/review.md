@@ -10,7 +10,7 @@ feature: MUPP-042
 **Result:** Passed
 **Date:** 2026-11-10, review run 1
 **Summary:** R1 to R3 are met. The match query only follows the signed-in giver to their own receiver; the job route is the one public route and is guarded by the request limit and a constant-time secret check; claim-before-send makes two runs send one mail.
-**Security:** The security points of the review: passed (exact method and path in `proxy.ts`, `guardWrite()` before the secret, SHA-256 and `timingSafeEqual`, closed without a secret of 32 characters, counts-only answer, parameterised SQL, no third-party action in the workflow with `permissions: {}`, the secret passed through `env`). `/security-review`: run on the branch, see below.
+**Security:** The security points of the review: passed (exact method and path in `proxy.ts`, `guardWrite()` before the secret, SHA-256 and `timingSafeEqual`, closed without a secret of 32 characters, counts-only answer, parameterised SQL, no third-party action in the workflow with `permissions: {}`, the secret passed through `env`). `/security-review`: run on the branch, no finding of confidence 8 or more (the public job route, the proxy exception, the one-way match query, the workflow and the SQL were examined).
 
 How the review works: `wiki/system/code-review.md`.
 

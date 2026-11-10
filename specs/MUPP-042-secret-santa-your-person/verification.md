@@ -21,8 +21,8 @@ feature: MUPP-042
 | Browser tests | New `tests/MUPP-042-santa-your-person.spec.ts` (4 tests) with axe, and the started own page and match list in the phone test of `tests/design.spec.ts`; mails from the test sink | local | Pass | 2026-11-10 |
 | Smoke test | None, as planned | not applicable | Not applicable | 2026-11-10 |
 | Accessibility | axe on the started own page and the match page. The live checklist: not checked yet | local | Pass locally; live not checked | 2026-11-10 |
-| Security | `/security-review` and the review's security points: [review.md](review.md) | local | See review.md | 2026-11-10 |
-| Code review | [review.md](review.md) | local | See review.md | 2026-11-10 |
+| Security | `/security-review` and the review's security points: [review.md](review.md) | local | Pass (no finding) | 2026-11-10 |
+| Code review | [review.md](review.md) | local | Passed (run 1, no must-fix) | 2026-11-10 |
 | The scheduled job live | Not checked: it needs `SANTA_JOB_SECRET` set in Vercel and in GitHub (see solution.md) | live | Not checked | 2026-11-10 |
 
 ## Test suite
@@ -46,7 +46,7 @@ The suite is over its budget with and without this change (TECH-019). The four n
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers
 - [x] Clean code: `npm run lint`, `npm run lint:docs`, `npm run typecheck` and `npm run build` pass
-- [ ] Code review done, no must-fix findings left; see [review.md](review.md)
+- [x] Code review done, no must-fix findings left; see [review.md](review.md)
 - [x] Technical tasks for larger improvements noticed along the way: none
 
 ## Requirements as built
