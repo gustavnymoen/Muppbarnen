@@ -116,6 +116,9 @@ export const addSantaEvent = (name: string, ownerId?: number, status: SantaStatu
 export const addSantaMember = (eventId: number, name: string, phone: string, email: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", args: [eventId, name, phone, email] })).lastInsertRowid));
 
+export const setSantaPartner = (memberId: number, partnerId: number) =>
+  withDb(async (db) => void (await db.execute({ sql: "UPDATE ss_member SET partner_member_id = ? WHERE id = ?", args: [partnerId, memberId] })));
+
 // Secret Santa wish lists (MUPP-040): made straight in the test database, read back as the database holds them
 export const addSantaWish = (memberId: number, title: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_wish (member_id, title) VALUES (?, ?)", args: [memberId, title] })).lastInsertRowid));

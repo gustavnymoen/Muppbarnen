@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* **Creation** [MUPP-061 Wish note instead of check mark](../specs/MUPP-061-santa-wish-note/solution.md): a participant with at least one wish shows the small muted text "Önskelista påbörjad" with a green check circle in front, under the name in the Secret Santa admin.
 * **Update** [MUPP-059](../specs/MUPP-059-santa-group-card-text/verification.md): the Live tests passed after the merge, and the Secret Santa tab was checked on the live site at 320 px (reflow, contrast 5.53:1, target size); the own page and VoiceOver are not checked live. Every changed state already has an axe call, so no test was added.
 * **Creation** [MUPP-059 Santa group card text and bigger own page cards](../specs/MUPP-059-santa-group-card-text/solution.md): the closed group card shows "Admin: <name>" on its own line, and the two cards on the participant's own page are taller with a larger symbol over larger, two-line, centred text.
 * **Creation** [MUPP-044 Secret Santa: yearly cleanup](../specs/MUPP-044-secret-santa-cleanup/solution.md): a daily Vercel Cron call (protected by `CRON_SECRET`) wipes every event's wishes and sets it inactive once a year, from 24 January, keeping events, members and the draw log; the Secret Santa cookie now holds the cleanup year, so everyone is signed out by the wipe.
