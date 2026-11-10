@@ -1,0 +1,7 @@
+%% MUPP-057 Secret Santa own page cards
+%% Which cards the own page shows, and where the divider is.
+flowchart TD
+    A[Own page] --> B{Status of the group}
+    B -->|inactive| C[Vi har inte kört igång än, no cards]
+    B -->|preparing| D[Min önskelista and Min matchnings önskelista: equal cards R1 R2 R3, divider in the gap R4]
+    B -->|started| E[Min önskelista only: no divider R4]

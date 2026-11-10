@@ -20,6 +20,8 @@ An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a statu
 | What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" (the rest comes with MUPP-041) |
 | The toggle "Aktiv" | off; switch on to activate | on; switch off to deactivate | on and locked, "Stoppa gruppen först" |
 
+The two cards are equal in size, with their symbols aligned, the text centred in height and the divider of the multi-kid birthday card in the gap between them; with one card there is no divider ([MUPP-057](../../specs/MUPP-057-santa-own-page-cards/solution.md), [Design](../../DESIGN.md)).
+
 In the interface the people are "deltagare" ([R7](../../specs/MUPP-051-santa-status/solution.md)); the code and the database keep `member`.
 
 The group's name can still be changed and the group deleted in every status.
