@@ -90,7 +90,7 @@ test("MUPP-056-R2 R4 R5 several own groups are closed with name, status and part
   await expect(foldButton(page, "Emmas midsommar")).toHaveAttribute("aria-expanded", "false");
 });
 
-test("MUPP-056-R3 the master admin sees own group open and first, then the others' closed by administrator name; several own groups are closed", async ({ page }) => {
+test("MUPP-056-R3 MUPP-059-R1 the master admin sees own group open and first, then the others' closed by administrator name; several own groups are closed", async ({ page }) => {
   const [chef, emma, erik] = [uniqueName("Chef"), uniqueName("Emma"), uniqueName("Erik")];
   const chefId = await addParent(chef, true);
   // Created in the opposite order of what is expected, and the names sorted so that the order is by administrator and not by group
@@ -103,7 +103,7 @@ test("MUPP-056-R3 the master admin sees own group open and first, then the other
   await expect(foldButton(page, "Chefens jul")).toHaveAttribute("aria-expanded", "true");
   await expect(foldButton(page, "Zzz Emmas")).toHaveAttribute("aria-expanded", "false");
   await expect(foldButton(page, "Aaa Eriks")).toHaveAttribute("aria-expanded", "false");
-  await expect(eventCard(page, "Zzz Emmas")).toContainText(`administreras av ${emma}`);
+  await expect(eventCard(page, "Zzz Emmas")).toContainText(`Admin: ${emma}`);
   await expectNoA11yViolations(page);
 
   // Several own groups: all closed, still before the others

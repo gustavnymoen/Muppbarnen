@@ -1,0 +1,7 @@
+%% MUPP-059 Santa group card text and bigger own page cards
+%% What the closed group card and the own page cards show.
+flowchart TD
+    A[Closed group card] --> B{Does the visitor administer the group?}
+    B -->|yes| C[Name, status and participants: no admin line R1]
+    B -->|no| D[Name, status and participants, Admin: name on its own line R1]
+    E[Own page, group preparing or started] --> F[Two tall cards: symbol over two-line 30 px title R2]

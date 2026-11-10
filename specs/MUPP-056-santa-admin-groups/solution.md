@@ -20,7 +20,7 @@ None.
 - `lib/santa-groups.ts`: `arrangeEvents(events, adminId)` is the one rule (a pure function, unit tested). It returns the groups in order with `foldable` and `open` for each: a single own group is open and has no fold (R1); own groups come first, open only when there is exactly one (R2, R3); the groups of other parents come last, ordered by the administrator's name and then the group's, always closed.
 - `app/admin/EventFold.tsx` (client): `EventFold` is the card of one group and keeps its open state; `EventFoldList` is the list around the cards and tells them whether the page is still drawing for the first time.
 - `app/components/SlimCard.tsx`: an optional `fold` (`open`, `controls`, `onToggle`) turns the title and the note into one button inside the heading (`<h3><button aria-expanded aria-controls>`), at least 44 px high, with an arrow that turns up when open. The heading stays a heading, so the cards are still found by their `h3`.
-- `app/admin/SantaTab.tsx` builds the cards from `arrangeEvents`. The note of a card that folds says status, number of participants and, for another parent's group, "administreras av <name>"; a card without fold keeps "N deltagare" as before.
+- `app/admin/SantaTab.tsx` builds the cards from `arrangeEvents`. The note of a card that folds says status, number of participants and, for another parent's group, "Admin: <name>" on a line of its own (MUPP-059; it was "administreras av <name>"); a card without fold keeps "N deltagare" as before.
 
 ## Decisions
 

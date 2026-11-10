@@ -56,13 +56,13 @@ async function Own() {
           ) : (
             <ul className="grid auto-rows-fr gap-6">
               <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
-                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} title="Min önskelista" />
+                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} />
               </li>
               <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
                 {match ? (
-                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} title={`Min matchning: ${match.name}`} />
+                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} />
                 ) : (
-                  <GreyCard title="Min matchnings önskelista" note="Inte tilldelad än" />
+                  <GreyCard lines={["Min matchnings", "önskelista"]} note="Inte tilldelad än" />
                 )}
               </li>
             </ul>
@@ -73,29 +73,43 @@ async function Own() {
   );
 }
 
-// Ett kort som öppnar en lista: symbolen, rubriken och hela kortet som länk
-function LinkCard({ href, icon, title }: { href: string; icon: ReactNode; title: string }) {
+// Korten är höga och har stor text så att de fyller sidan; symbolen är 40 px (MUPP-059-R2)
+const CARD_LOOK = "flex min-h-44 flex-col items-center justify-center gap-3 p-6 text-center [&_svg]:size-10";
+// Egen storlek (30 px), större än Heading small; break-words så att ett långt namn aldrig går utanför kortet på 320 px
+const CARD_TITLE = "font-heading text-3xl font-semibold break-words";
+
+// Två rader: brytningen är fast, men texten är en mening med ett mellanslag, så det tillgängliga namnet är fortfarande "Min önskelista" (MUPP-059-R2)
+function Lines({ lines }: { lines: [string, string] }) {
+  return (
+    <>
+      {lines[0]} <span className="block">{lines[1]}</span>
+    </>
+  );
+}
+
+// Ett kort som öppnar en lista: symbolen över rubriken, båda centrerade, och hela kortet som länk
+function LinkCard({ href, icon, lines }: { href: string; icon: ReactNode; lines: [string, string] }) {
   return (
     <Card pressable className="h-full !p-0">
-      <Link href={href} className="flex h-full items-center gap-3 p-4">
+      <Link href={href} className={`${CARD_LOOK} h-full`}>
         {icon}
-        <Heading level={2} small>
-          {title}
-        </Heading>
+        <h2 className={CARD_TITLE}>
+          <Lines lines={lines} />
+        </h2>
       </Link>
     </Card>
   );
 }
 
 // Ett kort som ännu inte går att öppna: ingen länk, och en text som säger varför så att det inte är färgen ensam som visar det
-function GreyCard({ title, note }: { title: string; note: ReactNode }) {
+function GreyCard({ lines, note }: { lines: [string, string]; note: ReactNode }) {
   return (
-    <Card className="flex h-full items-center gap-3 border-dashed text-muted shadow-none">
+    <Card className={`${CARD_LOOK} h-full border-dashed text-muted shadow-none`}>
       <SantaHatIcon />
       <div>
-        <Heading level={2} small>
-          {title}
-        </Heading>
+        <h2 className={CARD_TITLE}>
+          <Lines lines={lines} />
+        </h2>
         <p className="text-sm text-claimed">{note}</p>
       </div>
     </Card>

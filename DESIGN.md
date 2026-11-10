@@ -80,7 +80,7 @@ How something new is added is the same everywhere in the admin and on a particip
 
 ## Own page cards (MUPP-057)
 
-The two cards on a participant's own Secret Santa page ("Min önskelista", and "Min matchnings önskelista" while the group is preparing) are equal in width and height (a grid with equal rows), their 18 px symbols sit at the same place at the left with 1 rem of padding, and the symbol and the text are centred in the card's height; the text stays left-aligned. They are two cards with a 1.5 rem gap, and the divider of the multi-kid birthday card (`divider-short`, a 1 px line at 60 % of the width in the muted colour at 45 %) sits halfway down the gap. One card has no divider. Chosen with the user, who preferred two cards and a line in the gap to one card with two rows.
+The two cards on a participant's own Secret Santa page ("Min önskelista", and "Min matchnings önskelista" while the group is preparing) are equal in width and height (a grid with equal rows), at least 11 rem high with 1.5 rem of padding, and fill the page better on a phone: a 40 px symbol sits over a 30 px two-line title (a fixed break: "Min / önskelista", "Min matchning: / <name>"), both centred in the card (MUPP-059, chosen with the user from four proposals on 375 and 320 px). They are two cards with a 1.5 rem gap, and the divider of the multi-kid birthday card (`divider-short`, a 1 px line at 60 % of the width in the muted colour at 45 %) sits halfway down the gap. One card has no divider. Chosen with the user, who preferred two cards and a line in the gap to one card with two rows.
 
 ## Concept (TECH-006, step 1)
 

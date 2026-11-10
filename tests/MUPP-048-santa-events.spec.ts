@@ -32,7 +32,7 @@ async function createEvent(page: Page, name: string) {
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
 }
 
-test("MUPP-048-R1 R3 a parent who is not master admin has the tab, creates a group and administers it; another parent does not see it, the master admin sees every group", async ({ page }) => {
+test("MUPP-048-R1 R3 MUPP-059-R1 a parent who is not master admin has the tab, creates a group and administers it; another parent does not see it, the master admin sees every group", async ({ page }) => {
   const [chef, emma, erik] = [uniqueName("Chef"), uniqueName("Emma"), uniqueName("Erik")];
   await addParent(chef, true);
   await addParent(emma);
@@ -67,7 +67,7 @@ test("MUPP-048-R1 R3 a parent who is not master admin has the tab, creates a gro
   // R3: the master admin sees both, and who administers the other's
   await openSantaTab(page, chef);
   await expect(page.getByRole("heading", { level: 3 })).toHaveText([/^Emmas julafton/, /^Eriks jul/]);
-  await expect(eventCard(page, "Emmas julafton")).toContainText(`administreras av ${emma}`);
+  await expect(eventCard(page, "Emmas julafton")).toContainText(`Admin: ${emma}`);
   await expectNoA11yViolations(page);
 });
 
