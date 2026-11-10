@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { describe, expect, test } from "vitest";
-import { PUBLIC_FILES, proxy } from "./proxy";
+import { readFileSync } from "node:fs";
+import { CLEANUP_PATH, PUBLIC_FILES, proxy } from "./proxy";
 
 // Utan kaka: bara ikonerna och manifestet går att hämta (MUPP-046-R4)
 const ask = (path: string, method = "GET") => proxy(new NextRequest(`http://localhost${path}`, { method }));
@@ -28,6 +29,15 @@ describe("MUPP-046-R4 the public files", () => {
       expect(ask(path).status, path).toBe(path.startsWith("/bilder") || path.startsWith("/api") ? 401 : 307);
     }
     expect(ask("/").status).toBe(307);
+  });
+});
+
+describe("MUPP-044 the cleanup route is open to Vercel Cron", () => {
+  test("MUPP-044 the cron path in vercel.json is the one the proxy lets through, on GET only", () => {
+    expect(JSON.parse(readFileSync("vercel.json", "utf8")).crons.map((c: { path: string }) => c.path)).toEqual([CLEANUP_PATH]);
+    expect(ask(CLEANUP_PATH).status).toBe(200);
+    for (const method of ["POST", "PUT", "DELETE"]) expect(ask(CLEANUP_PATH, method).status).toBe(401);
+    expect(ask(`${CLEANUP_PATH}/x`).status).toBe(401);
   });
 });
 

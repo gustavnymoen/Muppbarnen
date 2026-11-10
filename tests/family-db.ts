@@ -138,8 +138,11 @@ export const countSanta = (table: "ss_event" | "ss_member") =>
   withDb(async (db) => Number((await db.execute(`SELECT COUNT(*) AS n FROM ${table}`)).rows[0].n));
 
 // Who drew whom, as the database holds it (the admin pages never show it): [giver, receiver] pairs of member ids
-export const santaDraw = (eventId: number) =>
-  withDb(async (db) => (await db.execute({ sql: "SELECT giver_id, receiver_id FROM ss_draw WHERE event_id = ? ORDER BY giver_id", args: [eventId] })).rows.map((r) => [Number(r.giver_id), Number(r.receiver_id)]));
+// A year narrows it to that year's rows (the log keeps earlier years, MUPP-044)
+export const santaDraw = (eventId: number, year?: number) =>
+  withDb(async (db) =>
+    (await db.execute({ sql: `SELECT giver_id, receiver_id FROM ss_draw WHERE event_id = ?${year ? " AND year = ?" : ""} ORDER BY giver_id`, args: year ? [eventId, year] : [eventId] })).rows.map((r) => [Number(r.giver_id), Number(r.receiver_id)]),
+  );
 
 // A draw row made by hand (MUPP-042): the member giver gives to the member receiver this year
 export const addSantaDraw = (eventId: number, giver: number, receiver: number) =>
@@ -151,3 +154,13 @@ export const ageSantaMail = (memberId: number) =>
 
 // The events of the test database by name, in name order
 export const santaEventNames = () => withDb(async (db) => (await db.execute("SELECT name FROM ss_event ORDER BY name")).rows.map((r) => String(r.name)));
+
+// The year of the last yearly cleanup (MUPP-044): the year in the sign-in cookie. Set it to run the cleanup again.
+export const santaCleanupYear = () => withDb(async (db) => Number((await db.execute("SELECT year FROM ss_cleanup")).rows[0].year));
+export const setSantaCleanupYear = (year: number) => withDb((db) => db.execute({ sql: "UPDATE ss_cleanup SET year = ?", args: [year] }));
+
+// A draw from an earlier year, as the log holds it: [giver, receiver] pairs
+export const addSantaDrawRows = (eventId: number, year: number, pairs: [number, number][]) =>
+  withDb(async (db) => {
+    for (const [giver, receiver] of pairs) await db.execute({ sql: "INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", args: [eventId, year, giver, receiver] });
+  });
