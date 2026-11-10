@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, pickOption, runsLocally, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, clearFamily, clearSanta, countSanta } from "./family-db";
+import { eventCard } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -21,7 +22,6 @@ test.afterEach(async () => {
 });
 
 const dialog = (page: Page) => page.getByRole("alertdialog");
-const familyCard = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
 const memberCard = (page: Page, name: string) => page.locator("article:not(:has(article))").filter({ has: page.getByRole("heading", { level: 4, name, exact: true }) });
 
 test("MUPP-038-R1 the master admin sees two tabs with the kids tab selected; they work with the arrow keys and show one panel at a time", async ({ page }) => {
@@ -79,13 +79,13 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await expect(page.getByRole("alert").filter({ hasText: "Fyll i det här fältet." })).toBeVisible();
   await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ek");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await expect(familyCard(page, "Familjen Ek")).toContainText("0 deltagare");
+  await expect(eventCard(page, "Familjen Ek")).toContainText("0 deltagare");
 
   // R2: rename it
   await page.getByRole("button", { name: "Byt namn på Familjen Ek" }).click();
   await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Björk");
   await page.getByRole("button", { name: "Spara", exact: true }).click();
-  const birch = familyCard(page, "Familjen Björk");
+  const birch = eventCard(page, "Familjen Björk");
   await expect(birch).toBeVisible();
 
   // R3: a new person with an invalid phone and email is refused with what to fix, and nothing is saved
@@ -143,7 +143,7 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
   await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ask");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
-  const ash = familyCard(page, "Familjen Ask");
+  const ash = eventCard(page, "Familjen Ask");
   await ash.getByRole("button", { name: "Ny person i Familjen Ask" }).click();
   await page.getByLabel("Namn", { exact: true }).fill("Anna Testsson");
   await page.getByLabel("Telefon", { exact: true }).fill(PHONE);

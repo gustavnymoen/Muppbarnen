@@ -17,6 +17,7 @@ import {
   uniqueName,
 } from "./helpers";
 import { addChild, addParent, addSantaEvent, addSantaMember, addWish, claimedByOf, clearFamily, clearSanta, setSizes } from "./family-db";
+import { eventCard, openEventCard } from "./santa";
 import { newcomer, testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -285,6 +286,8 @@ test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new group with one field, a n
   await adminSignIn(page, chef);
   await page.getByRole("tab", { name: "Secret Santa" }).click();
   const dialog = card(page);
+  // The groups are someone else's, so they are closed (MUPP-056)
+  for (const name of ["Familjen Ek", "Familjen Ask"]) await openEventCard(eventCard(page, name));
 
   // R2 R5: a family has one field, so Enter sends it
   await page.getByRole("button", { name: "Ny grupp", exact: true }).click();

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, clearFamily, clearSanta, countSanta, santaEventNames } from "./family-db";
-import { pickName, sendPhone } from "./santa";
+import { eventCard, pickName, sendPhone } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -20,8 +20,6 @@ test.afterEach(async () => {
   await clearSanta();
   await clearFamily();
 });
-
-const eventCard = (page: Page, name: string) => page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name, exact: true }) });
 
 async function openSantaTab(page: Page, parent: string) {
   await adminSignIn(page, parent);
@@ -68,7 +66,7 @@ test("MUPP-048-R1 R3 a parent who is not master admin has the tab, creates a gro
 
   // R3: the master admin sees both, and who administers the other's
   await openSantaTab(page, chef);
-  await expect(page.getByRole("heading", { level: 3 })).toHaveText(["Emmas julafton", "Eriks jul"]);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveText([/^Emmas julafton/, /^Eriks jul/]);
   await expect(eventCard(page, "Emmas julafton")).toContainText(`administreras av ${emma}`);
   await expectNoA11yViolations(page);
 });
