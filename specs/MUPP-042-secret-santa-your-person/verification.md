@@ -20,10 +20,27 @@ feature: MUPP-042
 | Unit tests | Hourly collecting (several changes one mail, none no mail) and who may read which list: `lib/santa-changes.test.ts`, `lib/santa-match.test.ts`, `lib/santa-job.test.ts`, `proxy.test.ts`, `lib/route-checks.test.ts` | local | Pass | 2026-11-10 |
 | Browser tests | New `tests/MUPP-042-santa-your-person.spec.ts` (4 tests) with axe, and the started own page and match list in the phone test of `tests/design.spec.ts`; mails from the test sink | local | Pass | 2026-11-10 |
 | Smoke test | None, as planned | not applicable | Not applicable | 2026-11-10 |
-| Accessibility | axe on the started own page and the match page. The live checklist: not checked yet | local | Pass locally; live not checked | 2026-11-10 |
+| Accessibility | axe on the started own page and the match page. The live checklist: see "Live accessibility check" below | local and live | Pass locally; live checked in the section below, with items not checked listed there | 2026-11-10 |
 | Security | `/security-review` and the review's security points: [review.md](review.md) | local | Pass (no finding) | 2026-11-10 |
 | Code review | [review.md](review.md) | local | Passed (run 1, no must-fix) | 2026-11-10 |
 | The scheduled job live | Not checked: it needs `SANTA_JOB_SECRET` set in Vercel and in GitHub (see solution.md) | live | Not checked | 2026-11-10 |
+
+## Live accessibility check
+
+Checklist in `wiki/system/accessibility.md`, on https://muppbarnen.vercel.app in the built-in browser, signed in by the user, phone width (375 px) and 320 px, on the existing group Bollnäs (started, made by the user). Nothing was created or changed in production; the dialogs were opened and cancelled. Names shown are the user's own test names and are not recorded here.
+
+| Item | How it was checked | Where | Result | Date |
+|---|---|---|---|---|
+| 4, 6, 7, 10 Own page in a started group (`/secret-santa/min-sida`) | The title "Din Secret Santa-sida | Kusinportalen"; the heading "Hej Gustav!"; two links, "Min önskelista" and "Min matchning: <name>", each 341 × 60 px, text contrast about 13:1 (against the page background, the card is transparent), the symbols hidden from screen readers; 375 px wide without sideways scroll | live | Pass | 2026-11-10 |
+| 4, 6, 10 The match page (`/secret-santa/min-sida/matchning`) | The title "Min matchning | Kusinportalen"; the heading "Önskelistan hos <name>" with the wishes as a list, read-only (no buttons), a "Tillbaka" link to the own page; no sideways scroll | live | Pass | 2026-11-10 |
+| 1 The grey card before the start | Not checked: it needs a group that is not started | live | Not checked | 2026-11-10 |
+| The scheduled job live | The Live tests above passed, but whether `POST /api/santa-mails` mailed a giver was not checked here (it would need a changed wish and a real mail); it runs from GitHub Actions every ten minutes, the user reports that it works | live | Not checked by this session | 2026-11-10 |
+| 3 Screen reader (VoiceOver) | Not checked: no screen reader could be run from this session. The accessibility tree read in the browser gives the names below. | live | Not checked | 2026-11-10 |
+| 5 Text spacing | Not checked: the bookmarklet was not applied | live | Not checked | 2026-11-10 |
+| 11 Reduced motion | Not checked: the system setting was not changed from this session | live | Not checked | 2026-11-10 |
+| 10 Title, language, images | Titles and `<html lang="sv">` as listed above; no new images | live | Pass | 2026-11-10 |
+| 1, 2 Keyboard and focus | Where listed above. The rest of the tab order was not walked through | live | Partly checked | 2026-11-10 |
+| Live tests after the merge | `gh run list --workflow "Live tests"`: after the merge of MUPP-041 (main, 2026-11-10 13:34 UTC) and of MUPP-042 (main, 2026-11-10 14:01 UTC) the run passed (success) | live | Pass | 2026-11-10 |
 
 ## Test suite
 
@@ -40,8 +57,8 @@ The suite is over its budget with and without this change (TECH-019). The four n
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget as before (TECH-019); the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the live checklist is not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-10
+- [ ] Accessibility: axe passes; the live checklist is done for the points in "Live accessibility check"; VoiceOver, text spacing and reduced motion are not checked
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers

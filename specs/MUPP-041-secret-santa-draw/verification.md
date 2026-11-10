@@ -24,9 +24,26 @@ feature: MUPP-041
 | Unit tests | The draw (500 random runs, impossible cases, last year's exclusion), the log, start and stop, secrecy: `lib/santa-draw.test.ts`, `lib/santa.test.ts`, `lib/santa-notify.test.ts`, `db/db-setup.test.ts` | local | Pass | 2026-11-10 |
 | Browser tests | New `tests/MUPP-041-santa-draw.spec.ts` (2 tests) with axe, and the check mark and toggles in the existing phone test of `tests/design.spec.ts`; mails from the test sink | local | Pass | 2026-11-10 |
 | Smoke test | None, as planned (it changes data) | not applicable | Not applicable | 2026-11-10 |
-| Accessibility | axe on the preparing and started group, the question; the mark is an image with a name, not colour only. The live checklist: not checked yet | local | Pass locally; live not checked | 2026-11-10 |
+| Accessibility | axe on the preparing and started group, the question; the mark is an image with a name, not colour only. The live checklist: see "Live accessibility check" below | local and live | Pass locally; live checked in the section below, with items not checked listed there | 2026-11-10 |
 | Security | `/security-review` and the review's security points: [review.md](review.md) | local | Pass (no finding) | 2026-11-10 |
 | Code review | [review.md](review.md) | local | Passed (run 1, no must-fix) | 2026-11-10 |
+
+## Live accessibility check
+
+Checklist in `wiki/system/accessibility.md`, on https://muppbarnen.vercel.app in the built-in browser, signed in by the user, phone width (375 px) and 320 px, on the existing group Bollnäs (started, made by the user). Nothing was created or changed in production; the dialogs were opened and cancelled. Participants' names are the user's own test names.
+
+| Item | How it was checked | Where | Result | Date |
+|---|---|---|---|---|
+| 3, 4, 6, 7, 9 The toggle Startad next to Aktiv | A `switch` named "Startad Bollnäs" with `aria-checked="true"`; "Aktiv Bollnäs" is `aria-checked="true"`, disabled and points with `aria-describedby` to the text "Stoppa gruppen först". Both 44 px high (110 and 127 px wide). The page is 320 px wide without sideways scroll | live | Pass | 2026-11-10 |
+| 6 The check mark by a participant with a wish | `role="img"` named "Har skrivit en önskelista" (the symbol itself is hidden), 18 px, shown by the two participants with a wish and not by the two without; colour rgb(154,169,224) on the card rgb(20,25,32), about 8:1; it is a symbol and not colour alone | live | Pass | 2026-11-10 |
+| 1, 2, 8, 9 The question "Är du säker?" to stop | Opened with the toggle Startad (the group was not stopped): a dialog with a title, the text "Dragningen och alla samtal tas bort, men önskelistorna finns kvar. Alla får ett mail.", the buttons Avbryt and Stoppa (91 × 44 px), focus inside it; Escape closes it, nothing changes, and the focus returns to the toggle with its ring visible | live | Pass | 2026-11-10 |
+| The question "Är du säker?" to start | Not checked: it needs a preparing group, and starting one draws and mails real people. The same dialog component as the stop question | live | Not checked | 2026-11-10 |
+| 3 Screen reader (VoiceOver) | Not checked: no screen reader could be run from this session. The accessibility tree read in the browser gives the names below. | live | Not checked | 2026-11-10 |
+| 5 Text spacing | Not checked: the bookmarklet was not applied | live | Not checked | 2026-11-10 |
+| 11 Reduced motion | Not checked: the system setting was not changed from this session | live | Not checked | 2026-11-10 |
+| 10 Title, language, images | Titles and `<html lang="sv">` as listed above; no new images | live | Pass | 2026-11-10 |
+| 1, 2 Keyboard and focus | Where listed above. The rest of the tab order was not walked through | live | Partly checked | 2026-11-10 |
+| Live tests after the merge | `gh run list --workflow "Live tests"`: after the merge of MUPP-041 (main, 2026-11-10 13:34 UTC) and of MUPP-042 (main, 2026-11-10 14:01 UTC) the run passed (success) | live | Pass | 2026-11-10 |
 
 ## Test suite
 
@@ -43,8 +60,8 @@ The suite is over its budget with and without this change (TECH-019). One design
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` passes and `npm run test:local` passes (one flaky unrelated test, see above)
 - [ ] Test suite: over budget as before (TECH-019); the new tests follow the quality rules (combined by journey, no per-value tests)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes; the live checklist is not checked yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-10
+- [ ] Accessibility: axe passes; the live checklist is done for the points in "Live accessibility check"; VoiceOver, text spacing and reduced motion are not checked
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers
