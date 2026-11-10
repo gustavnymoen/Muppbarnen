@@ -18,6 +18,7 @@
 * [Secret Santa entrance](secret-santa-entrance.md) - How visitors get into Secret Santa: the menu entry, event and name choice, the sign-in with phone or email, the signed cookie and the rules that keep contact details private.
 * [Secret Santa event status](secret-santa-status.md) - How an event's status (inactive, preparing, started) is stored, changed and enforced: who may change it, what each status allows, and what members see.
 * [Secret Santa draw](secret-santa-draw.md) - How the draw works: the rules and their fallback order, the draw table that is both result and history, start and stop, the mails and what keeps the result secret.
+* [Secret Santa match and change mails](secret-santa-match.md) - How a member sees the person they drew and that person's list, why nobody sees their own giver, and the hourly change mails sent by a scheduled job.
 * [Secret Santa wish list](secret-santa-wish-list.md) - How a Secret Santa member's own wish list works: one list per member, the form and limits shared with the kids' lists, and the owner check on the server.
 * [Mail](mail.md) - How the site sends mail: sendMail with a shared layout, the provider call behind RESEND_API_KEY, and the outbox file that development and tests use instead.
 * [Admin page](admin.md) - How the admin page is built: the admin sign-in and cookie, choosing who you are, the pages for parents and the master admin, the rules per kid, the tables and the private pictures.

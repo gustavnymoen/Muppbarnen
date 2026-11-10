@@ -1,0 +1,16 @@
+%% MUPP-042 Secret Santa: your person and change mails
+%% What a member sees once the draw is made, and how a changed list reaches the giver by mail, once an hour.
+flowchart TD
+    S[Group started, draw in ss_draw] --> P[Own page: Min önskelista and Min matchning: NAME, R1]
+    P -->|only the signed-in member's own receiver, R2| M[Match page: the receiver's wishes, read-only]
+    N[Not started: grey card Inte tilldelad än, R1] -.-> P
+
+    W[Receiver adds, edits or removes a wish] -->|group started?| Q{started}
+    Q -->|no| X[No mark, no mail, R3]
+    Q -->|yes| K[Mark the list as changed]
+    K --> J[Job every 10 minutes: GitHub Actions calls POST /api/santa-mails with the secret]
+    J --> C{marked, and no mail in the last hour?}
+    C -->|no| Z[Nothing sent, R3]
+    C -->|yes| T[Take the mark, send mail 5 to the giver: names the group, nobody else]
+    T -->|mail fails| R[Mark put back, tried again next run]
+    T -->|sent| D[List counts as told until the next change]

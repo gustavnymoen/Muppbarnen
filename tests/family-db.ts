@@ -141,5 +141,13 @@ export const countSanta = (table: "ss_event" | "ss_member") =>
 export const santaDraw = (eventId: number) =>
   withDb(async (db) => (await db.execute({ sql: "SELECT giver_id, receiver_id FROM ss_draw WHERE event_id = ? ORDER BY giver_id", args: [eventId] })).rows.map((r) => [Number(r.giver_id), Number(r.receiver_id)]));
 
+// A draw row made by hand (MUPP-042): the member giver gives to the member receiver this year
+export const addSantaDraw = (eventId: number, giver: number, receiver: number) =>
+  withDb((db) => db.execute({ sql: "INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", args: [eventId, new Date().getFullYear(), giver, receiver] }));
+
+// Makes the last change mail of a member's list two hours old, so the job may send the next one
+export const ageSantaMail = (memberId: number) =>
+  withDb((db) => db.execute({ sql: "UPDATE ss_member SET list_mailed_at = list_mailed_at - 7200000 WHERE id = ?", args: [memberId] }));
+
 // The events of the test database by name, in name order
 export const santaEventNames = () => withDb(async (db) => (await db.execute("SELECT name FROM ss_event ORDER BY name")).rows.map((r) => String(r.name)));

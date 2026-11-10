@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaStatus } from "./family-db";
+import { addChild, addParent, addSantaDraw, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaStatus } from "./family-db";
 import { eventCard, santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -1366,7 +1366,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
   }
 });
 
-test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal with aligned symbols, centred text and a divider in the gap, and the toggles Aktiv and Startad, the check mark and their questions fit the width", async ({ page }) => {
+test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 MUPP-042-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal with aligned symbols, centred text and a divider in the gap, and the toggles Aktiv and Startad, the check mark and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1414,12 +1414,24 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 the Secret Santa 
     }
     await expectNoA11yViolations(page);
     await page.setViewportSize({ width: 375, height: 667 });
-    // The started page has one card and no divider
+    // MUPP-042-R1: the started page has the same two cards, the second one now a link "Min matchning: <name>", equal to the first
+    const other = await addSantaMember(family, "Bo Ek", "0700005555", "bo@exempel.invalid");
+    await addSantaDraw(family, member, other);
+    await addSantaDraw(family, other, member);
+    await addSantaWish(other, "Bok till Bo");
     await setSantaStatus(family, "started");
     await goto(page, "/secret-santa/min-sida");
-    await expect(page.getByRole("link", { name: "Min önskelista" })).toBeVisible();
-    await expect(page.locator("li.divider-short")).toHaveCount(1);
-    expect(await page.locator("li.divider-short").evaluate((li) => getComputedStyle(li, "::before").content)).toBe("none");
+    const [listCard, matchCard] = [page.getByRole("link", { name: "Min önskelista" }), page.getByRole("link", { name: "Min matchning: Bo Ek" })];
+    const [listBox, matchBox] = [await settledBox(listCard), await settledBox(matchCard)];
+    expect(matchBox.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(listBox.width - matchBox.width)).toBeLessThan(1);
+    expect(Math.abs(listBox.height - matchBox.height)).toBeLessThan(1);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
+    // The match's list: read-only wish rows that fit the width
+    await matchCard.click();
+    await expect(page.getByRole("heading", { level: 3, name: "Bok till Bo" })).toBeVisible();
+    expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
     await setSantaStatus(family, "preparing");
 
@@ -1447,7 +1459,7 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-041-R1 R2 R7 the Secret Santa 
     await setSantaStatus(family, "preparing");
     await page.reload();
     await page.getByRole("tab", { name: "Secret Santa" }).click();
-    const mark = page.getByRole("img", { name: "Har skrivit en önskelista" });
+    const mark = page.getByRole("img", { name: "Har skrivit en önskelista" }).first();
     expect((await settledBox(mark)).width).toBeGreaterThan(0);
     await started.click();
     expect(inside(await settledBox(page.getByRole("alertdialog", { name: "Är du säker?" })), { x: 0, y: 0, width: 375, height: 667 })).toBe(true);

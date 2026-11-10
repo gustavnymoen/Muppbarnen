@@ -27,7 +27,7 @@ A mail with `installTip: true` also gets the home-screen tip ([MUPP-058](../../s
 | 2 Group deactivated | `deactivatedMail` | every member | MUPP-051 |
 | 3 Draw done, group started | `startedMail` | every member | MUPP-041 |
 | 4 Draw stopped | `stoppedMail` | every member | MUPP-041 |
-| 5 The receiver's list changed (one mail an hour) | `listChangedMail` | the giver | MUPP-042 |
+| 5 The receiver's list changed (one mail an hour) | `listChangedMail` | the giver | MUPP-042 (`lib/santa-changes.ts`, by a scheduled job) |
 | 6 A message from the giver (collected over ten minutes) | `messageFromGiverMail` | the receiver | MUPP-043 |
 | 7 A message from the receiver (same limit) | `messageFromReceiverMail` | the giver | MUPP-043 |
 | 8 Added to a group | `addedMail` | that person | MUPP-051 |
