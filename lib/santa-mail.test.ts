@@ -98,7 +98,7 @@ describe("MUPP-052-R2 the confirmations", () => {
     const { activate, deactivate, start, stop } = STATUS_CONFIRMATIONS;
     expect(activate.text).toMatch(/mail.*börja skriva önskelistor/);
     expect(deactivate.text).toMatch(/mail.*Önskelistorna finns kvar/);
-    expect(start.text).toMatch(/person att handla åt.*mail.*inte.*lägga till, ändra eller ta bort/);
+    expect(start.text).toMatch(/person att handla åt.*mail.*inte.*lägga till eller ta bort.*kan rättas/);
     expect(stop.text).toMatch(/Dragningen och alla samtal tas bort.*önskelistorna finns kvar.*mail/);
   });
 });

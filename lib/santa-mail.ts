@@ -70,7 +70,7 @@ export const STATUS_CONFIRMATIONS = {
   deactivate: { title: "Är du säker?", text: "Alla i gruppen får ett mail. Önskelistorna finns kvar." },
   start: {
     title: "Är du säker?",
-    text: "Alla får en person att handla åt och ett mail. Efter det går det inte att lägga till, ändra eller ta bort någon.",
+    text: "Alla får en person att handla åt och ett mail. Efter det går det inte att lägga till eller ta bort någon, men namn, telefon och e-post kan rättas.",
   },
   stop: { title: "Är du säker?", text: "Dragningen och alla samtal tas bort, men önskelistorna finns kvar. Alla får ett mail." },
 } as const;

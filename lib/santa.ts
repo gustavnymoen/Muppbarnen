@@ -24,8 +24,9 @@ const GONE = { ok: false, error: "Det finns inte längre. Ladda om sidan." } as 
 const NAME_TAKEN = { ok: false, fields: { name: "Det finns redan en grupp med det namnet." } } as const;
 const PHONE_TAKEN = { ok: false, fields: { phone: "Numret används redan av en annan person i gruppen." } } as const;
 const EMAIL_TAKEN = { ok: false, fields: { email: "E-postadressen används redan av en annan person i gruppen." } } as const;
-const STARTED = { ok: false, error: "Gruppen är startad. Deltagarna kan inte ändras nu." } as const;
+const STARTED = { ok: false, error: "Gruppen är startad. Deltagare kan inte läggas till eller tas bort nu." } as const;
 const WRONG_STATUS = { ok: false, error: "Gruppens status har redan ändrats. Ladda om sidan." } as const;
+const PARTNER_LOCKED = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." } as const;
 const PARTNER_IN_GROUP = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } } as const;
 
 type EventRow = { id: number; owner_id: number; name: string; status: EventStatus };
@@ -203,15 +204,15 @@ async function ownerName(ownerId: number, tx: Executor) {
 // ---- Medlemmar
 
 type MemberRow = { id: number; event_id: number };
-type ManageableMember = MemberRow & { owner_id: number; status: EventStatus };
+type ManageableMember = MemberRow & { owner_id: number; status: EventStatus; name: string; email: string; event_name: string };
 
-// Medlemmen, om aktören får ändra gruppen den ligger i och gruppen inte är startad (MUPP-051-R3)
+// Medlemmen, om aktören får ändra gruppen den ligger i. Också i en startad grupp: namn, telefon och e-post får rättas hela tiden (MUPP-060-R1);
+// vad som annars är låst i en startad grupp (MUPP-051-R3) avgör den som anropar.
 async function manageableMember(actor: Parent | null, rawId: unknown, tx: Executor): Promise<ManageableMember | Failure> {
   const id = parseId(rawId);
-  const member = id === null ? undefined : await get<ManageableMember>("SELECT m.id, m.event_id, e.owner_id, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
+  const member = id === null ? undefined : await get<ManageableMember>("SELECT m.id, m.event_id, m.name, m.email, e.owner_id, e.status, e.name AS event_name FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
   if (!member) return GONE;
-  if (!canManage(actor, member)) return NOT_ALLOWED;
-  return member.status === "started" ? STARTED : member;
+  return canManage(actor, member) ? member : NOT_ALLOWED;
 }
 
 // Telefon och e-post är unika inom gruppen (MUPP-048-R5); exceptId är medlemmen som ändras
@@ -222,8 +223,8 @@ async function contactTaken(eventId: number, phone: string, email: string, excep
   return null;
 }
 
-// Det som behövs för att skicka välkomstmejlet till en ny medlem; preparing: gruppen är redan aktiv, så aktiveringsmejlet följer
-export type NewMember = { name: string; email: string; eventName: string; adminName: string; preparing: boolean };
+// Det som behövs för att skicka mejlet till en ny adress; status avgör vilket: inaktiv välkomstmejlet, förbereder också aktiveringsmejlet, startad startmejlet
+export type NewMember = { name: string; email: string; eventName: string; adminName: string; status: EventStatus };
 
 // En ny medlem i gruppen (inte i en startad)
 export async function addMember(actor: Parent | null, input: { eventId: unknown; name: unknown; phone: unknown; email: unknown }): Promise<Outcome<NewMember>> {
@@ -237,20 +238,25 @@ export async function addMember(actor: Parent | null, input: { eventId: unknown;
     const taken = await contactTaken(event.id, phone, email, null, tx);
     if (taken) return taken;
     await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
-    return { ok: true, name, email, eventName: event.name, adminName: await ownerName(event.owner_id, tx), preparing: event.status === "preparing" };
+    return { ok: true, name, email, eventName: event.name, adminName: await ownerName(event.owner_id, tx), status: event.status };
   });
 }
 
-// Medlemmens uppgifter och partnern: en annan medlem i samma grupp, eller ingen; länken sätts åt båda håll (MUPP-038-R5)
-export async function saveMember(actor: Parent | null, input: { memberId: unknown; name: unknown; phone: unknown; email: unknown; partnerId: unknown }): Promise<Outcome> {
+// Medlemmens uppgifter och partnern: en annan medlem i samma grupp, eller ingen; länken sätts åt båda håll (MUPP-038-R5).
+// I en startad grupp ändras bara namn, telefon och e-post, och partnerId får inte följa med alls (MUPP-060-R2).
+// newEmail: den nya adressen när e-posten ändrades, så att administratören kan få frågan om den ska få mejlet (MUPP-060-R4)
+export async function saveMember(actor: Parent | null, input: { memberId: unknown; name: unknown; phone: unknown; email: unknown; partnerId?: unknown }): Promise<Outcome<{ newEmail?: string }>> {
   const partnerId = input.partnerId === "" || input.partnerId === undefined ? null : parseId(input.partnerId);
   const checked = collect({ name: parseText(input.name, 60, true), phone: parsePhone(input.phone), email: parseEmail(input.email) });
   return withTransaction(async (tx) => {
     const member = await manageableMember(actor, input.memberId, tx);
     if (isOutcome(member)) return member;
+    const started = member.status === "started";
+    // != null: formuläret i en startad grupp har inget partnerfält, så åtgärden skickar null; "" och alla andra värden är ett försök att ändra partnern
+    if (started && input.partnerId != null) return PARTNER_LOCKED;
     if (!checked.ok) return { ok: false, fields: checked.errors };
     const { name, phone, email } = checked.values;
-    if (input.partnerId !== "" && input.partnerId !== undefined && partnerId === null) return PARTNER_IN_GROUP;
+    if (!started && input.partnerId !== "" && input.partnerId !== undefined && partnerId === null) return PARTNER_IN_GROUP;
     if (partnerId !== null) {
       const partner = partnerId === member.id ? undefined : await get<MemberRow>("SELECT id, event_id FROM ss_member WHERE id = ?", [partnerId], tx);
       if (partner?.event_id !== member.event_id) return PARTNER_IN_GROUP;
@@ -258,8 +264,18 @@ export async function saveMember(actor: Parent | null, input: { memberId: unknow
     const taken = await contactTaken(member.event_id, phone, email, member.id, tx);
     if (taken) return taken;
     await run("UPDATE ss_member SET name = ?, phone = ?, email = ? WHERE id = ?", [name, phone, email, member.id], tx);
-    await setPartner(member.id, partnerId, tx);
-    return { ok: true };
+    if (!started) await setPartner(member.id, partnerId, tx);
+    return email.toLowerCase() === member.email.toLowerCase() ? { ok: true } : { ok: true, newEmail: email };
+  });
+}
+
+// Mejlet till en deltagares sparade adress (MUPP-060-R4), när administratören svarat ja efter att adressen ändrats. Adressen läses ur databasen och
+// kommer aldrig från förfrågan, så att svaret inte kan peka mejlet någon annanstans.
+export async function memberToMail(actor: Parent | null, rawId: unknown): Promise<Outcome<NewMember>> {
+  return withTransaction(async (tx) => {
+    const member = await manageableMember(actor, rawId, tx);
+    if (isOutcome(member)) return member;
+    return { ok: true, name: member.name, email: member.email, eventName: member.event_name, adminName: await ownerName(member.owner_id, tx), status: member.status };
   });
 }
 
@@ -279,6 +295,7 @@ export async function removeMember(actor: Parent | null, rawId: unknown): Promis
   return withTransaction(async (tx) => {
     const member = await manageableMember(actor, rawId, tx);
     if (isOutcome(member)) return member;
+    if (member.status === "started") return STARTED;
     await setPartner(member.id, null, tx);
     await run("DELETE FROM ss_wish WHERE member_id = ?", [member.id], tx);
     await run("DELETE FROM ss_draw WHERE event_id = ? AND (giver_id = ? OR receiver_id = ?)", [member.event_id, member.id, member.id], tx);

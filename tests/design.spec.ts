@@ -1485,6 +1485,20 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
     await started.click();
     expect(inside(await settledBox(page.getByRole("alertdialog", { name: "Är du säker?" })), { x: 0, y: 0, width: 375, height: 667 })).toBe(true);
     await expectNoA11yViolations(page);
+    // MUPP-060-R1 R4: in a started group the pencil is on the card (32 px or more), and the question about the new address fits the screen
+    await page.keyboard.press("Escape");
+    await setSantaStatus(family, "started");
+    await page.reload();
+    await page.getByRole("tab", { name: "Secret Santa" }).click();
+    const pencil = page.getByRole("button", { name: "Ändra Anna Ek i Familjen Ek" });
+    expect((await settledBox(pencil)).height).toBeGreaterThanOrEqual(32);
+    await pencil.click();
+    await page.getByLabel("E-post").fill("anna@ny.invalid");
+    await page.getByRole("button", { name: "Spara", exact: true }).click();
+    const askNew = page.getByRole("alertdialog", { name: "Skicka mejlet till den nya adressen?" });
+    expect(inside(await settledBox(askNew), { x: 0, y: 0, width: 375, height: 667 })).toBe(true);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
   } finally {
     await clearSanta();
     await clearFamily();

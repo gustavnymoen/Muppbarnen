@@ -97,6 +97,17 @@ describe("MUPP-039-R3 R4 what visitors read and the sign-in check", () => {
   });
 });
 
+describe("MUPP-060-R3 a changed phone and email", () => {
+  test("MUPP-060-R3 the old phone no longer signs in, the new one does, and the member id the cookie holds still reads as the member", async () => {
+    const { event, member: id } = await member("Anna", "0701234567");
+    await run("UPDATE ss_member SET phone = '0709999999', email = 'ny@exempel.invalid' WHERE id = ?", [id]);
+    expect(await checkSantaSignIn("1.1.1.1", { memberId: String(id), kind: "phone", value: "0701234567" }, 0)).toEqual({ result: "wrong" });
+    expect(await checkSantaSignIn("1.1.1.2", { memberId: String(id), kind: "email", value: saved.email }, 0)).toEqual({ result: "wrong" });
+    expect(await checkSantaSignIn("1.1.1.3", { memberId: String(id), kind: "phone", value: "070-999 99 99" }, 0)).toEqual({ result: "ok", memberId: id });
+    expect(await findMember(id)).toMatchObject({ id, name: "Anna", eventId: event });
+  });
+});
+
 describe("TECH-018-R2 the wait after a wrong Secret Santa sign-in", () => {
   test("TECH-018-R2 with the default wait a wrong try is answered only after one second, and still counts", async () => {
     const { member: person } = await member("Anna", saved.phone);

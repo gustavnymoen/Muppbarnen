@@ -45,7 +45,7 @@ test("MUPP-041-R1 MUPP-061-R1 R2 R3 R4 R5 R6 R7 the wish note, the toggle Starta
   expect((await settledBox(toggle)).height).toBeGreaterThanOrEqual(44);
   await toggle.click();
   const question = page.getByRole("alertdialog", { name: "Är du säker?" });
-  await expect(question).toContainText("Efter det går det inte att lägga till, ändra eller ta bort någon.");
+  await expect(question).toContainText("Efter det går det inte att lägga till eller ta bort någon, men namn, telefon och e-post kan rättas.");
   await expect(question).toContainText("Ännu ingen önskelista från: Bertil Testsson, Cia Testsson.");
   await expectNoA11yViolations(page);
   await question.getByRole("button", { name: "Avbryt" }).click();
