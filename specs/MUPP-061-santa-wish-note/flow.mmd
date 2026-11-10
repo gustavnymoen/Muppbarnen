@@ -1,0 +1,8 @@
+%% MUPP-061 Wish note instead of check mark
+%% What a participant's card shows under the name.
+flowchart TD
+    A[Participant card in the Secret Santa admin] --> B{Has a partner?}
+    B -->|yes| C[Line: Partner: name]
+    A --> D{At least one wish? R1}
+    D -->|yes| E[Line: green check circle and Önskelista påbörjad]
+    D -->|no| F[No line]

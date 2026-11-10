@@ -1,7 +1,7 @@
 ---
 type: Solution
 title: "MUPP-041 Secret Santa: the draw: solution"
-description: "How the Secret Santa draw is built: the draw table, the rules and their fallbacks, start and stop, the Startad toggle and the check marks, and what keeps the result secret."
+description: "How the Secret Santa draw is built: the draw table, the rules and their fallbacks, start and stop, the Startad toggle and the wish note, and what keeps the result secret."
 feature: MUPP-041
 card: "#139"
 depends_on: [MUPP-051, MUPP-048, MUPP-052, TECH-017]
@@ -17,7 +17,7 @@ Migration `db/migrations/009_santa_draw.sql` adds `ss_draw (event_id, year, give
 
 ## Interface
 
-- **Admin, Secret Santa tab** (`app/admin/SantaTab.tsx`): next to the toggle Aktiv the toggle **Startad** (`StartedToggle`): off and disabled in an inactive group; in a preparing group it asks "Är du säker?" with the text of `STATUS_CONFIRMATIONS.start` and, when someone has no wish, "Ännu ingen önskelista från: <names>." (R2), then calls `startDraw`; in a started group it is on and asks with `STATUS_CONFIRMATIONS.stop`, then calls `stopDraw` (R7). The two toggles sit side by side under the plus button as a pair, centred. A participant with at least one wish has a check mark (`CheckIcon`, `role="img"`, "Har skrivit en önskelista") in front of the name (R1).
+- **Admin, Secret Santa tab** (`app/admin/SantaTab.tsx`): next to the toggle Aktiv the toggle **Startad** (`StartedToggle`): off and disabled in an inactive group; in a preparing group it asks "Är du säker?" with the text of `STATUS_CONFIRMATIONS.start` and, when someone has no wish, "Ännu ingen önskelista från: <names>." (R2), then calls `startDraw`; in a started group it is on and asks with `STATUS_CONFIRMATIONS.stop`, then calls `stopDraw` (R7). The two toggles sit side by side under the plus button as a pair, centred. A participant with at least one wish has the note "Önskelista påbörjad" under the name (R1; it was a check mark until [MUPP-061](../MUPP-061-santa-wish-note/solution.md)).
 - **Notices** (red toast, as for unsent mails): "Dragningen är gjord, men regeln om att inte få förra årets person [och regeln om att inte få sin partner] gick inte att följa." (R3), and "Sparat, men <names> fick inget mejl." (R6). A lone participant: "Dragningen går inte att göra: det behövs minst två deltagare."
 - **Mails:** mail 3 (`startedMail`) to everyone on start, mail 4 (`stoppedMail`) on stop, texts of MUPP-052.
 

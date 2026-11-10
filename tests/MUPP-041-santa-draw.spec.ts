@@ -24,7 +24,7 @@ async function openSantaTab(page: Page, parent: string) {
   await page.getByRole("tab", { name: "Secret Santa" }).click();
 }
 
-test("MUPP-041-R1 R2 R3 R4 R5 R6 R7 the check marks, the toggle Startad with its question, the draw, its mails, and the stop", async ({ page }) => {
+test("MUPP-041-R1 MUPP-061-R1 R2 R3 R4 R5 R6 R7 the wish note, the toggle Startad with its question, the draw, its mails, and the stop", async ({ page }) => {
   clearOutbox();
   const emma = uniqueName("Emma");
   const event = await addSantaEvent("Emmas jul", await addParent(emma), "preparing");
@@ -35,9 +35,9 @@ test("MUPP-041-R1 R2 R3 R4 R5 R6 R7 the check marks, the toggle Startad with its
   await openSantaTab(page, emma);
   const card = eventCard(page, "Emmas jul");
 
-  // R1: a check mark only by the participant with a wish
-  await expect(card.getByRole("img", { name: "Har skrivit en önskelista" })).toHaveCount(1);
-  await expect(card.getByRole("article").filter({ hasText: "Anna Testsson" }).getByRole("img", { name: "Har skrivit en önskelista" })).toBeVisible();
+  // MUPP-061-R1: the note "Önskelista påbörjad" only by the participant with a wish, as text, with a green symbol in front
+  await expect(card.getByText("Önskelista påbörjad")).toHaveCount(1);
+  await expect(card.getByRole("article").filter({ hasText: "Anna Testsson" }).getByText("Önskelista påbörjad")).toBeVisible();
 
   // R2: the question names who has no list yet; cancelling changes nothing
   const toggle = card.getByRole("switch", { name: "Startad Emmas jul" });
@@ -79,7 +79,7 @@ test("MUPP-041-R1 R2 R3 R4 R5 R6 R7 the check marks, the toggle Startad with its
   await expect(card).toContainText("Status: Förbereder");
   await expect(toggle).toHaveAttribute("aria-checked", "false");
   expect(await santaDraw(event)).toEqual([]);
-  await expect(card.getByRole("img", { name: "Har skrivit en önskelista" })).toHaveCount(1);
+  await expect(card.getByText("Önskelista påbörjad")).toHaveCount(1);
   await expect.poll(() => readOutbox().length).toBe(3);
   expect(readOutbox().map((m) => m.subject)).toEqual(Array(3).fill("Secret Santa: Emmas jul – dragningen är stoppad"));
   clearOutbox();

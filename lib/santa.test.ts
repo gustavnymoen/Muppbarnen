@@ -492,7 +492,7 @@ describe("MUPP-041-R7 stop the draw", () => {
   });
 });
 
-describe("MUPP-041-R1 the check mark", () => {
+describe("MUPP-041-R1 who has written a wish", () => {
   test("MUPP-041-R1 a participant has wishes once at least one is written", async () => {
     const id = await event(emma, "Emmas jul");
     const anna = await person(emma, id, "Anna");

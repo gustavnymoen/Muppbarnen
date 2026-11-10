@@ -1,7 +1,7 @@
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { Field, Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
-import { CheckIcon, PencilIcon } from "@/app/components/icons";
+import { CheckCircleIcon, PencilIcon } from "@/app/components/icons";
 import { SwitchButton } from "@/app/components/SwitchButton";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
@@ -172,9 +172,22 @@ function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent 
   return (
     <SlimCard
       level={4}
-      thumb={member.hasWishes ? <span role="img" aria-label="Har skrivit en önskelista" className="self-center text-brand"><CheckIcon /></span> : undefined}
       title={member.name}
-      note={partner ? `Partner: ${partner.name}` : undefined}
+      note={
+        partner || member.hasWishes ? (
+          <>
+            {partner && <span className="block">Partner: {partner.name}</span>}
+            {member.hasWishes && (
+              <span className="flex items-center gap-1">
+                <span className="text-christmas-green">
+                  <CheckCircleIcon />
+                </span>
+                Önskelista påbörjad
+              </span>
+            )}
+          </>
+        ) : undefined
+      }
       actions={
         <>
           <MemberEdit memberId={member.id} title={`Ändra ${where}`}>

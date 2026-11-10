@@ -2,6 +2,8 @@
 
 ## 2026-11-10
 
+* **Creation** [MUPP-061 Wish note instead of check mark](../specs/MUPP-061-santa-wish-note/solution.md): a participant with at least one wish shows the small muted text "Önskelista påbörjad" with a green check circle in front, under the name in the Secret Santa admin.
+* **Update** [MUPP-059](../specs/MUPP-059-santa-group-card-text/verification.md): the Live tests passed after the merge, and the Secret Santa tab was checked on the live site at 320 px (reflow, contrast 5.53:1, target size); the own page and VoiceOver are not checked live. Every changed state already has an axe call, so no test was added.
 * **Creation** [MUPP-060 Change participants in a started group](../specs/MUPP-060-santa-change-participants/solution.md): name, phone and e-mail of a participant can be corrected in every status; adding, removing and the partner stay locked once the group is started (the server refuses them); after a changed e-mail the administrator is asked whether the new address gets the mail a new participant would get, and the draw and the signed-in participant are not disturbed.
 * **Creation** [TECH-021 Mail deliverability](../specs/TECH-021-mail-deliverability/solution.md): the HTML of every mail is a complete document (doctype, `lang="sv"`, head with title, body) that starts with a hidden preview text from the first paragraph; open and click tracking are off in Resend. The look of the mail is unchanged.
 * **Creation** [MUPP-059 Santa group card text and bigger own page cards](../specs/MUPP-059-santa-group-card-text/solution.md): the closed group card shows "Admin: <name>" on its own line, and the two cards on the participant's own page are taller with a larger symbol over larger, two-line, centred text.
