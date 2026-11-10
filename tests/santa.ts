@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { createSantaSession } from "../lib/santa-session";
 import { goto } from "./helpers";
 
@@ -29,4 +29,15 @@ export async function openSignInForm(page: Page, name: string) {
 export async function sendPhone(page: Page, phone: string) {
   await page.getByLabel("Ditt telefonnummer").fill(phone);
   await page.getByRole("button", { name: "Fortsätt" }).click();
+}
+
+// A group's card on the admin Secret Santa tab. A group that folds (MUPP-056) has the status and the number of participants in
+// its heading, so the name is matched as the start of the heading
+export const eventCard = (page: Page, name: string) =>
+  page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?: |$)`) }) });
+
+// Opens a card that is closed (a group that does not fold has no button and is open already)
+export async function openEventCard(card: Locator) {
+  const header = card.getByRole("heading", { level: 3 }).first().getByRole("button");
+  if ((await header.count()) > 0 && (await header.getAttribute("aria-expanded")) === "false") await header.click();
 }

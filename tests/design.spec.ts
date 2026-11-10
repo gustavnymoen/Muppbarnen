@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
 import { addChild, addParent, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaStatus } from "./family-db";
-import { santaSignIn } from "./santa";
+import { eventCard, santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
 
@@ -422,7 +422,15 @@ test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 the Secret Santa tab on a phone: tabs 44 
 
     // R2 R3: the family is one slim card with eight slim member rows, nothing wider than the screen
     await santa.click();
-    const card = page.getByRole("article").filter({ has: page.getByRole("heading", { level: 3, name: "Familjen Ek" }) });
+    const card = eventCard(page, "Familjen Ek");
+    // MUPP-056: the group is someone else's, so it is a closed card: a header button of at least 44 px and the note (status, count, administrator) wrapped on 320 px, the arrow down
+    const header = card.getByRole("heading", { level: 3 }).getByRole("button");
+    await expect(card.getByRole("heading", { level: 4 })).toHaveCount(0);
+    expect((await settledBox(header)).height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(card)).height).toBeLessThanOrEqual(96);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await expectNoA11yViolations(page);
+    await header.click();
     await expect(card.getByRole("heading", { level: 4 })).toHaveCount(8);
     for (const row of await card.locator("article").all()) expect((await settledBox(row)).height).toBeLessThanOrEqual(56);
     expect(await hasHorizontalScroll(page)).toBe(false);
