@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* **Creation** [TECH-021 Mail deliverability](../specs/TECH-021-mail-deliverability/solution.md): the HTML of every mail is a complete document (doctype, `lang="sv"`, head with title, body) that starts with a hidden preview text from the first paragraph; open and click tracking are off in Resend. The look of the mail is unchanged.
 * **Creation** [MUPP-059 Santa group card text and bigger own page cards](../specs/MUPP-059-santa-group-card-text/solution.md): the closed group card shows "Admin: <name>" on its own line, and the two cards on the participant's own page are taller with a larger symbol over larger, two-line, centred text.
 * **Creation** [MUPP-044 Secret Santa: yearly cleanup](../specs/MUPP-044-secret-santa-cleanup/solution.md): a daily Vercel Cron call (protected by `CRON_SECRET`) wipes every event's wishes and sets it inactive once a year, from 24 January, keeping events, members and the draw log; the Secret Santa cookie now holds the cleanup year, so everyone is signed out by the wipe.
 * **Update** [MUPP-041](../specs/MUPP-041-secret-santa-draw/verification.md), [MUPP-042](../specs/MUPP-042-secret-santa-your-person/verification.md): the accessibility checklist was gone through on the live site (the toggle Startad, the check mark, the stop question, the own page in a started group and the match page); VoiceOver, text spacing and reduced motion are not checked, and Live tests passed after both merges.

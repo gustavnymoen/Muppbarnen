@@ -35,7 +35,11 @@ export const INSTALL_TIP = {
   ],
 };
 
-export function layout({ text, installTip }: Pick<Mail, "text" | "installTip">) {
+// Förhandsvisningen (TECH-021-R2): första stycket, dolt först i mejlet, så inkorgen visar det i stället för logons alt-text
+const PREVIEW_LENGTH = 90;
+const PREVIEW_STYLE = "display:none;max-height:0;overflow:hidden;mso-hide:all";
+
+export function layout({ subject, text, installTip }: Pick<Mail, "subject" | "text" | "installTip">) {
   const tipPlain = installTip ? `\n\n${INSTALL_TIP.intro}\n${INSTALL_TIP.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}` : "";
   const plain = `${text}\n\n${BUTTON_LABEL}: ${SITE_URL}\n${MAIL_FOOTER}${tipPlain}`;
   const tipHtml = installTip
@@ -45,14 +49,18 @@ export function layout({ text, installTip }: Pick<Mail, "text" | "installTip">) 
     .split(/\n\s*\n/)
     .map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
     .join("");
+  const preview = escapeHtml(text.split(/\n\s*\n/)[0].replace(/\s+/g, " ").trim().slice(0, PREVIEW_LENGTH));
+  // Ett komplett dokument (TECH-021-R1): filter ser en tom <head> och saknad <body> som ett tecken på slarvigt skräp
   const html =
+    `<!doctype html><html lang="sv"><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head><body>` +
+    `<div style="${PREVIEW_STYLE}">${preview}</div>` +
     `<div style="font-family:sans-serif;max-width:480px;color:#222">` +
     `<img src="${SITE_URL}/icon.png" width="40" height="40" alt="${SITE_NAME}">` +
     paragraphs +
     `<p><a href="${SITE_URL}" style="${BUTTON_STYLE}">${BUTTON_LABEL}</a></p>` +
     `<p style="font-size:13px;color:#666">${MAIL_FOOTER}</p>` +
     tipHtml +
-    `</div>`;
+    `</div></body></html>`;
   return { html, plain };
 }
 
