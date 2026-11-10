@@ -67,7 +67,7 @@ test("MUPP-044-R1 R2 R3 after the cleanup the group is inactive with empty lists
   await card.getByRole("switch", { name: "Aktiv Emmas jul" }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Aktivera", exact: true }).click();
   await expect(card).toContainText("Status: Förbereder");
-  await expect(card.getByRole("img", { name: "Har skrivit en önskelista" })).toHaveCount(0);
+  await expect(card.getByText("Önskelista påbörjad")).toHaveCount(0);
   await card.getByRole("switch", { name: "Startad Emmas jul" }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Starta", exact: true }).click();
   await expect(card).toContainText("Status: Startad");

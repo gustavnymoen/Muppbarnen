@@ -7,7 +7,7 @@ feature: MUPP-059
 
 # Verification of MUPP-059
 
-Browser tests ran locally (a production build, the local test database), 2026-11-10. Not yet deployed: the live checks are not done.
+Browser tests ran locally (a production build, the local test database), 2026-11-10. Deployed the same day; the live checks are at the end of this file.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -21,10 +21,23 @@ Browser tests ran locally (a production build, the local test database), 2026-11
 | Unit tests | Not applicable: no logic; the 333 existing ones pass | local | Pass | 2026-11-10 |
 | Browser tests | Existing tests changed (3 files), no new test and no new page load | local | Pass (149) | 2026-11-10 |
 | Smoke test | Not applicable: no main page or flow added | – | – | – |
-| Accessibility | axe in the changed states (above); the live checklist (text, reflow, target size) not done yet | local | Pass locally; live not checked | 2026-11-10 |
+| Accessibility | axe in the changed states (above); the live checklist: see "Live checks" below | local and live | Pass; the own page and VoiceOver not checked live | 2026-11-10 |
 | Design | Looked at on 375 and 320 px in the running local site with the user, proposals A to D; `/impeccable critique` not run as a separate pass | local | Done | 2026-11-10 |
 | Security | Not applicable: text and size only | – | – | – |
 | Code review | [review.md](review.md) | local | See review | 2026-11-10 |
+
+## Live checks
+
+On https://muppbarnen.vercel.app, in the built-in browser pane at 320 px width, signed in as the master admin, 2026-11-10. Checklist numbers from [accessibility.md](../../wiki/system/accessibility.md).
+
+| Item | Result |
+|---|---|
+| 4 Reflow at 320 px, Secret Santa tab (closed group card with "Admin: Emma") | Pass: the page is 320 px wide and does not scroll sideways. 200 % zoom not checked |
+| 6 Contrast of the Admin line | Pass: 5.53:1 (14 px, `rgb(133, 145, 164)` on `rgb(20, 25, 32)`, dark theme); the light theme not checked |
+| 7 Target size | Pass: the closed card's header is 56 px high, the open one 44 px; the Admin line is a 16 px line inside the header button |
+| 3 Screen reader | Not checked (VoiceOver) |
+| `/secret-santa/min-sida` (the tall cards) | Not checked live: it needs a participant's sign-in, which the pane did not have |
+| Live tests (smoke) | The workflow run on `main` after the merge passed |
 
 ## Test suite
 
@@ -39,8 +52,8 @@ The suite is over its budget with and without this change (TECH-019). This chang
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; the live checklist after the deploy
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-10)
+- [ ] Accessibility: axe passes locally and every changed state has an axe call; the live checklist is done for the Secret Santa tab only (own page and VoiceOver not checked)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs, `DESIGN.md` and `wiki/log.md` updated
 - [x] No leftovers: the temporary size switch is removed
