@@ -1,6 +1,6 @@
 import { expect, request as playwrightRequest, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
-import { addSantaDraw, addSantaEvent, addSantaMember, ageSantaMessages, clearFamily, clearSanta, santaMessages } from "./family-db";
+import { addSantaDraw, addSantaEvent, addSantaMember, addSantaMessage, ageSantaMessages, clearFamily, clearSanta, santaMessages } from "./family-db";
 import { clearOutbox, readOutbox } from "../lib/mail-sink";
 import { santaSignIn } from "./santa";
 import { testIp } from "./site-session";
@@ -213,4 +213,26 @@ test("MUPP-043-R6 a message mails the other side once the ten minutes have passe
   expect(readOutbox().map((mail) => `${mail.to} ${mail.subject}`).pop()).toBe("anna@exempel.invalid Secret Santa: Familjen Test – nytt meddelande från din matchning");
   await caller.dispose();
   clearOutbox();
+});
+
+test("MUPP-043-R5 a new message shows on the button also when the same list was visited and read earlier in the same visit, and the chat is there at once", async ({ page }) => {
+  const { event, anna, bo } = await startedEvent();
+  await addSantaMessage(event, anna, bo, false, "Första");
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida");
+  await page.getByRole("link", { name: /^Min matchning/ }).click();
+  await expect(page).toHaveURL(/\/matchning$/);
+  await expect(page.getByRole("button", { name: "Chatt med din matchning, nytt meddelande" })).toBeVisible();
+  // The messages come with the page, so they are shown the moment the card opens; opening reads them and the notice goes
+  await page.getByRole("button", { name: /^Chatt med din matchning/ }).click();
+  await expect(chatOf(page, "Din matchning").getByRole("log")).toContainText("Första");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Chatt med din matchning", exact: true })).toBeVisible();
+  // Back to the cards and into the same list again without a reload: a message that came meanwhile gives the notice again
+  await addSantaMessage(event, anna, bo, false, "Andra");
+  await page.getByRole("link", { name: "Tillbaka" }).click();
+  await expect(page).toHaveURL(/\/min-sida$/);
+  await page.getByRole("link", { name: /^Min matchning/ }).click();
+  await expect(page).toHaveURL(/\/matchning$/);
+  await expect(page.getByRole("button", { name: "Chatt med din matchning, nytt meddelande" })).toBeVisible();
 });

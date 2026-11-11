@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/solution.md): fixed after the live check: the notice on the Chatt button follows the page (a new message gives it again after an earlier read) and the chat shows its messages at once.
 * **Creation** [MUPP-043 Secret Santa: anonymous chat](../specs/MUPP-043-secret-santa-questions/solution.md): a giver and their receiver chat without names ("Din Secret Santa" / "Din matchning"), with an unread notice on the bubbles and message mails 6 and 7 collected over ten minutes; the conversations are deleted with the draw and in the yearly cleanup.
 * **Update** [MUPP-064](../specs/MUPP-064-wish-row-fold/verification.md): Live tests passed after the merge; the live accessibility checklist and how a screen reader reads "Storlek: –" were checked by the user and reported as fine.
 * **Creation** [MUPP-064 Wish rows fold out consistently](../specs/MUPP-064-wish-row-fold/solution.md): every wish row folds out and always shows "Beskrivning:" and "Storlek:", with a dash for an empty value; the link only when there is one.

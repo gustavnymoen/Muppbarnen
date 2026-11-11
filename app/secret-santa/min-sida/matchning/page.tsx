@@ -7,7 +7,7 @@ import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { WishRow } from "@/app/components/WishList";
 import { currentSantaMember } from "@/lib/santa-auth";
-import { unreadSides } from "@/lib/santa-chat";
+import { peekChat, unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
 import { ChatButton } from "../ChatButton";
@@ -55,7 +55,7 @@ async function Match() {
               </ul>
             )}
           </Card>
-          <ChatButton side="giver" unread={(await unreadSides(member.id)).giver} />
+          <ChatButton side="giver" unread={(await unreadSides(member.id)).giver} initial={await peekChat(member.id, "giver")} />
         </div>
       </PageContent>
     </Page>

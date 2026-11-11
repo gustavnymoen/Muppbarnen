@@ -5,7 +5,7 @@ import { IconLink } from "@/app/components/Button";
 import { ReturnIcon } from "@/app/components/icons";
 import { Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember } from "@/lib/santa-auth";
-import { unreadSides } from "@/lib/santa-chat";
+import { peekChat, unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { listOwn } from "@/lib/santa-wishes";
 import { requireSiteSession } from "@/lib/site-auth";
@@ -42,7 +42,7 @@ async function WishList() {
       <PageContent>
         <div className="mx-auto flex min-h-full max-w-md flex-col gap-4">
           <OwnWishList eventName={member.eventName} wishes={wishes} />
-          {chat && <ChatButton side="receiver" unread={chat.receiver} />}
+          {chat && <ChatButton side="receiver" unread={chat.receiver} initial={await peekChat(member.id, "receiver")} />}
         </div>
       </PageContent>
     </Page>

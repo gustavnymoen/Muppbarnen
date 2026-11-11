@@ -29,6 +29,6 @@ A message is unread for the other side until that side opens the chat; opening i
 
 ## Data and deletion
 
-Table `ss_message` (migration `012`). The conversations are deleted with `clearMessages(eventId, tx)` when the draw is stopped or started again (`lib/santa.ts`), when a group is deleted, and by the yearly cleanup ([cleanup](secret-santa-cleanup.md)). There is no live refresh: the other side's new messages show when the chat is opened or after the next send.
+Table `ss_message` (migration `012`). The conversations are deleted with `clearMessages(eventId, tx)` when the draw is stopped or started again (`lib/santa.ts`), when a group is deleted, and by the yearly cleanup ([cleanup](secret-santa-cleanup.md)). The pages send the current messages with the page (`peekChat`, nothing is marked read), so the card shows them at once, and the notice comes straight from the page; after the chat is read the page is refreshed so the notice goes. There is no live refresh: the other side's new messages show when the chat is opened or after the next send.
 
 [System documentation](index.md)
