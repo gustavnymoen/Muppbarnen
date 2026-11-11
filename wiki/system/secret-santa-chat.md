@@ -13,7 +13,7 @@ Once the draw is made ([Secret Santa draw](secret-santa-draw.md)) the giver and 
 
 ## Two conversations per member
 
-The draw is not symmetric (A→B, B→C, and D and E may draw each other), so every member has up to two conversations: one as receiver, with whoever drew them, and one as giver, with whoever they drew. They are never mixed. In the code the two are the *sides* `receiver` (bubble in the list "Min önskelista") and `giver` (bubble in the list "Min matchning"); both sides may write first and at any time, and several messages in a row are fine. A message is 1 to 500 characters (trimmed); it is stored and shown as text.
+The draw is not symmetric (A→B, B→C, and D and E may draw each other), so every member has up to two conversations: one as receiver, with whoever drew them, and one as giver, with whoever they drew. They are never mixed. In the code the two are the *sides* `receiver` (button in the list "Min önskelista") and `giver` (button in the list "Min matchning"); both sides may write first and at any time, and several messages in a row are fine. A message is 1 to 500 characters (trimmed); it is stored and shown as text.
 
 ## Who sees what
 
@@ -21,7 +21,7 @@ The draw is not symmetric (A→B, B→C, and D and E may draw each other), so ev
 
 ## Unread
 
-A message is unread for the other side until that side opens the chat; opening it (`loadChat`) sets `read_at` on that direction only. The cards on the own page show a small chat icon with an orange dot and a hidden text "Nytt meddelande" (no button); the bubble inside the opened list shows an orange outline and dot and the name "…, nytt meddelande". The chat is opened only from inside the lists. Messages one has written never count.
+A message is unread for the other side until that side opens the chat; opening it (`loadChat`) sets `read_at` on that direction only. The cards on the own page show a small chat icon with an orange dot and a hidden text "Nytt meddelande" (no button); the wide chat button, sticky at the bottom of the opened list, shows an orange outline and dot and the name "…, nytt meddelande". The chat is opened only from inside the lists. Messages one has written never count.
 
 ## Message mails
 

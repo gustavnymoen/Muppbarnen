@@ -1552,7 +1552,7 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
   }
 });
 
-test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a small icon with a dot for an unread message and no button, the bubble is 44 px at the top of the list, and the chat card fits the width with long words wrapped and 44 px field and button", async ({ page }) => {
+test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a small icon with a dot for an unread message and no button, the chat button is wide and sticks to the bottom of the list, and the chat card fits the width with long words wrapped and 44 px field and button", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1580,11 +1580,15 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a small ico
     expect(mark.y).toBeGreaterThanOrEqual(card.y);
     expect(disjoint(mark, await settledBox(matchCard.getByRole("heading")))).toBe(true);
 
-    // The chat is opened from inside the list: a 44 px bubble at the top of it
+    // The chat is opened from inside the list: a wide button at the bottom of the screen, as wide as the list and at least 44 px high
     await matchCard.click();
     await expect(page).toHaveURL(/\/matchning$/);
     const bubble = await settledBox(page.getByRole("button", { name: /^Chatta med din matchning/ }));
-    expect([bubble.width, bubble.height]).toEqual([44, 44]);
+    const list = await settledBox(page.getByRole("heading", { level: 2, name: /^Önskelistan hos/ }).locator(".."));
+    expect(bubble.height).toBeGreaterThanOrEqual(44);
+    expect(bubble.width).toBe(list.width);
+    expect(bubble.y + bubble.height).toBeGreaterThanOrEqual(667 - 48);
+    expect(bubble.y + bubble.height).toBeLessThanOrEqual(667);
     await page.getByRole("button", { name: /^Chatta med din matchning/ }).click();
     const chat = page.getByRole("dialog", { name: "Din matchning" });
     const log = chat.getByRole("log");

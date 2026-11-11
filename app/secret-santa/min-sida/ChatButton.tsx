@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
-import { Button, IconButton } from "@/app/components/Button";
+import { Button } from "@/app/components/Button";
 import { Dialog, type DialogHandle } from "@/app/components/Dialog";
 import { ChatIcon } from "@/app/components/icons";
 import { MAX_MESSAGE_LENGTH, type ChatMessage, type ChatSide } from "@/lib/santa-chat-shared";
 import { loadChat, sendChat } from "../chat-actions";
 
-// Pratbubblan (MUPP-043): ett tryck öppnar samtalet som ett kort. Olästa meddelanden syns som en orange prick och i namnet ("nytt meddelande"),
+// Chattknappen (MUPP-043): en bred, kvarsittande knapp längst ner i listan; ett tryck öppnar samtalet som ett kort. Olästa meddelanden syns som en orange prick och i namnet ("nytt meddelande"),
 // så att det inte bara är färgen som säger det (R5); pricken går när samtalet är öppnat. Mottagarens sida kallas alltid "Din Secret Santa" (R3).
 const TEXTS: Record<ChatSide, { title: string; label: string; empty: string }> = {
   receiver: { title: "Din Secret Santa", label: "Chatta med din Secret Santa", empty: "Inga meddelanden ännu. Skriv det du vill, din Secret Santa får inte veta vem du är." },
@@ -20,10 +20,14 @@ export function ChatButton({ side, unread }: { side: ChatSide; unread: boolean }
   const texts = TEXTS[side];
   return (
     <>
-      <IconButton label={notice ? `${texts.label}, nytt meddelande` : texts.label} onClick={(event) => card.current?.open(event.currentTarget)} className={`relative ${notice ? "!border-claimed !text-claimed" : ""}`}>
-        <ChatIcon />
-        {notice && <span aria-hidden="true" className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-card bg-claimed" />}
-      </IconButton>
+      {/* Bred knapp längst ner i listan som står kvar när listan scrollas; mt-auto lägger den på sidans nederkant när listan är kort */}
+      <div className="sticky bottom-0 mt-auto pt-2">
+        <Button variant="secondary" aria-label={notice ? `${texts.label}, nytt meddelande` : texts.label} onClick={(event) => card.current?.open(event.currentTarget)} className={`relative w-full ${notice ? "!border-claimed !text-claimed" : ""}`}>
+          <ChatIcon />
+          {texts.label}
+          {notice && <span aria-hidden="true" className="absolute right-3 top-3 size-2.5 rounded-full bg-claimed" />}
+        </Button>
+      </div>
       <Dialog ref={card} form title={texts.title}>
         <Chat side={side} empty={texts.empty} onRead={() => setNotice(false)} />
       </Dialog>

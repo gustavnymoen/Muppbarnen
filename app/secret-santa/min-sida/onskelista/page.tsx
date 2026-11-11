@@ -40,13 +40,9 @@ async function WishList() {
       }
     >
       <PageContent>
-        <div className="mx-auto max-w-md space-y-4">
-          {chat && (
-            <div className="flex justify-end">
-              <ChatButton side="receiver" unread={chat.receiver} />
-            </div>
-          )}
+        <div className="mx-auto flex min-h-full max-w-md flex-col gap-4">
           <OwnWishList eventName={member.eventName} wishes={wishes} />
+          {chat && <ChatButton side="receiver" unread={chat.receiver} />}
         </div>
       </PageContent>
     </Page>

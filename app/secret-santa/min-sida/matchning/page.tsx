@@ -39,10 +39,7 @@ async function Match() {
       }
     >
       <PageContent>
-        <div className="mx-auto max-w-md space-y-4">
-          <div className="flex justify-end">
-            <ChatButton side="giver" unread={(await unreadSides(member.id)).giver} />
-          </div>
+        <div className="mx-auto flex min-h-full max-w-md flex-col gap-4">
           <Card as="section" className="space-y-3">
             <Heading level={2} small>
               Önskelistan hos {match.name}
@@ -58,6 +55,7 @@ async function Match() {
               </ul>
             )}
           </Card>
+          <ChatButton side="giver" unread={(await unreadSides(member.id)).giver} />
         </div>
       </PageContent>
     </Page>
