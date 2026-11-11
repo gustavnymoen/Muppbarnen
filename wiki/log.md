@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* **Update** [MUPP-063](../specs/MUPP-063-admin-desktop/verification.md): Live tests passed after the merge, and the Barn tab was checked on the live site at 320, 1280 and 1920 px (whole names, one column of 672 px, same left edge as the Secret Santa tab, no sideways scroll, 32 px buttons); VoiceOver, 200 % zoom and the light theme are not checked.
 * **Creation** [MUPP-063 Admin page layout on desktop](../specs/MUPP-063-admin-desktop/solution.md): the Barn tab of the admin page is one column of at most 42 rem like the other admin pages, and a child's name stays on one line (cut with an ellipsis if it does not fit) instead of being split in the word.
 * **Update** [MUPP-062](../specs/MUPP-062-wish-rows/verification.md): the match page was checked on the live site at 320, 375 and 640 px (keyboard, focus ring, reflow, contrast 11.36:1, rows 56 px high); VoiceOver, the link and the bold labels on the match page (its wishes had no details) and real 200 % zoom are not checked.
 * **Update** [MUPP-062](../specs/MUPP-062-wish-rows/verification.md): Live tests passed after the merge, and the bold labels were checked on a child's list on the live site at 320 px; the match page needs a participant sign-in and is not checked live.

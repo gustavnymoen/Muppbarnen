@@ -57,7 +57,7 @@ Over budget with and without this change (TECH-019). This change added 3 browser
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-10)
-- [ ] Accessibility: axe passes locally and live items 1, 2, 4, 6, 7 and the labels of 9 are done; VoiceOver (3), error texts, the question after saving, 200 % zoom and the light theme are not checked
+- [x] Accessibility: axe passes locally and live items 1, 2, 4, 6, 7 and the labels of 9 are done; VoiceOver (3), error texts, the question after saving, 200 % zoom and the light theme are not checked (accepted by the user, 2026-11-11)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

@@ -7,7 +7,7 @@ feature: MUPP-063
 
 # Verification of MUPP-063
 
-Everything ran locally (a production build, the local test database), 2026-11-11. Not yet deployed: the live checks are not done.
+Everything ran locally (a production build, the local test database), 2026-11-11. Deployed the same day (PR #204); the live checks are at the end of this file.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -22,10 +22,23 @@ Everything ran locally (a production build, the local test database), 2026-11-11
 | Unit tests | Not applicable: layout only; the 354 existing ones pass | local | Pass | 2026-11-11 |
 | Browser tests | The existing admin tests pass (154); no new test | local | Pass | 2026-11-11 |
 | Design test | In the existing admin test of `tests/design.spec.ts` (above); the pages were also looked at in screenshots at 1440 px | local | Pass | 2026-11-11 |
-| Smoke test | Not applicable: no main page or flow changes | – | – | – |
-| Accessibility | axe in the same test at 1280 px as before; the live checklist is not done yet (after the deploy) | local | Pass locally; live not checked | 2026-11-11 |
+| Smoke test | Not applicable: no main page or flow changes; the Live tests run on `main` after the merge (`a2fc98c`) passed | live | Pass | 2026-11-11 |
+| Accessibility | axe in the same test at 1280 px as before; live checklist: see "Live checks" below | local and live | Pass; VoiceOver, 200 % zoom and the light theme not checked | 2026-11-11 |
 | Security | Not applicable: layout only; `/security-review` not needed | – | – | – |
 | Code review | [review.md](review.md) | local | See review | 2026-11-11 |
+
+## Live checks
+
+On https://muppbarnen.vercel.app after the merge, in the built-in browser pane, signed in as the master admin, Barn tab with three kids (Otis, Wilda, Arthur), 2026-11-11. Nothing was saved. Checklist numbers from [accessibility.md](../../wiki/system/accessibility.md).
+
+| Item | Result |
+|---|---|
+| R1 Names whole | Pass: at 1280 px and 320 px every name is one line (28 px high) and shown in full; the long-name case (ellipsis) is covered by the browser test only, since no kid has such a name |
+| R2 One column | Pass: at 1280 and 1920 px the three cards are 672 x 46 px, at the same left edge (96 px and 416 px), stacked; at 320 px they are 288 x 46 px |
+| R3 Same width | Pass: at 1280 px the Secret Santa tab section is 672 px wide and starts at the same left edge as the cards (96 px). The manage page was not opened live |
+| 4 Reflow at 320 px | Pass: no sideways scroll at 320, 1280 and 1920 px. 200 % zoom not checked |
+| 7 Target size | Pass: the Storlekar and Önskelistor buttons are 32 px high (110 and 123 px wide), the known 32 px exception for admin icon buttons (24 px needed) |
+| 1, 2, 3, 6, 9 | Not checked live (keyboard, focus ring, VoiceOver, contrast, errors): the change moves cards and adds no new control or colour |
 
 ## Test suite
 
@@ -40,8 +53,8 @@ Over budget with and without this change (TECH-019). This change added no test a
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; the live checklist after the deploy
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-11)
+- [x] Accessibility: axe passes locally and live items 4 and 7 are done; VoiceOver (3), 200 % zoom and the light theme are not checked (accepted by the user, 2026-11-11)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated: the manual says nothing about the layout, so only the system page, `DESIGN.md` and the log
 - [x] No leftovers
