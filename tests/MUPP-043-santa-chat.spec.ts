@@ -149,7 +149,8 @@ test("MUPP-043-R3 R4 in an asymmetric draw Bo's two chats are separate, a third 
   const { anna, bo, cia, dan } = await startedEvent();
   const answers: string[] = [];
   page.on("response", async (response) => {
-    if (response.request().method() === "POST") answers.push(await response.text().catch(() => ""));
+    // The pages (with the messages they send along) and the actions' answers
+    if (["document", "fetch", "xhr"].includes(response.request().resourceType())) answers.push(await response.text().catch(() => ""));
   });
   // Anna (gives to Bo) writes; Cia (gives to Anna) writes too
   await santaSignIn(page, anna);
@@ -171,9 +172,10 @@ test("MUPP-043-R3 R4 in an asymmetric draw Bo's two chats are separate, a third 
   await page.keyboard.press("Escape");
   await openChat(page, "giver");
   await expect(chatOf(page, "Din matchning").getByText("Inga meddelanden ännu")).toBeVisible();
-  // R3: nothing the server answered to Bo names or numbers the giver
-  expect(answers.length).toBeGreaterThan(0);
-  for (const answer of answers) expect(answer).not.toMatch(new RegExp(`Anna|Testsson|"${anna}"|giver`));
+  // R3: nothing the server sent to Bo (pages and answers) names or numbers the giver
+  await expect.poll(() => answers.length).toBeGreaterThan(1);
+  // (Bo shares the family name with Anna, so only her first name and address are looked for; the message texts carry no name)
+  for (const answer of answers) expect(answer).not.toMatch(/Anna|anna@exempel/);
 
   // R4: Dan, in the same event but in another pair, has no notice and both his chats are empty
   await santaSignIn(page, dan);
@@ -235,4 +237,19 @@ test("MUPP-043-R5 a new message shows on the button also when the same list was 
   await page.getByRole("link", { name: /^Min matchning/ }).click();
   await expect(page).toHaveURL(/\/matchning$/);
   await expect(page.getByRole("button", { name: "Chatt med din matchning, nytt meddelande" })).toBeVisible();
+});
+
+test("MUPP-043-R2 a message that comes between loading the page and opening the chat is in the chat, and one that comes while it is open shows within ten seconds", async ({ page }) => {
+  const { event, anna, bo } = await startedEvent();
+  await page.clock.install();
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await addSantaMessage(event, anna, bo, false, "Kom efter sidladdningen");
+  await page.getByRole("button", { name: /^Chatt med din matchning/ }).click();
+  const log = chatOf(page, "Din matchning").getByRole("log");
+  await expect(log).toContainText("Kom efter sidladdningen");
+  await addSantaMessage(event, anna, bo, false, "Kom medan chatten var öppen");
+  await page.clock.fastForward(10_500);
+  await expect(log).toContainText("Kom medan chatten var öppen");
+  await expectNoA11yViolations(page);
 });

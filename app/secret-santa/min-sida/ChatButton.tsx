@@ -10,6 +10,9 @@ import { loadChat, sendChat } from "../chat-actions";
 
 // Chattknappen (MUPP-043): en kvarsittande knapp "Chatt" längst ner i listan; ett tryck öppnar samtalet som ett kort. Olästa meddelanden syns som en orange pratbubbla med en orange plupp och i namnet ("nytt meddelande"),
 // så att det inte bara är färgen som säger det (R5); pricken går när samtalet är öppnat. Mottagarens sida kallas alltid "Din Secret Santa" (R3).
+// Hur ofta ett öppet samtal frågar efter nya meddelanden
+const POLL_MS = 10_000;
+
 const TEXTS: Record<ChatSide, { title: string; label: string; empty: string }> = {
   receiver: { title: "Din Secret Santa", label: "Chatt med din Secret Santa", empty: "Inga meddelanden ännu. Skriv det du vill, din Secret Santa får inte veta vem du är." },
   giver: { title: "Din matchning", label: "Chatt med din matchning", empty: "Inga meddelanden ännu. Skriv det du vill, din matchning får inte veta vem du är." },
@@ -62,6 +65,15 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
     };
     // Samtalet ska läsas (och märkas som läst) en gång när kortet öppnas, inte när sidans data ändras
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [side]);
+
+  // Medan kortet är öppet frågas det efter nya meddelanden var tionde sekund (inte medan fliken är dold); ett nytt dyker upp i listan
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.hidden) return;
+      loadChat(side).then((result) => result.ok && setMessages((now) => (JSON.stringify(now) === JSON.stringify(result.messages) ? now : result.messages)));
+    }, POLL_MS);
+    return () => window.clearInterval(timer);
   }, [side]);
 
   // Nyaste meddelandet längst ner syns alltid
