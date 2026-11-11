@@ -59,7 +59,7 @@ Over budget with and without this change (TECH-019). This change added no test a
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-11)
-- [ ] Accessibility: axe passes locally; live, the match page is checked for keyboard, focus ring, reflow (320, 375 and 640 px), contrast and target size; not checked: VoiceOver, the link and the bold labels on the match page (the wishes there have no details), real 200 % zoom
+- [x] Accessibility: axe passes locally; live, the match page is checked for keyboard, focus ring, reflow (320, 375 and 640 px), contrast and target size. Accepted by the user without VoiceOver, real 200 % zoom, and the link and bold labels on the match page (its wishes have no details; covered by the local tests) (2026-11-11)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: `SlimCard` and `WishDetails` stay in use by the own list and the admin lists; the match page's `WishCard` is removed
