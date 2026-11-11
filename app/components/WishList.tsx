@@ -222,16 +222,13 @@ export function WishRow({ wish, claiming, roomy }: { wish: Wish; claiming?: { ma
               Paxad av {wish.claimedBy} {wish.claimedAt}
             </p>
           )}
-          {wish.description && (
-            <p className="whitespace-pre-line">
-              <strong className="font-semibold">Beskrivning:</strong> {wish.description}
-            </p>
-          )}
-          {wish.size && (
-            <p>
-              <strong className="font-semibold">Storlek:</strong> {wish.size}
-            </p>
-          )}
+          {/* Rubrikerna visas alltid, med ett streck när värdet saknas, så att varje rad fäller ut till något (MUPP-064-R1, -R2) */}
+          <p className="whitespace-pre-line">
+            <strong className="font-semibold">Beskrivning:</strong> {wish.description || "–"}
+          </p>
+          <p>
+            <strong className="font-semibold">Storlek:</strong> {wish.size || "–"}
+          </p>
           {link && (
             <p>
               <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block min-h-6 text-brand underline">

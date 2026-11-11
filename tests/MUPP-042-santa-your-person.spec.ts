@@ -32,7 +32,7 @@ async function startedEvent() {
   return { event, anna, bo, cia, dan, eva };
 }
 
-test("MUPP-042-R1 R2 MUPP-062-R2 a started group gives the second card 'Min matchning: <name>' that opens that person's list read-only, and nobody sees who drew them", async ({ page }) => {
+test("MUPP-042-R1 R2 MUPP-062-R2 MUPP-064-R1 R2 R3 a started group gives the second card 'Min matchning: <name>' that opens that person's list read-only, and nobody sees who drew them", async ({ page }) => {
   const { anna, bo, dan } = await startedEvent();
   await addSantaWish(bo, "Bok att läsa", { description: "Helst en spänningsroman", size: "Pocket", url: "https://example.com/bok" });
   await addSantaWish(bo, "Bara en titel");
@@ -62,7 +62,7 @@ test("MUPP-042-R1 R2 MUPP-062-R2 a started group gives the second card 'Min matc
   await expect(page.getByText(/Paxad|Kan köpas flera gånger/)).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Ny önskning|Ändra|Ta bort|Paxa/ })).toHaveCount(0);
   await expectNoA11yViolations(page);
-  // MUPP-062-R2: a row expands to the details with bold labels and a link that opens in a new tab; a title-only wish and an address that is not http(s) show no details
+  // MUPP-062-R2: a row expands to the details with bold labels and a link that opens in a new tab; a title-only wish shows a dash for both headings (MUPP-064-R1 R2 R3), and an address that is not http(s) gives no link
   await book.click();
   await expect(book).toHaveAttribute("aria-expanded", "true");
   const details = rows.filter({ hasText: "Bok att läsa" });
@@ -78,7 +78,8 @@ test("MUPP-042-R1 R2 MUPP-062-R2 a started group gives the second card 'Min matc
   await expect(details.getByRole("link")).toHaveCount(0);
   await page.getByRole("button", { name: "Bara en titel" }).click();
   await page.getByRole("button", { name: "Farlig länk" }).click();
-  await expect(rows.filter({ hasText: /Bara en titel|Farlig länk/ }).getByText(/Beskrivning:|Storlek:/)).toHaveCount(0);
+  await expect(rows.filter({ hasText: "Bara en titel" }).locator("p")).toHaveText(["Beskrivning: –", "Storlek: –"]);
+  await expect(rows.filter({ hasText: "Farlig länk" }).locator("p")).toHaveText(["Beskrivning: –", "Storlek: –"]);
   await expect(page.getByRole("link", { name: /Länk till presenten/ })).toHaveCount(0);
   await expect(page.getByText("Annas egen önskning")).toHaveCount(0);
   // R2: the page names the match only; Cia, who gives to Anna, is nowhere

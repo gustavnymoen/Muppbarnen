@@ -1410,7 +1410,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
   }
 });
 
-test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-042-R1 MUPP-062-R3 MUPP-061-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal, at least 11 rem high with a 40 px symbol over centred 30 px text, and a divider in the gap, and the toggles Aktiv and Startad, the wish note and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
+test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-042-R1 MUPP-062-R3 MUPP-064-R1 MUPP-061-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal, at least 11 rem high with a 40 px symbol over centred 30 px text, and a divider in the gap, and the toggles Aktiv and Startad, the wish note and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1487,7 +1487,12 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
     expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
     // MUPP-062-R3: the open row also passes axe in the light theme
+    // MUPP-064-R1 R2: the title-only wish unfolds to both headings with a dash, in the normal text colour
     await wishRow.click();
+    await expect(wishRow).toHaveAttribute("aria-expanded", "true");
+    const dash = page.getByText("Storlek: –");
+    await expect(dash).toBeVisible();
+    expect(await dash.evaluate((p) => getComputedStyle(p).color === getComputedStyle(p.closest("li")!).color)).toBe(true);
     await page.emulateMedia({ colorScheme: "light" });
     await expectNoA11yViolations(page);
     await page.emulateMedia({ colorScheme: "dark" });

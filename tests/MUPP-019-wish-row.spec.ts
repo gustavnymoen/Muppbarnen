@@ -76,8 +76,8 @@ test("MUPP-019-R1 R2 R3 R4 the order, the info button shows and hides the explan
   const text = await details.innerText();
   expect(text.indexOf("Beskrivning:")).toBeLessThan(text.indexOf("Storlek: 20 tum"));
 
-  await row(page, "Pussel").getByRole("button", { name: "Pussel" }).click();
-  await expect(row(page, "Pussel")).not.toContainText("Beskrivning:");
+  // MUPP-064-R2: Pussel was unfolded above and has no description, so the line shows a dash
+  await expect(row(page, "Pussel")).toContainText("Beskrivning: –");
 
   await row(page, "Hoppborg").getByRole("button", { name: /^Hoppborg/ }).click();
   await expect(row(page, "Hoppborg")).toContainText("Paxad av Moster Lisa");
