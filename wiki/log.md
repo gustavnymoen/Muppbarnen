@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-11
+
+* **Update** [MUPP-059](../specs/MUPP-059-santa-group-card-text/verification.md): the own page `/secret-santa/min-sida` was checked on the live site at 320 px (no sideways scroll, cards 11 rem high with 30 px centred text, contrast 11.36:1); VoiceOver, 200 % zoom and the light theme are not checked.
+
 ## 2026-11-10
 
 * **Update** [MUPP-061](../specs/MUPP-061-santa-wish-note/verification.md): Live tests passed after the merge, and the wish note was checked on the live site at 320 px (reflow, contrast 5.53:1 for the text and 5.34:1 for the symbol); VoiceOver, 200 % zoom and the light theme are not checked.
