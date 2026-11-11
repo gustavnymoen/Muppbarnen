@@ -39,6 +39,12 @@ const readAll = async (pair: Pair, side: ChatSide): Promise<ChatMessage[]> =>
 // Det som den andra sidan skrivit och den här inte sett än
 const unreadFrom = (side: ChatSide) => (side === "giver" ? 0 : 1);
 
+// Meddelandena utan att märka något som läst: sidan skickar dem med, så att samtalet syns direkt när kortet öppnas
+export async function peekChat(memberId: number, side: ChatSide): Promise<ChatMessage[]> {
+  const pair = await pairOf(memberId, side);
+  return pair ? readAll(pair, side) : [];
+}
+
 // Öppnar samtalet: alla meddelanden, och det som den andra sidan skrivit märks lästa (R5)
 export async function openChat(memberId: number, side: ChatSide, now = Date.now()): Promise<ChatResult> {
   const pair = await pairOf(memberId, side);
