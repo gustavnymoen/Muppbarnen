@@ -7,7 +7,7 @@ feature: MUPP-060
 
 # Verification of MUPP-060
 
-Everything ran locally (a production build, the local test database), 2026-11-10. Not yet deployed: the live checks are not done.
+Everything ran locally (a production build, the local test database), 2026-11-10. Deployed the same day (PR #197); the live checks are at the end of this file.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -22,11 +22,26 @@ Everything ran locally (a production build, the local test database), 2026-11-10
 |---|---|---|---|---|
 | Unit tests | `lib/santa.test.ts`, `lib/santa-auth.test.ts`, `lib/santa-notify.test.ts` (names above) | local | Pass (354) | 2026-11-10 |
 | Browser tests | `tests/MUPP-060-santa-change-participants.spec.ts` (3 tests, one journey of a started group); two existing tests changed (`MUPP-051`, `MUPP-041`) | local | Pass (154) | 2026-11-10 |
-| Smoke test | Not applicable: it changes data | – | – | – |
-| Accessibility | axe on the form and on the question in the browser test and in `design.spec.ts` (375 x 667); the live checklist not done yet | local | Pass locally; live not checked | 2026-11-10 |
+| Smoke test | Not applicable: it changes data; the Live tests run on `main` after the merge passed (`b08ea39`) | live | Pass | 2026-11-10 |
+| Accessibility | axe on the form and on the question in the browser test and in `design.spec.ts` (375 x 667); live checklist: see "Live checks" below | local and live | Pass; items 3, 9 (errors) and the question not checked live | 2026-11-11 |
 | Design | The pencil on a started card (32 px or more) and the question inside a 375 x 667 screen, in the matching test of `tests/design.spec.ts`; `/impeccable critique` not run as a separate pass | local | Pass | 2026-11-10 |
 | Security | `/security-review` and the reviewer's security points: see [review.md](review.md) | local | See review | 2026-11-10 |
 | Code review | [review.md](review.md) | local | See review | 2026-11-10 |
+
+## Live checks
+
+On https://muppbarnen.vercel.app after the merge, in the built-in browser pane at 320 px, signed in as the master admin, group Bollnäs (started, 4 participants), 2026-11-11. Nothing was saved and no data changed: the form was opened and closed with Esc. Checklist numbers from [accessibility.md](../../wiki/system/accessibility.md).
+
+| Item | Result |
+|---|---|
+| 1 Keyboard | Pass: Tab moves through the form fields in order to Spara, Esc closes the form and focus returns to the pencil of the participant. The rest of the tab was not tabbed through |
+| 2 Focus visible | Pass: the focused button has a 3 px ring (rgb(154, 169, 224)); not hidden by the dialog |
+| 3 Screen reader | Not checked (VoiceOver) |
+| 4 Reflow at 320 px | Pass: the page and the form (282 px wide) fit, no sideways scroll. 200 % zoom not checked |
+| 6 Contrast | Pass: field labels 11.36:1, the hint "Skriv numret som 07XXXXXXXX" 5.53:1 (dark theme); the light theme not checked |
+| 7 Target size | Pass: the pencils are 32 x 32 px, the fields and the Spara and Stäng buttons 44 px high |
+| 9 Errors and labels | Labels: pass, Namn, Telefon and E-post stay visible above their fields, and the form has no partner field in a started group. Error texts not checked live (that would mean saving) |
+| The question "Skicka mejlet till den nya adressen?" | Not checked live: it appears only after saving a changed e-mail address, which would change production data. Covered by the browser tests and axe locally |
 
 ## Test suite
 
@@ -41,8 +56,8 @@ Over budget with and without this change (TECH-019). This change added 3 browser
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; the live checklist after the deploy
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-10)
+- [ ] Accessibility: axe passes locally and live items 1, 2, 4, 6, 7 and the labels of 9 are done; VoiceOver (3), error texts, the question after saving, 200 % zoom and the light theme are not checked
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

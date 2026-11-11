@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-11
+
+* **Update** [MUPP-060](../specs/MUPP-060-santa-change-participants/verification.md): Live tests passed after the merge, and the participant form of a started group was checked on the live site at 320 px (keyboard, focus ring, reflow, contrast, target size, labels) without saving; VoiceOver, error texts, the question after a changed e-mail and the light theme are not checked.
+
 ## 2026-11-10
 
 * **Update** [MUPP-061](../specs/MUPP-061-santa-wish-note/verification.md): Live tests passed after the merge, and the wish note was checked on the live site at 320 px (reflow, contrast 5.53:1 for the text and 5.34:1 for the symbol); VoiceOver, 200 % zoom and the light theme are not checked.
