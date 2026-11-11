@@ -7,7 +7,7 @@ feature: MUPP-064
 
 # Verification of MUPP-064
 
-Everything ran locally (a production build, the local test database), 2026-11-11. The live checks (smoke tests, accessibility checklist, how a screen reader reads "Storlek: –") are not done yet: they follow the deploy.
+Everything ran locally (a production build, the local test database), 2026-11-11. Deployed the same day (PR #209). Live tests (the smoke tests) passed against the live site after the merge (2026-11-11). The live accessibility checklist and how a screen reader reads "Storlek: –" are not checked: the site is behind the site password, which an automated session cannot enter.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -23,7 +23,7 @@ Everything ran locally (a production build, the local test database), 2026-11-11
 | Unit tests | Not applicable: no logic outside the component changed; the 354 existing unit tests pass | local | Pass | 2026-11-11 |
 | Browser tests | The three feature tests above and `MUPP-019-R1 …` updated; one failed first (a second click folded a row that was now open) and was fixed | local | Pass | 2026-11-11 |
 | Look check | In `tests/design.spec.ts`, match page only: dash colour, title-only row at least 56 px. The 44 px title-only row on the children's list is not checked separately (the row code is shared and unchanged in height) | local | Pass | 2026-11-11 |
-| Smoke test | Not applicable: no main page or flow added | – | – | – |
+| Smoke test | Not applicable for new tests (no main page or flow added); the existing Live tests passed after the merge | live | Pass | 2026-11-11 |
 | Accessibility | axe in the unfolded state on the match page (light and dark) and the children's list; the live checklist and the screen reader reading of the dash: not checked | local | Pass (live not checked) | 2026-11-11 |
 | Security | Not applicable: no route, action, query or data change | – | – | – |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-11 |
@@ -41,8 +41,8 @@ Over budget with and without this change (TECH-019). No test and no page load we
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass (one test was fixed and re-run alone)
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; the live checklist and the dash check after the deploy
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed 2026-11-11
+- [ ] Accessibility: axe passes locally; the live checklist and the screen reader reading of the dash are not checked yet
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers (the draft page and `proxy.ts` edit used to choose the variant were removed)
