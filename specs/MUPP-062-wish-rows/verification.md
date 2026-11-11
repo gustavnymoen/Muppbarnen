@@ -7,7 +7,7 @@ feature: MUPP-062
 
 # Verification of MUPP-062
 
-Everything ran locally (a production build, the local test database), 2026-11-11. Not yet deployed: the live checks are not done.
+Everything ran locally (a production build, the local test database), 2026-11-11. Deployed the same day (PR #201); the live checks are at the end of this file.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -21,10 +21,21 @@ Everything ran locally (a production build, the local test database), 2026-11-11
 |---|---|---|---|---|
 | Unit tests | Not applicable: no logic or data changed; the 354 existing ones pass | local | Pass | 2026-11-11 |
 | Browser tests | The three tests above changed (no new test, no new page load); `addSantaWish` in `tests/family-db.ts` takes optional description, size and url | local | Pass (154) | 2026-11-11 |
-| Smoke test | Not applicable: no main page or flow added | – | – | – |
-| Accessibility | axe in the match page collapsed and expanded and, open, in the light theme; the live checklist is not done yet (after the deploy) | local | Pass locally; live not checked | 2026-11-11 |
+| Smoke test | Not applicable: no main page or flow added; the Live tests run on `main` after the merge (`82051eb`) passed | live | Pass | 2026-11-11 |
+| Accessibility | axe in the match page collapsed and expanded and, open, in the light theme; live checklist: see "Live checks" below | local and live | Pass; the match page not checked live | 2026-11-11 |
 | Security | Not applicable: no route, action, query or data changed; `/security-review` not needed (see [review.md](review.md)) | – | – | – |
 | Code review | [review.md](review.md) | local | See review | 2026-11-11 |
+
+## Live checks
+
+On https://muppbarnen.vercel.app after the merge, in the built-in browser pane at 320 px, 2026-11-11. Nothing was saved. Checklist numbers from [accessibility.md](../../wiki/system/accessibility.md).
+
+| Item | Result |
+|---|---|
+| R1 on a child's list (Otis, 13 wishes, all rows opened) | Pass: every "Beskrivning:" and "Storlek:" is bold (600) and the text after it normal (400); the order and the text are as before |
+| 4 Reflow at 320 px | Pass for the children's list: the page is 320 px wide and the list does not scroll sideways. 200 % zoom not checked |
+| The match page (R2, R3) | Not checked live: it needs a sign-in as a Secret Santa participant of a started group, which would mean using a real person's phone number. Checked locally with axe and the browser tests |
+| 1, 2, 3, 6, 7, 9 | Not checked live (VoiceOver, keyboard order, contrast and target size of the new rows). The row is the existing children's row, which earlier features checked |
 
 ## Test suite
 
@@ -39,8 +50,8 @@ Over budget with and without this change (TECH-019). This change added no test a
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
-- [ ] Accessibility: axe passes locally; the live checklist after the deploy
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-11)
+- [ ] Accessibility: axe passes locally; live only R1 on the children's list and reflow there are done; the match page, VoiceOver, keyboard, contrast and target size of the new rows are not checked live
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: `SlimCard` and `WishDetails` stay in use by the own list and the admin lists; the match page's `WishCard` is removed
