@@ -32,8 +32,8 @@ async function startedEvent() {
   return { event, anna, bo, cia, dan, eva };
 }
 
-const GIVER_BUBBLE = /^Chatta med din matchning/;
-const RECEIVER_BUBBLE = /^Chatta med din Secret Santa/;
+const GIVER_BUBBLE = /^Chatt med din matchning/;
+const RECEIVER_BUBBLE = /^Chatt med din Secret Santa/;
 // The chat is opened from inside the lists: "Min matchning" for the giver's side, "Min önskelista" for the receiver's
 async function openChat(page: Page, side: "giver" | "receiver") {
   await goto(page, side === "giver" ? "/secret-santa/min-sida/matchning" : "/secret-santa/min-sida/onskelista");
@@ -97,7 +97,7 @@ test("MUPP-043-R2 R5 the receiver sees the giver's message with a notice before 
   // R5: the card "Min önskelista" has the notice (a text for screen readers, not colour alone) and no button; the other card has none
   await expect(page.getByRole("link", { name: "Min önskelista Nytt meddelande" })).toBeVisible();
   await expect(page.getByRole("link", { name: /^Min matchning/ })).not.toContainText("Nytt meddelande");
-  await expect(page.getByRole("button", { name: /Chatta/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Chatt/ })).toHaveCount(0);
   await expectNoA11yViolations(page);
   // R3: nothing on the page names the giver, who is Anna
   await expect(page.getByRole("main")).not.toContainText("Anna");
@@ -105,13 +105,13 @@ test("MUPP-043-R2 R5 the receiver sees the giver's message with a notice before 
   // The same notice in the opened list
   await page.getByRole("link", { name: "Min önskelista" }).click();
   await expect(page).toHaveURL(/\/min-sida\/onskelista$/);
-  await expect(page.getByRole("button", { name: "Chatta med din Secret Santa, nytt meddelande" })).toBeVisible();
-  await page.getByRole("button", { name: /^Chatta med din Secret Santa/ }).click();
+  await expect(page.getByRole("button", { name: "Chatt med din Secret Santa, nytt meddelande" })).toBeVisible();
+  await page.getByRole("button", { name: /^Chatt med din Secret Santa/ }).click();
   const chat = chatOf(page, "Din Secret Santa");
   await expect(chat.getByRole("log").getByText("Hej Bo, vad önskar du dig?")).toBeVisible();
   // R5: the message is marked read when it is shown
   await expect.poll(async () => (await santaMessages())[0].read).toBe(true);
-  await expect(page.getByRole("button", { name: "Chatta med din Secret Santa", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chatt med din Secret Santa", exact: true })).toBeVisible();
   await expectNoA11yViolations(page);
   // R2: the receiver writes back, several in a row
   await write(page, "Din Secret Santa", "En bok vore fint");

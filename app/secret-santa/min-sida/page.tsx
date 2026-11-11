@@ -90,12 +90,12 @@ function Lines({ lines }: { lines: [string, string] }) {
   );
 }
 
-// Märket för ett nytt meddelande (MUPP-043-R5): en pratbubbla med en orange prick i kortets hörn, och en text för skärmläsaren så att det inte bara är färgen som säger det
+// Märket för ett nytt meddelande (MUPP-043-R5): en liten orange pratbubbla i kortets hörn, bara när något är oläst, och en text för skärmläsaren
+// så att det inte bara är färgen som säger det. !size: kortets länk ger annars alla symboler i den 40 px (CARD_LOOK)
 function NewMessage() {
   return (
-    <span className="absolute right-3 top-3 text-claimed [&_svg]:size-4">
+    <span className="absolute right-3 top-3 text-claimed [&_svg]:!size-5">
       <ChatIcon />
-      <span aria-hidden="true" className="absolute -right-1 -top-1 size-2 rounded-full bg-claimed" />
       <span className="sr-only">Nytt meddelande</span>
     </span>
   );

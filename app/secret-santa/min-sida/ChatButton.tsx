@@ -7,11 +7,11 @@ import { ChatIcon } from "@/app/components/icons";
 import { MAX_MESSAGE_LENGTH, type ChatMessage, type ChatSide } from "@/lib/santa-chat-shared";
 import { loadChat, sendChat } from "../chat-actions";
 
-// Chattknappen (MUPP-043): en bred, kvarsittande knapp längst ner i listan; ett tryck öppnar samtalet som ett kort. Olästa meddelanden syns som en orange prick och i namnet ("nytt meddelande"),
+// Chattknappen (MUPP-043): en kvarsittande knapp "Chatt" längst ner i listan; ett tryck öppnar samtalet som ett kort. Olästa meddelanden syns som en orange pratbubbla med en orange plupp och i namnet ("nytt meddelande"),
 // så att det inte bara är färgen som säger det (R5); pricken går när samtalet är öppnat. Mottagarens sida kallas alltid "Din Secret Santa" (R3).
 const TEXTS: Record<ChatSide, { title: string; label: string; empty: string }> = {
-  receiver: { title: "Din Secret Santa", label: "Chatta med din Secret Santa", empty: "Inga meddelanden ännu. Skriv det du vill, din Secret Santa får inte veta vem du är." },
-  giver: { title: "Din matchning", label: "Chatta med din matchning", empty: "Inga meddelanden ännu. Skriv det du vill, din matchning får inte veta vem du är." },
+  receiver: { title: "Din Secret Santa", label: "Chatt med din Secret Santa", empty: "Inga meddelanden ännu. Skriv det du vill, din Secret Santa får inte veta vem du är." },
+  giver: { title: "Din matchning", label: "Chatt med din matchning", empty: "Inga meddelanden ännu. Skriv det du vill, din matchning får inte veta vem du är." },
 };
 
 export function ChatButton({ side, unread }: { side: ChatSide; unread: boolean }) {
@@ -20,12 +20,15 @@ export function ChatButton({ side, unread }: { side: ChatSide; unread: boolean }
   const texts = TEXTS[side];
   return (
     <>
-      {/* Bred knapp längst ner i listan som står kvar när listan scrollas; mt-auto lägger den på sidans nederkant när listan är kort */}
-      <div className="sticky bottom-0 mt-auto pt-2">
-        <Button variant="secondary" aria-label={notice ? `${texts.label}, nytt meddelande` : texts.label} onClick={(event) => card.current?.open(event.currentTarget)} className={`relative w-full ${notice ? "!border-claimed !text-claimed" : ""}`}>
-          <ChatIcon />
-          {texts.label}
-          {notice && <span aria-hidden="true" className="absolute right-3 top-3 size-2.5 rounded-full bg-claimed" />}
+      {/* Knapp längst ner i listan som står kvar när listan scrollas; mt-auto lägger den på sidans nederkant när listan är kort */}
+      <div className="sticky bottom-0 mt-auto flex justify-center pt-2">
+        <Button variant="secondary" aria-label={notice ? `${texts.label}, nytt meddelande` : texts.label} onClick={(event) => card.current?.open(event.currentTarget)} className="min-w-56">
+          {/* Oläst: pratbubblan blir orange och får en orange plupp som sitter ihop med den, i hörnet */}
+          <span className={`relative flex ${notice ? "text-claimed" : ""}`}>
+            <ChatIcon />
+            {notice && <span aria-hidden="true" className="absolute -right-1 -top-1 size-2.5 rounded-full bg-claimed" />}
+          </span>
+          Chatt
         </Button>
       </div>
       <Dialog ref={card} form title={texts.title}>

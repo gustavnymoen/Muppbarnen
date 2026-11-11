@@ -21,7 +21,7 @@ The draw is not symmetric (A→B, B→C, and D and E may draw each other), so ev
 
 ## Unread
 
-A message is unread for the other side until that side opens the chat; opening it (`loadChat`) sets `read_at` on that direction only. The cards on the own page show a small chat icon with an orange dot and a hidden text "Nytt meddelande" (no button); the wide chat button, sticky at the bottom of the opened list, shows an orange outline and dot and the name "…, nytt meddelande". The chat is opened only from inside the lists. Messages one has written never count.
+A message is unread for the other side until that side opens the chat; opening it (`loadChat`) sets `read_at` on that direction only. The cards on the own page show only a tiny orange chat icon, and only while something is unread (with a hidden text "Nytt meddelande"; no button); the button "Chatt", sticky at the bottom of the opened list, has an orange chat icon with an orange dot on its corner and ", nytt meddelande" in its name when something is unread, and the normal colour otherwise. The chat is opened only from inside the lists. Messages one has written never count.
 
 ## Message mails
 
