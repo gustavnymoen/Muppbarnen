@@ -2,7 +2,7 @@
 
 ## 2026-11-11
 
-* **Update** [MUPP-064](../specs/MUPP-064-wish-row-fold/verification.md): Live tests passed after the merge; the live accessibility checklist and how a screen reader reads "Storlek: –" are not checked.
+* **Update** [MUPP-064](../specs/MUPP-064-wish-row-fold/verification.md): Live tests passed after the merge; the live accessibility checklist and how a screen reader reads "Storlek: –" were checked by the user and reported as fine.
 * **Creation** [MUPP-064 Wish rows fold out consistently](../specs/MUPP-064-wish-row-fold/solution.md): every wish row folds out and always shows "Beskrivning:" and "Storlek:", with a dash for an empty value; the link only when there is one.
 * **Update** [MUPP-060](../specs/MUPP-060-santa-change-participants/verification.md), [MUPP-062](../specs/MUPP-062-wish-rows/verification.md), [MUPP-063](../specs/MUPP-063-admin-desktop/verification.md): the Definition of Done lines that are now true are ticked (code review passed, Live tests passed after the merge, the test suite over budget only because of TECH-019); checks that were not made stay written as not checked.
 * **Update** [MUPP-063](../specs/MUPP-063-admin-desktop/verification.md): Live tests passed after the merge, and the Barn tab was checked on the live site at 320, 1280 and 1920 px (whole names, one column of 672 px, same left edge as the Secret Santa tab, no sideways scroll, 32 px buttons); VoiceOver, 200 % zoom and the light theme are not checked.
