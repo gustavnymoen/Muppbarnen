@@ -54,7 +54,7 @@ Over budget with and without this change (TECH-019). This change added no test a
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-11)
-- [ ] Accessibility: axe passes locally and live items 4 and 7 are done; VoiceOver (3), 200 % zoom and the light theme are not checked
+- [x] Accessibility: axe passes locally and live items 4 and 7 are done; VoiceOver (3), 200 % zoom and the light theme are not checked (accepted by the user, 2026-11-11)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated: the manual says nothing about the layout, so only the system page, `DESIGN.md` and the log
 - [x] No leftovers
