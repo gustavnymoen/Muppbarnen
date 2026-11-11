@@ -26,12 +26,12 @@ Vad du ser på din sida beror på hur långt gruppen har kommit:
 
 ## Chatta med din Secret Santa och din matchning
 
-Efter lottningen finns en liten pratbubbla uppe i hörnet på korten **Min önskelista** och **Min matchning** och högst upp i listorna. Den fungerar som en anonym chatt:
+Efter lottningen finns en pratbubbla högst upp i listorna **Min önskelista** och **Min matchning**. Den fungerar som en anonym chatt:
 
-- Bubblan på **Min önskelista** öppnar chatten **Din Secret Santa**: där kan du läsa och skriva till den som ska handla åt dig, utan att veta vem det är.
-- Bubblan på **Min matchning** öppnar chatten **Din matchning**: där skriver du till den du ska handla åt, till exempel en fråga om något i listan. Hen får inte veta vem du är.
+- Bubblan i **Min önskelista** öppnar chatten **Din Secret Santa**: där kan du läsa och skriva till den som ska handla åt dig, utan att veta vem det är.
+- Bubblan i **Min matchning** öppnar chatten **Din matchning**: där skriver du till den du ska handla åt, till exempel en fråga om något i listan. Hen får inte veta vem du är.
 - Båda kan börja och skriva när som helst, och flera meddelanden i rad går bra. Ett meddelande är 1 till 500 tecken. Skriv i fältet **Meddelande** och tryck **Skicka**. Inget namn visas i chatten, och tiden visas inte heller.
-- Har du fått ett nytt meddelande får bubblan en orange prick och en orange kant, och namnet säger "nytt meddelande". Den syns också på kortet. När du öppnat chatten försvinner pricken.
+- Har du fått ett nytt meddelande syns en liten pratbubbla med en orange prick i hörnet på kortet på din sida, och bubblan i listan får en orange prick och kant. När du öppnat chatten försvinner märkena.
 - Chatten uppdateras när du öppnar den eller skickar ett meddelande; skicka ett för att se om ett nytt har kommit. Stäng med krysset eller Esc.
 - Den andra får ett mejl när du skrivit, men mejlet kommer först efter tio minuter och är bara ett: flera meddelanden i rad ger ett mejl. Mejlet innehåller aldrig vad du skrev.
 

@@ -17,10 +17,11 @@ Migration `db/migrations/012_santa_messages.sql`: the table `ss_message` (`id`, 
 
 ## Interface
 
-- **The bubble** (`app/secret-santa/min-sida/ChatButton.tsx`): an icon button with the chat icon, on the cards "Min önskelista" (side `receiver`: the chat with my Secret Santa) and "Min matchning: <name>" (side `giver`), and at the top of both opened lists. It sits in the card's corner beside the link, not inside it (a button may not be in a link). An unread message gives an orange outline, an orange dot, and the name "…, nytt meddelande" (not colour alone). The dot goes when the chat has been opened.
+- **The bubble** (`app/secret-santa/min-sida/ChatButton.tsx`): an icon button with the chat icon at the top of both opened lists: "Min önskelista" (side `receiver`: the chat with my Secret Santa) and "Min matchning" (side `giver`). An unread message gives an orange outline, an orange dot, and the name "…, nytt meddelande" (not colour alone). The dot goes when the chat has been opened.
+- **The notice on the cards** (`NewMessage` in `app/secret-santa/min-sida/page.tsx`): the big cards have no button. A card with an unread message shows a small chat icon with an orange dot in its corner, inside the link, with a hidden text "Nytt meddelande" for screen readers. Changed 2026-11-11 after the user saw the first version, which had a button in each card.
 - **The chat card** (`Dialog`, form variant: cross, Esc, focus in the field): "Din Secret Santa" or "Din matchning", a `role="log"` list of messages (mine to the right in the brand colour, the other's to the left; a hidden "Du:" or "Svar:" before each), the field "Meddelande" (max 500) and "Skicka". An error ("Skriv ett meddelande." / "Meddelandet får vara högst 500 tecken.") shows under the field. The text is rendered as text by React with `whitespace-pre-wrap`. The list is focusable so it scrolls with the keyboard and keeps the newest message in view.
 - **The actions** (`app/secret-santa/chat-actions.ts`): `loadChat(side)` and `sendChat(side, text)`. Both run `requireSiteSession()`, `guardWrite()` and then read the member from the cookie; the caller only says which side it stands on.
-- **The pages:** `min-sida` asks `unreadSides(memberId)` for the dots, and the two list pages for their own bubble. A group that is not started, or a member without a row in the draw, shows no bubble.
+- **The pages:** `min-sida` asks `unreadSides(memberId)` for the notice on the cards, and the two list pages for their own bubble. A group that is not started, or a member without a row in the draw, shows no bubble.
 - **The job:** `POST /api/santa-mails` now runs `sendListChangeMails` and `sendMessageMails` and answers the summed counts only.
 - **Mail:** texts 6 and 7 of MUPP-052 (`lib/santa-mail.ts`), sent by `sendMessageMails`.
 
@@ -33,7 +34,7 @@ Migration `db/migrations/012_santa_messages.sql`: the table `ss_message` (`id`, 
 - **Unread is per direction and conversation.** A message is unread for the other side until that side opens the chat; one's own messages never count (R5). Opening the chat is a write (`UPDATE … read_at`), so it goes through `guardWrite()` too.
 - **Mail collection (R6).** The card's open question (a job that runs every few minutes) was already answered by the workflow of MUPP-042 (`.github/workflows/santa-mails.yml`, every ten minutes). `sendMessageMails` takes, per conversation and direction, the unmailed messages when the oldest of them has waited ten minutes, marks them all mailed first (so two runs send one mail), and sends mail 6 or 7 only if something is still unread by then; a mail that fails puts the mark back. So a burst of messages gives one mail, at most about twenty minutes after the first, and a message that was read in the meantime gives none.
 - **No live refresh.** A message from the other side shows when the chat is opened (or after the next send); polling and push are out of scope (the card names no such requirement). `shortcut` noted: if people sit in the chat waiting for an answer, add polling.
-- **One bubble component for both places,** so the notice, the name and the card behave the same on the card and in the list.
+- **The chat is opened from inside the lists only.** The cards are big links; a button on them was clumsy (a button may not sit in a link), so they only show that something is unread.
 
 ## Related
 

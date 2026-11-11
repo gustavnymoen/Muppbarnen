@@ -18,7 +18,7 @@ Once the draw is made ([Secret Santa draw](secret-santa-draw.md)) a member sees 
 
 ## Who sees what
 
-`matchOf(giverId)` in `lib/santa-match.ts` is the only reader of `ss_draw` for the pages. It takes the member id from the signed sign-in cookie, never from the address or a form, and returns the receiver's name and wishes. There is no function that returns a giver for a receiver, so nothing a member can open says who drew them; the draw may be asymmetric (A→B, B→C) and two people may draw each other. The chat bubble on both cards and in the opened lists is described in [Secret Santa chat](secret-santa-chat.md). The job below reads the giver's address to send mail but returns only counts.
+`matchOf(giverId)` in `lib/santa-match.ts` is the only reader of `ss_draw` for the pages. It takes the member id from the signed sign-in cookie, never from the address or a form, and returns the receiver's name and wishes. There is no function that returns a giver for a receiver, so nothing a member can open says who drew them; the draw may be asymmetric (A→B, B→C) and two people may draw each other. The chat bubble in the opened lists and the notice on the cards are described in [Secret Santa chat](secret-santa-chat.md). The job below reads the giver's address to send mail but returns only counts.
 
 ## Change mails
 

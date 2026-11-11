@@ -4,15 +4,13 @@ import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { IconButton, IconLink } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
-import { ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
+import { ChatIcon, ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember, entranceEvents } from "@/lib/santa-auth";
 import { unreadSides } from "@/lib/santa-chat";
-import type { ChatSide } from "@/lib/santa-chat-shared";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
 import { leave } from "../actions";
-import { ChatButton } from "./ChatButton";
 
 export const metadata: Metadata = { title: "Din Secret Santa-sida" };
 
@@ -35,7 +33,7 @@ async function Own() {
   const severalGroups = (await entranceEvents()).length > 1;
   // Bara den egna matchningen läses (MUPP-042-R2); en startad grupp utan rad i dragningen får det gråa kortet
   const match = member.status === "started" ? await matchOf(member.id) : undefined;
-  // Pratbubblorna på korten (MUPP-043): bara i en startad grupp med en tilldelning, med märket när något är oläst
+  // Märket på korten (MUPP-043): en liten ikon när något är oläst. Samtalet själv öppnas inne i listan.
   const unread = match ? await unreadSides(member.id) : undefined;
   return (
     <Page
@@ -60,16 +58,12 @@ async function Own() {
             <p>Vi har inte kört igång än</p>
           ) : (
             <ul className="grid auto-rows-fr gap-6">
-              <li className="divider-short relative [--divider-pad:0] [--divider-top:-0.75rem]">
-                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} />
-                {unread && <CardChat side="receiver" unread={unread.receiver} />}
+              <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
+                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} unread={unread?.receiver} />
               </li>
-              <li className="divider-short relative [--divider-pad:0] [--divider-top:-0.75rem]">
+              <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
                 {match ? (
-                  <>
-                    <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} />
-                    <CardChat side="giver" unread={unread?.giver ?? false} />
-                  </>
+                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} unread={unread?.giver} />
                 ) : (
                   <GreyCard lines={["Min matchnings", "önskelista"]} note="Inte tilldelad än" />
                 )}
@@ -96,26 +90,29 @@ function Lines({ lines }: { lines: [string, string] }) {
   );
 }
 
-// Ett kort som öppnar en lista: symbolen över rubriken, båda centrerade, och hela kortet som länk
-function LinkCard({ href, icon, lines }: { href: string; icon: ReactNode; lines: [string, string] }) {
+// Märket för ett nytt meddelande (MUPP-043-R5): en pratbubbla med en orange prick i kortets hörn, och en text för skärmläsaren så att det inte bara är färgen som säger det
+function NewMessage() {
   return (
-    <Card pressable className="h-full !p-0">
+    <span className="absolute right-4 top-4 text-claimed [&_svg]:size-6">
+      <ChatIcon />
+      <span aria-hidden="true" className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-card bg-claimed" />
+      <span className="sr-only">Nytt meddelande</span>
+    </span>
+  );
+}
+
+// Ett kort som öppnar en lista: symbolen över rubriken, båda centrerade, och hela kortet som länk
+function LinkCard({ href, icon, lines, unread }: { href: string; icon: ReactNode; lines: [string, string]; unread?: boolean }) {
+  return (
+    <Card pressable className="relative h-full !p-0">
       <Link href={href} className={`${CARD_LOOK} h-full`}>
         {icon}
         <h2 className={CARD_TITLE}>
           <Lines lines={lines} />
         </h2>
+        {unread && <NewMessage />}
       </Link>
     </Card>
-  );
-}
-
-// Pratbubblan i kortets hörn: bredvid länken och inte i den (en knapp får inte ligga i en länk), men ovanpå kortet
-function CardChat({ side, unread }: { side: ChatSide; unread: boolean }) {
-  return (
-    <div className="absolute right-3 top-3">
-      <ChatButton side={side} unread={unread} />
-    </div>
   );
 }
 

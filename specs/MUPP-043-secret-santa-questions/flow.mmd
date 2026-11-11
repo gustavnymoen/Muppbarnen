@@ -1,7 +1,7 @@
 %% MUPP-043 Secret Santa: anonymous chat
 %% How a giver and their receiver talk without the receiver learning who the giver is, and how a message reaches the other side by mail.
 flowchart TD
-    S[Group started, draw in ss_draw] --> B[Bubble on the cards and in the opened lists, R1 R2]
+    S[Group started, draw in ss_draw] --> B[Unread: a small icon with a dot on the card, R5. The chat bubble is inside the opened lists, R1 R2]
     B -->|side: giver or receiver, never an id| O[Open: the pair is read from the draw with the member from the cookie, R4]
     O --> L[Answer is only mine + text per message, R3]
     O --> U[The other side's messages are marked read, R5]

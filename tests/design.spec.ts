@@ -1552,7 +1552,7 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
   }
 });
 
-test("MUPP-043-R5 the chat on a 375 x 667 phone: the bubbles are 44 px in the corner of their cards without covering the text, the notice is a dot, and the chat card fits the width with long words wrapped and 44 px field and button", async ({ page }) => {
+test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a small icon with a dot for an unread message and no button, the bubble is 44 px at the top of the list, and the chat card fits the width with long words wrapped and 44 px field and button", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1568,19 +1568,23 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the bubbles are 44 px in the co
     await santaSignIn(page, anna);
     await goto(page, "/secret-santa/min-sida");
     expect(await hasHorizontalScroll(page)).toBe(false);
-    for (const [bubble, link] of [["Chatta med din Secret Santa", "Min önskelista"], ["Chatta med din matchning, nytt meddelande", "Min matchning: Bo Ek"]]) {
-      const button = await settledBox(page.getByRole("button", { name: bubble, exact: true }));
-      const card = await settledBox(page.getByRole("link", { name: link }));
-      expect([button.width, button.height]).toEqual([44, 44]);
-      // Inside the card, in its corner, and clear of the centred title
-      expect(button.x).toBeGreaterThanOrEqual(card.x);
-      expect(button.x + button.width).toBeLessThanOrEqual(card.x + card.width);
-      expect(button.y).toBeGreaterThanOrEqual(card.y);
-      expect(disjoint(button, await settledBox(page.getByRole("link", { name: link }).getByRole("heading")))).toBe(true);
-    }
-    // The notice is a dot on the unread bubble only, and the colour is not what says it (the name does)
-    expect(await page.getByRole("button", { name: /nytt meddelande/ }).count()).toBe(1);
+    // The cards have no button: only a small chat icon with a dot on the card with an unread message (a text for screen readers says it), inside the card and clear of the title
+    await expect(page.getByRole("button", { name: /Chatta/ })).toHaveCount(0);
+    const matchCard = page.getByRole("link", { name: /^Min matchning: Bo Ek/ });
+    await expect(matchCard).toContainText("Nytt meddelande");
+    await expect(page.getByRole("link", { name: /^Min önskelista/ })).not.toContainText("Nytt meddelande");
+    const mark = await settledBox(matchCard.locator("span.text-claimed"));
+    const card = await settledBox(matchCard);
+    expect(mark.x).toBeGreaterThanOrEqual(card.x);
+    expect(mark.x + mark.width).toBeLessThanOrEqual(card.x + card.width);
+    expect(mark.y).toBeGreaterThanOrEqual(card.y);
+    expect(disjoint(mark, await settledBox(matchCard.getByRole("heading")))).toBe(true);
 
+    // The chat is opened from inside the list: a 44 px bubble at the top of it
+    await matchCard.click();
+    await expect(page).toHaveURL(/\/matchning$/);
+    const bubble = await settledBox(page.getByRole("button", { name: /^Chatta med din matchning/ }));
+    expect([bubble.width, bubble.height]).toEqual([44, 44]);
     await page.getByRole("button", { name: /^Chatta med din matchning/ }).click();
     const chat = page.getByRole("dialog", { name: "Din matchning" });
     const log = chat.getByRole("log");
