@@ -1,0 +1,14 @@
+%% MUPP-064 Wish rows fold out consistently
+%% What a wish row shows when it is unfolded (children's lists and match page).
+flowchart TD
+    A[Collapsed row: title and chevron, every row] --> B[Press the row]
+    B --> C{Claimed? children's list only}
+    C -- yes --> D[Paxad av name and time, R4]
+    C -- no --> E
+    D --> E[Beskrivning: value or dash, R2]
+    E --> F[Storlek: value or dash, R2]
+    F --> G{http or https address?}
+    G -- yes --> H[Länk till presenten, R3]
+    G -- no --> I[No link line, R3]
+    H --> J[Press again: collapsed]
+    I --> J
