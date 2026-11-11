@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* **Creation** [MUPP-063 Admin page layout on desktop](../specs/MUPP-063-admin-desktop/solution.md): the Barn tab of the admin page is one column of at most 42 rem like the other admin pages, and a child's name stays on one line (cut with an ellipsis if it does not fit) instead of being split in the word.
 * **Update** [MUPP-062](../specs/MUPP-062-wish-rows/verification.md): Live tests passed after the merge, and the bold labels were checked on a child's list on the live site at 320 px; the match page needs a participant sign-in and is not checked live.
 * **Creation** [MUPP-062 Wish rows on the Secret Santa match page](../specs/MUPP-062-wish-rows/solution.md): the match page shows the wishes as the children's expandable rows (read-only, a little roomier), and "Beskrivning:" and "Storlek:" are bold in the unfolded row.
 * **Update** [MUPP-060](../specs/MUPP-060-santa-change-participants/verification.md): Live tests passed after the merge, and the participant form of a started group was checked on the live site at 320 px (keyboard, focus ring, reflow, contrast, target size, labels) without saving; VoiceOver, error texts, the question after a changed e-mail and the light theme are not checked.

@@ -507,12 +507,14 @@ test("MUPP-012-R1 R2 the parent picker looks like the other fields, and its list
   }
 });
 
-test("TECH-006-R4 MUPP-053-R2 R4 the admin start shows a short text by the icons from 640 px and only icons on a phone, and the manage page keeps its lists narrow on a wide screen", async ({ page }) => {
+test("TECH-006-R4 MUPP-053-R2 R4 MUPP-063-R1 R2 R3 the admin start shows a short text by the icons from 640 px and only icons on a phone, and the manage page keeps its lists narrow on a wide screen", async ({ page }) => {
   test.skip(!runsLocally, "needs the admin password of the local test server");
   await clearFamily();
   const chef = uniqueName("Chef");
   const kid = uniqueName("Barn");
-  await addChild(await addParent(chef, true), kid);
+  const longName = "Långaordetutanmellanslagsomintefårplats";
+  const owner = await addParent(chef, true);
+  for (const name of [kid, "Wilda", "Arthur", longName]) await addChild(owner, name);
   try {
     // Phone: only the icons, 32 px each
     await page.setViewportSize({ width: 375, height: 667 });
@@ -542,17 +544,53 @@ test("TECH-006-R4 MUPP-053-R2 R4 the admin start shows a short text by the icons
     expect(wideBox.height).toBe(32);
     await expectNoA11yViolations(page);
 
+    // MUPP-063-R1 R2: at 1280 and 1920 px the child cards are one column of equal width and height, and every name is whole on one line
+    const cards = page.getByRole("article");
+    for (const width of [1280, 1920]) {
+      await page.setViewportSize({ width, height: 800 });
+      const boxes = await Promise.all((await cards.all()).map(settledBox));
+      expect(boxes).toHaveLength(4);
+      for (const box of boxes) {
+        expect([box.x, box.width, box.height]).toEqual([boxes[0].x, boxes[0].width, boxes[0].height]);
+        expect(box.width).toBeLessThanOrEqual(672);
+      }
+      for (let i = 1; i < boxes.length; i++) expect(boxes[i].y).toBeGreaterThan(boxes[i - 1].y + boxes[i - 1].height);
+      for (const name of [kid, "Wilda", "Arthur", longName]) {
+        const title = cards.getByRole("heading", { level: 2, name }).locator("span");
+        // One line for every name; the three ordinary ones are shown in full (the long one may be cut with an ellipsis)
+        expect((await settledBox(title)).height).toBeLessThan(32);
+        if (name !== longName) expect(await title.evaluate((span) => span.scrollWidth <= span.clientWidth)).toBe(true);
+      }
+    }
+    // MUPP-063-R1: on a phone a name that does not fit is cut with an ellipsis, not split in the word, and the page does not scroll sideways
+    await page.setViewportSize({ width: 320, height: 667 });
+    const longTitle = cards.getByRole("heading", { level: 2, name: longName }).locator("span");
+    expect(await longTitle.evaluate((span) => [getComputedStyle(span).textOverflow, span.scrollWidth > span.clientWidth, span.getClientRects().length])).toEqual(["ellipsis", true, 1]);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    // MUPP-063-R3: the Barn tab, the Secret Santa tab and the manage page have content of at most 672 px that starts at the same left edge
+    await page.setViewportSize({ width: 1920, height: 800 });
+    const barnLeft = (await settledBox(cards.first())).x;
+    await page.getByRole("tab", { name: "Secret Santa" }).click();
+    const santa = await settledBox(page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Grupper" }) }));
+    expect(santa.width).toBeLessThanOrEqual(672);
+    expect(santa.x).toBe(barnLeft);
+    await page.getByRole("tab", { name: "Barn" }).click();
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const barnLeft1280 = (await settledBox(cards.first())).x;
+
     // The manage page: the content is at most 42 rem (672 px) wide, so the buttons stay near the names
     await page.getByRole("link", { name: "Hantera barn och föräldrar" }).click();
     const row = page.getByRole("article").filter({ hasText: kid });
     await animationsDone(row);
-    expect((await settledBox(row)).width).toBeLessThanOrEqual(672);
+    const manage = await settledBox(row);
+    expect(manage.width).toBeLessThanOrEqual(672);
 
     // MUPP-053-R2: the list of kids is a framed card with its plus button inside it, centred, under the last row
     const frame = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Barn" }) });
     await expect(frame).toHaveCSS("border-top-width", "1px");
     const [frameBox, rowBox, addBox] = await Promise.all([settledBox(frame), settledBox(row), settledBox(frame.getByRole("button", { name: "Nytt barn" }))]);
     expect([addBox.width, addBox.height]).toEqual([44, 44]);
+    expect(frameBox.x).toBe(barnLeft1280); // MUPP-063-R3: the same left edge as the Barn tab
     expect(addBox.y).toBeGreaterThanOrEqual(rowBox.y + rowBox.height);
     expect(addBox.y + addBox.height).toBeLessThanOrEqual(frameBox.y + frameBox.height);
     expect(Math.abs(addBox.x + addBox.width / 2 - (frameBox.x + frameBox.width / 2))).toBeLessThanOrEqual(1);

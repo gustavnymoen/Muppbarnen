@@ -9,6 +9,7 @@ export function SlimCard({
   title,
   note,
   level = 3,
+  nowrap,
   actions,
   fold,
   children,
@@ -17,6 +18,8 @@ export function SlimCard({
   title: string;
   note?: ReactNode;
   level?: 2 | 3 | 4;
+  // Namnet står på en rad och kortas med ellips i stället för att brytas mitt i ordet (MUPP-063-R1)
+  nowrap?: boolean;
   actions: ReactNode;
   // Hela rubrikraden är en knapp som fäller kortet (MUPP-056); kortet som använder den håller själv reda på öppet/stängt
   fold?: { open: boolean; onToggle: () => void };
@@ -43,7 +46,8 @@ export function SlimCard({
         ) : (
           <div className="min-w-0 flex-1 break-words">
             <Heading level={level} small>
-              {title}
+              {/* truncate vinner över break-words på rutan runt */}
+              {nowrap ? <span className="block truncate">{title}</span> : title}
             </Heading>
             {note && <span className="block text-sm leading-4 text-muted">{note}</span>}
           </div>
