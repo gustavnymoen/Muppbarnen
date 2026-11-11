@@ -7,9 +7,12 @@ import { Card } from "@/app/components/Card";
 import { ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember, entranceEvents } from "@/lib/santa-auth";
+import { unreadSides } from "@/lib/santa-chat";
+import type { ChatSide } from "@/lib/santa-chat-shared";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
 import { leave } from "../actions";
+import { ChatButton } from "./ChatButton";
 
 export const metadata: Metadata = { title: "Din Secret Santa-sida" };
 
@@ -32,6 +35,8 @@ async function Own() {
   const severalGroups = (await entranceEvents()).length > 1;
   // Bara den egna matchningen läses (MUPP-042-R2); en startad grupp utan rad i dragningen får det gråa kortet
   const match = member.status === "started" ? await matchOf(member.id) : undefined;
+  // Pratbubblorna på korten (MUPP-043): bara i en startad grupp med en tilldelning, med märket när något är oläst
+  const unread = match ? await unreadSides(member.id) : undefined;
   return (
     <Page
       back={
@@ -55,12 +60,16 @@ async function Own() {
             <p>Vi har inte kört igång än</p>
           ) : (
             <ul className="grid auto-rows-fr gap-6">
-              <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
+              <li className="divider-short relative [--divider-pad:0] [--divider-top:-0.75rem]">
                 <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} />
+                {unread && <CardChat side="receiver" unread={unread.receiver} />}
               </li>
-              <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
+              <li className="divider-short relative [--divider-pad:0] [--divider-top:-0.75rem]">
                 {match ? (
-                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} />
+                  <>
+                    <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} />
+                    <CardChat side="giver" unread={unread?.giver ?? false} />
+                  </>
                 ) : (
                   <GreyCard lines={["Min matchnings", "önskelista"]} note="Inte tilldelad än" />
                 )}
@@ -98,6 +107,15 @@ function LinkCard({ href, icon, lines }: { href: string; icon: ReactNode; lines:
         </h2>
       </Link>
     </Card>
+  );
+}
+
+// Pratbubblan i kortets hörn: bredvid länken och inte i den (en knapp får inte ligga i en länk), men ovanpå kortet
+function CardChat({ side, unread }: { side: ChatSide; unread: boolean }) {
+  return (
+    <div className="absolute right-3 top-3">
+      <ChatButton side={side} unread={unread} />
+    </div>
   );
 }
 

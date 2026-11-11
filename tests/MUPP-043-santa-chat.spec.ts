@@ -1,0 +1,214 @@
+import { expect, request as playwrightRequest, test, type Page } from "@playwright/test";
+import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
+import { addSantaDraw, addSantaEvent, addSantaMember, ageSantaMessages, clearFamily, clearSanta, santaMessages } from "./family-db";
+import { clearOutbox, readOutbox } from "../lib/mail-sink";
+import { santaSignIn } from "./santa";
+import { testIp } from "./site-session";
+
+// The tests make their data straight in the local test database (never the user's own) and remove it again
+test.skip(!runsLocally, "the Secret Santa tests need the local test server (its own database and passwords)");
+
+test.beforeEach(async ({ page }) => {
+  await page.context().setExtraHTTPHeaders({ "x-real-ip": testIp() });
+  await clearFamily();
+  await clearSanta();
+});
+test.afterEach(async () => {
+  await clearSanta();
+  await clearFamily();
+});
+
+// A started event where Anna gives to Bo, Bo to Cia and Cia to Anna, and Dan and Eva give to each other
+async function startedEvent() {
+  const event = await addSantaEvent("Familjen Test", undefined, "started");
+  const [anna, bo, cia, dan, eva] = [
+    await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid"),
+    await addSantaMember(event, "Bo Testsson", "0700002222", "bo@exempel.invalid"),
+    await addSantaMember(event, "Cia Testsson", "0700003333", "cia@exempel.invalid"),
+    await addSantaMember(event, "Dan Testsson", "0700004444", "dan@exempel.invalid"),
+    await addSantaMember(event, "Eva Testsson", "0700005555", "eva@exempel.invalid"),
+  ];
+  for (const [giver, receiver] of [[anna, bo], [bo, cia], [cia, anna], [dan, eva], [eva, dan]]) await addSantaDraw(event, giver, receiver);
+  return { event, anna, bo, cia, dan, eva };
+}
+
+const GIVER_BUBBLE = /^Chatta med din matchning/;
+const RECEIVER_BUBBLE = /^Chatta med din Secret Santa/;
+const chatOf = (page: Page, title: string) => page.getByRole("dialog", { name: title });
+
+// Writes one message in the open chat and waits until it is in the list
+async function write(page: Page, title: string, text: string) {
+  const chat = chatOf(page, title);
+  await chat.getByRole("textbox", { name: "Meddelande" }).fill(text);
+  await chat.getByRole("button", { name: "Skicka" }).click();
+  await expect(chat.getByRole("log").getByText(text)).toBeVisible();
+}
+
+test("MUPP-043-R1 the giver writes from 'Min matchning': 1 to 500 characters, text shown as text, empty and too long refused with a message, several in a row", async ({ page }) => {
+  const { anna } = await startedEvent();
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await page.getByRole("button", { name: GIVER_BUBBLE }).click();
+  const chat = chatOf(page, "Din matchning");
+  await expect(chat).toBeVisible();
+  await expect(chat.getByText("Inga meddelanden ännu")).toBeVisible();
+  // The chat names nobody: not the match either (the card on the page does)
+  await expect(chat).not.toContainText("Bo Testsson");
+  await expectNoA11yViolations(page);
+
+  await write(page, "Din matchning", "Hej! Vilken storlek har du?");
+  await write(page, "Din matchning", "<b>fet</b> & <script>window.hacked = 1</script>");
+  await write(page, "Din matchning", "Ett tredje i rad");
+  // Text is shown as text, never as markup
+  await expect(chat.locator("b, script")).toHaveCount(0);
+  expect(await page.evaluate(() => "hacked" in window)).toBe(false);
+
+  // Empty (also only spaces) and too long are refused with a message, and nothing is sent
+  await chat.getByRole("textbox", { name: "Meddelande" }).fill("   ");
+  await chat.getByRole("button", { name: "Skicka" }).click();
+  await expect(chat.getByRole("alert")).toHaveText("Skriv ett meddelande.");
+  await chat.getByRole("textbox", { name: "Meddelande" }).evaluate((el: HTMLTextAreaElement) => {
+    el.removeAttribute("maxlength");
+    el.value = "x".repeat(501);
+  });
+  await chat.getByRole("button", { name: "Skicka" }).click();
+  await expect(chat.getByRole("alert")).toHaveText("Meddelandet får vara högst 500 tecken.");
+  await chat.getByRole("textbox", { name: "Meddelande" }).fill("x".repeat(500));
+  await chat.getByRole("button", { name: "Skicka" }).click();
+  await expect(chat.getByRole("alert")).toHaveText("");
+  expect((await santaMessages()).map((m) => m.text.length)).toEqual([27, 47, 16, 500]);
+  await expectNoA11yViolations(page);
+});
+
+test("MUPP-043-R2 R5 the receiver sees the giver's message with a notice before opening it, no name anywhere, and writes back; the notice is gone after the chat was opened", async ({ page }) => {
+  const { anna, bo } = await startedEvent();
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await page.getByRole("button", { name: GIVER_BUBBLE }).click();
+  await write(page, "Din matchning", "Hej Bo, vad önskar du dig?");
+
+  await santaSignIn(page, bo);
+  await goto(page, "/secret-santa/min-sida");
+  // R5: the bubble on the card "Min önskelista" has the notice (a name for screen readers, not colour alone); the other card has none
+  const onCard = page.getByRole("button", { name: "Chatta med din Secret Santa, nytt meddelande" });
+  await expect(onCard).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chatta med din matchning", exact: true })).toBeVisible();
+  await expectNoA11yViolations(page);
+  // R3: nothing on the page names the giver, who is Anna
+  await expect(page.getByRole("main")).not.toContainText("Anna");
+  expect(await page.content()).not.toContain("Anna Testsson");
+  // The same notice in the opened list
+  await page.getByRole("link", { name: "Min önskelista" }).click();
+  await expect(page).toHaveURL(/\/min-sida\/onskelista$/);
+  await expect(page.getByRole("button", { name: "Chatta med din Secret Santa, nytt meddelande" })).toBeVisible();
+  await page.getByRole("button", { name: /^Chatta med din Secret Santa/ }).click();
+  const chat = chatOf(page, "Din Secret Santa");
+  await expect(chat.getByRole("log").getByText("Hej Bo, vad önskar du dig?")).toBeVisible();
+  // R5: the message is marked read when it is shown
+  await expect.poll(async () => (await santaMessages())[0].read).toBe(true);
+  await expect(page.getByRole("button", { name: "Chatta med din Secret Santa", exact: true })).toBeVisible();
+  await expectNoA11yViolations(page);
+  // R2: the receiver writes back, several in a row
+  await write(page, "Din Secret Santa", "En bok vore fint");
+  await write(page, "Din Secret Santa", "Och något varmt");
+  await page.keyboard.press("Escape");
+  await expect(chat).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole("button", { name: /nytt meddelande/ })).toHaveCount(0);
+
+  // Anna sees Bo's two messages as unread on the card "Min matchning: Bo Testsson", and the notice goes once she has opened the chat
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page.getByRole("button", { name: "Chatta med din matchning, nytt meddelande" })).toBeVisible();
+  await page.getByRole("button", { name: /^Chatta med din matchning/ }).click();
+  await expect(chatOf(page, "Din matchning").getByRole("log").getByText("Och något varmt")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.reload();
+  await expect(page.getByRole("button", { name: /nytt meddelande/ })).toHaveCount(0);
+});
+
+test("MUPP-043-R2 the receiver may write first, before the giver has written anything, and the giver sees it", async ({ page }) => {
+  const { dan, eva } = await startedEvent();
+  await santaSignIn(page, eva);
+  await goto(page, "/secret-santa/min-sida/onskelista");
+  await page.getByRole("button", { name: RECEIVER_BUBBLE }).click();
+  await write(page, "Din Secret Santa", "Jag skriver först!");
+  await santaSignIn(page, dan);
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page.getByRole("button", { name: "Chatta med din matchning, nytt meddelande" })).toBeVisible();
+  await page.getByRole("button", { name: /^Chatta med din matchning/ }).click();
+  await expect(chatOf(page, "Din matchning").getByRole("log").getByText("Jag skriver först!")).toBeVisible();
+});
+
+test("MUPP-043-R3 R4 in an asymmetric draw Bo's two chats are separate, a third member sees neither, and no answer to the receiver carries a name or an id of the giver", async ({ page }) => {
+  const { anna, bo, cia, dan } = await startedEvent();
+  const answers: string[] = [];
+  page.on("response", async (response) => {
+    if (response.request().method() === "POST") answers.push(await response.text().catch(() => ""));
+  });
+  // Anna (gives to Bo) writes; Cia (gives to Anna) writes too
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await page.getByRole("button", { name: GIVER_BUBBLE }).click();
+  await write(page, "Din matchning", "Första hälsningen");
+  await santaSignIn(page, cia);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await page.getByRole("button", { name: GIVER_BUBBLE }).click();
+  await write(page, "Din matchning", "Andra hälsningen");
+
+  // Only what the server answers to Bo is checked for the giver
+  answers.length = 0;
+  // Bo: as receiver the message of Anna, as giver nothing (Cia has not been written to)
+  await santaSignIn(page, bo);
+  await goto(page, "/secret-santa/min-sida");
+  await page.getByRole("button", { name: /^Chatta med din Secret Santa/ }).click();
+  await expect(chatOf(page, "Din Secret Santa").getByRole("log")).toContainText("Första hälsningen");
+  await expect(chatOf(page, "Din Secret Santa").getByRole("log")).not.toContainText("Andra hälsningen");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /^Chatta med din matchning/ }).click();
+  await expect(chatOf(page, "Din matchning").getByText("Inga meddelanden ännu")).toBeVisible();
+  // R3: nothing the server answered to Bo names or numbers the giver
+  expect(answers.length).toBeGreaterThan(0);
+  for (const answer of answers) expect(answer).not.toMatch(new RegExp(`Anna|Testsson|"${anna}"|giver`));
+
+  // R4: Dan, in the same event but in another pair, has no notice and both his chats are empty
+  await santaSignIn(page, dan);
+  await goto(page, "/secret-santa/min-sida");
+  await expect(page.getByRole("button", { name: /nytt meddelande/ })).toHaveCount(0);
+  for (const [bubble, title] of [[/^Chatta med din matchning/, "Din matchning"], [/^Chatta med din Secret Santa/, "Din Secret Santa"]] as const) {
+    await page.getByRole("button", { name: bubble }).click();
+    await expect(chatOf(page, title).getByText("Inga meddelanden ännu")).toBeVisible();
+    await page.keyboard.press("Escape");
+  }
+});
+
+test("MUPP-043-R6 a message mails the other side once the ten minutes have passed, one mail for several messages, naming the group but nobody and nothing that was written", async ({ page }) => {
+  clearOutbox();
+  const { anna, bo } = await startedEvent();
+  const caller = await playwrightRequest.newContext({ baseURL: process.env.BASE_URL, extraHTTPHeaders: { "x-real-ip": testIp() } });
+  const runJob = async () => (await caller.post("/api/santa-mails", { headers: { authorization: `Bearer ${process.env.SANTA_JOB_SECRET}` } })).json();
+
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await page.getByRole("button", { name: GIVER_BUBBLE }).click();
+  await write(page, "Din matchning", "Hemligt ett");
+  await write(page, "Din matchning", "Hemligt två");
+  // Within the first ten minutes the messages are collected
+  expect(await runJob()).toEqual({ sent: 0, failed: 0 });
+  await ageSantaMessages();
+  expect(await runJob()).toEqual({ sent: 1, failed: 0 });
+  expect(readOutbox().map((mail) => `${mail.to} ${mail.subject}`)).toEqual(["bo@exempel.invalid Secret Santa: Familjen Test – nytt meddelande från din Secret Santa"]);
+  expect(JSON.stringify(readOutbox())).not.toMatch(/Testsson|Hemligt|Anna/);
+  expect(await runJob()).toEqual({ sent: 0, failed: 0 });
+
+  // Bo's answer, after ten minutes, mails Anna (mail 7)
+  await santaSignIn(page, bo);
+  await goto(page, "/secret-santa/min-sida");
+  await page.getByRole("button", { name: /^Chatta med din Secret Santa/ }).click();
+  await write(page, "Din Secret Santa", "Hemligt svar");
+  await ageSantaMessages();
+  expect(await runJob()).toEqual({ sent: 1, failed: 0 });
+  expect(readOutbox().map((mail) => `${mail.to} ${mail.subject}`).pop()).toBe("anna@exempel.invalid Secret Santa: Familjen Test – nytt meddelande från din matchning");
+  await caller.dispose();
+  clearOutbox();
+});

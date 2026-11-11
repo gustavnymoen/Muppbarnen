@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaDraw, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus } from "./family-db";
+import { addChild, addParent, addSantaDraw, addSantaMessage, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus } from "./family-db";
 import { eventCard, santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -1549,5 +1549,51 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
   } finally {
     await clearSanta();
     await clearFamily();
+  }
+});
+
+test("MUPP-043-R5 the chat on a 375 x 667 phone: the bubbles are 44 px in the corner of their cards without covering the text, the notice is a dot, and the chat card fits the width with long words wrapped and 44 px field and button", async ({ page }) => {
+  test.skip(!runsLocally, "needs the local test server");
+  await clearFamily();
+  await clearSanta();
+  const event = await addSantaEvent("Familjen Ek", undefined, "started");
+  const anna = await addSantaMember(event, "Anna Ek", "0700004444", "anna@exempel.invalid");
+  const bo = await addSantaMember(event, "Bo Ek", "0700005555", "bo@exempel.invalid");
+  await addSantaDraw(event, anna, bo);
+  await addSantaDraw(event, bo, anna);
+  await addSantaMessage(event, anna, bo, false, "Hej Anna, jag önskar mig något varmt");
+  await addSantaMessage(event, anna, bo, false, "Ettjättelångtordutanmellanslagsomintefårgåutanförrutan0123456789");
+  try {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await santaSignIn(page, anna);
+    await goto(page, "/secret-santa/min-sida");
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    for (const [bubble, link] of [["Chatta med din Secret Santa", "Min önskelista"], ["Chatta med din matchning, nytt meddelande", "Min matchning: Bo Ek"]]) {
+      const button = await settledBox(page.getByRole("button", { name: bubble, exact: true }));
+      const card = await settledBox(page.getByRole("link", { name: link }));
+      expect([button.width, button.height]).toEqual([44, 44]);
+      // Inside the card, in its corner, and clear of the centred title
+      expect(button.x).toBeGreaterThanOrEqual(card.x);
+      expect(button.x + button.width).toBeLessThanOrEqual(card.x + card.width);
+      expect(button.y).toBeGreaterThanOrEqual(card.y);
+      expect(disjoint(button, await settledBox(page.getByRole("link", { name: link }).getByRole("heading")))).toBe(true);
+    }
+    // The notice is a dot on the unread bubble only, and the colour is not what says it (the name does)
+    expect(await page.getByRole("button", { name: /nytt meddelande/ }).count()).toBe(1);
+
+    await page.getByRole("button", { name: /^Chatta med din matchning/ }).click();
+    const chat = page.getByRole("dialog", { name: "Din matchning" });
+    const log = chat.getByRole("log");
+    await expect(log).toContainText("något varmt");
+    const box = await settledBox(chat);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(375);
+    expect(await log.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    expect((await settledBox(chat.getByRole("textbox", { name: "Meddelande" }))).height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(chat.getByRole("button", { name: "Skicka" }))).height).toBeGreaterThanOrEqual(44);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearSanta();
   }
 });

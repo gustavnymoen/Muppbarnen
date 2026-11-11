@@ -88,6 +88,7 @@ tags: [product, features]
 | [MUPP-060](MUPP-060-santa-change-participants/solution.md) | Change participants in a started group | Administration | Review |
 | [TECH-021](TECH-021-mail-deliverability/solution.md) | Mail deliverability | Shared | Review |
 | [MUPP-062](MUPP-062-wish-rows/solution.md) | Wish rows on the Secret Santa match page | Shared | Review |
+| [MUPP-043](MUPP-043-secret-santa-questions/solution.md) | Secret Santa: anonymous chat | Önskelista | Review |
 | [MUPP-063](MUPP-063-admin-desktop/solution.md) | Admin page layout on desktop | Administration | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).

@@ -3,6 +3,7 @@ import { all, get, run, withTransaction, type Executor } from "./db";
 import { collect, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
 import { clearListChanges } from "./santa-changes";
+import { clearMessages } from "./santa-chat";
 import { drawPairs, type SetAside } from "./santa-draw";
 
 // Secret Santa: grupper (events) och deras medlemmar (MUPP-038, MUPP-048). Vilken förälder som helst skapar en
@@ -113,6 +114,7 @@ export async function removeEvent(actor: Parent | null, rawId: unknown): Promise
     await run("UPDATE ss_member SET partner_member_id = NULL WHERE event_id = ?", [event.id], tx);
     await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE event_id = ?)", [event.id], tx);
     await run("DELETE FROM ss_draw WHERE event_id = ?", [event.id], tx);
+    await clearMessages(event.id, tx);
     await run("DELETE FROM ss_member WHERE event_id = ?", [event.id], tx);
     await run("DELETE FROM ss_event WHERE id = ?", [event.id], tx);
     return { ok: true };
@@ -176,12 +178,13 @@ export async function startDraw(actor: Parent | null, rawId: unknown): Promise<O
     }
     await run("UPDATE ss_event SET status = 'started' WHERE id = ? AND status = 'preparing'", [event.id], tx);
     await clearListChanges(event.id, tx);
+    await clearMessages(event.id, tx);
     return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
   });
 }
 
 // Stoppar dragningen (startad → förbereder): årets rader tas bort, så de inte räknas som förra året; önskelistorna finns kvar.
-// Samtalen (MUPP-043) tas bort här när de finns.
+// Samtalen (MUPP-043) tas bort med dem.
 export async function stopDraw(actor: Parent | null, rawId: unknown): Promise<Outcome<StatusChange>> {
   return withTransaction(async (tx) => {
     const event = await manageableEvent(actor, rawId, tx);
@@ -191,6 +194,7 @@ export async function stopDraw(actor: Parent | null, rawId: unknown): Promise<Ou
     await run("DELETE FROM ss_draw WHERE event_id = ? AND year = (SELECT MAX(year) FROM ss_draw WHERE event_id = ?)", [event.id, event.id], tx);
     await run("UPDATE ss_event SET status = 'preparing' WHERE id = ? AND status = 'started'", [event.id], tx);
     await clearListChanges(event.id, tx);
+    await clearMessages(event.id, tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
     return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients };
   });

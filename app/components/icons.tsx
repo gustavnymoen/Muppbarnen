@@ -55,6 +55,13 @@ export const SantaHatIcon = () => (
   </Icon>
 );
 
+// Pratbubbla: samtalet i Secret Santa (MUPP-043)
+export const ChatIcon = () => (
+  <Icon>
+    <path d="M4 5h16v11H11l-5 4v-4H4V5Z" />
+  </Icon>
+);
+
 // Måttband: storlekar
 export const MeasureIcon = () => (
   <Icon>

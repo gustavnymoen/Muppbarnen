@@ -7,8 +7,10 @@ import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { WishRow } from "@/app/components/WishList";
 import { currentSantaMember } from "@/lib/santa-auth";
+import { unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
+import { ChatButton } from "../ChatButton";
 
 export const metadata: Metadata = { title: "Min matchning" };
 
@@ -37,7 +39,10 @@ async function Match() {
       }
     >
       <PageContent>
-        <div className="mx-auto max-w-md">
+        <div className="mx-auto max-w-md space-y-4">
+          <div className="flex justify-end">
+            <ChatButton side="giver" unread={(await unreadSides(member.id)).giver} />
+          </div>
           <Card as="section" className="space-y-3">
             <Heading level={2} small>
               Önskelistan hos {match.name}
