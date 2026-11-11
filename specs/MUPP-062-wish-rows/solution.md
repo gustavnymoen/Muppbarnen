@@ -18,7 +18,7 @@ None.
 ## Interface
 
 - **`WishRow`** (`app/components/WishList.tsx`) is exported and takes two optional props. `claiming` (`marked`, `onMark`, `onUnclaim`) holds everything about claiming; without it the row has no checkbox and no undo arrow, so it is only read. `roomy` makes the row 56 px high (`min-h-14`, instead of 44 px); the title (16 px) and the unfolded details (14 px) keep the size of the children's row. `OpenList` passes `claiming`, so the children's lists are as before.
-- **Bold labels (R1):** "Beskrivning:" and "Storlek:" are `<strong class="font-semibold">` in the expanded row, so they are bold on the children's lists and on the match page. The order, the texts and which lines show are as before.
+- **Bold labels (R1):** "Beskrivning:" and "Storlek:" are `<strong class="font-semibold">` in the expanded row, so they are bold on the children's lists and on the match page. The order, the texts and which lines show are as before (changed by [MUPP-064](../MUPP-064-wish-row-fold/solution.md): both lines always show, with "–" when empty).
 - **Match page** (`app/secret-santa/min-sida/matchning/page.tsx`): the slim cards and `WishDetails` are replaced by a list of `WishRow roomy` with dividers, like the children's list. A Secret Santa wish has no claim data, so the page gives each wish `unlimited: false, claimedBy: null, claimedAt: null`, which the row shows as nothing ("Paxad" and "Kan köpas flera gånger" never appear, and without `claiming` there is no checkbox). "Inga önskningar ännu." is as before.
 - **Untouched:** the member's own list and the admin lists still use `SlimCard` and `WishDetails`.
 

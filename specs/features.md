@@ -89,6 +89,7 @@ tags: [product, features]
 | [TECH-021](TECH-021-mail-deliverability/solution.md) | Mail deliverability | Shared | Review |
 | [MUPP-062](MUPP-062-wish-rows/solution.md) | Wish rows on the Secret Santa match page | Shared | Review |
 | [MUPP-063](MUPP-063-admin-desktop/solution.md) | Admin page layout on desktop | Administration | Review |
+| [MUPP-064](MUPP-064-wish-row-fold/solution.md) | Wish rows fold out consistently | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

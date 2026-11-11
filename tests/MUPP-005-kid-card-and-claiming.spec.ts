@@ -41,7 +41,7 @@ async function openVerasList(page: Page) {
 }
 
 // Samma lista i hela testet, så att den bara byggs och öppnas en gång (TECH-018): först raderna, sedan paxningen, som ändrar dem
-test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 the rows and marking rows, then claiming: the dialog, its errors, Escape and cancel, success, and a gift taken meanwhile", async ({ page }) => {
+test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 MUPP-064-R1 R2 R3 R4 the rows and marking rows, then claiming: the dialog, its errors, Escape and cancel, success, and a gift taken meanwhile", async ({ page }) => {
   await openVerasList(page);
 
   // R1: claimed gifts last, the others in their order (the full order is tested in MUPP-019); the marks show without unfolding; the texts are plain text
@@ -57,7 +57,7 @@ test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 the rows and marking rows, then claimi
   // R1: the list scrolls inside the card, not the page
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
 
-  // R2: a row unfolds to its description, size and link, and folds again; empty fields are not shown
+  // R2: a row unfolds to its description, size and link, and folds again; empty values show a dash (MUPP-064)
   const cykel = rowButton(page, "Cykel");
   await expect(cykel).toHaveAttribute("aria-expanded", "false");
   await expect(region(page).getByText("Röd, med korg")).toHaveCount(0);
@@ -79,7 +79,12 @@ test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 the rows and marking rows, then claimi
   await expect(cykel).toHaveAttribute("aria-expanded", "false");
   await expect(row(page, "Cykel").getByRole("link")).toHaveCount(0);
   await rowButton(page, "Pussel").click();
-  await expect(row(page, "Pussel").getByText(/Storlek|Länk/)).toHaveCount(0);
+  // MUPP-064-R1 R2 R3: a title-only wish folds out too, with both headings and a dash, and no link line
+  await expect(rowButton(page, "Pussel")).toHaveAttribute("aria-expanded", "true");
+  await expect(row(page, "Pussel").locator("p")).toHaveText(["Beskrivning: –", "Storlek: –"]);
+  await expect(row(page, "Pussel").getByRole("link")).toHaveCount(0);
+  await rowButton(page, "Pussel").click();
+  await expect(rowButton(page, "Pussel")).toHaveAttribute("aria-expanded", "false");
 
   // R2: only http and https are links
   await rowButton(page, "<b>Fet</b> tröja").click();
