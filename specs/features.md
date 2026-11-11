@@ -79,7 +79,7 @@ tags: [product, features]
 | [MUPP-044](MUPP-044-secret-santa-cleanup/solution.md) | Secret Santa: yearly cleanup | Administration | Ongoing |
 | [MUPP-057](MUPP-057-santa-own-page-cards/solution.md) | Secret Santa own page cards | Shared | Review |
 | [MUPP-059](MUPP-059-santa-group-card-text/solution.md) | Santa group card text and bigger own page cards | Shared | Done |
-| [MUPP-061](MUPP-061-santa-wish-note/solution.md) | Wish note instead of check mark | Administration | Review |
+| [MUPP-061](MUPP-061-santa-wish-note/solution.md) | Wish note instead of check mark | Administration | Done |
 | [MUPP-056](MUPP-056-santa-admin-groups/solution.md) | Foldable groups in Secret Santa admin | Administration | Review |
 | [TECH-015](TECH-015-test-suite-room/solution.md) | Test suite at its time budget | Shared | Review |
 | [TECH-016](TECH-016-smaller-functions/solution.md) | Smaller functions on Vercel | Shared | Review |

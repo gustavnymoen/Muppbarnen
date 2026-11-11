@@ -3,6 +3,8 @@
 ## 2026-11-11
 
 * **Creation** [MUPP-062 Wish rows on the Secret Santa match page](../specs/MUPP-062-wish-rows/solution.md): the match page shows the wishes as the children's expandable rows (read-only, a little roomier), and "Beskrivning:" and "Storlek:" are bold in the unfolded row.
+* **Update** [MUPP-060](../specs/MUPP-060-santa-change-participants/verification.md): Live tests passed after the merge, and the participant form of a started group was checked on the live site at 320 px (keyboard, focus ring, reflow, contrast, target size, labels) without saving; VoiceOver, error texts, the question after a changed e-mail and the light theme are not checked.
+* **Update** [MUPP-059](../specs/MUPP-059-santa-group-card-text/verification.md): the own page `/secret-santa/min-sida` was checked on the live site at 320 px (no sideways scroll, cards 11 rem high with 30 px centred text, contrast 11.36:1); VoiceOver, 200 % zoom and the light theme are not checked.
 
 ## 2026-11-10
 
