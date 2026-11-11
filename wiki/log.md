@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* **Update** [MUPP-062](../specs/MUPP-062-wish-rows/verification.md): the match page was checked on the live site at 320, 375 and 640 px (keyboard, focus ring, reflow, contrast 11.36:1, rows 56 px high); VoiceOver, the link and the bold labels on the match page (its wishes had no details) and real 200 % zoom are not checked.
 * **Update** [MUPP-062](../specs/MUPP-062-wish-rows/verification.md): Live tests passed after the merge, and the bold labels were checked on a child's list on the live site at 320 px; the match page needs a participant sign-in and is not checked live.
 * **Creation** [MUPP-062 Wish rows on the Secret Santa match page](../specs/MUPP-062-wish-rows/solution.md): the match page shows the wishes as the children's expandable rows (read-only, a little roomier), and "Beskrivning:" and "Storlek:" are bold in the unfolded row.
 * **Update** [MUPP-060](../specs/MUPP-060-santa-change-participants/verification.md): Live tests passed after the merge, and the participant form of a started group was checked on the live site at 320 px (keyboard, focus ring, reflow, contrast, target size, labels) without saving; VoiceOver, error texts, the question after a changed e-mail and the light theme are not checked.
