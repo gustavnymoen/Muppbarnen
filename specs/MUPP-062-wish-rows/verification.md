@@ -22,7 +22,7 @@ Everything ran locally (a production build, the local test database), 2026-11-11
 | Unit tests | Not applicable: no logic or data changed; the 354 existing ones pass | local | Pass | 2026-11-11 |
 | Browser tests | The three tests above changed (no new test, no new page load); `addSantaWish` in `tests/family-db.ts` takes optional description, size and url | local | Pass (154) | 2026-11-11 |
 | Smoke test | Not applicable: no main page or flow added; the Live tests run on `main` after the merge (`82051eb`) passed | live | Pass | 2026-11-11 |
-| Accessibility | axe in the match page collapsed and expanded and, open, in the light theme; live checklist: see "Live checks" below | local and live | Pass; the match page not checked live | 2026-11-11 |
+| Accessibility | axe in the match page collapsed and expanded and, open, in the light theme; live checklist: see "Live checks" below | local and live | Pass; live: see "Live checks" for what is not checked | 2026-11-11 |
 | Security | Not applicable: no route, action, query or data changed; `/security-review` not needed (see [review.md](review.md)) | – | – | – |
 | Code review | [review.md](review.md) | local | See review | 2026-11-11 |
 
@@ -34,8 +34,16 @@ On https://muppbarnen.vercel.app after the merge, in the built-in browser pane a
 |---|---|
 | R1 on a child's list (Otis, 13 wishes, all rows opened) | Pass: every "Beskrivning:" and "Storlek:" is bold (600) and the text after it normal (400); the order and the text are as before |
 | 4 Reflow at 320 px | Pass for the children's list: the page is 320 px wide and the list does not scroll sideways. 200 % zoom not checked |
-| The match page (R2, R3) | Not checked live: it needs a sign-in as a Secret Santa participant of a started group, which would mean using a real person's phone number. Checked locally with axe and the browser tests |
-| 1, 2, 3, 6, 7, 9 | Not checked live (VoiceOver, keyboard order, contrast and target size of the new rows). The row is the existing children's row, which earlier features checked |
+| The match page, 1 Keyboard (320 px) | Pass: Tab from the top goes back arrow, menu, then the wish rows in list order; Enter and Space open a row (`aria-expanded` true). 2026-11-11 |
+| The match page, 2 Focus ring | Pass: the focused row has a solid 3 px ring (`:focus-visible`), not hidden by anything. 2026-11-11 |
+| The match page, 4 Reflow | Pass at 320 px and 375 px (page width = viewport, no sideways scroll, rows 254 and 309 px wide), and at a 640 px viewport (what 200 % zoom of a 1280 px window gives). Real browser zoom not used. 2026-11-11 |
+| The match page, 6 Contrast | Pass: title and chevron `rgb(200, 208, 220)` on `rgb(20, 25, 32)` are 11.36:1 (the chevron needs 3:1). The site has one dark theme only: with light colour scheme emulated the page is identical, so there is no light theme to check. 2026-11-11 |
+| The match page, 7 Row height and target | Pass: six rows, each 56 px high and 254 px wide at 320 px (309 px at 375 px), above 44 px. 2026-11-11 |
+| The match page, new-tab link | Not checked live: the participant's wishes in this group are title-only (six wishes: no description, size or link), so no "Länk till presenten" and no "(öppnas i en ny flik)" was on screen, and nothing may be saved on the live site to add one. Checked locally in `MUPP-042-R1 R2 MUPP-062-R2 …` |
+| The match page, "Beskrivning:" and "Storlek:" bold | Not checked live, same reason (title-only wishes). Checked locally and on a child's list live (above) |
+| 3 VoiceOver | Not checked (needs a person with VoiceOver) |
+| The children's list, light theme and 200 % zoom | Not checked: there is no light theme; the page that opens a child's list shows the onboarding dialog in a fresh browser, and closing it would set a cookie, so the list was not opened at 640 px |
+| 9 Errors and labels | Not affected: no form or error |
 
 ## Test suite
 
@@ -51,7 +59,7 @@ Over budget with and without this change (TECH-019). This change added no test a
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-11)
-- [ ] Accessibility: axe passes locally; live only R1 on the children's list and reflow there are done; the match page, VoiceOver, keyboard, contrast and target size of the new rows are not checked live
+- [ ] Accessibility: axe passes locally; live, the match page is checked for keyboard, focus ring, reflow (320, 375 and 640 px), contrast and target size; not checked: VoiceOver, the link and the bold labels on the match page (the wishes there have no details), real 200 % zoom
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: `SlimCard` and `WishDetails` stay in use by the own list and the admin lists; the match page's `WishCard` is removed
