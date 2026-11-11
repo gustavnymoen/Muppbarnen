@@ -27,6 +27,10 @@ None.
 - `app/secret-santa/min-sida/ChatButton.tsx` The `eslint-disable react-hooks/exhaustive-deps` is there because `onRead` is a new function on every render. **Done:** left as it is, with the reason in a comment; the chat must be read once when the card opens.
 - `app/secret-santa/chat-actions.ts` `loadChat` and `sendChat` repeat the same first lines. **Done:** left as it is: `lib/route-checks.test.ts` requires `requireSiteSession()` and `guardWrite()` in each action body, so they cannot move into a helper.
 
+## Note
+
+The look of the chat button and of the notice on the cards was changed after the review at the user's request (a "Chatt" button in the lists, only a small orange icon on the cards). Logic, queries and actions are unchanged; the tests and axe checks were run again and pass.
+
 ## Outside the change
 
 - Opening the chat counts against the write limit of `guardWrite()` because it sets `read_at`. A member who opens the chat very often could hit it; not changed, the limit is shared by all writes. Not added to the board.

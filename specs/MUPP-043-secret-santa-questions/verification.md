@@ -35,14 +35,14 @@ feature: MUPP-043
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before | 354 unit + 154 browser, 315.1 s (MUPP-062) | – | 7.2 s |
-| After | 369 unit (0.6 s) + 160 browser | 322.4 s (budget 180 s) | 7.5 s (not touched) |
+| After | 369 unit (0.6 s) + 160 browser | 325.5 s (budget 180 s) | 7.1 s (not touched) |
 
-Over budget with and without this change (TECH-019). The 15 unit tests and 6 browser tests add about 7 s (2 %); the browser tests use direct database rows and the job route instead of long flows.
+Over budget with and without this change (TECH-019). The 15 unit tests and 6 browser tests add about 10 s (3 %); the browser tests use direct database rows and the job route instead of long flows.
 
 ## Definition of Done
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
-- [x] Test suite: over budget before this change (TECH-019); the change added 2 %
+- [x] Test suite: over budget before this change (TECH-019); the change added 3 %
 - [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
 - [ ] Accessibility: axe passes locally; the live checklist after the deploy (the live site needs a signed-in member of a started group; not checked)
 - [x] Requirements in the card match what was built (copied below)
