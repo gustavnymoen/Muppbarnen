@@ -1,0 +1,7 @@
+%% MUPP-063 Admin page layout on desktop
+%% How the Barn tab lays out its cards by width.
+flowchart TD
+    A[Barn tab of /admin] --> B[One column, at most 672 px, left edge as the other admin pages]
+    B --> C{Name fits the card?}
+    C -- yes --> D[Whole name on one line]
+    C -- no --> E[Cut with an ellipsis, never split in the word]

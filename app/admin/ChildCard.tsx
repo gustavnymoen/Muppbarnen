@@ -17,6 +17,7 @@ export function ChildCard({ child }: { child: Child }) {
       level={2}
       thumb={<Avatar name={child.name} color={childColor(child.id)} src={pictureUrl(child.id, child.picture)} size={32} decorative />}
       title={child.name}
+      nowrap
       actions={
         <>
           <FormCard title={`Storlekar för ${child.name}`} label={`Storlekar för ${child.name}`} icon={<MeasureIcon />} text="Storlekar">

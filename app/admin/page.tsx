@@ -89,12 +89,13 @@ function ChooseParent({ parents }: { parents: Parent[] }) {
 
 async function ParentHome({ parent }: { parent: Parent }) {
   const children = await listChildren(parent.id);
+  // Ett barn per rad och som mest lika brett som Secret Santa-fliken och Hantera-sidan (MUPP-063)
   const kids = (
-    <>
+    <div className="max-w-2xl space-y-5">
       {children.length === 0 ? (
         <p className="text-muted">Inga barn ännu.</p>
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="space-y-2">
           {children.map((child) => (
             <li key={child.id}>
               <ChildCard child={child} />
@@ -111,7 +112,7 @@ async function ParentHome({ parent }: { parent: Parent }) {
           <LinkButton href="/admin/hantera">Hantera barn och föräldrar</LinkButton>
         </section>
       )}
-    </>
+    </div>
   );
   // Fliken Secret Santa finns för varje förälder, med bara hens egna grupper (alla för huvudadministratören)
   const events = await listEvents(parent);
