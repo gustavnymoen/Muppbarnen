@@ -21,7 +21,7 @@ Browser tests ran locally (a production build, the local test database), 2026-11
 | Unit tests | Not applicable: no logic; the 333 existing ones pass | local | Pass | 2026-11-10 |
 | Browser tests | Existing tests changed (3 files), no new test and no new page load | local | Pass (149) | 2026-11-10 |
 | Smoke test | Not applicable: no main page or flow added | – | – | – |
-| Accessibility | axe in the changed states (above); the live checklist: see "Live checks" below | local and live | Pass; the own page and VoiceOver not checked live | 2026-11-10 |
+| Accessibility | axe in the changed states (above); the live checklist: see "Live checks" below | local and live | Pass; VoiceOver, 200 % zoom and the light theme not checked live | 2026-11-10, own page 2026-11-11 |
 | Design | Looked at on 375 and 320 px in the running local site with the user, proposals A to D; `/impeccable critique` not run as a separate pass | local | Done | 2026-11-10 |
 | Security | Not applicable: text and size only | – | – | – |
 | Code review | [review.md](review.md) | local | See review | 2026-11-10 |
@@ -36,7 +36,7 @@ On https://muppbarnen.vercel.app, in the built-in browser pane at 320 px width, 
 | 6 Contrast of the Admin line | Pass: 5.53:1 (14 px, `rgb(133, 145, 164)` on `rgb(20, 25, 32)`, dark theme); the light theme not checked |
 | 7 Target size | Pass: the closed card's header is 56 px high, the open one 44 px; the Admin line is a 16 px line inside the header button |
 | 3 Screen reader | Not checked (VoiceOver) |
-| `/secret-santa/min-sida` (the tall cards) | Not checked live: it needs a participant's sign-in, which the pane did not have |
+| `/secret-santa/min-sida` (the tall cards), checked 2026-11-11 signed in as a participant of a started group | Pass at 320 px: the page is 320 px wide with no sideways scroll; both cards are 176 px (11 rem) high and 286 px wide with the 30 px two-line text ("Min / önskelista", "Min matchning: / <name>") centred and the symbol above it; the text contrast is 11.36:1. Looked at in a screenshot. Target size is met (the cards are 176 px high links). 200 % zoom and the light theme not checked |
 | Live tests (smoke) | The workflow run on `main` after the merge passed |
 
 ## Test suite
@@ -53,7 +53,7 @@ The suite is over its budget with and without this change (TECH-019). This chang
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-10)
-- [ ] Accessibility: axe passes locally and every changed state has an axe call; the live checklist is done for the Secret Santa tab only (own page and VoiceOver not checked)
+- [ ] Accessibility: axe passes locally and every changed state has an axe call; the live checklist (reflow, contrast, target size) is done for the Secret Santa tab and the own page; VoiceOver, 200 % zoom and the light theme are not checked
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs, `DESIGN.md` and `wiki/log.md` updated
 - [x] No leftovers: the temporary size switch is removed
