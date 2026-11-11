@@ -67,6 +67,7 @@ export const setPicture = (childId: number, name: string) =>
 // Everything the tests made. The test database is only theirs, so it is all removed.
 // The Secret Santa tables first: an event is owned by a parent, and a parent who owns one cannot be deleted
 async function clearSantaTables(db: ReturnType<typeof createClient>) {
+  await db.execute("DELETE FROM ss_message");
   await db.execute("DELETE FROM ss_draw");
   await db.execute("DELETE FROM ss_wish");
   await db.execute("DELETE FROM ss_member");
@@ -170,3 +171,14 @@ export const addSantaDrawRows = (eventId: number, year: number, pairs: [number, 
   withDb(async (db) => {
     for (const [giver, receiver] of pairs) await db.execute({ sql: "INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", args: [eventId, year, giver, receiver] });
   });
+
+// Secret Santa conversations (MUPP-043): the rows as the database holds them, and a way to make them old enough for the mail job
+export const santaMessages = () =>
+  withDb(async (db) => (await db.execute("SELECT giver_id, receiver_id, from_giver, text, read_at FROM ss_message ORDER BY id")).rows.map((r) => ({ giver: Number(r.giver_id), receiver: Number(r.receiver_id), fromGiver: Number(r.from_giver), text: String(r.text), read: r.read_at !== null })));
+
+// Makes every message eleven minutes old, so the job sends the mail the ten-minute wait was holding back
+export const ageSantaMessages = () => withDb((db) => db.execute("UPDATE ss_message SET created_at = created_at - 660000"));
+
+// A message made by hand (MUPP-043), unread by the other side
+export const addSantaMessage = (eventId: number, giver: number, receiver: number, fromGiver: boolean, text: string) =>
+  withDb((db) => db.execute({ sql: "INSERT INTO ss_message (event_id, giver_id, receiver_id, from_giver, text, created_at) VALUES (?, ?, ?, ?, ?, ?)", args: [eventId, giver, receiver, fromGiver ? 1 : 0, text, Date.now()] }));

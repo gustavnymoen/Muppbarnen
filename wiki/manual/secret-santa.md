@@ -24,6 +24,19 @@ Vad du ser på din sida beror på hur långt gruppen har kommit:
 - **Två kort:** gruppen är öppen. Korten är höga med stor text, och symbolen ligger över texten. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord (då får du ett mejl).
 - **Efter lottningen:** det andra kortet heter **Min matchning: <namn>** och öppnar önskelistan hos den du ska handla åt. Varje önskan är en rad som du trycker på för att se beskrivning och storlek (ett streck, –, betyder att inget är ifyllt) och länk till presenten om det finns en (öppnas i en ny flik); tryck igen för att fälla ihop den. Listan går bara att läsa. Du kan fortfarande ändra din egen lista. Ingen får veta vem som drog vem, inte heller vem som ska handla åt dig. Korten är lika stora och har en tunn linje mellan sig.
 
+## Chatta med din Secret Santa och din matchning
+
+Efter lottningen finns knappen **Chatt** längst ner i listorna **Min önskelista** och **Min matchning**. Den fungerar som en anonym chatt:
+
+- Knappen **Chatt** i **Min önskelista** öppnar chatten **Din Secret Santa**: där kan du läsa och skriva till den som ska handla åt dig, utan att veta vem det är.
+- Knappen **Chatt** i **Min matchning** öppnar chatten **Din matchning**: där skriver du till den du ska handla åt, till exempel en fråga om något i listan. Hen får inte veta vem du är.
+- Båda kan börja och skriva när som helst, och flera meddelanden i rad går bra. Ett meddelande är 1 till 500 tecken. Skriv i fältet **Meddelande** och tryck **Skicka**. Inget namn visas i chatten, och tiden visas inte heller.
+- Har du fått ett nytt meddelande syns en liten orange pratbubbla i hörnet på kortet på din sida (inget märke när inget är oläst), och i listan blir bubblan på knappen **Chatt** orange med en orange plupp i hörnet. När du öppnat chatten försvinner märkena.
+- Chatten uppdateras när du öppnar den eller skickar ett meddelande; skicka ett för att se om ett nytt har kommit. Stäng med krysset eller Esc.
+- Den andra får ett mejl när du skrivit, men mejlet kommer först efter tio minuter och är bara ett: flera meddelanden i rad ger ett mejl. Mejlet innehåller aldrig vad du skrev.
+
+Stoppas lottningen, eller städas allt i januari, tas alla samtal bort.
+
 ## Din önskelista
 
 Tryck på kortet **Min önskelista** på din sida. Där finns din önskelista i den grupp du loggade in i. Är du med i flera grupper loggar du in i var och en för sig, och listorna är skilda: det du önskar i en grupp syns inte i en annan.
@@ -43,6 +56,6 @@ En månad efter julafton, den 24 januari, städas Secret Santa av sig själv: al
 
 ## Mejlen du får
 
-Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig. Ändrar den du ska handla åt sin lista efter lottningen får du ett kort mejl om det, högst ett i timmen, även om det gjorts många ändringar; mejlet säger inte vad som ändrats, så titta in på matchningens lista. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. I mejlet om att gruppen har öppnat, om att dragningen är gjord och om att du har lagts till i en grupp finns också ett tips från Tomtenissen om hur du lägger sajten på telefonens hemskärm så att den öppnas som en app (notiser fungerar inte som i en vanlig app). Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
+Under säsongen får du några korta mejl: att gruppen har öppnat och hur det går till, att du har lagts till i en grupp, att dragningen är gjord eller stoppad, och när din matchning har ändrat sin lista eller skrivit till dig (en matchning som skrivit ger ett mejl, högst ett per tio minuter). Ändrar den du ska handla åt sin lista efter lottningen får du ett kort mejl om det, högst ett i timmen, även om det gjorts många ändringar; mejlet säger inte vad som ändrats, så titta in på matchningens lista. Mejlen innehåller aldrig något namn, någon önskning eller något meddelande, bara att något har hänt, med en knapp till sajten. De går inte att svara på. I mejlet om att gruppen har öppnat, om att dragningen är gjord och om att du har lagts till i en grupp finns också ett tips från Tomtenissen om hur du lägger sajten på telefonens hemskärm så att den öppnas som en app (notiser fungerar inte som i en vanlig app). Det som kommer att skicka dem byggs i omgångar, så de kommer först när respektive del är klar.
 
 [Manual](index.md)

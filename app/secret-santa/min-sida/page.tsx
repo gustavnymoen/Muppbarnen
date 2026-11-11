@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { IconButton, IconLink } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
-import { ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
+import { ChatIcon, ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember, entranceEvents } from "@/lib/santa-auth";
+import { unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
 import { leave } from "../actions";
@@ -32,6 +33,8 @@ async function Own() {
   const severalGroups = (await entranceEvents()).length > 1;
   // Bara den egna matchningen läses (MUPP-042-R2); en startad grupp utan rad i dragningen får det gråa kortet
   const match = member.status === "started" ? await matchOf(member.id) : undefined;
+  // Märket på korten (MUPP-043): en liten ikon när något är oläst. Samtalet själv öppnas inne i listan.
+  const unread = match ? await unreadSides(member.id) : undefined;
   return (
     <Page
       back={
@@ -56,11 +59,11 @@ async function Own() {
           ) : (
             <ul className="grid auto-rows-fr gap-6">
               <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
-                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} />
+                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} unread={unread?.receiver} />
               </li>
               <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
                 {match ? (
-                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} />
+                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} unread={unread?.giver} />
                 ) : (
                   <GreyCard lines={["Min matchnings", "önskelista"]} note="Inte tilldelad än" />
                 )}
@@ -87,15 +90,27 @@ function Lines({ lines }: { lines: [string, string] }) {
   );
 }
 
-// Ett kort som öppnar en lista: symbolen över rubriken, båda centrerade, och hela kortet som länk
-function LinkCard({ href, icon, lines }: { href: string; icon: ReactNode; lines: [string, string] }) {
+// Märket för ett nytt meddelande (MUPP-043-R5): en liten orange pratbubbla i kortets hörn, bara när något är oläst, och en text för skärmläsaren
+// så att det inte bara är färgen som säger det. !size: kortets länk ger annars alla symboler i den 40 px (CARD_LOOK)
+function NewMessage() {
   return (
-    <Card pressable className="h-full !p-0">
+    <span className="absolute right-3 top-3 text-claimed [&_svg]:!size-5">
+      <ChatIcon />
+      <span className="sr-only">Nytt meddelande</span>
+    </span>
+  );
+}
+
+// Ett kort som öppnar en lista: symbolen över rubriken, båda centrerade, och hela kortet som länk
+function LinkCard({ href, icon, lines, unread }: { href: string; icon: ReactNode; lines: [string, string]; unread?: boolean }) {
+  return (
+    <Card pressable className="relative h-full !p-0">
       <Link href={href} className={`${CARD_LOOK} h-full`}>
         {icon}
         <h2 className={CARD_TITLE}>
           <Lines lines={lines} />
         </h2>
+        {unread && <NewMessage />}
       </Link>
     </Card>
   );

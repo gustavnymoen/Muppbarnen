@@ -1,8 +1,9 @@
 import "server-only";
 import { all, get, run, withTransaction } from "./db";
 import { swedishToday, type Today } from "./deck";
+import { clearMessages } from "./santa-chat";
 
-// Den årliga rensningen (MUPP-044): en månad efter julafton tas alla gruppers önskelistor (och, när de finns, samtal) bort och
+// Den årliga rensningen (MUPP-044): en månad efter julafton tas alla gruppers önskelistor och samtal (MUPP-043) bort och
 // grupperna blir inaktiva. Grupperna, deltagarna och dragningsraderna (ss_draw, historiken som "inte förra årets"-regeln
 // läser) finns kvar. Designen: wiki/system/secret-santa-cleanup.md.
 
@@ -28,6 +29,7 @@ export async function runCleanup(today: Today = swedishToday()) {
   for (const { id } of events) {
     await withTransaction(async (tx) => {
       await run("DELETE FROM ss_wish WHERE member_id IN (SELECT id FROM ss_member WHERE event_id = ?)", [id], tx);
+      await clearMessages(id, tx);
       // En ändring som väntar på sitt mejl (MUPP-042) ska inte mejlas efter rensningen
       await run("UPDATE ss_member SET list_changed_at = NULL WHERE event_id = ?", [id], tx);
       await run("UPDATE ss_event SET status = 'inactive' WHERE id = ?", [id], tx);

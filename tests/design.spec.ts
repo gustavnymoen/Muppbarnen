@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaDraw, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus } from "./family-db";
+import { addChild, addParent, addSantaDraw, addSantaMessage, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus } from "./family-db";
 import { eventCard, santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
@@ -1554,5 +1554,59 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
   } finally {
     await clearSanta();
     await clearFamily();
+  }
+});
+
+test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a tiny orange icon for an unread message and no button, the chat button sticks to the bottom of the list, and the chat card fits the width with long words wrapped and 44 px field and button", async ({ page }) => {
+  test.skip(!runsLocally, "needs the local test server");
+  await clearFamily();
+  await clearSanta();
+  const event = await addSantaEvent("Familjen Ek", undefined, "started");
+  const anna = await addSantaMember(event, "Anna Ek", "0700004444", "anna@exempel.invalid");
+  const bo = await addSantaMember(event, "Bo Ek", "0700005555", "bo@exempel.invalid");
+  await addSantaDraw(event, anna, bo);
+  await addSantaDraw(event, bo, anna);
+  await addSantaMessage(event, anna, bo, false, "Hej Anna, jag önskar mig något varmt");
+  await addSantaMessage(event, anna, bo, false, "Ettjättelångtordutanmellanslagsomintefårgåutanförrutan0123456789");
+  try {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await santaSignIn(page, anna);
+    await goto(page, "/secret-santa/min-sida");
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    // The cards have no button: only a small chat icon with a dot on the card with an unread message (a text for screen readers says it), inside the card and clear of the title
+    await expect(page.getByRole("button", { name: /Chatt/ })).toHaveCount(0);
+    const matchCard = page.getByRole("link", { name: /^Min matchning: Bo Ek/ });
+    await expect(matchCard).toContainText("Nytt meddelande");
+    await expect(page.getByRole("link", { name: /^Min önskelista/ })).not.toContainText("Nytt meddelande");
+    const mark = await settledBox(matchCard.locator("span.text-claimed"));
+    const card = await settledBox(matchCard);
+    expect(mark.x).toBeGreaterThanOrEqual(card.x);
+    expect(mark.x + mark.width).toBeLessThanOrEqual(card.x + card.width);
+    expect(mark.y).toBeGreaterThanOrEqual(card.y);
+    expect(disjoint(mark, await settledBox(matchCard.getByRole("heading")))).toBe(true);
+
+    // The chat is opened from inside the list: a button at the bottom of the screen, narrower than the list and at least 44 px high
+    await matchCard.click();
+    await expect(page).toHaveURL(/\/matchning$/);
+    const bubble = await settledBox(page.getByRole("button", { name: /^Chatt med din matchning/ }));
+    const list = await settledBox(page.getByRole("heading", { level: 2, name: /^Önskelistan hos/ }).locator(".."));
+    expect(bubble.height).toBeGreaterThanOrEqual(44);
+    expect(bubble.width).toBeLessThan(list.width);
+    expect(bubble.y + bubble.height).toBeGreaterThanOrEqual(667 - 48);
+    expect(bubble.y + bubble.height).toBeLessThanOrEqual(667);
+    await page.getByRole("button", { name: /^Chatt med din matchning/ }).click();
+    const chat = page.getByRole("dialog", { name: "Din matchning" });
+    const log = chat.getByRole("log");
+    await expect(log).toContainText("något varmt");
+    const box = await settledBox(chat);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(375);
+    expect(await log.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    expect((await settledBox(chat.getByRole("textbox", { name: "Meddelande" }))).height).toBeGreaterThanOrEqual(44);
+    expect((await settledBox(chat.getByRole("button", { name: "Skicka" }))).height).toBeGreaterThanOrEqual(44);
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearSanta();
   }
 });
