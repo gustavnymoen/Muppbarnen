@@ -1,0 +1,10 @@
+%% MUPP-062 Wish rows on the Secret Santa match page
+%% What the person you drew sees, and how a row behaves.
+flowchart TD
+    A[Match page] --> B{Any wishes?}
+    B -- no --> C[Inga önskningar ännu.]
+    B -- yes --> D[Collapsed rows: title and chevron]
+    D --> E[Press a row]
+    E --> F[Beskrivning, Storlek in bold, link in a new tab; missing fields not shown]
+    F --> G[Press again: collapsed]
+    G --> D

@@ -123,8 +123,8 @@ export const setSantaPartner = (memberId: number, partnerId: number) =>
   withDb(async (db) => void (await db.execute({ sql: "UPDATE ss_member SET partner_member_id = ? WHERE id = ?", args: [partnerId, memberId] })));
 
 // Secret Santa wish lists (MUPP-040): made straight in the test database, read back as the database holds them
-export const addSantaWish = (memberId: number, title: string) =>
-  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_wish (member_id, title) VALUES (?, ?)", args: [memberId, title] })).lastInsertRowid));
+export const addSantaWish = (memberId: number, title: string, { description = "", size = "", url = "" } = {}) =>
+  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_wish (member_id, title, description, size, url) VALUES (?, ?, ?, ?, ?)", args: [memberId, title, description, size, url] })).lastInsertRowid));
 
 export const santaWishes = (memberId: number) =>
   withDb(async (db) => (await db.execute({ sql: "SELECT title, description, size, url FROM ss_wish WHERE member_id = ? ORDER BY id", args: [memberId] })).rows.map((r) => ({ ...r })));

@@ -1372,7 +1372,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
   }
 });
 
-test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-042-R1 MUPP-061-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal, at least 11 rem high with a 40 px symbol over centred 30 px text, and a divider in the gap, and the toggles Aktiv and Startad, the wish note and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
+test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-042-R1 MUPP-062-R3 MUPP-061-R1 the Secret Santa status on a 375 x 667 phone: the match card is grey and says why, the list card is 44 px, the two cards are equal, at least 11 rem high with a 40 px symbol over centred 30 px text, and a divider in the gap, and the toggles Aktiv and Startad, the wish note and their questions fit the width, and in a started group the match card equals the list card and the read-only list fits", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test server");
   await clearFamily();
   await clearSanta();
@@ -1441,9 +1441,18 @@ test("MUPP-051-R2 R6 MUPP-057-R1 R2 R3 R4 R5 MUPP-059-R2 MUPP-041-R1 R2 R7 MUPP-
     await expectNoA11yViolations(page);
     // The match's list: read-only wish rows that fit the width
     await matchCard.click();
-    await expect(page.getByRole("heading", { level: 3, name: "Bok till Bo" })).toBeVisible();
+    const wishRow = page.getByRole("button", { name: "Bok till Bo" });
+    await expect(wishRow).toBeVisible();
+    // MUPP-062-R3: the row is a touch target higher than a children's row (44 px); the title keeps its size (16 px)
+    expect((await settledBox(wishRow)).height).toBeGreaterThanOrEqual(56);
+    expect(await wishRow.getByText("Bok till Bo").evaluate((title) => getComputedStyle(title).fontSize)).toBe("16px");
     expect(await hasHorizontalScroll(page)).toBe(false);
     await expectNoA11yViolations(page);
+    // MUPP-062-R3: the open row also passes axe in the light theme
+    await wishRow.click();
+    await page.emulateMedia({ colorScheme: "light" });
+    await expectNoA11yViolations(page);
+    await page.emulateMedia({ colorScheme: "dark" });
     await setSantaStatus(family, "preparing");
 
     // The admin: the status with its button, and the question inside the screen

@@ -103,7 +103,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
         ) : (
           <ul className="divide-y divide-edge">
             {wishes.map((wish) => (
-              <WishRow key={wish.id} wish={wish} marked={marked.includes(wish.id)} onMark={() => toggle(wish.id)} onUnclaim={(button) => unclaim(wish, button)} />
+              <WishRow key={wish.id} wish={wish} claiming={{ marked: marked.includes(wish.id), onMark: () => toggle(wish.id), onUnclaim: (button) => unclaim(wish, button) }} />
             ))}
           </ul>
         )}
@@ -182,8 +182,9 @@ function InfoBubble({ children }: { children: string }) {
 }
 
 // En rad: rubriken med märken, en kryssruta om den går att paxa eller en ångra-pil om den är paxad (MUPP-006-R1),
-// och detaljerna när raden är utfälld (MUPP-005-R1–R3)
-function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: boolean; onMark: () => void; onUnclaim: (button: HTMLElement) => void }) {
+// och detaljerna när raden är utfälld (MUPP-005-R1–R3). Utan claiming är raden bara att läsa, som på Secret Santa-matchningen
+// (MUPP-062-R2); roomy ger den lite mer höjd (R3).
+export function WishRow({ wish, claiming, roomy }: { wish: Wish; claiming?: { marked: boolean; onMark: () => void; onUnclaim: (button: HTMLElement) => void }; roomy?: boolean }) {
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const link = webLink(wish.url);
@@ -191,20 +192,20 @@ function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: bool
   return (
     <li className="relative py-1">
       <div className="flex items-center gap-1">
-        {canClaim(wish) && (
+        {claiming && canClaim(wish) && (
           <label className="flex min-h-11 min-w-11 shrink-0 items-center justify-center">
-            <input type="checkbox" checked={marked} onChange={onMark} aria-label={wish.title} className="size-6 accent-brand" />
+            <input type="checkbox" checked={claiming.marked} onChange={claiming.onMark} aria-label={wish.title} className="size-6 accent-brand" />
           </label>
         )}
-        {canUnclaim(wish) && (
-          <IconButton frameless label={`Ta bort paxningen på ${wish.title}`} onClick={(event) => onUnclaim(event.currentTarget)} className="shrink-0">
+        {claiming && canUnclaim(wish) && (
+          <IconButton frameless label={`Ta bort paxningen på ${wish.title}`} onClick={(event) => claiming.onUnclaim(event.currentTarget)} className="shrink-0">
             <span className="text-claimed">
               <UndoIcon />
             </span>
           </IconButton>
         )}
         {wish.unlimited && wish.claimedBy === null && <InfoBubble>Den här presenten kan köpas flera gånger, så den går inte att paxa.</InfoBubble>}
-        <button type="button" aria-expanded={open} aria-controls={detailsId} onClick={() => setOpen(!open)} className="flex min-h-11 min-w-0 flex-1 items-center justify-between gap-2 text-left">
+        <button type="button" aria-expanded={open} aria-controls={detailsId} onClick={() => setOpen(!open)} className={`flex min-w-0 flex-1 items-center justify-between gap-2 text-left ${roomy ? "min-h-14" : "min-h-11"}`}>
           <span className="flex min-w-0 flex-col">
             {/* Högst två rader med ellips och mindre text när titeln är lång (MUPP-023); den utfällda raden visar hela titeln */}
             <span className={`wrap-anywhere ${open ? "" : "line-clamp-2"} ${isLongTitle(wish.title) ? "text-sm" : ""}`}>{wish.title}</span>
@@ -221,8 +222,16 @@ function WishRow({ wish, marked, onMark, onUnclaim }: { wish: Wish; marked: bool
               Paxad av {wish.claimedBy} {wish.claimedAt}
             </p>
           )}
-          {wish.description && <p className="whitespace-pre-line">Beskrivning: {wish.description}</p>}
-          {wish.size && <p>Storlek: {wish.size}</p>}
+          {wish.description && (
+            <p className="whitespace-pre-line">
+              <strong className="font-semibold">Beskrivning:</strong> {wish.description}
+            </p>
+          )}
+          {wish.size && (
+            <p>
+              <strong className="font-semibold">Storlek:</strong> {wish.size}
+            </p>
+          )}
           {link && (
             <p>
               <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block min-h-6 text-brand underline">

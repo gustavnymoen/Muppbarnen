@@ -14,7 +14,7 @@ Once the draw is made ([Secret Santa draw](secret-santa-draw.md)) a member sees 
 ## The member's pages
 
 - **Own page** `/secret-santa/min-sida`: the card "Min önskelista" and the card "Min matchning: <name>" (a link, Santa-hat icon). Both cards are at least 11 rem high with a 40 px symbol over a centred two-line 30 px title ("Min / önskelista", "Min matchning: / <name>"; [MUPP-059](../../specs/MUPP-059-santa-group-card-text/solution.md)). Before the start the second card is the grey "Inte tilldelad än" ([event status](secret-santa-status.md)).
-- **The match's list** `/secret-santa/min-sida/matchning`: the receiver's wishes as rows without buttons. Without a started group and a row in the draw the page sends the member back to their own page.
+- **The match's list** `/secret-santa/min-sida/matchning`: the receiver's wishes as the same expandable rows as on a child's wish list (`WishRow`), collapsed at first and without checkbox, marks or buttons, a little roomier (56 px high instead of 44 px, same text sizes); "Inga önskningar ännu." when there are none ([MUPP-062](../../specs/MUPP-062-wish-rows/solution.md)). Without a started group and a row in the draw the page sends the member back to their own page.
 
 ## Who sees what
 
