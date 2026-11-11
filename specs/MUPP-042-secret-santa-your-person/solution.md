@@ -18,7 +18,7 @@ Migration `db/migrations/010_santa_list_changes.sql` adds two nullable columns t
 ## Interface
 
 - **Own page** (`app/secret-santa/min-sida/page.tsx`): in a started group the second card is the link "Min matchning: <NAME>" (Santa-hat icon, same size as the list card), via the shared `LinkCard`; before the start it stays the grey "Inte tilldelad än" card (R1). A started group with no row in the draw (cannot happen through the site) shows the grey card.
-- **Match page** (`app/secret-santa/min-sida/matchning/page.tsx`): "Önskelistan hos <NAME>", the wishes as rows without buttons (`WishDetails` shows size, description and link), "Inga önskningar ännu." when empty, back arrow to the own page. Not started or no match: back to the own page.
+- **Match page** (`app/secret-santa/min-sida/matchning/page.tsx`): "Önskelistan hos <NAME>", the wishes as the children's expandable rows without buttons ([MUPP-062](../MUPP-062-wish-rows/solution.md): `WishRow` without claiming, roomier), "Inga önskningar ännu." when empty, back arrow to the own page. Not started or no match: back to the own page.
 - **The job** `POST /api/santa-mails` (`app/api/santa-mails/route.ts`) answers `{ sent, failed }` (counts only). `.github/workflows/santa-mails.yml` calls it every ten minutes with the secret `SANTA_JOB_SECRET`.
 - **Mail 5** is `listChangedMail` of MUPP-052: the group in the subject, no name, no wish.
 
@@ -30,7 +30,7 @@ Migration `db/migrations/010_santa_list_changes.sql` adds two nullable columns t
 - **Start and stop clear the marks** (`clearListChanges`): what waited belongs to an older draw.
 - **The route is outside the site password on purpose.** `proxy.ts` lets exactly `POST /api/santa-mails` through without the cookie, and `lib/route-checks.test.ts` lists the route as the second exception from the sign-in check, with the reason. In its place the route first goes through `guardWrite()` (so the secret cannot be guessed at speed) and then `jobAuthorized` (`lib/santa-job.ts`: Bearer token, compared as SHA-256 hashes with `timingSafeEqual`, closed for a secret under 32 characters). The workflow calls `muppbarnen.vercel.app`, which is up before the mail domain (TECH-020).
 - **Secrecy (R2):** `matchOf(giverId)` (`lib/santa-match.ts`) takes the id from the sign-in cookie, selects only the receiver of that giver in the latest draw of a started event, and returns `{ name, wishes }`. No function returns a giver for a receiver; the only place that looks the giver up is the job, which uses the address and returns a count. Tested for A→B, B→C, C→A and D↔E.
-- **Wish rows without a form:** the read-only rows reuse `SlimCard` and `WishDetails`; no new component.
+- **Wish rows without a form:** the read-only rows reuse `WishRow` of the children's list ([MUPP-062](../MUPP-062-wish-rows/solution.md)); no new component.
 
 ## Related
 

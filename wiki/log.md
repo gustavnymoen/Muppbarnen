@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-11
+
+* **Creation** [MUPP-062 Wish rows on the Secret Santa match page](../specs/MUPP-062-wish-rows/solution.md): the match page shows the wishes as the children's expandable rows (read-only, a little roomier), and "Beskrivning:" and "Storlek:" are bold in the unfolded row.
+
 ## 2026-11-10
 
 * **Update** [MUPP-061](../specs/MUPP-061-santa-wish-note/verification.md): Live tests passed after the merge, and the wish note was checked on the live site at 320 px (reflow, contrast 5.53:1 for the text and 5.34:1 for the symbol); VoiceOver, 200 % zoom and the light theme are not checked.

@@ -32,9 +32,11 @@ async function startedEvent() {
   return { event, anna, bo, cia, dan, eva };
 }
 
-test("MUPP-042-R1 R2 a started group gives the second card 'Min matchning: <name>' that opens that person's list read-only, and nobody sees who drew them", async ({ page }) => {
+test("MUPP-042-R1 R2 MUPP-062-R2 a started group gives the second card 'Min matchning: <name>' that opens that person's list read-only, and nobody sees who drew them", async ({ page }) => {
   const { anna, bo, dan } = await startedEvent();
-  await addSantaWish(bo, "Bok att läsa");
+  await addSantaWish(bo, "Bok att läsa", { description: "Helst en spänningsroman", size: "Pocket", url: "https://example.com/bok" });
+  await addSantaWish(bo, "Bara en titel");
+  await addSantaWish(bo, "Farlig länk", { url: "javascript:alert(1)" });
   await addSantaWish(anna, "Annas egen önskning");
   await santaSignIn(page, anna);
   await goto(page, "/secret-santa/min-sida");
@@ -50,8 +52,34 @@ test("MUPP-042-R1 R2 a started group gives the second card 'Min matchning: <name
   // R1: the match's wishes, without any button to change them
   await match.click();
   await expect(page.getByRole("heading", { level: 2, name: "Önskelistan hos Bo Testsson" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "Bok att läsa" })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Ny önskning|Ändra|Ta bort/ })).toHaveCount(0);
+  // MUPP-062-R2: every wish is a collapsed row with a title and a chevron, no checkbox, mark or button to change anything
+  const rows = page.getByRole("main").getByRole("listitem");
+  await expect(rows).toHaveCount(3);
+  const book = page.getByRole("button", { name: "Bok att läsa" });
+  await expect(book).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByText(/Beskrivning:|Storlek:|Länk till presenten/)).toHaveCount(0);
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+  await expect(page.getByText(/Paxad|Kan köpas flera gånger/)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Ny önskning|Ändra|Ta bort|Paxa/ })).toHaveCount(0);
+  await expectNoA11yViolations(page);
+  // MUPP-062-R2: a row expands to the details with bold labels and a link that opens in a new tab; a title-only wish and an address that is not http(s) show no details
+  await book.click();
+  await expect(book).toHaveAttribute("aria-expanded", "true");
+  const details = rows.filter({ hasText: "Bok att läsa" });
+  await expect(details.locator("strong")).toHaveText(["Beskrivning:", "Storlek:"]);
+  await expect(details).toContainText("Beskrivning: Helst en spänningsroman");
+  await expect(details).toContainText("Storlek: Pocket");
+  const link = details.getByRole("link", { name: "Länk till presenten (öppnas i en ny flik)" });
+  await expect(link).toHaveAttribute("href", "https://example.com/bok");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expectNoA11yViolations(page);
+  await book.click();
+  await expect(book).toHaveAttribute("aria-expanded", "false");
+  await expect(details.getByRole("link")).toHaveCount(0);
+  await page.getByRole("button", { name: "Bara en titel" }).click();
+  await page.getByRole("button", { name: "Farlig länk" }).click();
+  await expect(rows.filter({ hasText: /Bara en titel|Farlig länk/ }).getByText(/Beskrivning:|Storlek:/)).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /Länk till presenten/ })).toHaveCount(0);
   await expect(page.getByText("Annas egen önskning")).toHaveCount(0);
   // R2: the page names the match only; Cia, who gives to Anna, is nowhere
   await expect(page.getByRole("main")).not.toContainText("Cia Testsson");
@@ -68,6 +96,10 @@ test("MUPP-042-R1 R2 a started group gives the second card 'Min matchning: <name
   await santaSignIn(page, dan);
   await goto(page, "/secret-santa/min-sida");
   await expect(page.getByRole("link", { name: "Min matchning: Eva Testsson" })).toBeVisible();
+  // MUPP-062-R2: Eva has no wishes, so Dan's match page says so
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await expect(page.getByText("Inga önskningar ännu.")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(0);
 });
 
 test("MUPP-042-R1 before the start the second card is grey with 'Inte tilldelad än', and the match page leads back", async ({ page }) => {

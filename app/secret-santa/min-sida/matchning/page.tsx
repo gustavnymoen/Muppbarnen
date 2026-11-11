@@ -5,8 +5,7 @@ import { Card } from "@/app/components/Card";
 import { IconLink } from "@/app/components/Button";
 import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
-import { SlimCard } from "@/app/components/SlimCard";
-import { WishDetails } from "@/app/components/WishParts";
+import { WishRow } from "@/app/components/WishList";
 import { currentSantaMember } from "@/lib/santa-auth";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
@@ -46,11 +45,10 @@ async function Match() {
             {match.wishes.length === 0 ? (
               <p className="text-muted">Inga önskningar ännu.</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="divide-y divide-edge">
                 {match.wishes.map((wish) => (
-                  <li key={wish.id}>
-                    <WishCard wish={wish} />
-                  </li>
+                  // Samma rad som på barnens listor, utan paxning: en Secret Santa-önskan är aldrig paxad eller köpbar flera gånger
+                  <WishRow key={wish.id} wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null }} roomy />
                 ))}
               </ul>
             )}
@@ -58,14 +56,5 @@ async function Match() {
         </div>
       </PageContent>
     </Page>
-  );
-}
-
-// En önskning utan knappar att ändra: titeln och, om de finns, storlek, beskrivning och länk
-function WishCard({ wish }: { wish: { title: string; description: string; size: string; url: string } }) {
-  return (
-    <SlimCard title={wish.title} actions={null}>
-      <WishDetails item={wish} />
-    </SlimCard>
   );
 }

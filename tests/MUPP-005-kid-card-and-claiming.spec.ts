@@ -41,7 +41,7 @@ async function openVerasList(page: Page) {
 }
 
 // Samma lista i hela testet, så att den bara byggs och öppnas en gång (TECH-018): först raderna, sedan paxningen, som ändrar dem
-test("MUPP-005-R1 R2 R3 R4 R5 the rows and marking rows, then claiming: the dialog, its errors, Escape and cancel, success, and a gift taken meanwhile", async ({ page }) => {
+test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 the rows and marking rows, then claiming: the dialog, its errors, Escape and cancel, success, and a gift taken meanwhile", async ({ page }) => {
   await openVerasList(page);
 
   // R1: claimed gifts last, the others in their order (the full order is tested in MUPP-019); the marks show without unfolding; the texts are plain text
@@ -65,6 +65,11 @@ test("MUPP-005-R1 R2 R3 R4 R5 the rows and marking rows, then claiming: the dial
   await expect(cykel).toHaveAttribute("aria-expanded", "true");
   await expect(row(page, "Cykel")).toContainText("Röd, med korg");
   await expect(row(page, "Cykel")).toContainText("Storlek: 20 tum");
+  // MUPP-062-R1: the labels are bold, the values are not
+  const labels = row(page, "Cykel").locator("strong");
+  await expect(labels).toHaveText(["Beskrivning:", "Storlek:"]);
+  expect(await labels.evaluateAll((all) => all.map((label) => Number(getComputedStyle(label).fontWeight)))).toEqual([600, 600]);
+  expect(await row(page, "Cykel").locator("p", { hasText: "Storlek:" }).evaluate((p) => Number(getComputedStyle(p).fontWeight))).toBe(400);
   const link = row(page, "Cykel").getByRole("link");
   await expect(link).toHaveAttribute("href", "https://example.com/cykel");
   await expect(link).toHaveAttribute("target", "_blank");
