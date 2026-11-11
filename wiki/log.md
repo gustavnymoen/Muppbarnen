@@ -2,6 +2,8 @@
 
 ## 2026-11-11
 
+* **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/solution.md): each chat message has a small icon by its bubble: a person on mine, a tomte on the other side's (the same for everyone, so they name nobody); the chat card opens in the middle of the screen at 75 % of its height.
+* **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/verification.md): Live tests passed after the merge of the chat and its fixes (PR #211 and #212); the live accessibility line is still not checked.
 * **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/solution.md): fixed after the live check: the notice on the Chatt button follows the page (a new message gives it again after an earlier read) and the chat shows its messages at once.
 * **Creation** [MUPP-043 Secret Santa: anonymous chat](../specs/MUPP-043-secret-santa-questions/solution.md): a giver and their receiver chat without names ("Din Secret Santa" / "Din matchning"), with an unread notice on the bubbles and message mails 6 and 7 collected over ten minutes; the conversations are deleted with the draw and in the yearly cleanup.
 * **Update** [MUPP-064](../specs/MUPP-064-wish-row-fold/verification.md): Live tests passed after the merge; the live accessibility checklist and how a screen reader reads "Storlek: –" were checked by the user and reported as fine.

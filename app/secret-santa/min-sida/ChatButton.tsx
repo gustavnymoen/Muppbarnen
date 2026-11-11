@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/app/components/Button";
 import { Dialog, type DialogHandle } from "@/app/components/Dialog";
-import { ChatIcon } from "@/app/components/icons";
+import { ChatIcon, PersonIcon, TomteIcon } from "@/app/components/icons";
 import { MAX_MESSAGE_LENGTH, type ChatMessage, type ChatSide } from "@/lib/santa-chat-shared";
 import { loadChat, sendChat } from "../chat-actions";
 
@@ -36,7 +36,7 @@ export function ChatButton({ side, unread, initial }: { side: ChatSide; unread: 
           Chatt
         </Button>
       </div>
-      <Dialog ref={card} form title={texts.title}>
+      <Dialog ref={card} form centered title={texts.title} className="open:flex h-[75dvh] flex-col">
         <Chat side={side} empty={texts.empty} initial={initial} unread={unread} />
       </Dialog>
     </>
@@ -95,20 +95,24 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
   };
 
   return (
-    <div className="mt-2 space-y-4">
+    <div className="mt-2 flex min-h-0 flex-1 flex-col gap-4">
       {/* role="log" läses upp av skärmläsaren när ett meddelande läggs till; tabIndex så att listan går att rulla med tangentbordet */}
-      <div ref={list} role="log" aria-label="Samtalet" tabIndex={0} className="max-h-[50vh] space-y-2 overflow-y-auto">
+      {/* Meddelandena samlas längst ner som i en vanlig chatt (mt-auto på det första; justify-end skulle göra toppen orullbar) */}
+      <div ref={list} role="log" aria-label="Samtalet" tabIndex={0} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto [&>:first-child]:mt-auto">
         {messages.length === 0 && <p className="text-muted">{empty}</p>}
         {messages.map((message, i) => (
-          <div key={i} className={`flex ${message.mine ? "justify-end" : "justify-start"}`}>
-            <p className={`max-w-[85%] whitespace-pre-wrap break-words rounded-control px-3 py-2 ${message.mine ? "bg-brand text-on-brand" : "border border-edge bg-page"}`}>
+          <div key={i} className={`flex items-end gap-2 ${message.mine ? "justify-end" : "justify-start"}`}>
+            {/* Samma ikon för alla: jag eller tomten (aria-hidden; "Du:" / "Svar:" nedan nämner avsändaren) */}
+            {!message.mine && <span className="mb-1.5 text-muted"><TomteIcon /></span>}
+            <p className={`min-w-0 max-w-[80%] whitespace-pre-wrap break-words rounded-control px-3 py-2 ${message.mine ? "bg-brand text-on-brand" : "border border-edge bg-page"}`}>
               <span className="sr-only">{message.mine ? "Du: " : "Svar: "}</span>
               {message.text}
             </p>
+            {message.mine && <span className="mb-1.5 text-muted"><PersonIcon /></span>}
           </div>
         ))}
       </div>
-      <form onSubmit={send} className="space-y-2" noValidate>
+      <form onSubmit={send} className="shrink-0 space-y-2" noValidate>
         <label htmlFor="chat-text" className="block font-heading font-medium">
           Meddelande
         </label>
