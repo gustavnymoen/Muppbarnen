@@ -53,12 +53,12 @@ The suite is over its budget with and without this change (TECH-019). This chang
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over budget before this change (TECH-019); nothing added here
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on `main` after the merge passed (2026-11-10)
-- [ ] Accessibility: axe passes locally and every changed state has an axe call; the live checklist (reflow, contrast, target size) is done for the Secret Santa tab and the own page; VoiceOver, 200 % zoom and the light theme are not checked
+- [x] Accessibility: axe passes locally and every changed state has an axe call; the live checklist (reflow, contrast, target size) is done for the Secret Santa tab and the own page; VoiceOver, 200 % zoom and the light theme are not checked (accepted as done by the user, 2026-11-11)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs, `DESIGN.md` and `wiki/log.md` updated
 - [x] No leftovers: the temporary size switch is removed
 - [x] Clean code: `npm run lint`, `npm run typecheck`, `npm run build` pass
-- [ ] Code review: see [review.md](review.md)
+- [x] Code review: see [review.md](review.md)
 
 ## Requirements as built
 
