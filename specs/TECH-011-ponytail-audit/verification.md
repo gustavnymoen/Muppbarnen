@@ -50,7 +50,7 @@ The "before" numbers are from [MUPP-015](../MUPP-015-back-button/verification.md
 - [ ] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [ ] No leftovers: everything the change made unused is deleted, no commented-out code or debug output
 - [ ] Clean code: reuses existing components and helpers; `npm run lint`, `npm run typecheck` and `npm run build` pass
-- [ ] Code review done, no must-fix findings left; see [review.md](review.md)
+- [x] Code review done, no must-fix findings left: the review passed, see review.md (checked 2026-11-12)
 - [ ] Technical tasks for larger improvements noticed along the way added to the board
 
 ## Requirements as built

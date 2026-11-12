@@ -42,7 +42,7 @@ The browser run was over its budget with seven tests over 5 s, none of them touc
 - [x] Requirements in the card match what was built, no open questions
 - [x] Manual (not needed, no visible change), system docs (`wiki/system/mail.md`) and `wiki/log.md` updated
 - [x] No leftovers; `npm run lint`, `lint:docs`, `typecheck` and `build` pass
-- [ ] Code review done: see [review.md](review.md)
+- [x] Code review done, no must-fix findings left: the review passed, see review.md (checked 2026-11-12)
 
 ## Requirements as built
 

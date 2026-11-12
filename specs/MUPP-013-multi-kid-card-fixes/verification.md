@@ -46,7 +46,7 @@ Not run before the change; the browser count before is 58 minus the three new te
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the "Dölj" state of `WishButton` is deleted; `.claude/launch.json` is local only and not committed
-- [ ] Clean code: `npm run lint` and `npm run typecheck` pass; `npm run build` and `npm run lint:docs` not run yet
+- [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass on the current code (2026-11-12; the build with a scratch database, one Turbopack warning about dynamic file access)
 - [x] Code review done, no must-fix findings left; see [review.md](review.md)
 - [x] Technical tasks for larger improvements noticed along the way added to the board: none
 
