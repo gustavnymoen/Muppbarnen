@@ -11,7 +11,7 @@ const API = "https://api.resend.com/emails";
 
 // installTip: mejlet får tipset om hemskärmen under knappen och raden om att det inte går att svara (MUPP-058)
 export type Mail = { subject: string; text: string; installTip?: true };
-export type MailResult = { ok: true } | { ok: false };
+type MailResult = { ok: true } | { ok: false };
 
 const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 // En enkel kontroll: det mesta fångar leverantören, men en rad med radbrytning får aldrig bli en rubrik i mejlet

@@ -12,9 +12,9 @@ import { siteSecrets } from "./site-session";
 // kontrollen av telefon eller e-post, och vem som är inloggad. Telefon och e-post läses bara här,
 // för kontrollen, och lämnar aldrig funktionen. Designen: wiki/system/secret-santa-entrance.md.
 
-export type EntranceMember = { memberId: number; name: string };
+type EntranceMember = { memberId: number; name: string };
 export type SantaMember = { id: number; name: string; eventId: number; eventName: string; status: EventStatus };
-export type SantaContact = "phone" | "email";
+type SantaContact = "phone" | "email";
 
 // ---- Läsa (bara namn)
 

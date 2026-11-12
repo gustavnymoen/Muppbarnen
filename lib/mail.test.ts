@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { MAIL_FOOTER, SITE_URL, layout, sendMail } from "./mail";
-import { clearOutbox, readOutbox } from "./mail-sink";
+import { clearOutbox, readOutbox } from "../tests/mail-outbox";
 
 const mail = { subject: "Secret Santa: Familjen – hej", text: "Dragningen är gjord." };
 const local = { TURSO_DATABASE_URL: "file:/tmp/x.db" };

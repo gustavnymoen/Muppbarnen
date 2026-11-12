@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaDraw, santaStatusOf } from "./family-db";
-import { clearOutbox, readOutbox } from "../lib/mail-sink";
+import { clearOutbox, readOutbox } from "./mail-outbox";
 import { eventCard, openEventCard } from "./santa";
 import { testIp } from "./site-session";
 

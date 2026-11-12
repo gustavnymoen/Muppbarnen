@@ -10,7 +10,7 @@ import { messageFromGiverMail, messageFromReceiverMail } from "./santa-mail";
 // ingen tid och inget namn, så mottagaren inte kan se vem givaren är (R3, MUPP-042-R2). Designen: wiki/system/secret-santa-chat.md.
 
 // Meddelanden inom så här lång tid från det första som väntar ger ett enda mejl
-export const MAIL_WAIT_MS = 10 * 60 * 1000;
+const MAIL_WAIT_MS = 10 * 60 * 1000;
 
 const NOT_ALLOWED = { ok: false, error: "Du kan inte göra det här." } as const;
 
