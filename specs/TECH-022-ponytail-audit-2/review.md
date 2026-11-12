@@ -19,7 +19,7 @@ None.
 ## Should fix
 
 - **Time budget (R3).** The full run took 338.8 s against 330 s; the "before" figure is from a base with 162 tests, "after" has 167 (MUPP-066 came in between). **Decision:** left as recorded in `verification.md` (Notes) with the Definition of Done box open; the card added no test and no work, and CI's limit (530 s) is higher. Not re-measured on `main`.
-- **Owner's confirmation (R2).** The decisions are Claude's proposal. **Decision:** noted in `verification.md`; to be confirmed before the card is Done.
+- **Owner's confirmation (R2).** The decisions are Claude's proposal. **Decision:** noted in `verification.md`; to be confirmed before the card is Done (the owner asked for a change on 2026-11-12).
 - **`review.md` was the template.** Fixed: this file.
 
 ## Suggestions
