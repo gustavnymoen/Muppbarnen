@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, ADMIN_PATH, adminSecrets, createAdminSession, verifyAdminSession } from "./admin-session";
 import { findParent, type Parent } from "./family";
+import { setSessionCookie } from "./session-cookie";
 
 // Kontrollen av adminkakan på servern, utöver proxy.ts: sidor och serveråtgärder under
 // admin frågar den igen. Vem som är inloggad som, och om hen är huvudadministratör,
@@ -36,10 +37,5 @@ export async function requireAdminSession() {
 export async function setAdminCookie(parentId: number, expires?: number) {
   const secret = adminSecrets()?.secret;
   if (!secret) return;
-  (await cookies()).set(ADMIN_COOKIE, createAdminSession(secret, parentId, expires), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  });
+  await setSessionCookie(ADMIN_COOKIE, createAdminSession(secret, parentId, expires));
 }

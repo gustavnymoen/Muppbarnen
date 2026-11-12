@@ -14,7 +14,7 @@ const root = path.resolve(import.meta.dirname, "..");
 const NO_SIGN_IN_CHECK: Record<string, string> = {
   "app/losenord/actions.ts#login": "den är själva inloggningen; den har gränsen och spärren i stället",
   "app/api/santa-cleanup/route.ts#GET": "Vercel Cron anropar den utan kaka; den kräver hemligheten CRON_SECRET i stället (MUPP-044)",
-  "app/api/santa-mails/route.ts#POST": "ett schemalagt jobb utan kaka; den har gränsen och en egen hemlighet (lib/santa-job.ts) i stället",
+  "app/api/santa-mails/route.ts#POST": "ett schemalagt jobb utan kaka; den har gränsen och en egen hemlighet (lib/job-auth.ts) i stället",
 };
 
 // Det enda under admin som får sakna adminkontrollen, med skälet
@@ -22,9 +22,14 @@ const NO_ADMIN_CHECK: Record<string, string> = {
   "app/admin/login-action.ts#adminLogin": "den är själva adminanmälan; den har gränsen och spärren i stället",
 };
 
-// Antingen requireSiteSession(), eller hasSiteSession() som nekas med ! (eller sparas i en variabel)
-const SITE_CHECK = /^(?:(?:await\s+)?requireSiteSession\(|const\s+\w+\s*=\s*await\s+hasSiteSession\(|if\s*\(\s*!\s*\(?\s*(?:await\s+)?hasSiteSession\()/;
-const ADMIN_CHECK = /(?:hasAdminSession|requireAdminSession)\(/;
+// Antingen requireSiteSession(), openSiteAction()/openAdminAction() (lib/action-open.ts, som kontrollerar sajtkakan) eller
+// hasSiteSession() som nekas med ! (eller sparas i en variabel)
+const SITE_CHECK = /^(?:(?:await\s+)?requireSiteSession\(|const\s+(?:\w+|\{[^}]*\})\s*=\s*await\s+(?:hasSiteSession|openSiteAction|openAdminAction)\(|if\s*\(\s*!\s*\(?\s*(?:await\s+)?hasSiteSession\()/;
+const ADMIN_CHECK = /(?:hasAdminSession|requireAdminSession|openAdminAction)\(/;
+const WRITE_GUARD = /\b(?:guardWrite|openSiteAction|openAdminAction|refuseJobCall)\(/;
+const OPENER = /\bopen(?:Site|Admin)Action\(/;
+// Jobbrutterna: hemligheten och gränsen kontrolleras av refuseJobCall (lib/job-auth.ts)
+const JOB_ROUTES = ["app/api/santa-cleanup/route.ts#GET", "app/api/santa-mails/route.ts#POST"];
 const HTTP_METHODS = /^(GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS)$/;
 const WRITE_METHODS = /^(POST|PUT|PATCH|DELETE)$/;
 
@@ -108,9 +113,12 @@ function findProblems(sources: Source[]) {
       if (/(^|\/)admin(\/|$)/.test(file) && !(id in NO_ADMIN_CHECK) && !ADMIN_CHECK.test(first.slice(0, 300))) {
         problems.push(`${id}: ligger under admin men kontrollerar inte adminkakan (hasAdminSession/requireAdminSession) direkt efter`);
       }
-      if ((isAction || WRITE_METHODS.test(name)) && !/\bguardWrite\(/.test(body)) {
+      if ((isAction || WRITE_METHODS.test(name)) && !WRITE_GUARD.test(body)) {
         problems.push(`${id}: skriver men går inte genom guardWrite() (gränsen för skrivande anrop och Origin)`);
       }
+      // Svaret från openSiteAction/openAdminAction måste användas, annars är gränsen kontrollerad men ignorerad
+      if (OPENER.test(body) && !/\bif\s*\(\s*refusal\b/.test(body)) problems.push(`${id}: svarar inte på refusal från openSiteAction/openAdminAction (if (refusal) …)`);
+      if (JOB_ROUTES.includes(id) && !/\brefuseJobCall\(/.test(body)) problems.push(`${id}: jobbrutten anropar inte refuseJobCall() (hemligheten och gränsen)`);
     }
   }
   return problems;
@@ -193,6 +201,30 @@ describe("TECH-005-R1 every route and server action checks the sign-in first", (
   test("TECH-005-R1 an inline server action inside a component fails", () => {
     const text = `export default function Page() {\n  async function save() {\n    "use server";\n  }\n  return null;\n}`;
     expect(findProblems([{ file: "app/x/page.tsx", text }])[0]).toContain("app/x/page.tsx");
+  });
+});
+
+describe("TECH-024-R2 the shared opening checks are recognised, and leaving one out still fails", () => {
+  const action = (body: string, file = "app/admin/x-actions.ts") => findProblems([{ file, text: `"use server";\nexport async function save() {\n${body}\n}` }]);
+
+  test("TECH-024-R2 an admin action that opens with openAdminAction passes, one with openSiteAction does not, and a refusal that is never read fails", () => {
+    expect(action("  const { parent, refusal } = await openAdminAction();\n  if (refusal) return;")).toEqual([]);
+    expect(action("  const { refusal } = await openSiteAction();\n  if (refusal) return;")[0]).toContain("adminkakan");
+    expect(action("  const { parent } = await openAdminAction();")).toEqual(["app/admin/x-actions.ts#save: svarar inte på refusal från openSiteAction/openAdminAction (if (refusal) …)"]);
+  });
+
+  test("TECH-024-R2 a Secret Santa action that opens with openSiteAction passes, and one that does something else first fails", () => {
+    expect(action("  const { refusal } = await openSiteAction();\n  if (refusal) return;", "app/secret-santa/x-actions.ts")).toEqual([]);
+    expect(action("  const rows = await all(\"SELECT 1\");\n  const { refusal } = await openSiteAction();\n  if (refusal) return;", "app/secret-santa/x-actions.ts")).toHaveLength(1);
+  });
+
+  test("TECH-024-R2 R3 both job routes must open with refuseJobCall", () => {
+    const route = (name: string, body: string) => findProblems([{ file: `app/api/${name}/route.ts`, text: `export async function ${name === "santa-mails" ? "POST" : "GET"}(request: Request) {\n${body}\n}` }]);
+    const ok = "  const refused = await refuseJobCall(request, process.env.X);\n  if (refused) return refused;";
+    expect(route("santa-cleanup", ok)).toEqual([]);
+    expect(route("santa-mails", ok)).toEqual([]);
+    expect(route("santa-cleanup", "  return Response.json({});")).toEqual(["app/api/santa-cleanup/route.ts#GET: jobbrutten anropar inte refuseJobCall() (hemligheten och gränsen)"]);
+    expect(route("santa-mails", "  await guardWrite();\n  return Response.json({});")).toEqual(["app/api/santa-mails/route.ts#POST: jobbrutten anropar inte refuseJobCall() (hemligheten och gränsen)"]);
   });
 });
 

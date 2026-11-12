@@ -5,6 +5,7 @@ import { beginAttempt, clearAttempt, registerWrong, wrongWait } from "./login-bl
 import { parseId } from "./form-input";
 import type { EventStatus } from "./santa";
 import { cleanupYear } from "./santa-cleanup";
+import { setSessionCookie } from "./session-cookie";
 import { createSantaSession, SANTA_COOKIE, SANTA_SESSION_SECONDS, verifySantaSession } from "./santa-session";
 import { siteSecrets } from "./site-session";
 
@@ -86,15 +87,13 @@ export async function currentSantaMember() {
   return (await findMember(session.memberId)) ?? null;
 }
 
-const cookieRules = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" } as const;
-
 export async function setSantaCookie(memberId: number) {
   const secret = siteSecrets()?.secret;
   if (!secret) return;
-  (await cookies()).set(SANTA_COOKIE, createSantaSession(secret, memberId, await cleanupYear()), { ...cookieRules, maxAge: SANTA_SESSION_SECONDS });
+  await setSessionCookie(SANTA_COOKIE, createSantaSession(secret, memberId, await cleanupYear()), SANTA_SESSION_SECONDS);
 }
 
 // Tas bort med samma regler som när den sattes: en __Host-kaka utan Secure godtas inte ens för att tömmas
 export async function clearSantaCookie() {
-  (await cookies()).set(SANTA_COOKIE, "", { ...cookieRules, maxAge: 0 });
+  await setSessionCookie(SANTA_COOKIE, "", 0);
 }

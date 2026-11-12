@@ -3,10 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { failed, saved, type FormState } from "@/app/components/form-state";
-import { guardMessage, guardWrite } from "@/lib/request-guard";
+import { openSiteAction } from "@/lib/action-open";
 import { currentSantaMember } from "@/lib/santa-auth";
 import * as wishes from "@/lib/santa-wishes";
-import { requireSiteSession } from "@/lib/site-auth";
 import type { Outcome } from "@/lib/family";
 
 // Önskelistans serveråtgärder (MUPP-040). Först sajtkakan och gränsen för skrivande anrop, sedan vem som är
@@ -16,9 +15,8 @@ const OWN_PAGE = "/secret-santa/min-sida/onskelista";
 const field = (formData: FormData, name: string) => formData.get(name);
 
 export async function saveWish(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { refusal } = await openSiteAction();
+  if (refusal) return failed(formData, { error: refusal });
   const member = await ownMember();
   const wishId = field(formData, "wishId");
   return answer(
@@ -34,9 +32,8 @@ export async function saveWish(_previous: FormState, formData: FormData): Promis
 }
 
 export async function removeWish(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { refusal } = await openSiteAction();
+  if (refusal) return failed(formData, { error: refusal });
   const member = await ownMember();
   return answer(formData, await wishes.removeWish(member.id, field(formData, "wishId")));
 }
