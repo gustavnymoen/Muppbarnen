@@ -34,7 +34,7 @@ The slowest test is now `MUPP-003-R8 MUPP-010-R2 R6 …` (3.9 s before, 4.8 s af
 
 ## Definition of Done
 
-- [ ] Tests: both tests pass 20 runs in a row under load locally (the 43.99 px to be confirmed in CI over time); to be run in [TECH-023](https://github.com/gustavnymoen/Muppbarnen/issues/218)
+- [x] Tests: both tests pass 20 runs in a row under load locally (the 43.99 px to be confirmed in CI over time); marked done by the user (2026-11-12), who tested it; not run again by Claude
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 496a6d0 passed (2026-10-30)
 - [x] Accessibility: not applicable
 - [x] Requirements in the card match what was built (the open question is answered: a test problem); compared with the card on 2026-11-12: R1 Pass, R2 not applicable; the open question is answered

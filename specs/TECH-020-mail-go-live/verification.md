@@ -37,11 +37,11 @@ Not measured: the change adds a script and documentation, no test.
 
 ## Definition of Done
 
-- [ ] Tests: every check in the card's test plan is done (the manual check is partly open)
+- [x] Tests: every check in the card\'s test plan is done; the work address on Exchange (aqc.se) is left out by the user (2026-11-12): to be validated when mail goes to the participants, who will also use private accounts
 - [x] Test suite: not applicable (no test added)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bb3d0fe passed (2026-11-12)
 - [x] Accessibility: not applicable (visitors see no change)
-- [ ] Requirements in the card match what was built, no open questions left; copied below as built
+- [x] Requirements in the card match what was built, no open questions left; copied below as built; the Exchange case of R1 is left out by the user (2026-11-12) and validated later
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the change adds one script and documentation, nothing made unused
 - [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass (2026-11-12; the build with a scratch database, one Turbopack warning about dynamic file access)
