@@ -40,7 +40,7 @@ Over budget with and without this change (TECH-019). No test and no page load we
 ## Definition of Done
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass (one test was fixed and re-run alone)
-- [ ] Test suite: over budget before this change (TECH-019); nothing added here
+- [x] Test suite: over budget before this change (TECH-019); nothing added here; accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed 2026-11-11
 - [x] Accessibility: axe passes locally; the live checklist and the screen reader reading of the dash were checked by the user (no per-item record)
 - [x] Requirements in the card match what was built (copied below)

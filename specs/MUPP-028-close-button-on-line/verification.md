@@ -40,7 +40,7 @@ The suite was already over its budget on `main`, and this change does not move i
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: within the time budgets (over on `main` already; task added), the new checks follow the quality rules
+- [x] Test suite: within the time budgets (over on `main` already; task added), the new checks follow the quality rules; accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed (PR #99), and the smoke tests pass against production (Live tests, run 41601189668 on `main`)
 - [x] Accessibility: axe passes; the user checked it on a phone against production, and the relevant checklist items were gone through on the live site (below). Not checked by me: VoiceOver itself (the user later reported the live checklist tested by hand, screen reader items included, 2026-11-09, not recorded item by item); 320 px, text spacing (item 5), reduced motion (item 11)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built

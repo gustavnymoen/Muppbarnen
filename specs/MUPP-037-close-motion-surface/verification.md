@@ -39,7 +39,7 @@ The two new tests add about 2.5 s. The total is under the 180 s budget but 3.7 s
 
 ## Definition of Done
 
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 668ef50 passed (2026-11-04)
 - [x] Accessibility checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 
 ## Requirements as built

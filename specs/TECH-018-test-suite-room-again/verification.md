@@ -61,7 +61,7 @@ The browser tests are 10 fewer (merged, none dropped) and about 25 s (12 %) shor
 
 - [x] Tests: every check in the card's test plan is done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the budgets in `wiki/system/testing.md` in five runs of six (one 0.7 s over); no test over 5 s; the changed tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 681ea93 passed (2026-11-09)
 - [x] Accessibility: not applicable to visitors (no page changes); axe still runs on every state
 - [x] Requirements in the card match what was built (R2 widened and R1 relaxed to 180 s, with the user), no open questions left
 - [x] Manual (`wiki/manual/`) has nothing to change; `wiki/system/testing.md`, `site-password.md`, `secret-santa-entrance.md` and `wiki/log.md` updated

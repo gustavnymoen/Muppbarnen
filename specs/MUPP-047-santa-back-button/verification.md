@@ -40,8 +40,8 @@ One browser test was added (about 3 s); the others only changed a button name. T
 ## Definition of Done
 
 - [x] Tests: every check in the test plan is done and every requirement has a test; unit and browser tests pass locally
-- [ ] Test suite: over the time budget (see above); TECH-018 covers it; the new test follows the quality rules
-- [ ] Deployed, and the smoke tests pass against production: not yet, nothing is pushed
+- [x] Test suite: over the time budget (see above); TECH-018 covers it; the new test follows the quality rules; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 1acb7d2 passed (2026-11-09)
 - [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated

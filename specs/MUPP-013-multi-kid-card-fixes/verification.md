@@ -41,12 +41,12 @@ Not run before the change; the browser count before is 58 minus the three new te
 
 - [x] Tests: every check in the card's test plan is done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (the Christmas part was split off to stay under 5 s)
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 85c87e3 passed (2026-10-30)
 - [x] Accessibility: the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the "Dölj" state of `WishButton` is deleted; `.claude/launch.json` is local only and not committed
-- [ ] Clean code: `npm run lint` and `npm run typecheck` pass; `npm run build` and `npm run lint:docs` not run yet
+- [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass on the current code (2026-11-12; the build with a scratch database, one Turbopack warning about dynamic file access)
 - [x] Code review done, no must-fix findings left; see [review.md](review.md)
 - [x] Technical tasks for larger improvements noticed along the way added to the board: none
 

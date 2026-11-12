@@ -41,7 +41,7 @@ Checked locally on 2026-11-02. Not deployed yet: Live tests are not done (the us
 
 - [x] Tests: every check in the test plan is done locally; unit tests and the browser suite pass
 - [x] Test suite: within the time budgets
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bd93f00 passed (2026-11-02)
 - [x] Accessibility: axe passes locally; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built; `solution.md` describes how
 - [x] Manual unchanged (behaviour as described), system docs and `wiki/log.md` updated
