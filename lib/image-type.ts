@@ -1,7 +1,7 @@
 // Vilken sorts bild en fil är, avgjort av filens innehåll (de första byten) och inte av
 // namnet eller den typ webbläsaren uppger. Ren kod, så att den går att enhetstesta.
 export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
-export const IMAGE_EXTENSIONS = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
+const IMAGE_EXTENSIONS = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
 export type ImageType = keyof typeof IMAGE_EXTENSIONS;
 
 const startsWith = (bytes: Uint8Array, signature: number[], offset = 0) => signature.every((b, i) => bytes[offset + i] === b);

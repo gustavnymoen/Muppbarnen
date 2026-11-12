@@ -4,7 +4,7 @@
 // Hur länge bekräftelsen efter en ny önskning står kvar (R6)
 export const CONFIRMATION_MS = 3000;
 // Längsta titel som får plats på bekräftelsens rad (R6)
-export const CONFIRMATION_TITLE = 25;
+const CONFIRMATION_TITLE = 25;
 
 // Titeln till bekräftelsen: hela om den är högst `max` tecken, annars de första max − 1 (utan avslutande blanksteg) och "…"
 export function shortTitle(title: string, max = CONFIRMATION_TITLE) {
@@ -28,7 +28,7 @@ export const FIELDS = "input:not([type=hidden]), textarea, [aria-haspopup=listbo
 
 // Det Enter i ett fält ska göra (R5). Fälten är formulärets fält i ordning; en lista, en kryssruta och en fil är inget Enter flyttar till eller skickar från.
 export type FieldKind = "text" | "textarea" | "list" | "checkbox" | "file";
-export type EnterAction = { do: "default" } | { do: "focus"; index: number } | { do: "submit" };
+type EnterAction = { do: "default" } | { do: "focus"; index: number } | { do: "submit" };
 
 const DEFAULT: EnterAction = { do: "default" };
 

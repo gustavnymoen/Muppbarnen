@@ -64,7 +64,7 @@ export const DAYS_AFTER = 30;
 
 // Tillfället som ett datum hör till (MUPP-031): det som var för 1–30 dagar sedan, annars nästa (dagen själv räknas).
 // Inget tillfälle före firstYear räknas: ett barns första tillfälle är födseln.
-export function occasionOn(month: number, day: number, date: Today, firstYear = 0) {
+function occasionOn(month: number, day: number, date: Today, firstYear = 0) {
   const thisYear = occurrenceIn(date.year, month, day, date);
   const last = thisYear.days <= 0 ? thisYear : occurrenceIn(date.year - 1, month, day, date);
   const occasion = last.days < 0 && last.days >= -DAYS_AFTER ? last : nextOccurrence(month, day, date);

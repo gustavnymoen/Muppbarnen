@@ -144,7 +144,7 @@ export const deactivateEvent = (actor: Parent | null, rawId: unknown) => changeS
 
 // ---- Dragningen (MUPP-041)
 
-export type DrawStart = StatusChange & { setAside: SetAside[] };
+type DrawStart = StatusChange & { setAside: SetAside[] };
 const NEEDS_TWO = { ok: false, error: "Dragningen går inte att göra: det behövs minst två deltagare." } as const;
 const thisYear = () => new Date().getFullYear();
 

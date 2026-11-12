@@ -4,7 +4,7 @@
 
 export type Drawable = { id: number; partnerId: number | null };
 export type SetAside = "lastYear" | "partner";
-export type DrawResult = { ok: true; pairs: Map<number, number>; setAside: SetAside[] } | { ok: false };
+type DrawResult = { ok: true; pairs: Map<number, number>; setAside: SetAside[] } | { ok: false };
 
 // Slumptal ur plattformens säkra generator (0 ≤ n < max); modulo-snedheten är försumbar för max under 100
 const secureInt = (max: number) => crypto.getRandomValues(new Uint32Array(1))[0] % max;

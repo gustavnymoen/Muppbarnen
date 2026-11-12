@@ -1,0 +1,9 @@
+%% TECH-022 Ponytail audit of the code
+%% From audit to fixes: every finding gets a decision before anything is changed.
+flowchart TD
+    A[Run /ponytail-audit, read-only] --> B[audit.md: ranked findings, R1]
+    B --> C{Decision per finding, R2}
+    C -- fix here --> D[Small step, existing tests green, R3]
+    C -- own card --> E[Card on the board, linked from audit.md]
+    C -- leave --> F[Reason written in audit.md]
+    D --> G[Update wiki and log, R4]

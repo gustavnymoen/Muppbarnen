@@ -43,7 +43,7 @@ The same module holds the questions of the status dialogs (`STATUS_CONFIRMATIONS
 | Situation | What happens |
 |---|---|
 | `RESEND_API_KEY` is set | One POST to Resend's API from `Tomten <tomten@kusinportalen.com>`. An error or no answer gives `{ ok: false }`; nothing is logged. |
-| No key, `TURSO_DATABASE_URL` is a `file:` URL (development, the test server) | Nothing leaves the machine; the mail is appended to `mail-outbox.jsonl` in the local data folder (`lib/mail-sink.ts`). Tests read it with `readOutbox()` and empty it with `clearOutbox()`. |
+| No key, `TURSO_DATABASE_URL` is a `file:` URL (development, the test server) | Nothing leaves the machine; the mail is appended to `mail-outbox.jsonl` in the local data folder (`lib/mail-sink.ts`). Tests read it with `readOutbox()` and empty it with `clearOutbox()` (`tests/mail-outbox.ts`, not in `lib/`: a read from a path known only at run time makes the build trace the whole project into the functions that send mail, [TECH-022](../../specs/TECH-022-ponytail-audit-2/solution.md)). |
 | No key on a deployed site | `{ ok: false }`, nothing sent. |
 
 The test server blanks `RESEND_API_KEY` (`scripts/test-server.mjs`), even if `.env.local` has one, so a browser test never sends a real mail and its mails land in the outbox.
