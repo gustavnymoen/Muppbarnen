@@ -3,6 +3,7 @@
 ## 2026-11-12
 
 * **Creation** [MUPP-066 Chat scroll with the keyboard up](../specs/MUPP-066-chat-scroll/solution.md): with the phone keyboard up, a drag in the chat lowers the keyboard and a drag elsewhere in the card no longer scrolls the page behind or makes the card jump.
+* **Creation** [TECH-019 Test suite budget](../specs/TECH-019-test-suite-budget/solution.md): the browser tests' budget follows the suite (330 s in total, 8 s per test), CI fails when a limit is passed (`scripts/check-test-time.mjs`), and axe leaves out the aria-hidden toast, which it caught half see-through.
 * **Creation** [MUPP-065 Chat field above the keyboard](../specs/MUPP-065-chat-keyboard/solution.md): while the phone keyboard is up the chat card fits the visible part of the screen, so the message field and Skicka are not hidden behind it.
 * **Update** [MUPP-050](../specs/MUPP-050-santa-help/verification.md): Live tests passed after the merge and the live accessibility checklist was checked by the user.
 * **Creation** [MUPP-050 Secret Santa help dialog](../specs/MUPP-050-santa-help/solution.md): the dialog and the menu item are renamed "Så funkar det" and get two underlined tabs, Barnens listor and Secret Santa (Deltagare and Admin), the same size on every tab; the menu opens it on the Secret Santa side on Secret Santa pages.

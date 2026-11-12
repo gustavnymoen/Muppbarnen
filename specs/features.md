@@ -86,6 +86,7 @@ tags: [product, features]
 | [TECH-017](TECH-017-sending-email/solution.md) | Sending email | Shared | Review |
 | [TECH-020](TECH-020-mail-go-live/solution.md) | Go live with mail | Shared | Ongoing |
 | [TECH-018](TECH-018-test-suite-room-again/solution.md) | Test suite at its time budget again | Shared | Review |
+| [TECH-019](TECH-019-test-suite-budget/solution.md) | Test suite budget | Shared | Ongoing |
 | [MUPP-060](MUPP-060-santa-change-participants/solution.md) | Change participants in a started group | Administration | Review |
 | [TECH-021](TECH-021-mail-deliverability/solution.md) | Mail deliverability | Shared | Review |
 | [MUPP-062](MUPP-062-wish-rows/solution.md) | Wish rows on the Secret Santa match page | Shared | Review |

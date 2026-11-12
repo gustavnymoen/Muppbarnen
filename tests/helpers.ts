@@ -190,6 +190,11 @@ export async function expectNoA11yViolations(page: Page) {
     // Something faded on purpose and hidden from screen readers (decoration,
     // WCAG 1.4.3 exception) can be left out here, with a comment saying why:
     // .exclude('[aria-hidden="true"].decoration')
+    // The toast after a save is aria-hidden and moves on timers of its own (it slides in when the
+    // save is answered and fades out two seconds later), so a wait for the animations that exist
+    // now can miss it and axe reads it half see-through (TECH-019-R4). Its contrast is checked
+    // when it has settled, in design.spec.ts (MUPP-054-R1 R3).
+    .exclude("[data-toast]")
     .analyze();
   // Rule, description and elements, so that a failure can be understood from the report
   const violations = results.violations.map((v) => ({

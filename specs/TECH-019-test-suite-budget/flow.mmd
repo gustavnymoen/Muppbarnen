@@ -1,0 +1,10 @@
+%% TECH-019 Test suite budget
+%% How the time limits are kept: the report of the browser tests is checked in CI.
+flowchart TD
+    A[Pull request] --> B[CI runs npm run test:local with the JSON report]
+    B --> C{Tests pass?}
+    C -- no --> F[Job fails: test report saved]
+    C -- yes --> D[check-test-time.mjs reads the report]
+    D --> E{Total and every test within the limits?}
+    E -- yes --> G[Job passes]
+    E -- no --> H[Job fails: names the limit and the slowest tests - TECH-019-R3]
