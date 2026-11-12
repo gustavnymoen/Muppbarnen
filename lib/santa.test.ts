@@ -1,5 +1,6 @@
 import { afterAll, beforeEach, describe, expect, test } from "vitest";
 import { unitTestDbFile } from "./local-db.mjs";
+import { swedishToday } from "./deck";
 
 // lib/db.ts väljer databasen när den läses in: enhetstesternas egen, aldrig den riktiga
 process.env.TURSO_DATABASE_URL = `file:${unitTestDbFile}`;
@@ -372,7 +373,7 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
 const addDraw = (eventId: number, year: number, giver: number, receiver: number) =>
   run("INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", [eventId, year, giver, receiver]);
 const drawRows = (eventId: number) => all<{ year: number; giver_id: number; receiver_id: number }>("SELECT year, giver_id, receiver_id FROM ss_draw WHERE event_id = ? ORDER BY giver_id", [eventId]);
-const thisYear = new Date().getFullYear();
+const thisYear = swedishToday().year;
 
 async function preparing(owner: Parent, names: string[], eventName = "Emmas jul") {
   const id = await event(owner, eventName);
@@ -441,6 +442,20 @@ describe("MUPP-041-R2 R3 R4 start the draw", () => {
     expect((await drawRows(id)).filter((r) => r.year === thisYear).map((r) => [r.giver_id, r.receiver_id])).toEqual([[ids[0], ids[2]], [ids[1], ids[0]], [ids[2], ids[1]]]);
     // Förra årets rader finns kvar som historik
     expect((await drawRows(id)).filter((r) => r.year === thisYear - 1)).toHaveLength(3);
+  });
+
+  test("MUPP-067-R1 the year of a draw is the Swedish year: just after midnight on New Year's Day the rows get the new year and last year's rows still count as last year's", async () => {
+    const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
+    // 23:30 UTC den 31 december är redan 00:30 den 1 januari i Sverige
+    const newYear = swedishToday(new Date(Date.UTC(thisYear, 11, 31, 23, 30)));
+    expect(newYear.year).toBe(thisYear + 1);
+    await addDraw(id, thisYear, ids[0], ids[1]);
+    await addDraw(id, thisYear, ids[1], ids[2]);
+    await addDraw(id, thisYear, ids[2], ids[0]);
+    expect(await santa.startDraw(emma, String(id), newYear)).toMatchObject({ ok: true, setAside: [] });
+    const rows = await drawRows(id);
+    expect(rows.filter((r) => r.year === thisYear + 1).map((r) => [r.giver_id, r.receiver_id])).toEqual([[ids[0], ids[2]], [ids[1], ids[0]], [ids[2], ids[1]]]);
+    expect(rows.filter((r) => r.year === thisYear)).toHaveLength(3);
   });
 });
 

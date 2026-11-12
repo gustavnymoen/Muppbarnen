@@ -1,0 +1,8 @@
+%% MUPP-067 Secret Santa draw year in Swedish time
+%% How startDraw gets the year it files the draw under (R1).
+flowchart TD
+    A[Administrator starts the draw] --> B[today = swedishToday, Europe/Stockholm]
+    B --> C[year = today.year, read once]
+    C --> D[History: latest draw before year]
+    D --> E[Delete left-over rows of year]
+    E --> F[Insert the new rows under year]
