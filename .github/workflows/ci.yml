@@ -52,7 +52,7 @@ jobs:
 
       # Felar när webbläsartesterna går över sina tidsgränser (TECH-019). Gränserna är högre än
       # budgeten i wiki/system/testing.md, eftersom CI:s dator är långsammare än utvecklarens; provisoriska tills första CI-körningen med rapporten har mätts.
-      - run: node scripts/check-test-time.mjs test-results/report.json --total-ms 530000 --test-ms 12000
+      - run: node scripts/check-test-time.mjs test-results/report.json --total-ms 455000 --test-ms 9300
 
       - name: Spara testrapporten
         if: failure()
