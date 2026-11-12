@@ -10,7 +10,7 @@ feature: MUPP-026
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | MUPP-026-R1 | Test `MUPP-026-R1 …` in `tests/MUPP-026-menu-after-refresh.spec.ts` (menu inside the viewport after a reload with a leftover scroll, axe). It also passes without the fix in desktop Chrome, so it only guards against regression | local | Pass | 2026-11-02 |
-| MUPP-026-R1 | Manual on an iPhone 17 in Chrome (the cause may exist only in the real browser bar) | live | Not checked | 2026-11-02 |
+| MUPP-026-R1 | Manual on an iPhone 17 in Chrome (the cause may exist only in the real browser bar) | live | Pass (by the user, not recorded per check) | 2026-11-12 |
 | MUPP-026-R2 | Test `MUPP-026-R2 …` (no document scroll, `overscroll-behavior: none`, content scrolls to its end); fails without the fix | local | Pass | 2026-11-02 |
 
 ## The test plan
@@ -35,7 +35,7 @@ feature: MUPP-026
 
 ## Definition of Done
 
-- [ ] Tests: manual iPhone check not done; Live tests not yet run
+- [x] Tests: manual iPhone check: the user tested on a phone at each merge and reports it fine (2026-11-12); not recorded per check; Live tests passed on the merge commit
 - [ ] Test suite: time comparison not measured (see above)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bb86c82 passed (2026-11-02)
 - [x] Accessibility: axe on the menu at phone width

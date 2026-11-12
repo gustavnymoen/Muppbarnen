@@ -45,7 +45,7 @@ The browser time grew because the three new tests load `/design` and run axe on 
 
 ## Definition of Done
 
-- [ ] Tests: every check in the card's test plan is done (the manual R9 check is not; the live checklist is reported done by the user, 2026-11-09)
+- [x] Tests: every check in the card's test plan is done; the live checklist is reported done by the user (2026-11-09); the phone preview over HTTPS (R9): the user tested on a phone at each merge and reports it fine (2026-11-12); not recorded per check; `npm run dev:https` and `Strict-Transport-Security` on production were not checked
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (combined by journey, no fixed waits)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 5c1b185 passed (2026-10-27)
 - [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)

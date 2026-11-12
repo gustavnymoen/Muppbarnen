@@ -40,7 +40,7 @@ The findings of step 3 (the card): **twins** have a bigger picture (72 px on a l
 
 ## Definition of Done
 
-- [ ] Tests: the plan's checks are done locally; the live checks are not yet
+- [x] Tests: the plan's checks are done locally; the live checks: the user tested on a phone at each merge and reports it fine (2026-11-12); not recorded per check
 - [x] Test suite: within the budgets, total time +7 %, the two new tests follow the quality rules
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit e832192 passed (2026-10-29)
 - [x] Accessibility: axe locally passes; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
