@@ -12,9 +12,6 @@ import { loadChat, sendChat } from "../chat-actions";
 // så att det inte bara är färgen som säger det (R5); pricken går när samtalet är öppnat. Mottagarens sida kallas alltid "Din Secret Santa" (R3).
 // Hur ofta ett öppet samtal frågar efter nya meddelanden
 const POLL_MS = 10_000;
-// Så mycket kortare än sidan måste den synliga delen vara för att räknas som tangentbord (adressfältet som fälls in är mindre), och avståndet till kanten med tangentbordet uppe
-const KEYBOARD_MIN_PX = 100;
-const CARD_GAP_PX = 8;
 
 const TEXTS: Record<ChatSide, { title: string; label: string; empty: string }> = {
   receiver: { title: "Din Secret Santa", label: "Chatt med din Secret Santa", empty: "Inga meddelanden ännu. Skriv det du vill, din Secret Santa får inte veta vem du är." },
@@ -39,13 +36,14 @@ export function ChatButton({ side, unread, initial }: { side: ChatSide; unread: 
           Chatt
         </Button>
       </div>
-      <Dialog ref={card} form centered title={texts.title} className="open:flex h-[75dvh] flex-col">
+      <Dialog ref={card} form centered noAutofocus title={texts.title} className="open:flex h-[75dvh] flex-col">
         <Chat side={side} empty={texts.empty} initial={initial} unread={unread} />
       </Dialog>
     </>
   );
 }
 
+// Tangentbordet öppnas inte av sig självt när kortet öppnas (noAutofocus, MUPP-068) och kortet ändrar inte sin storlek med skript: iOS flyttar fältet i sikte när man trycker i det
 // Innehållet finns bara medan kortet är öppet, så samtalet läses (och märks som läst) varje gång det öppnas
 function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string; initial: ChatMessage[]; unread: boolean }) {
   const router = useRouter();
@@ -79,43 +77,12 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
     return () => window.clearInterval(timer);
   }, [side]);
 
-  // Tangentbordet på en iPhone täcker sidan i stället för att krympa den (bara den synliga delen, visualViewport, blir mindre), och dvh följer inte den.
-  // Medan det är uppe läggs kortet därför inom den synliga delen, så att fältet och Skicka syns; när det stängs tas måtten bort (MUPP-065)
+  // Nyaste meddelandet längst ner syns alltid. En gång direkt och en gång när kortet ritats färdigt: iOS Safari räknar listans höjd först då, och utan det stannar listan lite ovanför slutet (MUPP-068)
   useEffect(() => {
-    const view = window.visualViewport;
-    const card = list.current?.closest("dialog");
-    if (!view || !card) return;
-    // Ett nyp-zoomat läge gör den synliga delen kortare utan att något tangentbord är uppe: scale räknar bort det
-    const keyboardUp = () => window.innerHeight - view.height * view.scale > KEYBOARD_MIN_PX;
-    const fit = () => {
-      const keyboard = keyboardUp();
-      card.style.top = keyboard ? `${view.offsetTop + CARD_GAP_PX}px` : "";
-      card.style.bottom = keyboard ? "auto" : "";
-      card.style.marginBlock = keyboard ? "0" : "";
-      card.style.height = keyboard ? `${Math.min(view.height - 2 * CARD_GAP_PX, window.innerHeight * 0.75)}px` : "";
-    };
-    // Som i iMessage: ett drag i listan sänker tangentbordet (så att hela samtalet syns); ett drag utanför listan och fältet flyttar ingenting, så att sidan bakom
-    // inte rullar och kortet inte hoppar (MUPP-066). Utan tangentbord rullar allt som förut.
-    const onTouchMove = (event: TouchEvent) => {
-      if (!keyboardUp() || event.target === field.current) return;
-      if (list.current?.contains(event.target as Node)) field.current?.blur();
-      else event.preventDefault();
-    };
-    fit();
-    card.addEventListener("touchmove", onTouchMove, { passive: false });
-    view.addEventListener("resize", fit);
-    view.addEventListener("scroll", fit);
-    return () => {
-      card.removeEventListener("touchmove", onTouchMove);
-      view.removeEventListener("resize", fit);
-      view.removeEventListener("scroll", fit);
-      for (const property of ["top", "bottom", "margin-block", "height"]) card.style.removeProperty(property);
-    };
-  }, []);
-
-  // Nyaste meddelandet längst ner syns alltid
-  useEffect(() => {
-    list.current?.scrollTo({ top: list.current.scrollHeight });
+    const toEnd = () => list.current?.scrollTo({ top: list.current.scrollHeight });
+    toEnd();
+    const frame = requestAnimationFrame(toEnd);
+    return () => cancelAnimationFrame(frame);
   }, [messages]);
 
   const send = (event: FormEvent<HTMLFormElement>) => {

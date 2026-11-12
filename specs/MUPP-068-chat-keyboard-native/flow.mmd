@@ -1,0 +1,7 @@
+%% MUPP-068 Chat keyboard handled by iOS
+%% What happens when the chat card opens and when the field is tapped.
+flowchart TD
+    A[Chat button pressed] --> B[Card opens, 75dvh, centred, no focus in the field, R1 R2]
+    B --> C[List scrolled to its end now and after the next frame, R3]
+    C --> D[User taps the field]
+    D --> E[iOS opens the keyboard and brings the field into view itself, no script resizes the card, R2]

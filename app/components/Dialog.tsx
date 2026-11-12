@@ -42,13 +42,15 @@ type Props = Omit<ComponentProps<"dialog">, "title" | "ref" | "onClose"> & {
   form?: boolean;
   // Ett formulärkort som ligger mitt på skärmen i stället för överst (chatten)
   centered?: boolean;
+  // Sätter inte fokus i första fältet när kortet öppnas, så att tangentbordet på en telefon inte öppnas av sig självt (chatten, MUPP-068)
+  noAutofocus?: boolean;
   backdropClose?: boolean;
   // Öppnas av sig själv första gången (utan knapp att växa ur)
   defaultOpen?: boolean;
   onClose?: () => void;
 };
 
-export function Dialog({ ref, title, form, centered, backdropClose, defaultOpen, onClose, className = "", children, ...props }: Props) {
+export function Dialog({ ref, title, form, centered, noAutofocus, backdropClose, defaultOpen, onClose, className = "", children, ...props }: Props) {
   const id = useId();
   const el = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
@@ -75,8 +77,8 @@ export function Dialog({ ref, title, form, centered, backdropClose, defaultOpen,
     const from = opener.current;
     if (from?.isConnected) growScale(card, originOf(from));
     else growFade(card);
-    if (form) focusFirst(card);
-  }, [shown, form]);
+    if (form && !noAutofocus) focusFirst(card);
+  }, [shown, form, noAutofocus]);
 
   const close = (announce?: string) => {
     const card = el.current;
