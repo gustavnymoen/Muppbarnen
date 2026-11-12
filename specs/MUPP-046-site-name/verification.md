@@ -39,7 +39,7 @@ The browser suite grew by 12.2 s (4 %) for 4 tests (one new file with three test
 ## Definition of Done
 
 - [x] Tests: every check in the plan is done locally; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: within the time budgets, total time grown by at most 25 % (grown 4 %; the budget was already exceeded before, TECH-019)
+- [x] Test suite: within the time budgets, total time grown by at most 25 % (grown 4 %; the budget was already exceeded before, TECH-019); accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 42647279016 on 812d831, success, 2026-11-09
 - [x] Accessibility: axe passes locally; the user went through the live site by hand, including the screen reader items, and reports it as tested (2026-11-09, said by the user; not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built

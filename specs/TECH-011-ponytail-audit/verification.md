@@ -42,16 +42,16 @@ The "before" numbers are from [MUPP-015](../MUPP-015-back-button/verification.md
 
 ## Definition of Done
 
-- [ ] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change)
-- [ ] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
-- [ ] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
-- [ ] No leftovers: everything the change made unused is deleted, no commented-out code or debug output
-- [ ] Clean code: reuses existing components and helpers; `npm run lint`, `npm run typecheck` and `npm run build` pass
-- [ ] Code review done, no must-fix findings left; see [review.md](review.md)
-- [ ] Technical tasks for larger improvements noticed along the way added to the board
+- [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass (R3: all pass, 2026-11-01)
+- [x] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit aed6bf8 passed (2026-11-01)
+- [x] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change); marked done by the user (2026-11-12), who tested it (findings 6 and 7 accepted); not gone through again by Claude
+- [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built; marked done by the user (2026-11-12), who tested it (findings 6 and 7 accepted); not gone through again by Claude
+- [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated; marked done by the user (2026-11-12), who tested it (findings 6 and 7 accepted); not gone through again by Claude
+- [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output; marked done by the user (2026-11-12), who tested it (findings 6 and 7 accepted); not gone through again by Claude
+- [x] Clean code: reuses existing components and helpers; `npm run lint`, `npm run typecheck` and `npm run build` pass (R3 on 2026-11-01; lint, typecheck and build also pass on the current code, 2026-11-12)
+- [x] Code review done, no must-fix findings left: the review passed, see review.md (checked 2026-11-12)
+- [x] Technical tasks for larger improvements noticed along the way added to the board (the one finding for its own card is TECH-012)
 
 ## Requirements as built
 

@@ -39,7 +39,7 @@ How each requirement was checked. All checks are local so far; the live checks a
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (10 %), and the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 433e410 passed (2026-10-29)
 - [x] Accessibility: changed pages and states pass `expectNoA11yViolations`; the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

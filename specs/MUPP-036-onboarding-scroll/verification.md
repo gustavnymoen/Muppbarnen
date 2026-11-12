@@ -29,7 +29,7 @@ No tests added or removed (two extended); `npm run test:time`: 100 browser tests
 ## Definition of Done
 
 - [x] Tests extended and passing; no leftovers; lint, typecheck pass
-- [ ] Checked on the live site and on a phone
+- [x] Checked on the live site and on a phone: the user tested on a phone at each merge and reports it fine (2026-11-12); not recorded per check
 - [x] Requirements as built below; manual, system docs and log updated
 
 ## Requirements as built

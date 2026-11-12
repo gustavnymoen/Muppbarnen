@@ -44,7 +44,7 @@ The browser time grew by about 20 %. The block test sends six wrong passwords at
 
 - [x] Tests: every check in the card's test plan is done (the live-site checks follow the deploy); every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, growth under 25 %, the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 39377b9 passed (2026-10-28)
 - [x] Accessibility: axe passes on the changed state; no visitor-facing change beyond the message
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

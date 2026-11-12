@@ -41,7 +41,7 @@ The suite is over its budget with and without this change; that is TECH-019. The
 ## Definition of Done
 
 - [x] Tests: every check in the test plan is done and every requirement has a check; unit and browser tests pass locally
-- [ ] Test suite: over budget (287.9 s against 180 s), as before this change (TECH-019); this change added no test
+- [x] Test suite: over budget (287.9 s against 180 s), as before this change (TECH-019); this change added no test; accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed, and the smoke tests pass against production (Live tests on `main`, 2026-11-10)
 - [x] Accessibility: axe passes; the live checklist recorded as done by the user
 - [x] Requirements in the card match what was built, no open questions; copied below; `solution.md` describes how it was built

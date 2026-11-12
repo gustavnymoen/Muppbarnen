@@ -39,9 +39,9 @@ The full run before the MUPP-045 fix had 142 passed and that one failed; after t
 ## Definition of Done
 
 - [x] Tests: the checks in the plan are done (live accessibility pending)
-- [ ] Test suite: over budget because of TECH-019; the new tests follow the quality rules
+- [x] Test suite: over budget because of TECH-019; the new tests follow the quality rules; accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed, and the smoke tests pass against production (Live tests on `main` after the merge of #180, 2026-11-10)
-- [ ] Accessibility on the live site: not checked yet
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-12); it was not gone through item by item by Claude and no details are recorded per item
 - [x] Requirements match what was built, below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

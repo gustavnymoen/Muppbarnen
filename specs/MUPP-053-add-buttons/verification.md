@@ -40,8 +40,8 @@ The browser suite was already over its 180 s budget on `main` (TECH-019 is about
 ## Definition of Done
 
 - [x] Tests: every check in the test plan is done; every requirement is tested or has a recorded check; unit and local tests pass
-- [ ] Test suite: over budget before and after (TECH-019); growth 6 %; the new tests follow the rules, one is 0.2 s over 5 s
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Test suite: over budget before and after (TECH-019); growth 6 %; the new tests follow the rules, one is 0.2 s over 5 s; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit e384c23 passed (2026-11-09)
 - [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built (R2 records the placement), copied below
 - [x] Manual, system docs and `wiki/log.md` updated

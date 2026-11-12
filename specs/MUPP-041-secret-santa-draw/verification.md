@@ -59,9 +59,9 @@ The suite is over its budget with and without this change (TECH-019). One design
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` passes and `npm run test:local` passes (one flaky unrelated test, see above)
-- [ ] Test suite: over budget as before (TECH-019); the new tests follow the quality rules (combined by journey, no per-value tests)
+- [x] Test suite: over budget as before (TECH-019); the new tests follow the quality rules (combined by journey, no per-value tests); accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed after the merge, 2026-11-10
-- [ ] Accessibility: axe passes; the live checklist is done for the points in "Live accessibility check"; VoiceOver, text spacing and reduced motion are not checked
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-12); it was not gone through item by item by Claude and no details are recorded per item
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers

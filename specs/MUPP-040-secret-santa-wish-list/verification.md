@@ -42,8 +42,8 @@ Five unit tests and six browser tests were added; growth 4 % (under the 25 % lim
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass (browser suite as noted above)
-- [ ] Test suite: browser total 200.2 s, over the 180 s budget, growth 4 %; TECH-018 is open
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is pushed
+- [x] Test suite: browser total 200.2 s, over the 180 s budget, growth 4 %; TECH-018 is open; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bcc1b8a passed (2026-11-08)
 - [x] Accessibility (axe passes; the manual checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item))
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

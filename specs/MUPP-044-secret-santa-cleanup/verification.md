@@ -39,8 +39,8 @@ The suite is over its budget with and without this change (TECH-019). The change
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: over the budget already before this change (TECH-019); the new tests are fast and follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not checked, nothing is deployed yet. `CRON_SECRET` must be set in Vercel for Production before the first 24 January
+- [x] Test suite: over the budget already before this change (TECH-019); the new tests are fast and follow the quality rules; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 0124eff passed (2026-11-10)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

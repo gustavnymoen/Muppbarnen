@@ -37,12 +37,12 @@ The browser run was over its budget with seven tests over 5 s, none of them touc
 ## Definition of Done
 
 - [x] Tests: unit and local tests pass; Outlook and Gmail are checked (Outlook SCL did not fall, it stays 5; the domain's missing reputation is the likely cause); the tracking setting in the Resend dashboard is not checked (the message source of a real mail shows no tracking)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 8c802c5 passed (2026-11-10)
 - [x] Accessibility: not applicable
 - [x] Requirements in the card match what was built, no open questions
 - [x] Manual (not needed, no visible change), system docs (`wiki/system/mail.md`) and `wiki/log.md` updated
 - [x] No leftovers; `npm run lint`, `lint:docs`, `typecheck` and `build` pass
-- [ ] Code review done: see [review.md](review.md)
+- [x] Code review done, no must-fix findings left: the review passed, see review.md (checked 2026-11-12)
 
 ## Requirements as built
 

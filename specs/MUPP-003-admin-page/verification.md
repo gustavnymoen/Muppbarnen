@@ -48,7 +48,7 @@ The browser time grew about 3.3 times, more than the 25 % rule, and is still ins
 
 - [x] Tests: every check in the card's test plan is done (the real Blob upload on the preview by hand, recorded above); every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets; total time grew more than 25 %, with the cause explained above; the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 26eb26d passed (2026-10-28)
 - [x] Accessibility: changed pages and states pass `expectNoA11yViolations`; the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/admin.md`), system docs (`wiki/system/admin.md` and others) and `wiki/log.md` updated
