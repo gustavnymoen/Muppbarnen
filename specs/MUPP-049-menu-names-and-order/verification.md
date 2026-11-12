@@ -38,8 +38,8 @@ The run was made while other test runs and builds were using the machine (a seco
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: over budget in a noisy local run (see above); CI to confirm
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Test suite: over budget in a noisy local run (see above); CI to confirm; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 7006781 passed (2026-11-09)
 - [x] Accessibility: axe passes locally; the live-site checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

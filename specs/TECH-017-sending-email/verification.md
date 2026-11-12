@@ -40,8 +40,8 @@ The seven new tests are unit tests and add no measurable time.
 ## Definition of Done
 
 - [x] Tests: every requirement is tested; `npm run test:unit` (241) and `npm run test:local` (130) pass
-- [ ] Test suite: the browser suite is over its budget since before this change (TECH-019); this change adds no browser test
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Test suite: the browser suite is over its budget since before this change (TECH-019); this change adds no browser test; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit ad32262 passed (2026-11-09)
 - [x] Accessibility: not applicable (visitors see no change)
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual: not applicable (no visitor sees anything); system docs (`wiki/system/mail.md`) and `wiki/log.md` updated

@@ -40,7 +40,7 @@ Looked at: the copy paused in the middle of the close in Chromium on 375 px (a w
 
 - [x] Tests: all checks of the test plan done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (161.9 s of 180 s; close to the limit, the six new tests add about 9 s)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 5c35a28 passed (2026-11-02)
 - [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements match what was built (below); `solution.md` describes how
 - [x] Manual, system docs and `wiki/log.md` updated (no manual change: the visitor sees no new function)

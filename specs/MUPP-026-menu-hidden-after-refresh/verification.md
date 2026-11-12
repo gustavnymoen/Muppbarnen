@@ -37,7 +37,7 @@ feature: MUPP-026
 
 - [ ] Tests: manual iPhone check not done; Live tests not yet run
 - [ ] Test suite: time comparison not measured (see above)
-- [ ] Deployed, and the smoke tests pass against production
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bb86c82 passed (2026-11-02)
 - [x] Accessibility: axe on the menu at phone width
 - [x] Requirements match what was built, copied below
 - [x] Manual, system docs and `wiki/log.md` updated

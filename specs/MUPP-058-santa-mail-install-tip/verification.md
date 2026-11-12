@@ -42,7 +42,7 @@ The two runs of the same code differ by a factor of four, so the time is the loa
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: no browser test added, unit tests 0.4 s; the browser suite's budget overrun is TECH-019's, not caused here
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 0f8b1ad passed (2026-11-10)
 - [x] Accessibility: no page changes (not applicable); the list is a real list
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

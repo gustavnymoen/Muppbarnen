@@ -43,8 +43,8 @@ The "before" numbers are from [MUPP-015](../MUPP-015-back-button/verification.md
 ## Definition of Done
 
 - [ ] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`; accepted by the user (2026-11-12): the suite grew fast while the site was built
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit aed6bf8 passed (2026-11-01)
 - [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [ ] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

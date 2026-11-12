@@ -41,7 +41,7 @@ The dialog shares the sign-in of the other tests: `global-setup.ts` presses OK o
 
 - [x] Tests: every requirement is tested; `test:unit` and `test:local` pass
 - [x] Test suite within the budgets (167.8 s of 170 s goal)
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 1892f05 passed (2026-11-04)
 - [x] Accessibility checklist on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built; copied below
 - [x] Manual, system docs and `wiki/log.md` updated

@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-12
+
+* **Update** all specs: the Definition of Done lines that are now true are ticked: Live tests passed on each merge commit (36 specs), the live accessibility line marked done by the user (MUPP-041, 042, 051, 055, 056), and the test suite time budget accepted by the user (20 specs). Lines for things not checked stay open.
+
 ## 2026-11-11
 
 * **Creation** [TECH-020 Go live with mail](../specs/TECH-020-mail-go-live/solution.md): the real sending is on (domain verified in Resend, DMARC record added); a script sends one test mail to an address given by hand, and the mail page describes the domain, the key and how to read the headers.

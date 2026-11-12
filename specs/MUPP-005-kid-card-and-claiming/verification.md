@@ -44,7 +44,7 @@ Time grew by about 15 %, within the 25 % limit; the browser suite is within the 
 
 - [x] Tests: every check in the card's test plan is done; `npm run test:unit` and the browser tests pass
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (combined by journey, no fixed waits, data cleaned up)
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 52566f6 passed (2026-10-30)
 - [x] Accessibility: the relevant items of `wiki/system/accessibility.md` on the live site: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

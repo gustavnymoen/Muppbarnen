@@ -39,7 +39,7 @@ Not measured: the change adds a script and documentation, no test.
 
 - [ ] Tests: every check in the card's test plan is done (the manual check is partly open)
 - [ ] Test suite: not applicable (no test added)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not checked
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bb3d0fe passed (2026-11-12)
 - [ ] Accessibility: not applicable (visitors see no change)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

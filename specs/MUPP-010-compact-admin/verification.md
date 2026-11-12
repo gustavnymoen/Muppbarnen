@@ -44,7 +44,7 @@ The browser time grew about 17 %, inside the 25 % rule and the budgets. One new 
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 17 %, and the new tests follow the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not done, comes after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 90bd5b1 passed (2026-10-28)
 - [x] Accessibility: axe passes on the changed pages and states; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
