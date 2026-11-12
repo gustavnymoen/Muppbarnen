@@ -7,14 +7,14 @@ feature: MUPP-068
 
 # Verification of MUPP-068
 
-Run locally 2026-11-12. Not deployed yet. **Not checked on a real iPhone.**
+Run locally 2026-11-12; merged and deployed (PR #231) the same day. Tried on an iPhone by the user afterwards (see the manual row below).
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | MUPP-068-R1 | Browser test `MUPP-068-R1 R2 R3 …` in `tests/MUPP-068-chat-keyboard-native.spec.ts`: no focus in the field after opening, focus after a tap; other cards keep focus in their first field: `MUPP-045-R2 …` tests in `tests/MUPP-045-form-cards.spec.ts` pass unchanged | local | Pass | 2026-11-12 |
 | MUPP-068-R2 | Same test: the card is 75 % of the height, no inline `top`, `bottom`, `height` or `margin` and the same box after a visual viewport `resize`; the list has `overscroll-behavior: contain` | local | Pass | 2026-11-12 |
 | MUPP-068-R3 | Same test: with 30 messages the newest is inside the list's visible area as soon as the card has opened | local | Pass (desktop browser) | 2026-11-12 |
-| MUPP-068-R1 R2 R3 (real) | Manual on an iPhone, Safari, pinned app and Chrome: open the chat (no keyboard, newest message in view), tap the field, close the keyboard, scroll | phone | Not checked | – |
+| MUPP-068-R1 R2 R3 (real) | Manual on an iPhone by the user after the deploy: the chat "feels and looks very good" (the user's words). Which of Safari, the pinned app and Chrome were tried again, and each step (no keyboard on open, newest message in view, field when typing, closing the keyboard, scrolling), was not recorded separately | phone | Pass, as reported by the user; per-browser detail not recorded | 2026-11-12 |
 
 ## The test plan
 
@@ -22,7 +22,7 @@ Run locally 2026-11-12. Not deployed yet. **Not checked on a real iPhone.**
 |---|---|---|---|---|
 | Unit tests | Not applicable; the 375 existing pass | local | Pass | 2026-11-12 |
 | Browser tests | The new test, MUPP-043 chat tests, MUPP-045 form cards; the MUPP-065 test is removed with its code | local | Pass | 2026-11-12 |
-| Real device | Manual on an iPhone | phone | Not checked | – |
+| Real device | Manual on an iPhone, by the user | phone | Pass, as reported | 2026-11-12 |
 | Smoke test, Security | Not applicable | – | – | – |
 | Accessibility | axe on the open chat | local | Pass; live not checked | 2026-11-12 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
@@ -33,7 +33,7 @@ Run locally 2026-11-12. Not deployed yet. **Not checked on a real iPhone.**
 
 ## Definition of Done
 
-- [ ] Tests: the real-phone check is not done
+- [x] Tests: the real-phone check is done by the user (not itemised)
 - [ ] Test suite: slightly over the 330 s budget (the cause is other tests)
 - [ ] Deployed, and Live tests pass
 - [ ] Accessibility: live checklist not done

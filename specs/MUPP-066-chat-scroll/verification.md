@@ -7,7 +7,7 @@ feature: MUPP-066
 
 # Verification of MUPP-066
 
-Run locally 2026-11-12. Not deployed yet. **Not checked on a real iPhone.**
+Run locally 2026-11-12. Not deployed yet. **Not checked on a real iPhone.** On the user's iPhone this did not work (the card jumped and was squeezed); it was replaced by [MUPP-068](../MUPP-068-chat-keyboard-native/verification.md), which the user confirmed works.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
