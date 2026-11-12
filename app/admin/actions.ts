@@ -2,13 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { failed, type FormState } from "@/app/components/form-state";
-import { requireAdminSession, setAdminCookie } from "@/lib/admin-auth";
+import { openAdminAction } from "@/lib/action-open";
+import { setAdminCookie } from "@/lib/admin-auth";
 import { ADMIN_PATH } from "@/lib/admin-session";
 import * as family from "@/lib/family";
 import { parseId } from "@/lib/form-input";
 import { removePicture } from "@/lib/pictures";
-import { guardMessage, guardWrite } from "@/lib/request-guard";
-import { requireSiteSession } from "@/lib/site-auth";
 import { answer, logPictureError, text } from "./action-helpers";
 
 // Adminens serveråtgärder. Varje åtgärd gör samma tre saker först, i den här ordningen
@@ -21,9 +20,8 @@ const checked = (formData: FormData, name: string) => formData.get(name) === "on
 // ---- Vem är jag
 
 export async function chooseParent(formData: FormData) {
-  await requireSiteSession();
-  const admin = await requireAdminSession();
-  if ((await guardWrite()) !== "ok") return;
+  const { admin, refusal } = await openAdminAction();
+  if (refusal) return;
   const id = parseId(formData.get("parentId"));
   const parent = id === null ? undefined : await family.findParent(id);
   // Utgångstiden behålls: att byta förälder förlänger inte inloggningen
@@ -31,17 +29,14 @@ export async function chooseParent(formData: FormData) {
 }
 
 export async function leaveParent() {
-  await requireSiteSession();
-  const admin = await requireAdminSession();
-  if ((await guardWrite()) !== "ok") return;
+  const { admin, refusal } = await openAdminAction();
+  if (refusal) return;
   await setAdminCookie(0, admin.expires);
 }
 
 export async function createMaster(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const admin = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { admin, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.createFirstMaster(text(formData, "name"));
   if (!outcome.ok) return failed(formData, outcome);
   await setAdminCookie(outcome.id, admin.expires);
@@ -51,10 +46,8 @@ export async function createMaster(_previous: FormState, formData: FormData): Pr
 // ---- Storlekar och önskelistor
 
 export async function saveSizes(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.saveSizes(parent, text(formData, "childId"), {
     clothes: text(formData, "clothes"),
     shoes: text(formData, "shoes"),
@@ -65,10 +58,8 @@ export async function saveSizes(_previous: FormState, formData: FormData): Promi
 }
 
 export async function saveItem(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.saveItem(parent, {
     childId: text(formData, "childId"),
     occasion: text(formData, "occasion"),
@@ -83,29 +74,23 @@ export async function saveItem(_previous: FormState, formData: FormData): Promis
 }
 
 export async function removeItem(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   return answer(formData, await family.removeItem(parent, text(formData, "itemId")));
 }
 
 // Lägger en arkiverad önskning i barnets födelsedags- eller jullista igen (MUPP-031-R7); listan är knappen som trycktes
 export async function copyArchivedItem(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   return answer(formData, await family.copyArchivedItem(parent, text(formData, "itemId"), text(formData, "occasion")));
 }
 
 // ---- Föräldrar, barn och bilder (huvudadministratören)
 
 export async function saveParent(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.saveParent(parent, {
     id: text(formData, "parentId") ?? undefined,
     name: text(formData, "name"),
@@ -115,18 +100,14 @@ export async function saveParent(_previous: FormState, formData: FormData): Prom
 }
 
 export async function removeParent(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   return answer(formData, await family.removeParent(parent, text(formData, "parentId")));
 }
 
 export async function saveChild(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.saveChild(parent, {
     id: text(formData, "childId") ?? undefined,
     name: text(formData, "name"),
@@ -137,20 +118,16 @@ export async function saveChild(_previous: FormState, formData: FormData): Promi
 }
 
 export async function removeChild(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.removeChild(parent, text(formData, "childId"));
   if (outcome.ok && outcome.picture) await removePicture(outcome.picture).catch(logPictureError);
   return answer(formData, outcome);
 }
 
 export async function removeChildPicture(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const outcome = await family.clearChildPicture(parent, text(formData, "childId"));
   // Filen tas bort först när databasen är uppdaterad
   if (outcome.ok && outcome.picture) await removePicture(outcome.picture).catch(logPictureError);

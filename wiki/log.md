@@ -2,6 +2,7 @@
 
 ## 2026-11-12
 
+* **Creation** [TECH-024 Shared access checks](../specs/TECH-024-shared-auth-helpers/solution.md): the opening checks of server actions, the session cookies and the bearer-secret check of the two job routes are written once (`lib/action-open.ts`, `lib/session-cookie.ts`, `lib/job-auth.ts`); the cleanup route now needs a secret of 32+ characters and is under the write limit, like the mail route.
 * **Creation** [MUPP-067 Secret Santa draw year in Swedish time](../specs/MUPP-067-santa-draw-year/solution.md): a draw is filed under the Swedish year, not the server's, so one made just after midnight on New Year's Day gets the right year.
 * **Creation** [MUPP-069 Help dialog arrow over the tabs on iPhone](../specs/MUPP-069-help-dialog-arrow/solution.md): the text panel of "Så funkar det" is sized from its content (`flex-auto`), so iOS no longer gives it no height and draws the arrow over the tabs.
 * **Creation** [MUPP-068 Chat keyboard handled by iOS](../specs/MUPP-068-chat-keyboard-native/solution.md): the chat card no longer opens the phone keyboard by itself and no longer resizes itself with a script (the fit of MUPP-065 and MUPP-066 is removed, it made the card jump), and the newest message is in view when it opens.
