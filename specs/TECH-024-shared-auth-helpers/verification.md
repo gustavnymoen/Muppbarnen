@@ -43,7 +43,7 @@ The total is 2.9 % over the 330 s budget, as it was before this change (338.8 s 
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; unit tests pass; browser tests pass (the two MUPP-044 tests after the fix, see above)
-- [ ] Test suite: 339.5 s, over the 330 s budget by 2.9 % as before this change; the owner has accepted that for TECH-022, not yet for this one
+- [x] Test suite: 339.5 s, over the 330 s budget by 2.9 % as before this change (accepted by the owner on 2026-11-12, for TECH-022 and for this card)
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed on merge commit 3f18de4 (run 43303578562, 2026-11-12)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
