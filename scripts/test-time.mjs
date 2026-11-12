@@ -10,9 +10,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { checkTimes, SUITE_BUDGET_MS, TEST_BUDGET_MS } from "./test-time-limits.mjs";
 
-const TEST_BUDGET_MS = 5_000;
-const SUITE_BUDGET_MS = 180_000;
 const UNIT_BUDGET_MS = 30_000;
 
 const dir = mkdtempSync(join(tmpdir(), "test-time-"));
@@ -52,23 +51,7 @@ if (unitReport) {
   console.log(`Enhetstesternas tid: ${seconds(unitMs)} (budget ${seconds(UNIT_BUDGET_MS)})${mark(unitMs > UNIT_BUDGET_MS)}`);
 }
 
-// Varje test med sin titel och tid, i alla filer och describe-block
-function testsIn(suite) {
-  const own = suite.specs.flatMap((spec) =>
-    spec.tests.map((test) => ({
-      title: spec.title,
-      file: spec.file,
-      skipped: test.status === "skipped",
-      ms: test.results.reduce((sum, result) => sum + result.duration, 0),
-    })),
-  );
-  return [...own, ...(suite.suites ?? []).flatMap(testsIn)];
-}
-
-const ran = report.suites.flatMap(testsIn).filter((test) => !test.skipped);
-const totalMs = ran.reduce((sum, test) => sum + test.ms, 0);
-const slowest = [...ran].sort((a, b) => b.ms - a.ms).slice(0, 5);
-const overBudget = ran.filter((test) => test.ms > TEST_BUDGET_MS);
+const { ran, total: totalMs, slowest, slowTests: overBudget } = checkTimes(report);
 
 console.log(`\nWebbläsartester: ${ran.length} körda, ${report.stats.skipped} överhoppade`);
 console.log(`Testernas tid: ${seconds(totalMs)} (budget ${seconds(SUITE_BUDGET_MS)})${mark(totalMs > SUITE_BUDGET_MS)}`);

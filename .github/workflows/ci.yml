@@ -50,6 +50,10 @@ jobs:
         env:
           TRACE: "1"
 
+      # Felar när webbläsartesterna går över sina tidsgränser (TECH-019). Gränserna är högre än
+      # budgeten i wiki/system/testing.md, eftersom CI:s dator är långsammare än utvecklarens; provisoriska tills första CI-körningen med rapporten har mätts.
+      - run: node scripts/check-test-time.mjs test-results/report.json --total-ms 530000 --test-ms 12000
+
       - name: Spara testrapporten
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -33,8 +33,11 @@ export default defineConfig({
   testDir: "./tests",
   // WebKit-testen (npm run test:webkit) ingår inte i den vanliga sviten: WebKit installeras inte i CI
   testIgnore: process.env.WEBKIT ? undefined : "**/*.webkit.spec.ts",
-  // On GitHub, also an HTML report that is saved when tests fail
-  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
+  // On GitHub, also an HTML report that is saved when tests fail, and a JSON report that
+  // scripts/check-test-time.mjs reads to check the time limits (TECH-019)
+  reporter: process.env.CI
+    ? [["list"], ["html", { open: "never" }], ["json", { outputFile: "test-results/report.json" }]]
+    : "list",
   // A forgotten test.only must not make the pipeline skip the other tests
   forbidOnly: !!process.env.CI,
   // Loggar in med sajtlösenordet en gång; testerna återanvänder kakan (storageState)
