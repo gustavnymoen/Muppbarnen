@@ -20,7 +20,7 @@ export const testIp = () => `10.${Math.floor(nextIp / 62_500)}.${Math.floor(next
 export const newVisitor = (browser: Browser, baseURL: string | undefined, viewport?: { width: number; height: number }) =>
   browser.newContext({ baseURL, viewport, extraHTTPHeaders: { "x-real-ip": testIp() } });
 
-// En besökare som är inloggad med sajtlösenordet men inte har sett rutan "Så funkar listorna" (saknar onboarding-kakan, MUPP-035). Inloggningen
+// En besökare som är inloggad med sajtlösenordet men inte har sett rutan "Så funkar det" (saknar onboarding-kakan, MUPP-035). Inloggningen
 // anges som storageState, annars ärver sammanhanget testernas sparade inloggning med kakan.
 export async function newcomer(browser: Browser, baseURL: string | undefined) {
   const { cookies } = JSON.parse(readFileSync(siteSessionFile, "utf8"));

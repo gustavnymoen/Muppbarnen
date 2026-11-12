@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./Button";
 import type { DialogHandle } from "./Dialog";
@@ -15,6 +16,8 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const onboardingDialog = useRef<DialogHandle>(null);
+  // Rutan öppnas på den guide som hör till sidan man står på (MUPP-050-R5)
+  const onSantaPage = usePathname().startsWith("/secret-santa");
 
   // Stänger och lämnar fokus på menyknappen, så att tangentbordsanvändaren inte tappar bort sig
   function close() {
@@ -78,7 +81,7 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
                   onboardingDialog.current?.open(button.current);
                 }}
               >
-                Så funkar listorna
+                Så funkar det
               </button>
             </li>
             <li>
@@ -89,7 +92,7 @@ export function SiteMenu({ onboarding }: { onboarding?: boolean }) {
           </ul>
         </nav>
       )}
-      <OnboardingDialog ref={onboardingDialog} autoOpen={onboarding} />
+      <OnboardingDialog ref={onboardingDialog} autoOpen={onboarding} guide={onSantaPage ? "santa" : "listor"} />
     </div>
   );
 }

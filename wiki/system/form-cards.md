@@ -17,7 +17,7 @@ Every dialog and form on the site is the same component, `Dialog` (`app/componen
 |---|---|---|---|---|
 | Form card (`form`) | Edit parent, kid, picture, sizes, wish, family, person, member; the claim window | "Stäng" | nothing | the first field (its text selected when editing); a list's button when the first field is a list |
 | Question | "Ta bort …?", "Ta bort paxningen", "Lägg till … igen" | no | nothing | the first button (the safe one, "Avbryt") |
-| Information | "Så funkar listorna", the kid's sizes on the start page | no | closes "Så funkar listorna" (`backdropClose`) | the first control |
+| Information | "Så funkar det", the kid's sizes on the start page | no | closes "Så funkar det" (`backdropClose`) | the first control |
 
 The page forms (the password pages, the admin sign-in, the Secret Santa sign-in) are not cards and work as before.
 
