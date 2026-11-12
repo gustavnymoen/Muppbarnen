@@ -3,6 +3,7 @@
 ## 2026-11-12
 
 * **Update** all specs: the Definition of Done lines that are now true are ticked: Live tests passed on each merge commit (36 specs), the live accessibility line marked done by the user (MUPP-041, 042, 051, 055, 056), and the test suite time budget accepted by the user (20 specs). The manual phone and live checks of MUPP-001, 026, 036 and TECH-006 are ticked on the user's word. Lines for things not checked stay open.
+* **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/verification.md): the live accessibility line is marked done by the user; no per-item details were recorded.
 
 ## 2026-11-11
 
