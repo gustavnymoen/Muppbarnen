@@ -1,0 +1,7 @@
+%% MUPP-069 Help dialog arrow over the tabs on iPhone
+%% How the dialog is sized: the panel takes its content height and shrinks inside max-h, the button follows under it.
+flowchart TD
+    A[Dialog opens, max 85 % of the screen] --> B[Title and tabs: own height]
+    B --> C[Panel: flex-auto, min-h-0, scrolls when the text is taller]
+    C --> D[Arrow or OK under the panel, MUPP-069-R2]
+    C -- iOS with flex-1 gave 0 height --> E[Arrow drawn over the tabs: the bug]

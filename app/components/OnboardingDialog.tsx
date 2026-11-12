@@ -148,7 +148,8 @@ function OnboardingGuides({ first }: { first: number }) {
           setTab(0);
         }}
       />
-      <div id={`${id}-${guide.id}-panel`} role="tabpanel" aria-labelledby={`${id}-${guide.id}`} className="mt-4 flex min-h-0 flex-1 flex-col">
+      {/* flex-auto och inte flex-1 (basis 0%): rutans höjd är bara begränsad av max-h, och iOS gör då 0% till 0 så att pilen ritas över flikarna (MUPP-069) */}
+      <div id={`${id}-${guide.id}-panel`} role="tabpanel" aria-labelledby={`${id}-${guide.id}`} className="mt-4 flex min-h-0 flex-auto flex-col">
         <div role="tablist" aria-label="Läs som" className="flex gap-2" onKeyDown={arrow}>
           {guide.tabs.map((t, i) => (
             <Button
@@ -167,7 +168,7 @@ function OnboardingGuides({ first }: { first: number }) {
         </div>
         {/* Alla fyra texterna ligger i samma ruta, den valda synlig och de andra dolda men med kvar sin höjd, så att rutan
             får höjden av den längsta och inte hoppar när man byter flik (MUPP-050-R4) */}
-        <div ref={panel} onScroll={checkMore} className="mt-4 grid min-h-0 flex-1 overflow-y-auto">
+        <div ref={panel} onScroll={checkMore} className="mt-4 grid min-h-0 flex-auto overflow-y-auto">
           {GUIDES.flatMap((g) => g.tabs.map((t) => ({ g, t }))).map(({ g, t }) => {
             const shown = g === guide && t === guide.tabs[tab];
             return (
