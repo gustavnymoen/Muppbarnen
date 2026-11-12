@@ -23,8 +23,8 @@ feature: MUPP-050
 |---|---|---|---|---|
 | Unit tests | Not applicable: no logic beyond choosing a tab | | | |
 | Browser tests | The three tests of `MUPP-050-santa-help.spec.ts`, and the changed ones in `MUPP-035`, `MUPP-045`, `MUPP-002` and `design.spec.ts` | local | Pass | 2026-11-12 |
-| Smoke test | Not applicable: the dialog is not a main page or flow | | | |
-| Accessibility | Axe in the tests; the checklist items on the live site: not checked | local | Axe passes | 2026-11-12 |
+| Smoke test | Not applicable: the dialog is not a main page or flow; Live tests passed on the merge commit | live | Pass | 2026-11-12 |
+| Accessibility | Axe in the tests; the checklist items of `wiki/system/accessibility.md` on the live site, checked by the user | local, live | Pass | 2026-11-12 |
 | Security | Not needed: fixed texts, existing cookie, no new input | | | |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
 
@@ -45,8 +45,8 @@ As on the card (`gh issue view 151`): R1 renamed dialog and menu item "Så funka
 
 - [x] Tests: the card's checks are done and `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: within the time budgets: no, over budget since before this card (TECH-019)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not done
-- [ ] Accessibility: axe passes in the tests; the live checklist is not checked
+- [x] Deployed, and the smoke tests pass against production (Live tests, merge commit 773b68f)
+- [x] Accessibility: axe passes in the tests; the live checklist was checked by the user
 - [x] Requirements in the card match what was built, no open questions left
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers; clean code (`npm run lint`, `npm run lint:docs`, `npm run typecheck`, `npm run build`)
