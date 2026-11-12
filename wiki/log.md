@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* **Creation** [TECH-020 Go live with mail](../specs/TECH-020-mail-go-live/solution.md): the real sending is on (domain verified in Resend, DMARC record added); a script sends one test mail to an address given by hand, and the mail page describes the domain, the key and how to read the headers.
 * **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/solution.md): each chat message has a small icon by its bubble: a person on mine, a tomte on the other side's (the same for everyone, so they name nobody); the chat card opens in the middle of the screen at 75 % of its height.
 * **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/verification.md): Live tests passed after the merge of the chat and its fixes (PR #211 and #212); the live accessibility line is still not checked.
 * **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/solution.md): fixed after the live check: the notice on the Chatt button follows the page (a new message gives it again after an earlier read) and the chat shows its messages at once.

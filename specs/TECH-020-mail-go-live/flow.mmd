@@ -1,0 +1,10 @@
+%% TECH-020 Go live with mail
+%% The manual steps that turn real sending on, and how each is checked.
+flowchart TD
+    A[Buy kusinportalen.com at Vercel] --> B[Create the Resend account, add the domain]
+    B --> C[DNS records in Vercel: DKIM, send, rsend, DMARC]
+    C --> D[RESEND_API_KEY as a secret in Vercel, R2]
+    D --> E[Test mail to Gmail and Outlook]
+    E --> F{SPF, DKIM, DMARC pass and in the inbox? R1}
+    F -- yes --> G[Recorded in verification.md]
+    F -- no --> C
