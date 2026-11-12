@@ -98,6 +98,7 @@ tags: [product, features]
 | [MUPP-067](MUPP-067-santa-draw-year/solution.md) | Secret Santa draw year in Swedish time | Administration | Ongoing |
 | [MUPP-068](MUPP-068-chat-keyboard-native/solution.md) | Chat keyboard handled by iOS | Shared | Review |
 | [MUPP-050](MUPP-050-santa-help/solution.md) | Secret Santa help dialog | Shared | Ongoing |
+| [MUPP-069](MUPP-069-help-dialog-arrow/solution.md) | Help dialog arrow over the tabs on iPhone | Shared | Ongoing |
 | [TECH-022](TECH-022-ponytail-audit-2/solution.md) | Ponytail audit of the code | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
