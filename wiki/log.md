@@ -2,6 +2,7 @@
 
 ## 2026-11-12
 
+* **Creation** [MUPP-068 Chat keyboard handled by iOS](../specs/MUPP-068-chat-keyboard-native/solution.md): the chat card no longer opens the phone keyboard by itself and no longer resizes itself with a script (the fit of MUPP-065 and MUPP-066 is removed, it made the card jump), and the newest message is in view when it opens.
 * **Update** [TECH-019](../specs/TECH-019-test-suite-budget/verification.md): the CI limits are set from the first CI run plus 25 % (455 s in total, 9.3 s per test); Live tests passed after the merge
 * **Creation** [MUPP-066 Chat scroll with the keyboard up](../specs/MUPP-066-chat-scroll/solution.md): with the phone keyboard up, a drag in the chat lowers the keyboard and a drag elsewhere in the card no longer scrolls the page behind or makes the card jump.
 * **Creation** [TECH-019 Test suite budget](../specs/TECH-019-test-suite-budget/solution.md): the browser tests' budget follows the suite (330 s in total, 8 s per test), CI fails when a limit is passed (`scripts/check-test-time.mjs`), and axe leaves out the aria-hidden toast, which it caught half see-through.
