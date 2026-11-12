@@ -62,6 +62,23 @@ export const ChatIcon = () => (
   </Icon>
 );
 
+// Jag och tomten: avsändaren vid varje meddelande i samtalet (MUPP-043). Alltid samma ikoner, så att de inte pekar ut någon.
+export const PersonIcon = () => (
+  <Icon size={24}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </Icon>
+);
+
+export const TomteIcon = () => (
+  <Icon size={24}>
+    <path d="M6 10C6 5.5 8.5 2.5 12 2.5c3.5 0 5.5 1.5 6.5 5" />
+    <circle cx="19" cy="9.5" r="1.5" />
+    <path d="M5 10h13M10 12.5h.01M14 12.5h.01" />
+    <path d="M6 10.5c0 5 1.5 7 3 8l3 2.5 3-2.5c1.5-1 3-3 3-8M9 15.5c1-1 2-1 3 0 1-1 2-1 3 0" />
+  </Icon>
+);
+
 // Måttband: storlekar
 export const MeasureIcon = () => (
   <Icon>

@@ -21,7 +21,7 @@ The draw is not symmetric (A→B, B→C, and D and E may draw each other), so ev
 
 ## Unread
 
-A message is unread for the other side until that side opens the chat; opening it (`loadChat`) sets `read_at` on that direction only. The cards on the own page show only a tiny orange chat icon, and only while something is unread (with a hidden text "Nytt meddelande"; no button); the button "Chatt", sticky at the bottom of the opened list, has an orange chat icon with an orange dot on its corner and ", nytt meddelande" in its name when something is unread, and the normal colour otherwise. The chat is opened only from inside the lists. Messages one has written never count.
+A message is unread for the other side until that side opens the chat; opening it (`loadChat`) sets `read_at` on that direction only. The cards on the own page show only a tiny orange chat icon, and only while something is unread (with a hidden text "Nytt meddelande"; no button); the button "Chatt", sticky at the bottom of the opened list, has an orange chat icon with an orange dot on its corner and ", nytt meddelande" in its name when something is unread, and the normal colour otherwise. The chat is opened only from inside the lists. Messages one has written never count. The chat card opens in the middle of the screen (`Dialog` with `centered`) at 75 % of its height, and the message list takes the space left with the messages at its bottom like in an ordinary chat. In the open chat each message has a small icon by its bubble: a person on mine (right), a tomte with a bent hat and a beard on the other side's (left). The icons are the same for every message and `aria-hidden` (the hidden "Du:" / "Svar:" names the sender), so they point out nobody.
 
 ## Message mails
 

@@ -40,13 +40,15 @@ type Props = Omit<ComponentProps<"dialog">, "title" | "ref" | "onClose"> & {
   ref?: Ref<DialogHandle>;
   title: string;
   form?: boolean;
+  // Ett formulärkort som ligger mitt på skärmen i stället för överst (chatten)
+  centered?: boolean;
   backdropClose?: boolean;
   // Öppnas av sig själv första gången (utan knapp att växa ur)
   defaultOpen?: boolean;
   onClose?: () => void;
 };
 
-export function Dialog({ ref, title, form, backdropClose, defaultOpen, onClose, className = "", children, ...props }: Props) {
+export function Dialog({ ref, title, form, centered, backdropClose, defaultOpen, onClose, className = "", children, ...props }: Props) {
   const id = useId();
   const el = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
@@ -151,7 +153,7 @@ export function Dialog({ ref, title, form, backdropClose, defaultOpen, onClose, 
         onMouseDown={onMouseDown}
         onClick={onClick}
         // <dialog> centrerar sin text som standard; texten ska stå vänsterställd
-        className={`w-[min(92vw,28rem)] text-left rounded-card border border-edge bg-card p-5 text-text shadow-card backdrop:bg-black/70 ${form ? "mx-auto mt-4 mb-auto" : "m-auto"} ${className}`}
+        className={`w-[min(92vw,28rem)] text-left rounded-card border border-edge bg-card p-5 text-text shadow-card backdrop:bg-black/70 ${form && !centered ? "mx-auto mt-4 mb-auto" : "m-auto"} ${className}`}
       >
         {shown && (
           <CardContext value={{ close, confirm, focusFirst: refocus }}>

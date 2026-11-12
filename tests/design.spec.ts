@@ -1568,6 +1568,7 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a tiny oran
   await addSantaDraw(event, bo, anna);
   await addSantaMessage(event, anna, bo, false, "Hej Anna, jag önskar mig något varmt");
   await addSantaMessage(event, anna, bo, false, "Ettjättelångtordutanmellanslagsomintefårgåutanförrutan0123456789");
+  await addSantaMessage(event, anna, bo, true, "Tack, jag tittar på det");
   try {
     await page.setViewportSize({ width: 375, height: 667 });
     await santaSignIn(page, anna);
@@ -1598,9 +1599,29 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a tiny oran
     const chat = page.getByRole("dialog", { name: "Din matchning" });
     const log = chat.getByRole("log");
     await expect(log).toContainText("något varmt");
+    // Each message has a small icon by its bubble, the same for everyone: the santa on the other side's (left), a person on mine (right). They are decoration; "Du:" and "Svar:" name the sender
+    const rows = log.locator("> div");
+    await expect(rows).toHaveCount(3);
+    await expect(rows.nth(0).locator("svg")).toHaveCount(1);
+    await expect(rows.nth(2).locator("svg")).toHaveCount(1);
+    const first = rows.nth(0);
+    const mine = rows.nth(2);
+    expect((await settledBox(first.locator("svg"))).x).toBeLessThan((await settledBox(first.locator("p"))).x);
+    expect((await settledBox(mine.locator("svg"))).x).toBeGreaterThan((await settledBox(mine.locator("p"))).x);
+    await expect(first.locator("svg")).toHaveAttribute("aria-hidden", "true");
+    expect(await rows.nth(1).locator("svg").innerHTML()).toBe(await first.locator("svg").innerHTML());
     const box = await settledBox(chat);
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(375);
+    if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT });
+    // The card is in the middle of the screen and about 75 % of its height
+    expect(Math.abs(box.y + box.height / 2 - 667 / 2)).toBeLessThan(4);
+    expect(box.height).toBeGreaterThan(667 * 0.7);
+    expect(box.height).toBeLessThan(667 * 0.8);
+    // The messages sit at the bottom of the list like in an ordinary chat, the last one right above the field
+    const lastRow = await settledBox(log.locator("> div").last());
+    const logBox = await settledBox(log);
+    expect(logBox.y + logBox.height - (lastRow.y + lastRow.height)).toBeLessThan(4);
     expect(await log.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     expect(await hasHorizontalScroll(page)).toBe(false);
     expect((await settledBox(chat.getByRole("textbox", { name: "Meddelande" }))).height).toBeGreaterThanOrEqual(44);
