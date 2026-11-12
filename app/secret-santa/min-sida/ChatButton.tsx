@@ -12,6 +12,9 @@ import { loadChat, sendChat } from "../chat-actions";
 // så att det inte bara är färgen som säger det (R5); pricken går när samtalet är öppnat. Mottagarens sida kallas alltid "Din Secret Santa" (R3).
 // Hur ofta ett öppet samtal frågar efter nya meddelanden
 const POLL_MS = 10_000;
+// Så mycket kortare än sidan måste den synliga delen vara för att räknas som tangentbord (adressfältet som fälls in är mindre), och avståndet till kanten med tangentbordet uppe
+const KEYBOARD_MIN_PX = 100;
+const CARD_GAP_PX = 8;
 
 const TEXTS: Record<ChatSide, { title: string; label: string; empty: string }> = {
   receiver: { title: "Din Secret Santa", label: "Chatt med din Secret Santa", empty: "Inga meddelanden ännu. Skriv det du vill, din Secret Santa får inte veta vem du är." },
@@ -75,6 +78,30 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
     }, POLL_MS);
     return () => window.clearInterval(timer);
   }, [side]);
+
+  // Tangentbordet på en iPhone täcker sidan i stället för att krympa den (bara den synliga delen, visualViewport, blir mindre), och dvh följer inte den.
+  // Medan det är uppe läggs kortet därför inom den synliga delen, så att fältet och Skicka syns; när det stängs tas måtten bort (MUPP-065)
+  useEffect(() => {
+    const view = window.visualViewport;
+    const card = list.current?.closest("dialog");
+    if (!view || !card) return;
+    const fit = () => {
+      // Ett nyp-zoomat läge gör den synliga delen kortare utan att något tangentbord är uppe: scale räknar bort det
+      const keyboard = window.innerHeight - view.height * view.scale > KEYBOARD_MIN_PX;
+      card.style.top = keyboard ? `${view.offsetTop + CARD_GAP_PX}px` : "";
+      card.style.bottom = keyboard ? "auto" : "";
+      card.style.marginBlock = keyboard ? "0" : "";
+      card.style.height = keyboard ? `${Math.min(view.height - 2 * CARD_GAP_PX, window.innerHeight * 0.75)}px` : "";
+    };
+    fit();
+    view.addEventListener("resize", fit);
+    view.addEventListener("scroll", fit);
+    return () => {
+      view.removeEventListener("resize", fit);
+      view.removeEventListener("scroll", fit);
+      for (const property of ["top", "bottom", "margin-block", "height"]) card.style.removeProperty(property);
+    };
+  }, []);
 
   // Nyaste meddelandet längst ner syns alltid
   useEffect(() => {

@@ -1,0 +1,12 @@
+%% MUPP-065 Chat field above the keyboard
+%% How the open chat card follows the visible part of the screen while the keyboard is up.
+flowchart TD
+    A[Chat card opens] --> B[Listeners on the visual viewport: resize and scroll, R1]
+    B --> C{Visible part more than 100 px shorter than the page?}
+    C -- no, no keyboard --> D[No inline size: 75dvh and centred, R2 R3]
+    C -- yes, keyboard up --> E[Card top at the viewport top + 8 px, height viewport - 16 px at most 75 percent, R1]
+    E --> F[Message list shrinks and scrolls, field and Skicka stay in view]
+    F --> C
+    D --> C
+    A --> G[Card closes]
+    G --> H[Listeners and inline size removed, R2]

@@ -34,7 +34,7 @@ Efter lottningen finns knappen **Chatt** längst ner i listorna **Min önskelist
 - Knappen **Chatt** i **Min matchning** öppnar chatten **Din matchning**: där skriver du till den du ska handla åt, till exempel en fråga om något i listan. Hen får inte veta vem du är.
 - Båda kan börja och skriva när som helst, och flera meddelanden i rad går bra. Ett meddelande är 1 till 500 tecken. Skriv i fältet **Meddelande** och tryck **Skicka**. Inget namn visas i chatten, och tiden visas inte heller.
 - Har du fått ett nytt meddelande syns en liten orange pratbubbla i hörnet på kortet på din sida (inget märke när inget är oläst), och i listan blir bubblan på knappen **Chatt** orange med en orange plupp i hörnet. När du öppnat chatten försvinner märkena.
-- Medan chatten är öppen visas nya meddelanden av sig själva inom ungefär tio sekunder. Stäng med krysset eller Esc.
+- Medan chatten är öppen visas nya meddelanden av sig själva inom ungefär tio sekunder. Stäng med krysset eller Esc. När tangentbordet är uppe på telefonen minskar chattkortet så att fältet **Meddelande** och knappen **Skicka** syns ovanför tangentbordet; när du stänger tangentbordet blir kortet som vanligt igen.
 - Den andra får ett mejl när du skrivit, men mejlet kommer först efter tio minuter och är bara ett: flera meddelanden i rad ger ett mejl. Mejlet innehåller aldrig vad du skrev.
 
 Stoppas lottningen, eller städas allt i januari, tas alla samtal bort.
