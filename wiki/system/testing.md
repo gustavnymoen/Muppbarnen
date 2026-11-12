@@ -44,7 +44,7 @@ The project follows specification-driven development (see [Way of working](way-o
 - **Measuring boxes:** read a size or position with `settledBox(locator)` from `tests/helpers.ts` (all of the tests do, [TECH-008](../../specs/TECH-008-flaky-box-measurements/solution.md), [TECH-009](../../specs/TECH-009-settled-boxes-in-feature-tests/solution.md)), not with a bare `boundingBox()!`. It waits until the element is visible and two reads in a row agree, so a box read during an animation (a height of 43.99 instead of 44), a re-render (`null` for a detached element) or a layout that is still moving is read again. Read the boxes you compare in one go, and leave a comment where a read needs no wait.
 - **Data:** data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself. Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
 - **Runs:** `npm run test:local` against a local production build with its own test database, also in CI, where the whole suite runs once per pull request. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
-- **Combine by journey.** Tests that reach the same page or state are one test that goes on from where the last check left it, named after every requirement it checks (`MUPP-004-R1 R2 R7 …`), with a comment per requirement. A test of its own is for a page, viewport at load time or data the others must not see. A 320 px check resizes the window in the middle of a test (`page.setViewportSize`). A check of the same page at several widths opens the page once and resizes between the widths instead of loading it again ([TECH-015](../../specs/TECH-015-test-suite-room/solution.md)): every page load costs 0.2–0.8 s, since React shows the streamed page about 300 ms after it has loaded. A merged test stays under the 5 s budget for one test; two tests whose merge would go over it, or need the view closed again before the next step, stay apart.
+- **Combine by journey.** Tests that reach the same page or state are one test that goes on from where the last check left it, named after every requirement it checks (`MUPP-004-R1 R2 R7 …`), with a comment per requirement. A test of its own is for a page, viewport at load time or data the others must not see. A 320 px check resizes the window in the middle of a test (`page.setViewportSize`). A check of the same page at several widths opens the page once and resizes between the widths instead of loading it again ([TECH-015](../../specs/TECH-015-test-suite-room/solution.md)): every page load costs 0.2–0.8 s, since React shows the streamed page about 300 ms after it has loaded. A merged test stays under the 8 s budget for one test; two tests whose merge would go over it, or need the view closed again before the next step, stay apart.
 - **Fast set-up and reads** ([TECH-018](../../specs/TECH-018-test-suite-room-again/solution.md)):
   - **No wait after a wrong password on the test server.** A wrong site, admin or Secret Santa password costs a second on the real site (`wrongWait` in `lib/login-block.ts`). `scripts/test-server.mjs` sets `SKIP_LOGIN_WAIT=1`, which `wrongWait` honours only when the database is a local file, so a deployed site always waits. That the wait exists is checked by unit tests with fake timers (`lib/login-block.test.ts`, `lib/santa-auth.test.ts`), not by timing a browser test. Six wrong tries in a row run on one page, waiting for each answer.
   - **Sign in by cookie when signing in is not the test.** `santaSignIn(page, personId)` in `tests/santa.ts` sets the signed Secret Santa cookie (made with the test server's made-up key) instead of going through the form, as `adminSignIn` does for the admin pages; the sign-in test itself (MUPP-039) uses the form (`openSignInForm`, `sendPhone`).
@@ -100,6 +100,7 @@ Vercel stores every function of every deployment, and the free plan limits that 
 | Smoke tests | `npm run test:smoke` | ✓ (part of all) | ✓ | ✓ |
 | axe | in the browser tests | ✓ | | |
 | Security scans | | ✓ (job `security`) | | |
+| Time limits of the browser tests | `npm run test:time` | ✓ (fails the job) | | |
 | Code review | ✓ | | | |
 
 The pipeline itself (workflows, events, secrets and the branch protection) is described in [Pipeline](pipeline.md).
@@ -120,12 +121,16 @@ The test suite is checked with every change, so that it doesn't grow slower and 
 
 | What | Budget |
 |---|---|
-| One test, locally | at most 5 s |
+| One test, locally | at most 8 s |
 | All unit tests (`npm run test:unit`) | at most 30 s |
-| All tests in `npm run test:local` (without the build) | at most 3 min |
+| All tests in `npm run test:local` (without the build) | at most 330 s (5.5 min) |
 | The smoke tests against a preview or the live site | at most 1 min |
 | A whole job on GitHub | CI at most 8 min, of which at most 2 min preparation; Preview tests and Live tests at most 2 min |
 
 `npm run test:time` runs the unit tests and `npm run test:local`, and prints the number of each, their total time and the five slowest browser tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
+
+**The limits are checked in CI** ([TECH-019](../../specs/TECH-019-test-suite-budget/solution.md)): after `npm run test:local`, the step `node scripts/check-test-time.mjs test-results/report.json` reads Playwright's JSON report and fails the job when the browser tests' total or one test is over its limit, naming the limit and the slowest tests. The limits are in `scripts/test-time-limits.mjs` (the same ones `npm run test:time` uses) and tested by `scripts/test-time-limits.test.ts`. CI's computer is slower than the developer's, so the limits given in `ci.yml` (`--total-ms`, `--test-ms`) are higher than the 330 s and 8 s budgets: the first measured CI run plus 25 %. A limit is raised only on a card, with the numbers and the reason, never to make one pull request pass.
+
+**Why 330 s and 8 s:** the suite grew from 111 tests (178 s) to 162 (327 s, 2.0 s per test), and the 180 s and 5 s of TECH-018 could not be kept without more workers (a database each) or splitting the large journey tests, which the project, a hobby site for about 20 users, does not need. The budgets follow the suite, and the check in CI stops it from growing without being noticed.
 
 [System documentation](index.md)

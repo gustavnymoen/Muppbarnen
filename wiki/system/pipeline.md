@@ -30,7 +30,7 @@ The diagram can be exported as a picture, for example with the Mermaid Live Edit
 
 | Workflow | When | Against | What |
 |---|---|---|---|
-| **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with its own fresh test database, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`, `npm run test:local` (every browser test) |
+| **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with its own fresh test database, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`, `npm run test:local` (every browser test), then `scripts/check-test-time.mjs`, which fails the job when the browser tests' time is over its limits ([Testing](testing.md#time-budgets)) |
 | **CI**, job `security` | Every pull request to `main`; by hand | The code and its whole Git history | `npm audit`, Semgrep, Gitleaks ([Testing](testing.md#security)) |
 | **Preview tests** (`preview-tests.yml`) | When Vercel reports a preview as ready (`deployment_status`) | The pull request's preview on Vercel | `npm run test:smoke` |
 | **Secret Santa-mejl** (`santa-mails.yml`) | Every ten minutes; by hand | <https://muppbarnen.vercel.app/api/santa-mails> | One `POST` with the secret `SANTA_JOB_SECRET`, which makes the site mail the givers whose receiver changed their list ([Secret Santa match](secret-santa-match.md)); does nothing without the secret |
