@@ -2,6 +2,7 @@
 
 ## 2026-11-12
 
+* **Creation** [MUPP-067 Secret Santa draw year in Swedish time](../specs/MUPP-067-santa-draw-year/solution.md): a draw is filed under the Swedish year, not the server's, so one made just after midnight on New Year's Day gets the right year.
 * **Creation** [MUPP-068 Chat keyboard handled by iOS](../specs/MUPP-068-chat-keyboard-native/solution.md): the chat card no longer opens the phone keyboard by itself and no longer resizes itself with a script (the fit of MUPP-065 and MUPP-066 is removed, it made the card jump), and the newest message is in view when it opens.
 * **Creation** [TECH-022 Ponytail audit of the code](../specs/TECH-022-ponytail-audit-2/solution.md): the second audit of the whole repository found eight things; the mail outbox reader moved to a test helper (the build no longer traces the whole project), a list copy and twelve needless exports were removed, and the rest became [MUPP-067](https://github.com/gustavnymoen/Muppbarnen/issues/227) and [TECH-024](https://github.com/gustavnymoen/Muppbarnen/issues/228) or were left with a reason.
 * **Update** [TECH-019](../specs/TECH-019-test-suite-budget/verification.md): the CI limits are set from the first CI run plus 25 % (455 s in total, 9.3 s per test); Live tests passed after the merge

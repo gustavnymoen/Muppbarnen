@@ -2,6 +2,7 @@ import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
 import { collect, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
+import { swedishToday } from "./deck";
 import { clearListChanges } from "./santa-changes";
 import { clearMessages } from "./santa-chat";
 import { drawPairs, type SetAside } from "./santa-draw";
@@ -146,11 +147,12 @@ export const deactivateEvent = (actor: Parent | null, rawId: unknown) => changeS
 
 type DrawStart = StatusChange & { setAside: SetAside[] };
 const NEEDS_TWO = { ok: false, error: "Dragningen går inte att göra: det behövs minst två deltagare." } as const;
-const thisYear = () => new Date().getFullYear();
 
 // Startar dragningen (förbereder → startad): alla dras, raderna sparas och gruppen blir startad, allt i en transaktion. Svaret säger
-// vilka regler som fick släppas, aldrig vem som drog vem (R5). Att skicka mejlet gör anroparen.
-export async function startDraw(actor: Parent | null, rawId: unknown): Promise<Outcome<DrawStart>> {
+// vilka regler som fick släppas, aldrig vem som drog vem (R5). Att skicka mejlet gör anroparen. Året är det svenska (MUPP-067),
+// inte serverns, så en dragning strax efter midnatt på nyårsdagen hamnar under rätt år.
+export async function startDraw(actor: Parent | null, rawId: unknown, today = swedishToday()): Promise<Outcome<DrawStart>> {
+  const year = today.year;
   return withTransaction(async (tx) => {
     const event = await manageableEvent(actor, rawId, tx);
     if (isOutcome(event)) return event;
@@ -163,7 +165,7 @@ export async function startDraw(actor: Parent | null, rawId: unknown): Promise<O
     // Förra årets dragning: raderna från det senaste tidigare året. Ett stoppat försök har inga rader kvar och räknas inte.
     const previous = await all<{ giver_id: number; receiver_id: number }>(
       "SELECT giver_id, receiver_id FROM ss_draw WHERE event_id = ? AND year = (SELECT MAX(year) FROM ss_draw WHERE event_id = ? AND year < ?)",
-      [event.id, event.id, thisYear()],
+      [event.id, event.id, year],
       tx,
     );
     const result = drawPairs(
@@ -172,9 +174,9 @@ export async function startDraw(actor: Parent | null, rawId: unknown): Promise<O
     );
     if (!result.ok) return NEEDS_TWO;
     // Rader som blev kvar av en tidigare dragning samma år (efter en rensning) ersätts
-    await run("DELETE FROM ss_draw WHERE event_id = ? AND year = ?", [event.id, thisYear()], tx);
+    await run("DELETE FROM ss_draw WHERE event_id = ? AND year = ?", [event.id, year], tx);
     for (const [giver, receiver] of result.pairs) {
-      await run("INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", [event.id, thisYear(), giver, receiver], tx);
+      await run("INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", [event.id, year, giver, receiver], tx);
     }
     await run("UPDATE ss_event SET status = 'started' WHERE id = ? AND status = 'preparing'", [event.id], tx);
     await clearListChanges(event.id, tx);
