@@ -37,11 +37,11 @@ Knappen med tre streck uppe till höger öppnar menyn, på alla skärmstorlekar.
 
 - **Barnens listor** tar dig till startsidan.
 - **Secret Santa** tar dig till [Secret Santa](secret-santa.md).
-- **Så funkar listorna** öppnar en ruta som förklarar hur önskelistorna används, med två flikar: **Besökare** och **Förälder**. Rutan öppnas av sig själv första gången du kommer in på startsidan; tryck **OK** (eller Esc, eller utanför rutan). Är texten längre än rutan står det en pil nedåt i stället för OK; tryck på den för att läsa vidare, så blir den OK när du kommit till slutet så öppnas den inte av sig själv igen i den webbläsaren. Rutan finns kvar här i menyn.
+- **Så funkar det** öppnar en ruta som förklarar sajten. Överst väljer du guide: **Barnens listor** (hur önskelistorna används, med flikarna **Besökare** och **Förälder**) eller **Secret Santa** (med flikarna **Deltagare** och **Admin**). Står du på en Secret Santa-sida öppnas rutan på Secret Santa, annars på Barnens listor. Rutan öppnas av sig själv första gången du kommer in på startsidan, på Barnens listor. Den är lika stor oavsett flik. Tryck **OK** (eller Esc, eller utanför rutan) för att stänga; då öppnas den inte av sig själv igen i den webbläsaren, vilken guide du än läste. Är texten längre än rutan står det en pil nedåt i stället för OK; tryck på den för att läsa vidare, så blir den OK när du kommit till slutet. Rutan finns kvar här i menyn.
 - **Admin** tar dig till [administrationssidan](admin.md).
 
 Menyn stängs när du väljer något, trycker på Esc eller trycker utanför den. Med tangentbordet öppnar du menyn med Enter eller mellanslag och går igenom den med Tab.
 
-Byggd av [MUPP-002](../../specs/MUPP-002-start-page/solution.md), [MUPP-004](../../specs/MUPP-004-birthday-card/solution.md), [MUPP-005](../../specs/MUPP-005-kid-card-and-claiming/solution.md) och [MUPP-006](../../specs/MUPP-006-unclaim-gifts/solution.md) och [MUPP-035](../../specs/MUPP-035-onboarding-card/solution.md); den tekniska beskrivningen är [Start page and menu](../system/start-page.md).
+Byggd av [MUPP-002](../../specs/MUPP-002-start-page/solution.md), [MUPP-004](../../specs/MUPP-004-birthday-card/solution.md), [MUPP-005](../../specs/MUPP-005-kid-card-and-claiming/solution.md) och [MUPP-006](../../specs/MUPP-006-unclaim-gifts/solution.md) och [MUPP-035](../../specs/MUPP-035-onboarding-card/solution.md) och [MUPP-050](../../specs/MUPP-050-santa-help/solution.md); den tekniska beskrivningen är [Start page and menu](../system/start-page.md).
 
 [Manual](index.md)

@@ -20,7 +20,7 @@ async function HomeContent() {
   // Klienten får bara månad, ålder och ordning; födelsedatum och dag stannar här (MUPP-004-R6)
   const { children, wishes } = await listDeckInput();
   const cards = buildDeck(children, wishes, swedishToday());
-  // Rutan "Så funkar listorna" öppnas av sig själv tills besökaren har tryckt OK (MUPP-035-R1)
+  // Rutan "Så funkar det" öppnas av sig själv tills besökaren har tryckt OK (MUPP-035-R1)
   const onboarding = !(await cookies()).has(ONBOARDING_COOKIE);
   return (
     <Page home onboarding={onboarding}>

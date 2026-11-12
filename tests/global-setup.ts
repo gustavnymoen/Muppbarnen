@@ -16,8 +16,9 @@ export default async function globalSetup(config: FullConfig) {
     await page.getByLabel("Lösenord").fill(process.env.SITE_PASSWORD);
     await page.getByRole("button", { name: "Öppna" }).click();
     await page.waitForURL((url) => url.pathname === "/");
-    // Rutan "Så funkar listorna" öppnas vid första besöket (MUPP-035): trycker OK så att kakan följer med i den sparade inloggningen
-    await page.getByRole("button", { name: "OK" }).click();
+    // Rutan "Så funkar det" öppnas vid första besöket (MUPP-035): stänger den med Esc (OK finns bara när all text syns, MUPP-050-R4) så att kakan följer med i den sparade inloggningen
+    await page.getByRole("dialog", { name: "Så funkar det" }).waitFor();
+    await page.keyboard.press("Escape");
     await expect.poll(async () => (await context.cookies()).some((c) => c.name.endsWith("onboarding"))).toBe(true);
     await context.storageState({ path: siteSessionFile });
 

@@ -1,0 +1,8 @@
+%% MUPP-050 Secret Santa help dialog
+flowchart TD
+    A[Menu item Så funkar det, or the first visit to the start page] --> B{On a Secret Santa page?}
+    B -- yes --> C[Tab Secret Santa, Deltagare first]
+    B -- no, or first visit --> D[Tab Barnens listor, Besökare first]
+    C --> E[Switch top tab or button tab: same size, starts at the top]
+    D --> E
+    E -- OK, Esc or a press outside --> F[Dialog closes, cookie set on the first visit]

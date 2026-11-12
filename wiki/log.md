@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-12
+
+* **Creation** [MUPP-050 Secret Santa help dialog](../specs/MUPP-050-santa-help/solution.md): the dialog and the menu item are renamed "Så funkar det" and get two underlined tabs, Barnens listor and Secret Santa (Deltagare and Admin), the same size on every tab; the menu opens it on the Secret Santa side on Secret Santa pages.
+
 ## 2026-11-11
 
 * **Creation** [TECH-020 Go live with mail](../specs/TECH-020-mail-go-live/solution.md): the real sending is on (domain verified in Resend, DMARC record added); a script sends one test mail to an address given by hand, and the mail page describes the domain, the key and how to read the headers.

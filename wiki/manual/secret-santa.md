@@ -16,6 +16,8 @@ tags: [secret-santa, inloggning, önskelista]
 
 Står det "Det stämde inte" har du valt fel namn eller skrivit något annat än det som är sparat. Efter flera felsvar i rad får du vänta en stund.
 
+Vill du ha en kort förklaring av hur det går till finns den i menyn under **Så funkar det**, fliken **Secret Santa**, med en text för **Deltagare** och en för **Admin**.
+
 ## Din sida
 
 Vad du ser på din sida beror på hur långt gruppen har kommit:
