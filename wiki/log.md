@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-12
+
+* **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/verification.md): the live accessibility line is marked done by the user; no per-item details were recorded.
+
 ## 2026-11-11
 
 * **Creation** [TECH-020 Go live with mail](../specs/TECH-020-mail-go-live/solution.md): the real sending is on (domain verified in Resend, DMARC record added); a script sends one test mail to an address given by hand, and the mail page describes the domain, the key and how to read the headers.
