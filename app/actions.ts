@@ -33,7 +33,7 @@ export async function unclaimWish(id: number): Promise<UnclaimResult> {
   return result;
 }
 
-// Minns att besökaren har sett rutan "Så funkar listorna" (MUPP-035-R7). Tar ingen indata: kakans värde är fast.
+// Minns att besökaren har sett rutan "Så funkar det" (MUPP-035-R7). Tar ingen indata: kakans värde är fast.
 export async function markOnboardingSeen(): Promise<void> {
   if (!(await hasSiteSession())) return;
   if ((await guardWrite()) !== "ok") return;

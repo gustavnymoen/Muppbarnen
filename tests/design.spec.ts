@@ -1277,25 +1277,29 @@ test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit
   }
 });
 
-test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar listorna on the narrowest phone: it fits, its panel scrolls inside it, an arrow shows there is more until the end, and the buttons are 44 px", async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 568 });
-  await goto(page, "/");
-  // The signed-in test visitor has the cookie, so the dialog is opened from the menu
-  await page.getByRole("button", { name: "Meny" }).click();
-  await page.getByRole("button", { name: "Så funkar listorna" }).click();
-  const dialog = page.getByRole("dialog", { name: "Så funkar listorna" });
-  await expect(dialog).toBeVisible();
-  const box = await settledBox(dialog);
-  expect(box.x).toBeGreaterThanOrEqual(0);
-  expect(box.x + box.width).toBeLessThanOrEqual(320);
-  expect(box.y).toBeGreaterThanOrEqual(0);
-  expect(box.y + box.height).toBeLessThanOrEqual(568);
-  for (const name of ["Besökare", "Förälder", "Läs vidare"]) {
-    const button = dialog.getByRole(name === "Läs vidare" ? "button" : "tab", { name });
-    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+test("MUPP-035-R6 MUPP-036-R2 MUPP-050-R4 the dialog Så funkar det on the narrowest phone: it fits, its panel scrolls inside it, an arrow shows there is more until the end, the buttons are 44 px, and it keeps its size on every tab", async ({ page }) => {
+  // 375 x 667 is the phone of R4, 320 x 568 the narrowest
+  for (const [width, height] of [[375, 667], [320, 568]]) {
+    await page.setViewportSize({ width, height });
+    await goto(page, "/");
+    // The signed-in test visitor has the cookie, so the dialog is opened from the menu
+    await page.getByRole("button", { name: "Meny" }).click();
+    await page.getByRole("button", { name: "Så funkar det" }).click();
+    const dialog = page.getByRole("dialog", { name: "Så funkar det" });
+    await expect(dialog).toBeVisible();
+    const box = await settledBox(dialog);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(height);
+    for (const name of ["Barnens listor", "Secret Santa", "Besökare", "Förälder", "Läs vidare"]) {
+      const button = dialog.getByRole(name === "Läs vidare" ? "button" : "tab", { name });
+      expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   }
+  // The top tabs stay on one line, side by side, even at 320 px
+  expect((await dialog.getByRole("tab", { name: "Secret Santa" }).boundingBox())!.height).toBeLessThan(60);
   // The panel is what scrolls when the text does not fit
-  const panel = dialog.getByRole("tabpanel");
+  const panel = dialog.locator("div.overflow-y-auto");
   expect(await panel.evaluate((el) => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === "auto")).toBe(true);
   await expectNoA11yViolations(page);
   // MUPP-036-R2: the arrow stands in for OK while there is more text, and the last scroll turns it into OK
@@ -1305,9 +1309,19 @@ test("MUPP-035-R6 MUPP-036-R2 the dialog Så funkar listorna on the narrowest ph
     if (await arrow.count()) await arrow.click();
     await expect(dialog.getByRole("button", { name: "OK" })).toBeVisible({ timeout: 500 });
   }).toPass();
-  // Another tab starts at the top again
+  // Another tab starts at the top again, and none of the four texts changes the size of the dialog (MUPP-050-R4)
   await dialog.getByRole("tab", { name: "Förälder" }).click();
   expect(await panel.evaluate((el) => el.scrollTop)).toBe(0);
+  const bottom = dialog.getByRole("button", { name: /^(OK|Läs vidare)$/ });
+  const buttonY = (await bottom.boundingBox())!.y;
+  for (const [guide, tab] of [["Barnens listor", "Förälder"], ["Secret Santa", "Deltagare"], ["Secret Santa", "Admin"], ["Barnens listor", "Besökare"]]) {
+    await dialog.getByRole("tab", { name: guide }).click();
+    await dialog.getByRole("tab", { name: tab }).click();
+    const now = await settledBox(dialog);
+    expect([guide, tab, now.width, now.height]).toEqual([guide, tab, box.width, box.height]);
+    expect((await bottom.boundingBox())!.y).toBe(buttonY);
+  }
+  }
 });
 
 // MUPP-047-R1, MUPP-048-R8: Tillbaka is in the top left corner, 44 px, clear of the menu button and the heading

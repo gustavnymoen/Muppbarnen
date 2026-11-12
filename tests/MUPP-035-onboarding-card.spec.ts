@@ -2,21 +2,21 @@ import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto } from "./helpers";
 import { newcomer, newVisitor } from "./site-session";
 
-test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog opens by itself once, has two tabs with the texts, closes with OK and is opened again from the menu", async ({ browser, baseURL }) => {
+test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog opens by itself once, has two tabs with the texts, closes with Esc and is opened again from the menu", async ({ browser, baseURL }) => {
   const context = await newcomer(browser, baseURL);
   const page = await context.newPage();
   await goto(page, "/");
 
   // R1: open with focus inside it, and the deck behind it cannot be used
-  const dialog = page.getByRole("dialog", { name: "Så funkar listorna" });
+  const dialog = page.getByRole("dialog", { name: "Så funkar det" });
   await expect(dialog).toBeVisible();
   expect(await page.evaluate(() => document.activeElement?.closest("dialog") !== null)).toBe(true);
   // The page behind a modal dialog cannot be pressed
   await expect(page.getByRole("button", { name: "Meny" }).click({ trial: true, timeout: 500 })).rejects.toThrow();
 
-  // MUPP-036-R1 R2: one button to close with, no cross; the text fits here, so it is OK and not the arrow
+  // MUPP-036-R1 R2: one button to close with, no cross; the dialog is as tall as its longest text (MUPP-050-R4), so there is more to read and it is the arrow
   await expect(dialog.getByRole("button", { name: "Stäng" })).toHaveCount(0);
-  await expect(dialog.getByRole("button", { name: "Läs vidare" })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Läs vidare" })).toBeVisible();
 
   // R4 R6: the visitor tab is shown first, with the site's own words
   const tabs = dialog.getByRole("tablist", { name: "Läs som" });
@@ -44,8 +44,8 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog 
   await page.keyboard.press("ArrowLeft");
   await expect(tabs.getByRole("tab", { name: "Besökare" })).toHaveAttribute("aria-selected", "true");
 
-  // R1 R2 R7: OK closes it and sets the cookie, which is HttpOnly, Secure, on the whole site, lasts a year, and keeps it closed on a reload
-  await dialog.getByRole("button", { name: "OK" }).click();
+  // R1 R2 R7: Esc closes it and sets the cookie, which is HttpOnly, Secure, on the whole site, lasts a year, and keeps it closed on a reload
+  await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect.poll(async () => (await context.cookies()).some((c) => c.name.endsWith("onboarding"))).toBe(true);
   const cookie = (await context.cookies()).find((c) => c.name.endsWith("onboarding"))!;
@@ -58,8 +58,8 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog 
   // R3 R2: the menu has the item between Secret Santa and Admin, which opens the dialog on the first tab; Esc closes it and the focus is back on the menu button
   await page.getByRole("button", { name: "Meny" }).click();
   const items = page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("listitem");
-  await expect(items).toHaveText(["Barnens listor", "Secret Santa", "Så funkar listorna", "Admin"]);
-  await page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("button", { name: "Så funkar listorna" }).click();
+  await expect(items).toHaveText(["Barnens listor", "Secret Santa", "Så funkar det", "Admin"]);
+  await page.getByRole("navigation", { name: "Huvudmeny" }).getByRole("button", { name: "Så funkar det" }).click();
   await expect(dialog).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Besökare" })).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Escape");
@@ -77,7 +77,7 @@ test("MUPP-035-R1 R2 Esc and a press outside also set the cookie, and the dialog
     const context = await newcomer(browser, baseURL);
     const page = await context.newPage();
     await goto(page, "/");
-    const dialog = page.getByRole("dialog", { name: "Så funkar listorna" });
+    const dialog = page.getByRole("dialog", { name: "Så funkar det" });
     await expect(dialog, way).toBeVisible();
     await close(page);
     await expect(dialog, way).toBeHidden();

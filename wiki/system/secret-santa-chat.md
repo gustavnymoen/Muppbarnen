@@ -27,6 +27,10 @@ A message is unread for the other side until that side opens the chat; opening i
 
 `sendMessageMails` runs in the same scheduled job as the change mails ([Secret Santa match](secret-santa-match.md): `POST /api/santa-mails` every ten minutes). For each conversation and direction it takes the unmailed messages once the oldest has waited ten minutes, marks them mailed (so two runs send one mail), and sends mail 6 (from the giver, to the receiver) or 7 (from the receiver, to the giver) only if something is still unread. The mail names the group and nothing else ([Mail](mail.md)). A mail that fails puts the mark back. The route answers the summed counts only.
 
+## The keyboard on a phone
+
+The chat card is `75dvh` high and centred. On an iPhone the on-screen keyboard (in Safari and in the pinned home-screen app) does not shrink the page but covers it; only `window.visualViewport` gets smaller, and `dvh` ignores that. So `Chat` (`ChatButton.tsx`) listens to the visual viewport while the card is open: when it is more than 100 px shorter than the window it puts the card inside it (inline `top`, `height`, 8 px from the edges, `margin-block: 0`), so the message field and "Skicka" stay in view and the list shrinks and scrolls. When the keyboard closes, or the card does, the inline values are removed. Built by [MUPP-065](../../specs/MUPP-065-chat-keyboard/solution.md). The test fakes the visual viewport; a real iPhone is the manual check.
+
 ## Data and deletion
 
 Table `ss_message` (migration `012`). The conversations are deleted with `clearMessages(eventId, tx)` when the draw is stopped or started again (`lib/santa.ts`), when a group is deleted, and by the yearly cleanup ([cleanup](secret-santa-cleanup.md)). The pages send the current messages with the page (`peekChat`, nothing is marked read), so the card shows them at once, and the notice comes straight from the page; after the chat is read the page is refreshed so the notice goes. While the chat is open it asks for new messages every ten seconds (not while the tab is hidden; each poll counts against the write limit). There is no push: new messages show within about ten seconds.
