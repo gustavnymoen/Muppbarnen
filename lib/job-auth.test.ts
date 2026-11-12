@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { jobAuthorized } from "./santa-job";
+import { jobAuthorized } from "./job-auth";
 
 const secret = "a".repeat(32);
 

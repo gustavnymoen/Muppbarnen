@@ -1,13 +1,11 @@
 "use server";
 
 import { failed, type FormState } from "@/app/components/form-state";
-import { requireAdminSession } from "@/lib/admin-auth";
+import { openAdminAction } from "@/lib/action-open";
 import * as family from "@/lib/family";
 import { detectImageType, MAX_IMAGE_BYTES } from "@/lib/image-type";
 import { BadPictureError, storePicture } from "@/lib/picture-upload";
 import { removePicture } from "@/lib/pictures";
-import { guardMessage, guardWrite } from "@/lib/request-guard";
-import { requireSiteSession } from "@/lib/site-auth";
 import { answer, logPictureError, text } from "./action-helpers";
 
 // Bildåtgärden ligger för sig, så att bara /admin/hantera (där bilden laddas upp) får med sharp (TECH-016).
@@ -16,10 +14,8 @@ import { answer, logPictureError, text } from "./action-helpers";
 const BAD_PICTURE = "Bilden måste vara JPEG, PNG eller WebP och högst 4 MB.";
 
 export async function saveChildPicture(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const { parent } = await requireAdminSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
   const child = await family.childForPicture(parent, text(formData, "childId"));
   if (!child) return failed(formData, { error: "Du kan inte göra det här." });
 

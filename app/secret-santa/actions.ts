@@ -3,16 +3,15 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { checkSantaSignIn, clearSantaCookie, setSantaCookie } from "@/lib/santa-auth";
-import { clientIp, guardMessage, guardWrite } from "@/lib/request-guard";
-import { requireSiteSession } from "@/lib/site-auth";
+import { openSiteAction } from "@/lib/action-open";
+import { clientIp } from "@/lib/request-guard";
 
 const OWN_PAGE = "/secret-santa/min-sida";
 type SignInState = { error: string } | null;
 
 export async function signIn(_previous: SignInState, formData: FormData): Promise<SignInState> {
-  await requireSiteSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return { error: guardMessage(guard) };
+  const { refusal } = await openSiteAction();
+  if (refusal) return { error: refusal };
 
   const outcome = await checkSantaSignIn(clientIp(await headers()), {
     memberId: formData.get("memberId"),
@@ -27,8 +26,8 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
 
 // Pilen på den egna sidan: kakan tas bort och besökaren går tillbaka till valet av grupp (MUPP-055)
 export async function leave() {
-  await requireSiteSession();
-  if ((await guardWrite()) !== "ok") return;
+  const { refusal } = await openSiteAction();
+  if (refusal) return;
   await clearSantaCookie();
   redirect("/secret-santa");
 }
