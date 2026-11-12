@@ -44,7 +44,7 @@ The findings of step 3 (the card): **twins** have a bigger picture (72 px on a l
 - [x] Test suite: within the budgets, total time +7 %, the two new tests follow the quality rules
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit e832192 passed (2026-10-29)
 - [x] Accessibility: axe locally passes; the live checklist: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
-- [ ] Requirements as built (below) match the card; `solution.md` describes how it was built
+- [x] Requirements as built (below) match the card; `solution.md` describes how it was built; compared with the card on 2026-11-12: all six requirements Pass
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the proposals page and its stylesheet, the variant code and the dev server's files were deleted
 - [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` pass; `build` runs in `test:time`

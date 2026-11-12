@@ -38,13 +38,13 @@ Not measured: the change adds a script and documentation, no test.
 ## Definition of Done
 
 - [ ] Tests: every check in the card's test plan is done (the manual check is partly open)
-- [ ] Test suite: not applicable (no test added)
+- [x] Test suite: not applicable (no test added)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bb3d0fe passed (2026-11-12)
-- [ ] Accessibility: not applicable (visitors see no change)
+- [x] Accessibility: not applicable (visitors see no change)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: the change adds one script and documentation, nothing made unused
-- [ ] Clean code: `npm run lint`, `npm run lint:docs` and `npm run typecheck` pass (2026-11-12); `npm run build` not run (its `prebuild` step uses the owner's local database)
+- [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass (2026-11-12; the build with a scratch database, one Turbopack warning about dynamic file access)
 - [x] Code review done, no must-fix findings left; see [review.md](review.md)
 - [x] Technical tasks for larger improvements noticed along the way added to the board: none
 

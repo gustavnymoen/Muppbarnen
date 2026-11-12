@@ -37,7 +37,7 @@ How each requirement was checked. Browser tests ran locally (a production build,
 ## Definition of Done
 
 - [x] Tests: every check in the test plan is done and every requirement has a test; unit and browser tests pass locally
-- [ ] Test suite: not measured with `npm run test:time` (see above); the new test follows the quality rules
+- [ ] Test suite: not measured with `npm run test:time` (see above); the new test follows the quality rules; to be measured in [TECH-023](https://github.com/gustavnymoen/Muppbarnen/issues/218)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 915b9a5 passed (2026-11-10)
 - [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-12); it was not gone through item by item by Claude and no details are recorded per item
 - [x] Requirements match what was built, no open questions; copied below; `solution.md` describes how it was built

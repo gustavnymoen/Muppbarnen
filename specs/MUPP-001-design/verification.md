@@ -49,7 +49,7 @@ The browser time grew because the three new tests load `/design` and run axe on 
 - [x] Test suite: within the time budgets; the new tests follow the quality rules (combined by journey, no fixed waits)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit 5c1b185 passed (2026-10-27)
 - [x] Accessibility: axe passes; the live checklist in `wiki/system/accessibility.md`: the user reports the live checklist was tested by hand, including the screen reader items (said by the user, 2026-11-09, not recorded item by item)
-- [ ] Requirements in the card match what was built, no open questions left; copied below as built (after the last change)
+- [x] Requirements in the card match what was built, no open questions left; copied below as built (after the last change); compared with the card on 2026-11-12: every requirement is in the table; the checks not made (hover, notch, `dev:https`, HSTS) are recorded as not checked
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers: `.claude/launch.json` (temporary) is not in Git, and never was in its history (checked 2026-11-12)
 - [x] Clean code: `npm run lint`, `npm run typecheck` pass (`npm run build` runs inside `npm run test:local`)

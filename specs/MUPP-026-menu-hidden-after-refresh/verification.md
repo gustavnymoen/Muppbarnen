@@ -36,7 +36,7 @@ feature: MUPP-026
 ## Definition of Done
 
 - [x] Tests: manual iPhone check: the user tested on a phone at each merge and reports it fine (2026-11-12); not recorded per check; Live tests passed on the merge commit
-- [ ] Test suite: time comparison not measured (see above)
+- [ ] Test suite: time comparison not measured (see above); to be measured in [TECH-023](https://github.com/gustavnymoen/Muppbarnen/issues/218)
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit bb86c82 passed (2026-11-02)
 - [x] Accessibility: axe on the menu at phone width
 - [x] Requirements match what was built, copied below

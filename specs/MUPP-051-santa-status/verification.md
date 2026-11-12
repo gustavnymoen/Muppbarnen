@@ -45,7 +45,7 @@ The browser suite grew by 14.9 s (6 %) for 8 more tests (7 new tests plus the ph
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (see above; the budget was already exceeded before, TECH-019); accepted by the user (2026-11-12): the suite grew fast while the site was built
 - [x] Deployed, and the smoke tests pass against production (Live tests): the run on the merge commit fce90fb passed (2026-11-09)
 - [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-12); it was not gone through item by item by Claude and no details are recorded per item
-- [ ] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
+- [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built; compared with the card on 2026-11-12: all seven requirements Pass
 - [x] Manual, system docs and `wiki/log.md` updated (the mail parts to be added with the mails)
 - [x] No leftovers
 - [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass on the current code (2026-11-12; the build with a scratch database, one Turbopack warning about dynamic file access)
