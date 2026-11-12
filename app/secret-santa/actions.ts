@@ -7,7 +7,7 @@ import { clientIp, guardMessage, guardWrite } from "@/lib/request-guard";
 import { requireSiteSession } from "@/lib/site-auth";
 
 const OWN_PAGE = "/secret-santa/min-sida";
-export type SignInState = { error: string } | null;
+type SignInState = { error: string } | null;
 
 export async function signIn(_previous: SignInState, formData: FormData): Promise<SignInState> {
   await requireSiteSession();

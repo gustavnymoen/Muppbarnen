@@ -10,7 +10,7 @@ import { picturesDir, storedInBlob } from "./pictures";
 // bara funktionen för /admin/hantera, där bilden laddas upp, ska få med det (TECH-016).
 
 // Störst sida i pixlar (TECH-012-R1): största avataren är 104 px, dubbelt för 2x-skärmar och lite till
-export const MAX_PICTURE_SIDE = 256;
+const MAX_PICTURE_SIDE = 256;
 // Gräns för avkodning, så att en liten fil som blir en enorm bild (dekompressionsbomb) inte tar minnet
 const MAX_INPUT_PIXELS = 50_000_000;
 

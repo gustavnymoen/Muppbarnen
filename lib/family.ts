@@ -111,7 +111,7 @@ export async function listWishlists(child: Child, today = swedishToday()) {
 // Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning;
 // det arkiverade kommer inte med (MUPP-031-R4)
 export async function listDeckInput(today = swedishToday()): Promise<{ children: DeckInput[]; wishes: Wishes }> {
-  const children = (await listChildren()).map((c) => ({ id: c.id, parentId: c.parentId, name: c.name, birthdate: c.birthdate, picture: c.picture, sizes: c.sizes }));
+  const children = await listChildren();
   const kids = new Map(children.map((c) => [c.id, c]));
   const rows = await all<{ child_id: number; occasion: Occasion; added_at: string; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
     `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at
