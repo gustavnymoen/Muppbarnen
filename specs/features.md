@@ -95,6 +95,7 @@ tags: [product, features]
 | [MUPP-064](MUPP-064-wish-row-fold/solution.md) | Wish rows fold out consistently | Shared | Review |
 | [MUPP-065](MUPP-065-chat-keyboard/solution.md) | Chat field above the keyboard | Shared | Review |
 | [MUPP-066](MUPP-066-chat-scroll/solution.md) | Chat scroll with the keyboard up | Shared | Review |
+| [MUPP-067](MUPP-067-santa-draw-year/solution.md) | Secret Santa draw year in Swedish time | Administration | Ongoing |
 | [MUPP-068](MUPP-068-chat-keyboard-native/solution.md) | Chat keyboard handled by iOS | Shared | Review |
 | [MUPP-050](MUPP-050-santa-help/solution.md) | Secret Santa help dialog | Shared | Ongoing |
 | [MUPP-069](MUPP-069-help-dialog-arrow/solution.md) | Help dialog arrow over the tabs on iPhone | Shared | Ongoing |

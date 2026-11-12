@@ -21,7 +21,7 @@ The table `ss_draw` (migration `009`) has one row per giver and year: event, yea
 
 ## Start and stop
 
-- **Start** (`startDraw`): owner or master admin, status must be preparing; the rows and the status change are one transaction. Mail 3 goes to everyone; a mail that fails never undoes the draw, and the administrator sees who got none. The question lists participants who have not written a wish yet; the draw can still be made. A participant with a wish has the note "Önskelista påbörjad" under the name in the admin ([MUPP-061](../../specs/MUPP-061-santa-wish-note/solution.md)).
+- **Start** (`startDraw`): owner or master admin, status must be preparing; the rows and the status change are one transaction. The year of the rows is the Swedish year (`swedishToday()`, read once; the server clock is UTC), so a draw just after midnight on New Year's Day is filed under the new year ([MUPP-067](../../specs/MUPP-067-santa-draw-year/solution.md)). Mail 3 goes to everyone; a mail that fails never undoes the draw, and the administrator sees who got none. The question lists participants who have not written a wish yet; the draw can still be made. A participant with a wish has the note "Önskelista påbörjad" under the name in the admin ([MUPP-061](../../specs/MUPP-061-santa-wish-note/solution.md)).
 - **Stop** (`stopDraw`): only while started; deletes this year's rows (so a stopped draw never counts as last year), keeps the wish lists, returns the event to preparing and sends mail 4. The conversations ([chat](secret-santa-chat.md)) are deleted here too, and when a draw is started again.
 
 ## Secrecy
