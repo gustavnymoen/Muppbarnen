@@ -100,6 +100,7 @@ tags: [product, features]
 | [MUPP-050](MUPP-050-santa-help/solution.md) | Secret Santa help dialog | Shared | Ongoing |
 | [MUPP-069](MUPP-069-help-dialog-arrow/solution.md) | Help dialog arrow over the tabs on iPhone | Shared | Ongoing |
 | [TECH-022](TECH-022-ponytail-audit-2/solution.md) | Ponytail audit of the code | Shared | Review |
+| [TECH-025](TECH-025-build-warnings/solution.md) | Build warnings on Vercel | Shared | Ongoing |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

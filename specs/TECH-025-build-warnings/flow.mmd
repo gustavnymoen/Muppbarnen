@@ -1,0 +1,12 @@
+%% TECH-025 Build warnings on Vercel
+%% Each warning of the deploy log gets a decision; the build is checked after.
+flowchart TD
+    A[Deploy log warnings] --> B[engines: pin 24.x, R2]
+    A --> C[install scripts: deny unrs-resolver and fsevents, R3]
+    A --> D{ESLint 10 allowed by the plugins?, R4}
+    D -- no --> E[Stay on 9, blocker written down]
+    D -- yes --> F[Update ESLint]
+    A --> G[cache-dir: Vercel's own, left]
+    B --> H[lint, typecheck, build, tests as before, R1]
+    C --> H
+    E --> H
