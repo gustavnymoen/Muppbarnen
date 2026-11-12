@@ -7,7 +7,7 @@ feature: MUPP-067
 
 # Verification of MUPP-067
 
-Run locally 2026-11-12. Not deployed yet.
+Run locally 2026-11-12; merged as PR #236 and Live tests passed.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -37,7 +37,7 @@ The "after" run was made while the machine was overloaded by other work (load av
 
 - [x] Tests: every check in the card's test plan is done; the requirement is tested; unit tests pass, `npm run test:local` passes (one test on rerun, see above)
 - [ ] Test suite: not measured on an idle machine; to be run again
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed on merge commit c444d95 (run 43294488995, 2026-11-12)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (nothing visible changes), system docs and `wiki/log.md` updated
