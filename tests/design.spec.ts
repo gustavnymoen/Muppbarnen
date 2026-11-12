@@ -1301,6 +1301,14 @@ test("MUPP-035-R6 MUPP-036-R2 MUPP-050-R4 the dialog Så funkar det on the narro
   // The panel is what scrolls when the text does not fit
   const panel = dialog.locator("div.overflow-y-auto");
   expect(await panel.evaluate((el) => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === "auto")).toBe(true);
+  // MUPP-069-R1 R2: the panel starts under the text tabs and the button under the panel, inside the dialog (never over the tabs)
+  const tabsBox = (await dialog.getByRole("tab", { name: "Besökare" }).boundingBox())!;
+  const panelBox = (await panel.boundingBox())!;
+  const buttonBox = (await dialog.getByRole("button", { name: "Läs vidare" }).boundingBox())!;
+  expect(panelBox.height).toBeGreaterThan(44);
+  expect(panelBox.y).toBeGreaterThanOrEqual(tabsBox.y + tabsBox.height);
+  expect(buttonBox.y).toBeGreaterThanOrEqual(panelBox.y + panelBox.height);
+  expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(box.y + box.height);
   await expectNoA11yViolations(page);
   // MUPP-036-R2: the arrow stands in for OK while there is more text, and the last scroll turns it into OK
   await expect(dialog.getByRole("button", { name: "OK" })).toHaveCount(0);

@@ -96,6 +96,7 @@ tags: [product, features]
 | [MUPP-065](MUPP-065-chat-keyboard/solution.md) | Chat field above the keyboard | Shared | Review |
 | [MUPP-066](MUPP-066-chat-scroll/solution.md) | Chat scroll with the keyboard up | Shared | Review |
 | [MUPP-050](MUPP-050-santa-help/solution.md) | Secret Santa help dialog | Shared | Ongoing |
+| [MUPP-069](MUPP-069-help-dialog-arrow/solution.md) | Help dialog arrow over the tabs on iPhone | Shared | Ongoing |
 | [TECH-022](TECH-022-ponytail-audit-2/solution.md) | Ponytail audit of the code | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
