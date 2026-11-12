@@ -2,6 +2,7 @@
 
 ## 2026-11-12
 
+* **Creation** [TECH-025 Build warnings on Vercel](../specs/TECH-025-build-warnings/solution.md): Node.js is pinned to `24.x`, the install scripts of `unrs-resolver` and `fsevents` are denied (not needed), and ESLint stays on 9 because the plugins of `eslint-config-next` do not allow 10 yet.
 * **Creation** [TECH-024 Shared access checks](../specs/TECH-024-shared-auth-helpers/solution.md): the opening checks of server actions, the session cookies and the bearer-secret check of the two job routes are written once (`lib/action-open.ts`, `lib/session-cookie.ts`, `lib/job-auth.ts`); the cleanup route now needs a secret of 32+ characters and is under the write limit, like the mail route.
 * **Creation** [MUPP-067 Secret Santa draw year in Swedish time](../specs/MUPP-067-santa-draw-year/solution.md): a draw is filed under the Swedish year, not the server's, so one made just after midnight on New Year's Day gets the right year.
 * **Creation** [MUPP-069 Help dialog arrow over the tabs on iPhone](../specs/MUPP-069-help-dialog-arrow/solution.md): the text panel of "Så funkar det" is sized from its content (`flex-auto`), so iOS no longer gives it no height and draws the arrow over the tabs.
