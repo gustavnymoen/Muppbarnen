@@ -109,6 +109,12 @@ test("MUPP-043-R2 R5 the receiver sees the giver's message with a notice before 
   await page.getByRole("button", { name: /^Chatt med din Secret Santa/ }).click();
   const chat = chatOf(page, "Din Secret Santa");
   await expect(chat.getByRole("log").getByText("Hej Bo, vad önskar du dig?")).toBeVisible();
+  // With one message the list is mostly empty and the message sits at its bottom, like in an ordinary chat
+  const log = chat.getByRole("log");
+  await expect.poll(async () => {
+    const [l, m] = await Promise.all([log.boundingBox(), log.locator("> div").last().boundingBox()]);
+    return l && m ? l.y + l.height - (m.y + m.height) : 999;
+  }).toBeLessThan(4);
   // R5: the message is marked read when it is shown
   await expect.poll(async () => (await santaMessages())[0].read).toBe(true);
   await expect(page.getByRole("button", { name: "Chatt med din Secret Santa", exact: true })).toBeVisible();

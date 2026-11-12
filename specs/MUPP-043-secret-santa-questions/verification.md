@@ -45,7 +45,7 @@ Over budget with and without this change (TECH-019). The 15 unit tests and 6 bro
 
 - [x] Tests: every requirement has a test; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: over budget before this change (TECH-019); the change added 3 %
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): the run after the merge of PR #212 (merge commit 5a3afcb, which includes #211) passed on 2026-11-11
 - [ ] Accessibility: axe passes locally; the live checklist after the deploy (the live site needs a signed-in member of a started group; not checked)
 - [x] Requirements in the card match what was built (copied below)
 - [x] Manual, system docs and `wiki/log.md` updated
