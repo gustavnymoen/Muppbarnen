@@ -10,7 +10,7 @@ feature: TECH-022
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
 | TECH-022-R1 | Manual: [audit.md](audit.md) exists with eight findings, ranked, each with file and problem; no personal data (read through). The audit run changed no file but the report. Can't be automated: it is a document. | local | Pass | 2026-11-12 |
-| TECH-022-R2 | Manual: every finding has a decision line, the two left have reasons, and the two own cards ([MUPP-067](https://github.com/gustavnymoen/Muppbarnen/issues/227), [TECH-024](https://github.com/gustavnymoen/Muppbarnen/issues/228)) are on the board and linked. The decisions are Claude's proposal; not yet confirmed by the owner. The "fix here" ones (4, 5, 6) add no logic or dependency. | local | Pass, decisions to confirm | 2026-11-12 |
+| TECH-022-R2 | Manual: every finding has a decision line, the two left have reasons, and the two own cards ([MUPP-067](https://github.com/gustavnymoen/Muppbarnen/issues/227), [TECH-024](https://github.com/gustavnymoen/Muppbarnen/issues/228)) are on the board and linked. The decisions are Claude's proposal; not yet confirmed by the owner (the owner asked for a change on 2026-11-12, not yet specified). The "fix here" ones (4, 5, 6) add no logic or dependency. | local | Pass, decisions to confirm | 2026-11-12 |
 | TECH-022-R3 | `lint`, `lint:docs`, `typecheck`, `build` (no warnings; the "whole project is traced" warning is gone) and `test:time` pass; the only test changes are six import lines. See the numbers below. | local | Pass, time over budget (see Notes) | 2026-11-12 |
 | TECH-022-R4 | `wiki/system/mail.md` and `wiki/log.md` updated; a search of `wiki/` and `specs/` for the names that lost their `export` finds only history. `npm run lint:docs` passes. | local | Pass | 2026-11-12 |
 
@@ -34,8 +34,8 @@ feature: TECH-022
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: total time is 338.8 s, over the 330 s budget by 2.7 %, with 5 more tests than the "before" figure (from MUPP-066, not from this card); growth 2.9 %
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Test suite: total time is 338.8 s, over the 330 s budget by 2.7 % (accepted by the owner on 2026-11-12; CI's limit of 455 s passed), with 5 more tests than the "before" figure (from MUPP-066, not from this card); growth 2.9 %
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed on merge commit c59a4c7 (run 43230382116, 2026-11-12)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left
 - [x] Manual, system docs and `wiki/log.md` updated (the manual needs nothing: no visible change)
