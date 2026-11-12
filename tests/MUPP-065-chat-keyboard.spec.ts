@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { animationsDone, expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { addSantaDraw, addSantaEvent, addSantaMember, clearFamily, clearSanta } from "./family-db";
 import { santaSignIn } from "./santa";
@@ -91,4 +91,37 @@ test("MUPP-065-R1 R2 R3 with the keyboard up the chat card fits the visible part
   await animationsDone(chat);
   expect(Math.round((await chat.boundingBox())!.height)).toBe(Math.round(normal.height));
   expect(await chat.evaluate((el) => el.getAttribute("style") ?? "")).not.toMatch(/height|top|margin/);
+});
+
+test("MUPP-066-R1 R2 with the keyboard up a drag in the list lowers it, a drag outside the list and field moves nothing, and without a keyboard everything scrolls as before", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await fakeVisualViewport(page);
+  const event = await addSantaEvent("Familjen Test", undefined, "started");
+  const anna = await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid");
+  const bo = await addSantaMember(event, "Bo Testsson", "0700002222", "bo@exempel.invalid");
+  await addSantaDraw(event, anna, bo);
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida/matchning");
+  await page.getByRole("button", { name: /^Chatt med din matchning/ }).click();
+  const chat = page.getByRole("dialog", { name: "Din matchning" });
+  const field = chat.getByRole("textbox", { name: "Meddelande" });
+  await animationsDone(chat);
+  // Dispatches a touchmove on the element and says whether the page was allowed to scroll (not cancelled)
+  const drag = (target: Locator) => target.evaluate((el) => !el.dispatchEvent(new TouchEvent("touchmove", { bubbles: true, cancelable: true })));
+  const log = chat.getByRole("log");
+  await expect(log).toHaveCSS("overscroll-behavior-y", "contain");
+
+  // No keyboard: nothing is cancelled, nothing is blurred
+  await field.focus();
+  expect(await drag(log)).toBe(false);
+  expect(await drag(chat.getByRole("heading", { name: "Din matchning" }))).toBe(false);
+  await expect(field).toBeFocused();
+
+  // Keyboard up: outside the list and field the drag is cancelled, in the field it is not, in the list it lowers the keyboard
+  await setView(page, 367, 0);
+  expect(await drag(chat.getByRole("heading", { name: "Din matchning" }))).toBe(true);
+  expect(await drag(field)).toBe(false);
+  await expect(field).toBeFocused();
+  expect(await drag(log)).toBe(false);
+  await expect(field).not.toBeFocused();
 });

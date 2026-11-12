@@ -93,6 +93,7 @@ tags: [product, features]
 | [MUPP-063](MUPP-063-admin-desktop/solution.md) | Admin page layout on desktop | Administration | Review |
 | [MUPP-064](MUPP-064-wish-row-fold/solution.md) | Wish rows fold out consistently | Shared | Review |
 | [MUPP-065](MUPP-065-chat-keyboard/solution.md) | Chat field above the keyboard | Shared | Review |
+| [MUPP-066](MUPP-066-chat-scroll/solution.md) | Chat scroll with the keyboard up | Shared | Ongoing |
 | [MUPP-050](MUPP-050-santa-help/solution.md) | Secret Santa help dialog | Shared | Ongoing |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
