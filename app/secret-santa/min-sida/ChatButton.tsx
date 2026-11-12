@@ -85,18 +85,28 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
     const view = window.visualViewport;
     const card = list.current?.closest("dialog");
     if (!view || !card) return;
+    // Ett nyp-zoomat läge gör den synliga delen kortare utan att något tangentbord är uppe: scale räknar bort det
+    const keyboardUp = () => window.innerHeight - view.height * view.scale > KEYBOARD_MIN_PX;
     const fit = () => {
-      // Ett nyp-zoomat läge gör den synliga delen kortare utan att något tangentbord är uppe: scale räknar bort det
-      const keyboard = window.innerHeight - view.height * view.scale > KEYBOARD_MIN_PX;
+      const keyboard = keyboardUp();
       card.style.top = keyboard ? `${view.offsetTop + CARD_GAP_PX}px` : "";
       card.style.bottom = keyboard ? "auto" : "";
       card.style.marginBlock = keyboard ? "0" : "";
       card.style.height = keyboard ? `${Math.min(view.height - 2 * CARD_GAP_PX, window.innerHeight * 0.75)}px` : "";
     };
+    // Som i iMessage: ett drag i listan sänker tangentbordet (så att hela samtalet syns); ett drag utanför listan och fältet flyttar ingenting, så att sidan bakom
+    // inte rullar och kortet inte hoppar (MUPP-066). Utan tangentbord rullar allt som förut.
+    const onTouchMove = (event: TouchEvent) => {
+      if (!keyboardUp() || event.target === field.current) return;
+      if (list.current?.contains(event.target as Node)) field.current?.blur();
+      else event.preventDefault();
+    };
     fit();
+    card.addEventListener("touchmove", onTouchMove, { passive: false });
     view.addEventListener("resize", fit);
     view.addEventListener("scroll", fit);
     return () => {
+      card.removeEventListener("touchmove", onTouchMove);
       view.removeEventListener("resize", fit);
       view.removeEventListener("scroll", fit);
       for (const property of ["top", "bottom", "margin-block", "height"]) card.style.removeProperty(property);
@@ -125,7 +135,7 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
     <div className="mt-2 flex min-h-0 flex-1 flex-col gap-4">
       {/* role="log" läses upp av skärmläsaren när ett meddelande läggs till; tabIndex så att listan går att rulla med tangentbordet */}
       {/* Meddelandena samlas längst ner som i en vanlig chatt (mt-auto på det första; justify-end skulle göra toppen orullbar) */}
-      <div ref={list} role="log" aria-label="Samtalet" tabIndex={0} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto [&>:first-child]:mt-auto">
+      <div ref={list} role="log" aria-label="Samtalet" tabIndex={0} className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain [&>:first-child]:mt-auto">
         {messages.length === 0 && <p className="text-muted">{empty}</p>}
         {messages.map((message, i) => (
           <div key={i} className={`flex items-end gap-2 ${message.mine ? "justify-end" : "justify-start"}`}>

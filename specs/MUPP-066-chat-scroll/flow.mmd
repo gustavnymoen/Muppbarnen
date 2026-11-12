@@ -1,0 +1,9 @@
+%% MUPP-066 Chat scroll with the keyboard up
+%% What a touch drag does in the open chat card.
+flowchart TD
+    A[Touch drag in the chat card] --> B{Keyboard up?}
+    B -- no --> C[Scrolls as before, the list does not chain to the page: overscroll contain, R2]
+    B -- yes --> D{Where?}
+    D -- in the message field --> E[The field scrolls as before]
+    D -- in the message list --> F[Field loses focus, keyboard goes down, R1]
+    D -- elsewhere in the card --> G[touchmove cancelled, nothing moves, R2]
