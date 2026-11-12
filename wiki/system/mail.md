@@ -48,7 +48,12 @@ The same module holds the questions of the status dialogs (`STATUS_CONFIRMATIONS
 
 The test server blanks `RESEND_API_KEY` (`scripts/test-server.mjs`), even if `.env.local` has one, so a browser test never sends a real mail and its mails land in the outbox.
 
-The key and the sender domain are set up in [TECH-020](https://github.com/gustavnymoen/Muppbarnen/issues/168) (not built yet), so until then the site sends no real mail.
+## Going live ([TECH-020](../../specs/TECH-020-mail-go-live/solution.md))
+
+- **Domain and DNS.** `kusinportalen.com` is bought at Vercel, which also holds its DNS. Resend has verified the domain: the records `resend._domainkey` (DKIM), `send` and `rsend` are in Vercel DNS, and `_dmarc` is a TXT record `v=DMARC1; p=none;` (monitoring only; without it Outlook reports `dmarc=bestguesspass` instead of `pass`).
+- **The key.** `RESEND_API_KEY` exists as a sensitive environment variable in Vercel (Production and Preview; a preview deployment with real members in its database would send real mail, so remove the Preview key if that is not wanted) and, for the owner's own tests, in `.env.local`, where it also makes `npm run dev` send real mail (the test server blanks it). It is read only in `sendMail` (and in `scripts/send-test-mail.mjs`), is never in a `NEXT_PUBLIC_` variable, in a log line or in the repository (`.env*` is in `.gitignore`; only `.env.example` lists the name; Gitleaks scans the whole history in CI). The test server blanks it. Rotating it: create a new key in Resend, replace the variable in Vercel, redeploy, delete the old key ([Security](security.md#rotating-secrets-and-leaks)).
+- **A test mail.** `node --env-file=.env.local scripts/send-test-mail.mjs <address>` sends one short mail from `Tomten <tomten@kusinportalen.com>` to that address and nothing else; it touches no database and no member. Run it by hand only.
+- **Reading the result.** In Gmail: "Show original" shows `SPF`, `DKIM` and `DMARC` as `PASS`. In Outlook: the `Authentication-Results` header has `spf=pass`, `dkim=pass` and `dmarc=pass`. Resend's dashboard (Emails) shows delivered, bounced and complained mails. The free tier allows about 100 mails a day.
 
 ## For callers
 

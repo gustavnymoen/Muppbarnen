@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* **Creation** [TECH-020 Go live with mail](../specs/TECH-020-mail-go-live/solution.md): the real sending is on (domain verified in Resend, DMARC record added); a script sends one test mail to an address given by hand, and the mail page describes the domain, the key and how to read the headers.
 * **Update** [MUPP-043](../specs/MUPP-043-secret-santa-questions/solution.md): fixed after the live check: the notice on the Chatt button follows the page (a new message gives it again after an earlier read) and the chat shows its messages at once.
 * **Creation** [MUPP-043 Secret Santa: anonymous chat](../specs/MUPP-043-secret-santa-questions/solution.md): a giver and their receiver chat without names ("Din Secret Santa" / "Din matchning"), with an unread notice on the bubbles and message mails 6 and 7 collected over ten minutes; the conversations are deleted with the draw and in the yearly cleanup.
 * **Update** [MUPP-064](../specs/MUPP-064-wish-row-fold/verification.md): Live tests passed after the merge; the live accessibility checklist and how a screen reader reads "Storlek: –" were checked by the user and reported as fine.
