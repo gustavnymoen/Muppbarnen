@@ -91,6 +91,10 @@ async function Design() {
               <Button variant="secondary">Sekundär</Button>
               <Button disabled>Avstängd</Button>
               <Button variant="secondary" disabled>Avstängd</Button>
+              <Button busy>Sparar</Button>
+              <Button variant="secondary" busy>Sparar</Button>
+              <Button variant="red" busy>Tjata in en lista</Button>
+              <IconButton label="Sparar" busy>+</IconButton>
               <IconButton label="Lägg till">+</IconButton>
               <IconButton label="Stäng" disabled>×</IconButton>
             </div>

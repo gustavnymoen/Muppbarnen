@@ -124,9 +124,9 @@ export async function toCard(page: Page, heading: string) {
 // elements that are removed when they end (the copy that moves when a view closes). An
 // expect that waits for the end of an animation is otherwise checked again only after
 // Playwright's backoff (0, 20, 70, 170, 270, then 770 ms), so a 300 ms animation cost
-// 770 ms (TECH-014).
+// 770 ms (TECH-014). Animations that never end (the spinner of a busy button, MUPP-072) are not waited for.
 export async function pageAnimationsDone(page: Page) {
-  await page.evaluate(() => Promise.allSettled(document.getAnimations().map((a) => a.finished)));
+  await page.evaluate(() => Promise.allSettled(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished)));
 }
 
 // The box of an element once it has settled: visible, and the same in two reads 50 ms apart. A bare

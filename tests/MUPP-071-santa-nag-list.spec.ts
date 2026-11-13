@@ -78,6 +78,8 @@ test("MUPP-071-R2 R3 R4 pressing locks the button and the job mails the match on
   // R3: for an hour after the mail the button is locked and says so; then it is free again
   await goto(page, "/secret-santa/min-sida/matchning");
   await expect(page.getByRole("button", { name: "Du har tjatat nyss", exact: true })).toBeDisabled();
+  // MUPP-072-R5: the same text under it, as for "Tjatet är på väg"
+  await expect(page.getByText("Du kan bara tjata en gång i timmen.")).toBeVisible();
   await expectNoA11yViolations(page);
   await ageSantaNag(bo);
   await goto(page, "/secret-santa/min-sida/matchning");

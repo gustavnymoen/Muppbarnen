@@ -85,7 +85,21 @@ body:has(dialog:modal) main { overflow: hidden; }
 .press { transition: transform 120ms var(--ease-out-soft), box-shadow 120ms var(--ease-out-soft); }
 .press:active:not(:disabled) { transform: translate(2px, 3px); box-shadow: var(--shadow-card-pressed); }
 
+/* Spinnern på en upptagen knapp (MUPP-072): en ring i knappens textfärg, som roterar; med reducerad rörelse pulserar den i stället */
+.spinner {
+  width: 0.75em;
+  height: 0.75em;
+  flex: none;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-busy { 50% { opacity: 0.35; } }
+
 @media (prefers-reduced-motion: reduce) {
+  .spinner { border-top-color: currentColor; animation: pulse-busy 1.4s ease-in-out infinite; }
   .enter, dialog:modal::backdrop { animation: none; }
   .press { transition: background-color 120ms, border-color 120ms; }
   .press:active:not(:disabled) { transform: none; filter: brightness(0.85); }

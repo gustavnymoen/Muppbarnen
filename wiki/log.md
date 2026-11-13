@@ -2,6 +2,7 @@
 
 ## 2026-11-13
 
+* **Creation** [MUPP-072 Loading state on buttons + nag button text](../specs/MUPP-072-loading-state/solution.md): every button that waits for a server action is locked at once and shows a small spinner after 300 ms (`busy` on `Button` and `IconButton`), announced as "Arbetar …"; the locked nag button says "Du kan bara tjata en gång i timmen."
 * **Update** [MUPP-071](../specs/MUPP-071-santa-nag-list/verification.md): the live accessibility line is marked done by the user; no per-item details were recorded.
 
 ## 2026-11-12

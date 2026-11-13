@@ -192,7 +192,7 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   const dialog = card(page);
   const [name, size, description, link] = ["Namn", "Storlek", "Beskrivning", "Länk"].map((label) => dialog.getByLabel(label));
   const unlimited = dialog.getByLabel("Obegränsad");
-  const confirmation = dialog.getByRole("status");
+  const confirmation = dialog.locator("p[role=status]"); // not the busy button's region (MUPP-072)
   const save = dialog.getByRole("button", { name: "Lägg till" });
 
   await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
@@ -342,7 +342,7 @@ test("MUPP-045-R2 R6 R7 the Secret Santa own page: a new wish keeps the card ope
   await expect(dialog.getByLabel("Obegränsad")).toHaveCount(0);
   await page.keyboard.type("Bok");
   await dialog.getByRole("button", { name: "Lägg till" }).click();
-  await expect(dialog.getByRole("status")).toHaveText("Bok lades till");
+  await expect(dialog.locator("p[role=status]")).toHaveText("Bok lades till");
   await expect(dialog.getByLabel("Namn")).toHaveValue("");
   await expect(dialog.getByLabel("Namn")).toBeFocused();
   await expectNoA11yViolations(page);

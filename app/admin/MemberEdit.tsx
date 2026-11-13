@@ -67,7 +67,7 @@ function NewAddressQuestion({ ask, dialog }: { ask: Ask; dialog: React.RefObject
         <Button type="button" variant="secondary" onClick={() => dialog.current?.close()}>
           Inte nu
         </Button>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" busy={pending}>
           Skicka
         </Button>
       </div>

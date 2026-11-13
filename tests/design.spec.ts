@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
+import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, pageAnimationsDone, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
 import { addChild, addParent, addSantaDraw, addSantaMessage, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus } from "./family-db";
 import { eventCard, santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
@@ -157,7 +157,7 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
   expect(entrance!.props.filter((p) => !["offset", "easing", "composite", "computedOffset", "opacity", "transform"].includes(p))).toEqual([]);
 
   // R3: tryckt kort flyttar sig och skuggan krymper
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+  await pageAnimationsDone(page);
   const before = await css(pressable, "box-shadow");
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
@@ -1658,7 +1658,7 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a tiny oran
   }
 });
 
-test("MUPP-071-R1 R3 the nag button on the match's empty list has a red border, red text and a red angry santa, is at least 44 px high, and keeps the icon when it is locked", async ({ page }) => {
+test("MUPP-071-R1 R3 MUPP-072-R5 the nag button on the match's empty list has a red border, red text and a red angry santa, is at least 44 px high, and keeps the icon when it is locked", async ({ page }) => {
   await clearFamily();
   await clearSanta();
   const event = await addSantaEvent("Familjen Ek", undefined, "started");
@@ -1694,9 +1694,36 @@ test("MUPP-071-R1 R3 the nag button on the match's empty list has a red border, 
     const locked = page.getByRole("button", { name: "Tjatet är på väg", exact: true });
     await expect(locked).toBeDisabled();
     await expect(locked.locator("svg")).toHaveCount(1);
+    // MUPP-072-R5: the text under the locked button is normal text with the contrast of normal text, and does not move the button
+    const hint = page.getByText("Du kan bara tjata en gång i timmen.");
+    await expect(hint).toBeVisible();
+    expect(contrast(await css(hint, "color"), CARD)).toBeGreaterThanOrEqual(4.5);
+    expect(await css(hint, "opacity")).toBe("1");
     if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT.replace(/\.png$/, "-locked.png") });
   } finally {
     await clearSanta();
     await clearFamily();
   }
+});
+
+test("MUPP-072-R4 the busy button's spinner turns, and with reduced motion it pulses instead and keeps its words; the busy button is less pale than a disabled one", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await goto(page, "/design");
+  const busy = page.getByRole("button", { name: "Sparar", exact: true }).first();
+  await expect(busy.locator(".spinner")).toBeVisible();
+  expect(await css(busy.locator(".spinner"), "animation-name")).toBe("spin");
+  // Pale because it is locked, but less so than the disabled button, so that it reads as "working" and not "off"
+  expect(Number(await css(busy, "opacity"))).toBeGreaterThan(Number(await css(page.getByRole("button", { name: "Avstängd" }).first(), "opacity")));
+  // The spinner has the colour of the button's text (3:1 for graphics) and the words stay
+  const background = await css(busy, "background-color");
+  expect(contrast(await css(busy.locator(".spinner"), "border-left-color"), background)).toBeGreaterThanOrEqual(3);
+  // The icon button shows the spinner instead of its icon, and keeps its size
+  const iconBusy = page.getByRole("button", { name: "Sparar", exact: true }).last();
+  await expect(iconBusy).toHaveAttribute("aria-busy", "true");
+  await expect(iconBusy.locator(".spinner")).toBeVisible();
+  expect((await settledBox(iconBusy)).width).toBe(44);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(await css(busy.locator(".spinner"), "animation-name")).toBe("pulse-busy");
+  await expect(busy).toContainText("Sparar");
+  await expectNoA11yViolations(page);
 });
