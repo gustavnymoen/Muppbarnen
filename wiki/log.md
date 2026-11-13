@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-13
+
+* **Update** [MUPP-071](../specs/MUPP-071-santa-nag-list/verification.md): the live accessibility line is marked done by the user; no per-item details were recorded.
+
 ## 2026-11-12
 
 * **Creation** [MUPP-071 Secret Santa: nag the match for a list](../specs/MUPP-071-santa-nag-list/solution.md): a giver whose match has an empty list can press the red button "Tjata in en lista"; the same scheduled job mails the match (mail 9, no name), and the button is locked while the mail waits and for an hour after.

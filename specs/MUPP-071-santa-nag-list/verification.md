@@ -21,7 +21,7 @@ feature: MUPP-071
 | Unit tests | `lib/santa-nag.test.ts` (new), additions to `santa-mail`, `santa-cleanup`, `santa-match` tests; `npm run test:unit` 393 passed after merging main (388 before) | local | Pass | 2026-11-12 |
 | Browser tests | `tests/MUPP-071-santa-nag-list.spec.ts` (3) and one test in `tests/design.spec.ts`; full `npm run test:time` after the last change: 170 passed | local | Pass | 2026-11-12 |
 | Smoke test | Not applicable: the page is behind a sign-in and the smoke tests are read-only | n/a | n/a | 2026-11-12 |
-| Accessibility | axe on the empty, the queued and the "Du har tjatat nyss" state in the browser tests. The checklist in `wiki/system/accessibility.md` on the live site: not checked | local | Partly (live not checked) | 2026-11-12 |
+| Accessibility | axe on the empty, the queued and the "Du har tjatat nyss" state in the browser tests. The checklist in `wiki/system/accessibility.md` on the live site: marked done by the user on 2026-11-13; no per-item details were recorded | local, live | Pass | 2026-11-12 |
 | Security | Security points of the review; `/security-review` run on the change: no findings | local | Pass | 2026-11-12 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
 | Look | The red button, empty and locked, seen on a 375 px phone in the test run (screenshots); the user liked it and asked for the text and the button to be centred, which is done and checked in `tests/design.spec.ts` | local | Pass | 2026-11-12 |
@@ -40,7 +40,7 @@ Over the 330 s budget, as it already was before this change (338.8 s, accepted b
 - [x] Tests: every check in the card's test plan is done except the live ones; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over the 330 s budget, as before (see above); the new tests follow the quality rules
 - [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is merged
-- [ ] Accessibility: axe passes; the live checklist is not checked
+- [x] Accessibility: axe passes; the live checklist was gone through by the user (no per-item details recorded)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built.
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers
