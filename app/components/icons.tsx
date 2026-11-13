@@ -79,6 +79,17 @@ export const TomteIcon = () => (
   </Icon>
 );
 
+// Arg tomte: tjatknappen i Secret Santa (MUPP-071). Samma tomte som ovan, med sneda ögonbryn och en nedåtböjd mun.
+export const AngryTomteIcon = () => (
+  <Icon size={24}>
+    <path d="M6 10C6 5.5 8.5 2.5 12 2.5c3.5 0 5.5 1.5 6.5 5" />
+    <circle cx="19" cy="9.5" r="1.5" />
+    <path d="M5 10h13M9.5 14.5h.01M14.5 14.5h.01" />
+    <path d="M8 12l3 1.5M16 12l-3 1.5" />
+    <path d="M6 10.5c0 5 1.5 7 3 8l3 2.5 3-2.5c1.5-1 3-3 3-8M9.5 18.5c1.5-1.2 3.5-1.2 5 0" />
+  </Icon>
+);
+
 // Måttband: storlekar
 export const MeasureIcon = () => (
   <Icon>

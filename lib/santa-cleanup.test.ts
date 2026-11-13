@@ -74,11 +74,11 @@ describe("MUPP-044-R1 R2 what the cleanup deletes and keeps", () => {
   test("MUPP-044-R1 on 24 January every event, whatever its status, is inactive without wishes", async () => {
     await run("INSERT INTO parent (id, name) VALUES (99, 'Erik')");
     await seed();
-    await run("UPDATE ss_member SET list_changed_at = 1");
+    await run("UPDATE ss_member SET list_changed_at = 1, nag_requested_at = 1, nag_mailed_at = 1");
     await run("INSERT INTO ss_event (owner_id, name, status) VALUES (99, 'Redan inaktiv', 'inactive')");
     expect(await runCleanup(day(2026, 1, 24))).toEqual({ cleaned: 3 });
     expect(await count("ss_wish")).toBe(0);
-    expect(await count("ss_member WHERE list_changed_at IS NOT NULL")).toBe(0);
+    expect(await count("ss_member WHERE list_changed_at IS NOT NULL OR nag_requested_at IS NOT NULL OR nag_mailed_at IS NOT NULL")).toBe(0);
     expect((await all<{ status: string }>("SELECT status FROM ss_event")).map((e) => e.status)).toEqual(["inactive", "inactive", "inactive"]);
     expect(await cleanupYear()).toBe(2026);
   });

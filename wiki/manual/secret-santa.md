@@ -26,6 +26,14 @@ Vad du ser på din sida beror på hur långt gruppen har kommit:
 - **Två kort:** gruppen är öppen. Korten är höga med stor text, och symbolen ligger över texten. **Min önskelista** öppnar din lista. Kortet **Min matchnings önskelista** är grått och säger "Inte tilldelad än": det blir ditt när lottningen är gjord (då får du ett mejl).
 - **Efter lottningen:** det andra kortet heter **Min matchning: <namn>** och öppnar önskelistan hos den du ska handla åt. Varje önskan är en rad som du trycker på för att se beskrivning och storlek (ett streck, –, betyder att inget är ifyllt) och länk till presenten om det finns en (öppnas i en ny flik); tryck igen för att fälla ihop den. Listan går bara att läsa. Du kan fortfarande ändra din egen lista. Ingen får veta vem som drog vem, inte heller vem som ska handla åt dig. Korten är lika stora och har en tunn linje mellan sig.
 
+## Tjata på en tom lista
+
+Har den du ska handla åt inte skrivit någon önskan än står det "Inga önskningar ännu." i **Min matchning**. Under texten finns den röda knappen **Tjata in en lista**. Tryck på den, så får hen ett mejl om att din Secret Santa vill ha in en lista. Mejlet säger inte vem du är och skickas först när tjatet legat en timme (så att det inte plingar hos hen strax efter att du tryckt, om ni sitter tillsammans).
+
+- Medan mejlet väntar står det **Tjatet är på väg** på knappen och den går inte att trycka på.
+- Efter att mejlet skickats står det **Du har tjatat nyss** i en timme. Därefter kan du tjata igen, om listan fortfarande är tom.
+- När hen skrivit en önskan försvinner knappen, och du får ett mejl om att listan ändrats.
+
 ## Chatta med din Secret Santa och din matchning
 
 Efter lottningen finns knappen **Chatt** längst ner i listorna **Min önskelista** och **Min matchning**. Den fungerar som en anonym chatt:

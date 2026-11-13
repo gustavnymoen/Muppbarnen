@@ -21,7 +21,7 @@ A mail with `installTip: true` also gets the home-screen tip ([MUPP-058](../../s
 
 ## The Secret Santa mails
 
-`lib/santa-mail.ts` ([MUPP-052](../../specs/MUPP-052-santa-mail-texts/solution.md)) holds the eight mails of the Secret Santa series, one function each, returning `{ subject, text }` for `sendMail`. The functions take only the group's name (and, for mails 1 and 8, the name of the group's administrator), so no member name, wish or message text can get in. The subject always starts with "Secret Santa: <group> – ".
+`lib/santa-mail.ts` ([MUPP-052](../../specs/MUPP-052-santa-mail-texts/solution.md)) holds the nine mails of the Secret Santa series, one function each, returning `{ subject, text }` for `sendMail`. The functions take only the group's name (and, for mails 1 and 8, the name of the group's administrator), so no member name, wish or message text can get in. The subject always starts with "Secret Santa: <group> – ".
 
 | Mail | Function | To | Sent by |
 |---|---|---|---|
@@ -33,8 +33,9 @@ A mail with `installTip: true` also gets the home-screen tip ([MUPP-058](../../s
 | 6 A message from the giver (collected over ten minutes) | `messageFromGiverMail` | the receiver | MUPP-043 (`lib/santa-chat.ts`, by the same scheduled job) |
 | 7 A message from the receiver (same limit) | `messageFromReceiverMail` | the giver | MUPP-043 (`lib/santa-chat.ts`, by the same scheduled job) |
 | 8 Added to a group | `addedMail` | that person | MUPP-051 |
+| 9 The giver nags for a list ([MUPP-071](../../specs/MUPP-071-santa-nag-list/solution.md)) | `nagListMail` | the receiver, when their list is empty | MUPP-071 (`lib/santa-nag.ts`, by the same scheduled job) |
 
-Mails 1, 3 and 8 set `installTip`; the other five do not.
+Mails 1, 3 and 8 set `installTip`; the other six do not. Mail 9 has the subject "Secret Santa: <group> – Din secret santa vill ha in en lista!" and names nobody.
 
 The same module holds the questions of the status dialogs (`STATUS_CONFIRMATIONS`: activate, deactivate, start, stop; each "Är du säker?" and what happens), which MUPP-051 and MUPP-041 put into their buttons.
 

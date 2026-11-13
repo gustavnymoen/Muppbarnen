@@ -159,6 +159,14 @@ export const addSantaDraw = (eventId: number, giver: number, receiver: number) =
 export const ageSantaMail = (memberId: number) =>
   withDb((db) => db.execute({ sql: "UPDATE ss_member SET list_mailed_at = list_mailed_at - 7200000 WHERE id = ?", args: [memberId] }));
 
+// Makes a waiting nag (MUPP-071) two hours old, so the job may mail it
+export const ageSantaNagRequest = (memberId: number) =>
+  withDb((db) => db.execute({ sql: "UPDATE ss_member SET nag_requested_at = nag_requested_at - 7200000 WHERE id = ?", args: [memberId] }));
+
+// Makes the last nag mail (MUPP-071) to a member two hours old, so the nag button is free again
+export const ageSantaNag = (memberId: number) =>
+  withDb((db) => db.execute({ sql: "UPDATE ss_member SET nag_mailed_at = nag_mailed_at - 7200000 WHERE id = ?", args: [memberId] }));
+
 // The events of the test database by name, in name order
 export const santaEventNames = () => withDb(async (db) => (await db.execute("SELECT name FROM ss_event ORDER BY name")).rows.map((r) => String(r.name)));
 

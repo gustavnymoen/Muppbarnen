@@ -1405,7 +1405,11 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
     await page.setViewportSize({ width: 375, height: 667 });
     await santaSignIn(page, member);
     await goto(page, "/secret-santa/min-sida/onskelista");
-    await expect(page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" })).toBeVisible();
+    const ownHeading = page.getByRole("heading", { level: 2, name: "Din önskelista i Familjen Ek" });
+    await expect(ownHeading).toBeVisible();
+    // The heading is centred in its card (MUPP-071)
+    const [headingBox, ownCard] = [await settledBox(ownHeading), await settledBox(ownHeading.locator("xpath=ancestor::section[1]"))];
+    expect(Math.abs(headingBox.x + headingBox.width / 2 - (ownCard.x + ownCard.width / 2))).toBeLessThan(3);
     expect(await hasHorizontalScroll(page)).toBe(false);
     for (const name of [/^Ändra /, /^Ta bort /]) {
       for (const button of await page.getByRole("button", { name }).all()) expect((await settledBox(button)).height).toBeGreaterThanOrEqual(32);
@@ -1651,5 +1655,48 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a tiny oran
     await expectNoA11yViolations(page);
   } finally {
     await clearSanta();
+  }
+});
+
+test("MUPP-071-R1 R3 the nag button on the match's empty list has a red border, red text and a red angry santa, is at least 44 px high, and keeps the icon when it is locked", async ({ page }) => {
+  await clearFamily();
+  await clearSanta();
+  const event = await addSantaEvent("Familjen Ek", undefined, "started");
+  const anna = await addSantaMember(event, "Anna Ek", "0700001111", "anna@exempel.invalid");
+  const bo = await addSantaMember(event, "Bo Ek", "0700002222", "bo@exempel.invalid");
+  await addSantaDraw(event, anna, bo);
+  await addSantaDraw(event, bo, anna);
+  try {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await santaSignIn(page, anna);
+    await goto(page, "/secret-santa/min-sida/matchning");
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    const empty = page.getByText("Inga önskningar ännu.");
+    const button = page.getByRole("button", { name: "Tjata in en lista", exact: true });
+    // The heading, the text and the button are centred in the card (MUPP-071)
+    const cardBox = await settledBox(empty.locator("xpath=ancestor::section[1]"));
+    for (const item of [page.getByRole("heading", { level: 2, name: "Önskelistan hos Bo Ek" }), empty, button]) {
+      const box = await settledBox(item);
+      expect(Math.abs(box.x + box.width / 2 - (cardBox.x + cardBox.width / 2))).toBeLessThan(3);
+    }
+    // The button sits under the text, with a red border and red text that read well against the card (4.5:1 for text, 3:1 for the border and the icon)
+    expect((await settledBox(button)).y).toBeGreaterThan((await settledBox(empty)).y);
+    const red = await css(button, "color");
+    expect(await css(button, "border-top-color")).toBe(red);
+    expect(await css(button, "border-top-width")).toBe("1px");
+    expect(await css(button.locator("svg"), "color")).toBe(red);
+    expect(contrast(red, CARD)).toBeGreaterThanOrEqual(4.5);
+    expect((await settledBox(button)).height).toBeGreaterThanOrEqual(44);
+    expect(await button.locator("svg").evaluate((svg) => svg.querySelectorAll("path, circle").length)).toBeGreaterThan(3);
+    if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT });
+    // Locked: still the red icon, now with the words that say why
+    await button.click();
+    const locked = page.getByRole("button", { name: "Tjatet är på väg", exact: true });
+    await expect(locked).toBeDisabled();
+    await expect(locked.locator("svg")).toHaveCount(1);
+    if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT.replace(/\.png$/, "-locked.png") });
+  } finally {
+    await clearSanta();
+    await clearFamily();
   }
 });
