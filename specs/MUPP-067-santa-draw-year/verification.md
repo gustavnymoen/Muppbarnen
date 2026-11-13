@@ -36,7 +36,7 @@ The "after" run was made while the machine was overloaded by other work (load av
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; the requirement is tested; unit tests pass, `npm run test:local` passes (one test on rerun, see above)
-- [ ] Test suite: not measured on an idle machine; to be run again
+- [x] Test suite: no browser test was added or changed by this card; the first run (748.6 s) was made on an overloaded machine and is not comparable. The next full run on an idle machine, for TECH-024 (the same browser tests), took 339.5 s against the 330 s budget (2.9 % over, as before; accepted by the owner on 2026-11-12).
 - [x] Deployed, and the smoke tests pass against production (Live tests): passed on merge commit c444d95 (run 43294488995, 2026-11-12)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
