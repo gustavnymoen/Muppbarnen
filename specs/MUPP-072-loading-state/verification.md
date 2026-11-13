@@ -21,8 +21,8 @@ feature: MUPP-072
 |---|---|---|---|---|
 | Unit tests | `lib/busy-delay.test.ts` (3 new); `npm run test:unit` 396 passed (393 before) | local | Pass | 2026-11-13 |
 | Browser tests | `tests/MUPP-072-loading-state.spec.ts` (3, a slowed server action), one new test in `tests/design.spec.ts`, additions to the nag tests; full `npm run test:time`: 174 passed, 176 after merging main | local | Pass | 2026-11-13 |
-| Smoke test | Not applicable: the states are behind sign-in or need a slow action, and the smoke tests are read-only | n/a | n/a | 2026-11-13 |
-| Accessibility | axe on each busy state in the browser tests. The checklist in `wiki/system/accessibility.md` on the live site (a busy button, the locked nag button, reduced motion): not checked, nothing is deployed yet | live | Not checked | n/a |
+| Smoke test | Not applicable: the states are behind sign-in or need a slow action, and the smoke tests are read-only. After the merge, Live tests (the smoke tests) passed against the live site on the merge commit | live | Pass | 2026-11-13 |
+| Accessibility | axe on each busy state in the browser tests. The checklist in `wiki/system/accessibility.md` on the live site (a busy button, the locked nag button, reduced motion) and a real screen reader: not checked yet, it is the user's to do | live | Not checked | n/a |
 | Security | `/security-review` not needed (client components only; the review's security points passed) | local | Pass | 2026-11-13 |
 | Code review | [review.md](review.md): run 1 stopped on one must-fix (the button shrank before the spinner), fixed | local | Passed | 2026-11-13 |
 | Look | Chosen on a 375 px phone among three proposals (ring beside the text; ring in the side padding, too crowded; text only); screenshots shown to the user, who said to go on. The user has not yet seen the final version in the running site | local | Pass | 2026-11-13 |
@@ -41,8 +41,8 @@ Over the 330 s budget, as it already was before this change (accepted by the use
 
 - [x] Tests: every check in the card's test plan is done except the live ones; `npm run test:unit` and `npm run test:local` pass
 - [ ] Test suite: over the 330 s budget, as before (see above)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is merged
-- [ ] Accessibility: axe passes; the live checklist is not gone through yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): merged in pull request 252, Live tests passed on 2026-11-13
+- [ ] Accessibility: axe passes; the live checklist is not gone through yet (open)
 - [x] Requirements in the card match what was built (see below), no open questions left; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`), `DESIGN.md` and `wiki/log.md` updated
 - [x] No leftovers
