@@ -19,6 +19,7 @@ export function ConfirmAction({
   text,
   switchLabel,
   switchOn,
+  big,
 }: {
   action: FormAction;
   fields: Record<string, string>;
@@ -28,6 +29,8 @@ export function ConfirmAction({
   text: string;
   switchLabel?: string;
   switchOn?: boolean;
+  // Papperskorgen är 44 px i stället för 32 px (en knapp i en utfälld rad, MUPP-070)
+  big?: boolean;
 }) {
   const id = useId();
   const dialog = useRef<DialogHandle>(null);
@@ -45,7 +48,7 @@ export function ConfirmAction({
       {switchLabel ? (
         <SwitchButton label={switchLabel} checked={switchOn ?? false} aria-label={`${switchLabel} ${subject}`} onClick={(event) => dialog.current?.open(event.currentTarget)} />
       ) : (
-        <IconButton compact label={`${label} ${subject}`} onClick={(event) => dialog.current?.open(event.currentTarget)}>
+        <IconButton compact={!big} label={`${label} ${subject}`} onClick={(event) => dialog.current?.open(event.currentTarget)}>
           <TrashIcon />
         </IconButton>
       )}

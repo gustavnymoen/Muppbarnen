@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-13
+
+* **Creation** [MUPP-070 Sizes dialog narrower, Secret Santa wish list folds out](../specs/MUPP-070-santa-wishlist-fold-sizes-width/solution.md): the sizes dialog is about 30 % narrower with a centred "Stäng", and "Din önskelista" in Secret Santa uses the shared `WishRow`: a row folds out to the details with the pencil and the bin inside it.
+
 ## 2026-11-12
 
 * **Creation** [TECH-025 Build warnings on Vercel](../specs/TECH-025-build-warnings/solution.md): Node.js is pinned to `24.x`, the install scripts of `unrs-resolver` and `fsevents` are denied (not needed), and ESLint stays on 9 because the plugins of `eslint-config-next` do not allow 10 yet.

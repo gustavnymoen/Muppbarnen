@@ -4,8 +4,8 @@ import { Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
-import { SlimCard } from "@/app/components/SlimCard";
 import { WishDetails, WishFields } from "@/app/components/WishParts";
+import { WishRow } from "@/app/components/WishList";
 import type { SantaWish } from "@/lib/santa-wishes";
 import { removeWish, saveWish } from "../wish-actions";
 
@@ -20,11 +20,9 @@ export function OwnWishList({ eventName, wishes }: { eventName: string; wishes: 
       {wishes.length === 0 ? (
         <p className="text-muted">Inga önskningar ännu.</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="divide-y divide-edge">
           {wishes.map((wish) => (
-            <li key={wish.id}>
-              <WishCard eventName={eventName} wish={wish} />
-            </li>
+            <WishCard key={wish.id} eventName={eventName} wish={wish} />
           ))}
         </ul>
       )}
@@ -39,17 +37,19 @@ export function OwnWishList({ eventName, wishes }: { eventName: string; wishes: 
 
 function WishCard({ eventName, wish }: { eventName: string; wish: SantaWish }) {
   return (
-    <SlimCard
-      title={wish.title}
+    <WishRow
+      wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null }}
+      roomy
       actions={
         <>
-          <FormCard title={`Ändra ${wish.title}`} label={`Ändra ${wish.title}`} icon={<PencilIcon />}>
+          <FormCard big title={`Ändra ${wish.title}`} label={`Ändra ${wish.title}`} icon={<PencilIcon />}>
             <div className="space-y-4">
               <WishDetails item={wish} />
               <WishForm wish={wish} submit="Spara" />
             </div>
           </FormCard>
           <ConfirmAction
+            big
             action={removeWish}
             fields={{ wishId: String(wish.id) }}
             label="Ta bort"

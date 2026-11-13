@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { addSantaEvent, addSantaMember, addSantaWish, clearSanta, santaWishes } from "./family-db";
-import { SANTA_COOKIE, santaSignIn } from "./santa";
+import { SANTA_COOKIE, foldOut, santaSignIn, wishRow } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -56,30 +56,33 @@ test("MUPP-040-R1 R2 a wish is added with a title, a link must be http(s) and th
   // A new wish keeps its card open (MUPP-045-R6); closing it shows the list
   await expect(page.getByRole("status").filter({ hasText: "Bok lades till" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { level: 3, name: "Bok" })).toBeVisible();
+  await expect(wishRow(page, "Bok")).toBeVisible();
   expect(await santaWishes(anna)).toEqual([{ title: "Bok", size: "M", description: "En <b>spännande</b> bok", url: "https://exempel.invalid/bok" }]);
   // Nothing to claim, and no "unlimited"
   await expect(page.getByText("Obegränsad")).toHaveCount(0);
+  await foldOut(page, "Bok");
   await page.getByRole("button", { name: "Ändra Bok" }).click();
-  await expect(page.getByText("Storlek: M")).toBeVisible();
-  await expect(page.locator("p", { hasText: "En <b>spännande</b> bok" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "https://exempel.invalid/bok" })).toHaveAttribute("href", "https://exempel.invalid/bok");
+  const card = page.locator("dialog[open]");
+  await expect(card.getByText("Storlek: M")).toBeVisible();
+  await expect(card.locator("p", { hasText: "En <b>spännande</b> bok" })).toBeVisible();
+  await expect(card.getByRole("link", { name: "https://exempel.invalid/bok" })).toHaveAttribute("href", "https://exempel.invalid/bok");
   await expectNoA11yViolations(page);
 
   // R2: the open form is the wish's own, changed and saved
   const edit = page.locator("form").filter({ has: page.getByRole("button", { name: "Spara" }) });
   await edit.getByLabel("Namn").fill("Kokbok");
   await edit.getByRole("button", { name: "Spara" }).click();
-  await expect(page.getByRole("heading", { level: 3, name: "Kokbok" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "Bok", exact: true })).toHaveCount(0);
+  await expect(wishRow(page, "Kokbok")).toBeVisible();
+  await expect(wishRow(page, "Bok")).toHaveCount(0);
 
   // R2: deleted after a question that names the list
+  await foldOut(page, "Kokbok");
   await page.getByRole("button", { name: "Ta bort Kokbok" }).click();
   const dialog = page.getByRole("alertdialog");
   await expect(dialog).toContainText("tas bort från din önskelista i Familjen Test");
   await expectNoA11yViolations(page);
   await dialog.getByRole("button", { name: "Ta bort" }).click();
-  await expect(page.getByRole("heading", { level: 3, name: "Kokbok" })).toHaveCount(0);
+  await expect(wishRow(page, "Kokbok")).toHaveCount(0);
   expect(await santaWishes(anna)).toEqual([]);
 });
 
@@ -100,17 +103,18 @@ test("MUPP-040-R3 MUPP-048-R5 a person in two groups is a member of each with a 
   await page.getByRole("button", { name: "Lägg till" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Hos Annan lades till" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { level: 3, name: "Hos Annan" })).toBeVisible();
+  await expect(wishRow(page, "Hos Annan")).toBeVisible();
   expect((await santaWishes(annaThere)).map((w) => w.title)).toEqual(["Hos Annan"]);
   expect((await santaWishes(anna)).map((w) => w.title)).toEqual(["Hos Test"]);
 
   // The other member's own page shows the other list
   await page.context().clearCookies({ name: SANTA_COOKIE });
   await signInAs(page, anna);
-  await expect(page.getByRole("heading", { level: 3, name: "Hos Test" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "Hos Annan" })).toHaveCount(0);
+  await expect(wishRow(page, "Hos Test")).toBeVisible();
+  await expect(wishRow(page, "Hos Annan")).toHaveCount(0);
 
   // The form is sent with Bertil's wish id instead of Anna's own
+  await foldOut(page, "Hos Test");
   await page.getByRole("button", { name: "Ändra Hos Test" }).click();
   const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Spara" }) });
   await form.locator("input[name=wishId]").evaluate((input: HTMLInputElement, id) => (input.value = id), String(bertilsWish));
