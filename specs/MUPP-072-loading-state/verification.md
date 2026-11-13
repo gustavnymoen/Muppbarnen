@@ -20,7 +20,7 @@ feature: MUPP-072
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
 | Unit tests | `lib/busy-delay.test.ts` (3 new); `npm run test:unit` 396 passed (393 before) | local | Pass | 2026-11-13 |
-| Browser tests | `tests/MUPP-072-loading-state.spec.ts` (3, a slowed server action), one new test in `tests/design.spec.ts`, additions to the nag tests; full `npm run test:time`: 174 passed | local | Pass | 2026-11-13 |
+| Browser tests | `tests/MUPP-072-loading-state.spec.ts` (3, a slowed server action), one new test in `tests/design.spec.ts`, additions to the nag tests; full `npm run test:time`: 174 passed, 176 after merging main | local | Pass | 2026-11-13 |
 | Smoke test | Not applicable: the states are behind sign-in or need a slow action, and the smoke tests are read-only | n/a | n/a | 2026-11-13 |
 | Accessibility | axe on each busy state in the browser tests. The checklist in `wiki/system/accessibility.md` on the live site (a busy button, the locked nag button, reduced motion): not checked, nothing is deployed yet | live | Not checked | n/a |
 | Security | `/security-review` not needed (client components only; the review's security points passed) | local | Pass | 2026-11-13 |
@@ -32,7 +32,8 @@ feature: MUPP-072
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before | 393 unit + 170 browser (MUPP-071) | 340.2 s | 7.4 s |
-| After | 396 unit + 174 browser | 352.5 s | 7.4 s |
+| After (before merging main) | 396 unit + 174 browser | 352.5 s | 7.4 s |
+| After merging main (MUPP-070) | 396 unit + 176 browser | 352.2 s | 7.4 s |
 
 Over the 330 s budget, as it already was before this change (accepted by the user in TECH-022). The four new browser tests add about 9 s (three of them 2.5 to 3 s each: the slowed action takes 1.5 s); the rest is normal variation between runs.
 
