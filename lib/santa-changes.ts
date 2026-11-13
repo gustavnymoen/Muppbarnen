@@ -13,9 +13,9 @@ export const MAIL_INTERVAL_MS = 60 * 60 * 1000;
 export const markListChanged = (memberId: number, now = Date.now()) =>
   run("UPDATE ss_member SET list_changed_at = ? WHERE id = ? AND event_id IN (SELECT id FROM ss_event WHERE status = 'started')", [now, memberId]);
 
-// Dragningen startas eller stoppas: det som väntade hör till en annan dragning
+// Dragningen startas eller stoppas: det som väntade (en ändrad lista, ett tjat, MUPP-071) hör till en annan dragning
 export const clearListChanges = (eventId: number, tx: Executor) =>
-  run("UPDATE ss_member SET list_changed_at = NULL, list_mailed_at = NULL WHERE event_id = ?", [eventId], tx);
+  run("UPDATE ss_member SET list_changed_at = NULL, list_mailed_at = NULL, nag_requested_at = NULL, nag_mailed_at = NULL WHERE event_id = ?", [eventId], tx);
 
 type Pending = { id: number; list_changed_at: number; list_mailed_at: number | null; email: string; event_name: string };
 

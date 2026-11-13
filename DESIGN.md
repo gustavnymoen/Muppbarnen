@@ -26,7 +26,7 @@ A dark, muted, mobile-first look: blue-grey near-black surfaces, thin edges, lay
 | `--color-danger` | `#E8938F` | Error messages, as text only (never a fill; with the words that say what is wrong) |
 | `--color-claimed` | `#E3A15F` | A claimed gift: the "Paxad" mark and the "Paxad av …" line, as text only (with the words that say it), and the undo arrow on a claimed row (MUPP-006) |
 | `--color-christmas-green` | `#5F9A73` | The Christmas Eve card: its green night background drawn as shapes behind the content |
-| `--color-christmas-red` | `#D8766F` | Lights and berries in the Christmas background (decoration only) |
+| `--color-christmas-red` | `#D8766F` | Lights and berries in the Christmas background; the border, text and icon of the nag button (MUPP-071) |
 | `--color-child-coral` | `#D4958B` | Child colour 1 |
 | `--color-child-sun` | `#D4B873` | Child colour 2 |
 | `--color-child-mint` | `#82BD9F` | Child colour 3 |
@@ -77,6 +77,10 @@ How something new is added is the same everywhere in the admin and on a particip
 - **A new top-level object: a centred text button** (`FormCard` with `text`, in an `AddRow`), for example "Ny grupp" under the groups. It is not inside a list frame, so it keeps its words.
 - **Swap icon** (`SwapIcon`, two arrows around a circle, drawn like the pencil and the trash can): the round 44 px icon button "Byt förälder" beside "Inloggad som <förälder>" on `/admin`. It replaces a text button that wrapped badly on a phone.
 - "Event" is never shown to visitors; the word is "grupp".
+
+## Nag button (MUPP-071)
+
+The button "Tjata in en lista" under "Inga önskningar ännu." on the Secret Santa match page is the `red` variant of `Button`: a 1 px `--color-christmas-red` border and `--color-christmas-red` text on the card colour (5.7:1), 44 px high, with `AngryTomteIcon` (the santa of `TomteIcon` with slanted brows and a downturned mouth, drawn as an SVG, never an emoji) in the same red. `--color-danger` stays for error text. Locked ("Tjatet är på väg", "Du har tjatat nyss") it is the same button, disabled and dimmed, with the icon kept; the words say why, so the state does not depend on the colour. The text "Inga önskningar ännu." and the button are centred in the card, and so are the headings of the two lists ("Önskelistan hos <name>" and, on the member's own list, "Din önskelista i <group>"), as the user asked after seeing the first version on a phone (375 px); the red look was liked.
 
 ## Own page cards (MUPP-057)
 

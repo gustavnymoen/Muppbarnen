@@ -7,6 +7,8 @@ const fullSize = "min-h-11 min-w-11";
 const variants = {
   primary: "bg-brand px-5 text-on-brand shadow-card hover:brightness-110",
   secondary: "border border-muted/75 bg-card px-5 text-text shadow-card hover:bg-edge",
+  // Röd ram och röd text (MUPP-071): tjatknappen i Secret Santa
+  red: "border border-christmas-red bg-card px-5 text-christmas-red shadow-card hover:bg-edge",
 };
 
 type Variant = keyof typeof variants;

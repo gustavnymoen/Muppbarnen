@@ -2,6 +2,7 @@
 
 ## 2026-11-12
 
+* **Creation** [MUPP-071 Secret Santa: nag the match for a list](../specs/MUPP-071-santa-nag-list/solution.md): a giver whose match has an empty list can press the red button "Tjata in en lista"; the same scheduled job mails the match (mail 9, no name), and the button is locked while the mail waits and for an hour after.
 * **Creation** [TECH-025 Build warnings on Vercel](../specs/TECH-025-build-warnings/solution.md): Node.js is pinned to `24.x`, the install scripts of `unrs-resolver` and `fsevents` are denied (not needed), and ESLint stays on 9 because the plugins of `eslint-config-next` do not allow 10 yet.
 * **Creation** [TECH-024 Shared access checks](../specs/TECH-024-shared-auth-helpers/solution.md): the opening checks of server actions, the session cookies and the bearer-secret check of the two job routes are written once (`lib/action-open.ts`, `lib/session-cookie.ts`, `lib/job-auth.ts`); the cleanup route now needs a secret of 32+ characters and is under the write limit, like the mail route.
 * **Creation** [MUPP-067 Secret Santa draw year in Swedish time](../specs/MUPP-067-santa-draw-year/solution.md): a draw is filed under the Swedish year, not the server's, so one made just after midnight on New Year's Day gets the right year.

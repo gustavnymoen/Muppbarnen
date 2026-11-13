@@ -1,0 +1,17 @@
+%% MUPP-071 Secret Santa: nag the match for a list
+%% From the press of the button to the mail, with the lock.
+flowchart TD
+    A[Giver opens the match's list, started group] --> B{List empty?}
+    B -- no --> Z[No button, R1]
+    B -- yes --> C{State of the match}
+    C -- free --> D[Button 'Tjata in en lista', R1]
+    C -- queued --> E[Disabled: 'Tjatet är på väg', R3]
+    C -- mailed less than an hour ago --> F[Disabled: 'Du har tjatat nyss', R3]
+    D -->|press| G[requestNag: receiver from the draw, one statement checks started, empty, nothing waits, no mail in the hour, R4 R3]
+    G --> H[nag_requested_at set on the match]
+    H --> I[Job every 10 minutes: POST /api/santa-mails; a request is mailed only after it has waited an hour]
+    I --> J{Still empty and started?}
+    J -- no --> K[Request dropped, no mail, R2]
+    J -- yes --> L[Claim, send mail 9 to the match, R2]
+    L -->|failed| M[Request put back, next run tries again, R2]
+    L -->|sent| N[nag_mailed_at set, locked for an hour, R3]
