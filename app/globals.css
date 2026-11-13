@@ -87,8 +87,8 @@ body:has(dialog:modal) main { overflow: hidden; }
 
 /* Spinnern på en upptagen knapp (MUPP-072): en ring i knappens textfärg, som roterar; med reducerad rörelse pulserar den i stället */
 .spinner {
-  width: 0.75em;
-  height: 0.75em;
+  width: 0.75rem;
+  height: 0.75rem;
   flex: none;
   border: 2px solid currentColor;
   border-top-color: transparent;

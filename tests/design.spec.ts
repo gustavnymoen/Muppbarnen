@@ -169,7 +169,8 @@ test("MUPP-001-R3 R7 motion: a pressed card moves into its shadow, a card fades 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: "Stilguide" })).toBeVisible();
-  expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+  // The busy buttons on /design pulse in opacity with reduced motion (MUPP-072-R4): a still mark would not read as "working"
+  expect(await page.evaluate(() => document.getAnimations().filter((a) => (a as CSSAnimation).animationName !== "pulse-busy").length)).toBe(0);
   await pressable.scrollIntoViewIfNeeded();
   const pressedBox = await settledBox(pressable);
   await page.mouse.move(pressedBox.x + pressedBox.width / 2, pressedBox.y + pressedBox.height / 2);

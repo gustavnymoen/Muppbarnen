@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { addSantaDraw, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaWishes } from "./family-db";
-import { santaSignIn } from "./santa";
+import { foldOut, santaSignIn, wishRow } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -52,6 +52,7 @@ test("MUPP-072-R1 R2 R3 deleting a wish: the confirm button is locked at once, s
   await addSantaWish(anna, "Bok");
   await santaSignIn(page, anna);
   await goto(page, "/secret-santa/min-sida/onskelista");
+  await foldOut(page, "Bok");
   await page.getByRole("button", { name: "Ta bort Bok" }).click();
   await slowActions(page);
   const confirm = page.getByRole("alertdialog").getByRole("button", { name: "Ta bort" });
@@ -68,7 +69,7 @@ test("MUPP-072-R1 R2 R3 deleting a wish: the confirm button is locked at once, s
   // R1: no layout jump: the spinner sits in the button's padding, which the spinner and its gap make up for, so the size is the same
   expect(Math.abs(during.width - before.width)).toBeLessThan(1);
   expect(during.height).toBe(before.height);
-  await expect(page.getByRole("heading", { level: 3, name: "Bok" })).toHaveCount(0);
+  await expect(wishRow(page, "Bok")).toHaveCount(0);
   expect(await santaWishes(anna)).toEqual([]);
 });
 
