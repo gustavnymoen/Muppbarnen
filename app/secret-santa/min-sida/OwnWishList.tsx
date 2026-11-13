@@ -14,9 +14,11 @@ import { removeWish, saveWish } from "../wish-actions";
 export function OwnWishList({ eventName, wishes }: { eventName: string; wishes: SantaWish[] }) {
   return (
     <Card as="section" className="space-y-3">
-      <Heading level={2} small>
-        Din önskelista i {eventName}
-      </Heading>
+      <div className="text-center">
+        <Heading level={2} small>
+          Din önskelista i {eventName}
+        </Heading>
+      </div>
       {wishes.length === 0 ? (
         <p className="text-muted">Inga önskningar ännu.</p>
       ) : (

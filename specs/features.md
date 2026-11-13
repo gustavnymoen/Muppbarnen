@@ -101,6 +101,7 @@ tags: [product, features]
 | [MUPP-069](MUPP-069-help-dialog-arrow/solution.md) | Help dialog arrow over the tabs on iPhone | Shared | Ongoing |
 | [MUPP-070](MUPP-070-santa-wishlist-fold-sizes-width/solution.md) | Sizes dialog narrower, Secret Santa wish list folds out | Shared | Ongoing |
 | [TECH-022](TECH-022-ponytail-audit-2/solution.md) | Ponytail audit of the code | Shared | Review |
+| [MUPP-071](MUPP-071-santa-nag-list/solution.md) | Secret Santa: nag the match for a list | Önskelista | Review |
 | [TECH-025](TECH-025-build-warnings/solution.md) | Build warnings on Vercel | Shared | Ongoing |
 | [TECH-024](TECH-024-shared-auth-helpers/solution.md) | Shared access checks | Shared | Review |
 

@@ -49,7 +49,7 @@ describe("MUPP-042-R1 R2 your person and only your person", () => {
     expect([await names(a), await names(b), await names(c), await names(d), await names(f)]).toEqual(["Bo", "Cia", "Anna", "Eva", "Dan"]);
     // Bo drog Cia och drogs av Anna: svaret nämner Cia, aldrig Anna
     expect(JSON.stringify(await matchOf(b))).not.toContain("Anna");
-    expect(Object.keys((await matchOf(a))!).sort()).toEqual(["name", "wishes"]);
+    expect(Object.keys((await matchOf(a))!).sort()).toEqual(["nag", "name", "wishes"]);
   });
 
   test("MUPP-042-R1 nothing before the start: a preparing or inactive event, or no row in the draw, gives no match", async () => {

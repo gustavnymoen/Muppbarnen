@@ -64,6 +64,12 @@ export const addedMail = (group: string, admin: string): Mail => ({
   installTip: true,
 });
 
+// Mejl 9: givaren tjatar om en önskelista (till mottagaren, MUPP-071). Säger bara gruppen, aldrig vem som tjatar.
+export const nagListMail = (group: string): Mail => ({
+  subject: subject(group, "Din secret santa vill ha in en lista!"),
+  text: "Rappa på! Din secret santa vill att du skickar in en önskelista, personen är het på gröten! Ho ho ho!",
+});
+
 // Frågan i dialogen för varje statusändring (MUPP-052-R2); MUPP-051 och MUPP-041 sätter in dem i sina knappar
 export const STATUS_CONFIRMATIONS = {
   activate: { title: "Är du säker?", text: "Alla i gruppen får ett mail och kan börja skriva önskelistor." },

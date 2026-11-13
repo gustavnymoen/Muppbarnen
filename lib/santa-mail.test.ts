@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { INSTALL_TIP, MAIL_FOOTER, SITE_URL, layout } from "./mail";
-import { STATUS_CONFIRMATIONS, activatedMail, addedMail, deactivatedMail, listChangedMail, messageFromGiverMail, messageFromReceiverMail, startedMail, stoppedMail } from "./santa-mail";
+import { STATUS_CONFIRMATIONS, activatedMail, addedMail, deactivatedMail, listChangedMail, messageFromGiverMail, messageFromReceiverMail, nagListMail, startedMail, stoppedMail } from "./santa-mail";
 
 const G = "Familjen Test";
 const ADMIN = "Pelle Admin";
@@ -63,6 +63,12 @@ const mails = [
     mail: addedMail(G, ADMIN),
     subject: "Secret Santa: Familjen Test – välkommen",
     text: "Du har lagts till i Secret Santa-gruppen Familjen Test av Pelle Admin. Är det här inte du, eller vill du inte vara med, hör av dig till Pelle Admin. När gruppen öppnar får du ett nytt mail som berättar hur det går till!",
+  },
+  {
+    n: 9,
+    mail: nagListMail(G),
+    subject: "Secret Santa: Familjen Test – Din secret santa vill ha in en lista!",
+    text: "Rappa på! Din secret santa vill att du skickar in en önskelista, personen är het på gröten! Ho ho ho!",
   },
 ];
 

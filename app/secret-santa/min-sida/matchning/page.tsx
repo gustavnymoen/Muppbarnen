@@ -11,6 +11,7 @@ import { peekChat, unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
 import { ChatButton } from "../ChatButton";
+import { NagButton } from "../NagButton";
 
 export const metadata: Metadata = { title: "Min matchning" };
 
@@ -41,11 +42,16 @@ async function Match() {
       <PageContent>
         <div className="mx-auto flex min-h-full max-w-md flex-col gap-4">
           <Card as="section" className="space-y-3">
-            <Heading level={2} small>
-              Önskelistan hos {match.name}
-            </Heading>
+            <div className="text-center">
+              <Heading level={2} small>
+                Önskelistan hos {match.name}
+              </Heading>
+            </div>
             {match.wishes.length === 0 ? (
-              <p className="text-muted">Inga önskningar ännu.</p>
+              <div className="space-y-3 text-center">
+                <p className="text-muted">Inga önskningar ännu.</p>
+                <NagButton state={match.nag} />
+              </div>
             ) : (
               <ul className="divide-y divide-edge">
                 {match.wishes.map((wish) => (
