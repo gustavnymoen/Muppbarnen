@@ -2,6 +2,7 @@
 
 ## 2026-11-13
 
+* **Update** [MUPP-070](../specs/MUPP-070-santa-wishlist-fold-sizes-width/verification.md) and [TECH-025](../specs/TECH-025-build-warnings/verification.md): Live tests passed after the merges, and the accessibility and iPhone checks of MUPP-070 are marked done by the user; the test time over budget is still not re-measured on a quiet machine.
 * **Creation** [MUPP-070 Sizes dialog narrower, Secret Santa wish list folds out](../specs/MUPP-070-santa-wishlist-fold-sizes-width/solution.md): the sizes dialog is about 30 % narrower with a centred "Stäng", and "Din önskelista" in Secret Santa uses the shared `WishRow`: a row folds out to the details with the pencil and the bin inside it.
 * **Update** [MUPP-071](../specs/MUPP-071-santa-nag-list/verification.md): the live accessibility line is marked done by the user; no per-item details were recorded.
 
