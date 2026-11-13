@@ -2,6 +2,7 @@
 
 ## 2026-11-13
 
+* **Update** [MUPP-072](../specs/MUPP-072-loading-state/verification.md): merged, Live tests passed against the live site; the live accessibility checklist is marked done by the user; no per-item details were recorded.
 * **Creation** [MUPP-072 Loading state on buttons + nag button text](../specs/MUPP-072-loading-state/solution.md): every button that waits for a server action is locked at once and shows a small spinner after 300 ms (`busy` on `Button` and `IconButton`), announced as "Arbetar …"; the locked nag button says "Du kan bara tjata en gång i timmen."
 * **Update** [MUPP-070](../specs/MUPP-070-santa-wishlist-fold-sizes-width/verification.md) and [TECH-025](../specs/TECH-025-build-warnings/verification.md): Live tests passed after the merges, and the accessibility and iPhone checks of MUPP-070 are marked done by the user; the test time over budget is still not re-measured on a quiet machine.
 * **Creation** [MUPP-070 Sizes dialog narrower, Secret Santa wish list folds out](../specs/MUPP-070-santa-wishlist-fold-sizes-width/solution.md): the sizes dialog is about 30 % narrower with a centred "Stäng", and "Din önskelista" in Secret Santa uses the shared `WishRow`: a row folds out to the details with the pencil and the bin inside it.
