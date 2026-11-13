@@ -28,7 +28,7 @@ export function LoginForm({ target }: { target: string }) {
           {state?.error}
         </p>
       </div>
-      <Button type="submit" disabled={pending} className="w-full">
+      <Button type="submit" busy={pending} className="w-full">
         Öppna
       </Button>
     </form>

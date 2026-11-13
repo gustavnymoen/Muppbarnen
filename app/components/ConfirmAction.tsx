@@ -65,7 +65,7 @@ export function ConfirmAction({
             <Button type="button" variant="secondary" onClick={() => dialog.current?.close()}>
               Avbryt
             </Button>
-            <Button type="submit" disabled={pending}>
+            <Button type="submit" busy={pending}>
               {label}
             </Button>
           </div>

@@ -1,0 +1,16 @@
+%% MUPP-072 Loading state on buttons + nag button text
+%% From the press of a button to the end of its action.
+flowchart TD
+    A[Visitor presses a button that runs a server action] --> B[busy on: button locked at once, aria-busy, R1]
+    B --> C{Done within 300 ms?}
+    C -- yes --> D[No spinner ever shown, R2]
+    C -- no --> E[Spinner shown, status 'Arbetar …' announced once, R2 R3]
+    E --> F{Reduced motion?}
+    F -- no --> G[Ring turns, R4]
+    F -- yes --> H[Ring pulses, R4]
+    D --> I[Action done: busy off, spinner and status gone, R1]
+    G --> I
+    H --> I
+    I --> J{Nag button locked?}
+    J -- yes --> K[Text 'Du kan bara tjata en gång i timmen.' under it, aria-describedby, R5]
+    J -- no --> L[No text, R5]

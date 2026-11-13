@@ -87,7 +87,7 @@ export function Form({ action, submit, says = "Sparat.", again, children, classN
     <form ref={form} action={formAction} noValidate onKeyDown={onKeyDown} className={className}>
       <FormStateContext value={state}>{children}</FormStateContext>
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" busy={pending}>
           {submit}
         </Button>
         {!card && (

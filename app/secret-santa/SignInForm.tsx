@@ -53,7 +53,7 @@ export function SignInForm({ memberId }: { memberId: number }) {
           {state?.error}
         </p>
       </div>
-      <Button type="submit" disabled={pending} className="w-full">
+      <Button type="submit" busy={pending} className="w-full">
         Fortsätt
       </Button>
     </form>

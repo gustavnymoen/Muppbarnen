@@ -124,7 +124,7 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
         <p id="chat-error" role="alert" className="text-danger">
           {error}
         </p>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" busy={pending}>
           Skicka
         </Button>
       </form>

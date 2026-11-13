@@ -31,6 +31,7 @@ Vad du ser på din sida beror på hur långt gruppen har kommit:
 Har den du ska handla åt inte skrivit någon önskan än står det "Inga önskningar ännu." i **Min matchning**. Under texten finns den röda knappen **Tjata in en lista**. Tryck på den, så får hen ett mejl om att din Secret Santa vill ha in en lista. Mejlet säger inte vem du är och skickas först när tjatet legat en timme (så att det inte plingar hos hen strax efter att du tryckt, om ni sitter tillsammans).
 
 - Medan mejlet väntar står det **Tjatet är på väg** på knappen och den går inte att trycka på.
+- Under den låsta knappen står det **Du kan bara tjata en gång i timmen.**
 - Efter att mejlet skickats står det **Du har tjatat nyss** i en timme. Därefter kan du tjata igen, om listan fortfarande är tom.
 - När hen skrivit en önskan försvinner knappen, och du får ett mejl om att listan ändrats.
 

@@ -103,6 +103,7 @@ tags: [product, features]
 | [TECH-022](TECH-022-ponytail-audit-2/solution.md) | Ponytail audit of the code | Shared | Review |
 | [MUPP-071](MUPP-071-santa-nag-list/solution.md) | Secret Santa: nag the match for a list | Önskelista | Review |
 | [TECH-025](TECH-025-build-warnings/solution.md) | Build warnings on Vercel | Shared | Ongoing |
+| [MUPP-072](MUPP-072-loading-state/solution.md) | Loading state on buttons + nag button text | Shared | Ongoing |
 | [TECH-024](TECH-024-shared-auth-helpers/solution.md) | Shared access checks | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).

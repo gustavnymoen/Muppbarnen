@@ -38,10 +38,10 @@ export function CopyItem({ itemId, title }: { itemId: number; title: string }) {
             {state?.error}
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button type="submit" name="occasion" value="birthday" disabled={pending}>
+            <Button type="submit" name="occasion" value="birthday" busy={pending}>
               Födelsedag
             </Button>
-            <Button type="submit" name="occasion" value="christmas" disabled={pending}>
+            <Button type="submit" name="occasion" value="christmas" busy={pending}>
               Julafton
             </Button>
             <Button type="button" variant="secondary" onClick={() => dialog.current?.close()}>

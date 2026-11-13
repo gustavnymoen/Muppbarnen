@@ -287,7 +287,7 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<DialogHandle>; wishes: 
             {error}
           </p>
         </div>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" busy={pending}>
           Paxa
         </Button>
       </form>
@@ -329,7 +329,7 @@ function UnclaimDialog({ ref, wish, onDone }: { ref: RefObject<DialogHandle | nu
           <Button variant="secondary" onClick={() => ref.current?.close()}>
             Avbryt
           </Button>
-          <Button onClick={confirm} disabled={pending}>
+          <Button onClick={confirm} busy={pending}>
             Ta bort
           </Button>
         </div>

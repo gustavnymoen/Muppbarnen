@@ -23,10 +23,15 @@ export function NagButton({ state }: { state: NagState }) {
     });
   return (
     <div className="flex flex-col items-center space-y-2">
-      <Button variant="red" disabled={state !== "free" || pending} onClick={press}>
+      <Button variant="red" disabled={state !== "free"} busy={pending} aria-describedby={state === "free" ? undefined : "nag-hint"} onClick={press}>
         <AngryTomteIcon />
         {LABELS[state]}
       </Button>
+      {state !== "free" && (
+        <p id="nag-hint" className="text-text">
+          Du kan bara tjata en gång i timmen.
+        </p>
+      )}
       <p role="alert" className="text-danger">
         {error}
       </p>
