@@ -7,7 +7,7 @@ feature: MUPP-070
 
 # Verification of MUPP-070
 
-Run locally 2026-11-13. Not yet merged, so the Live tests, the checklist on the live site and the check on an iPhone are **not checked**.
+Run locally 2026-11-13. Merged with PR #249 (commit 35bd6ce). Live tests passed on that commit ([run 43410022681](https://github.com/gustavnymoen/Muppbarnen/actions/runs/43410022681), 2026-11-13). The accessibility checklist on the live site and the check on an iPhone were done by the user and marked done; no per-item details were recorded. The test suite time is **not** re-measured.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -23,11 +23,11 @@ Run locally 2026-11-13. Not yet merged, so the Live tests, the checklist on the 
 |---|---|---|---|---|
 | Unit tests | Not applicable, no new logic (the existing 381 pass) | local | – | 2026-11-13 |
 | Browser tests | `npm run test:time`: 168 of 168 passed | local | Pass | 2026-11-13 |
-| Smoke test | Not applicable, no main page or flow added | – | – | – |
-| Accessibility | axe in the new tests (sizes dialog, own list folded and folded out). The checklist on the live site, on a phone and with the keyboard | local | axe passes; checklist not checked | 2026-11-13 |
+| Smoke test | Not applicable, no main page or flow added; the existing smoke tests passed in Live tests on 35bd6ce (run 43410022681) | live | Pass | 2026-11-13 |
+| Accessibility | axe in the new tests (sizes dialog, own list folded and folded out). The checklist on the live site, on a phone and with the keyboard | local | axe passes; the checklist on the live site was done by the user (no per-item details recorded) | 2026-11-13 |
 | Security | No new route or action; [review.md](review.md). `/security-review` not needed | local | Pass | 2026-11-13 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-13 |
-| Real device | Manual check on an iPhone | – | Not checked | – |
+| Real device | Manual check on an iPhone, done by the user and marked done (no details recorded) | iPhone | Pass | 2026-11-13 |
 
 ## Test suite
 
@@ -42,8 +42,8 @@ One new browser test (MUPP-070-R3 R4) and one in `design.spec.ts` (R1 R2) were a
 
 - [x] Tests: R1 to R5 checked; `test:unit` and `test:local` pass
 - [ ] Test suite: 7.9 s over the budget, not measured on a quiet machine
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: axe passes; the checklist on the live site is not done yet
+- [x] Deployed, and the smoke tests pass against production (Live tests, 2026-11-13)
+- [x] Accessibility: axe passes; the checklist on the live site was done by the user (no per-item details recorded)
 - [x] Requirements in the card match what was built (copied below); `solution.md` describes it
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the proposal switch and the preview files are removed
