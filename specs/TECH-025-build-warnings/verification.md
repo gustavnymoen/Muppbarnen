@@ -7,7 +7,7 @@ feature: TECH-025
 
 # Verification of TECH-025
 
-Run locally 2026-11-12. Merged with PR #242. The build log of the deploy was read by the user 2026-11-12 (R2, R3, R4). The Live tests are **not checked**.
+Run locally 2026-11-12. Merged with PR #242. The build log of the deploy was read by the user 2026-11-12 (R2, R3, R4). The Live tests passed on `main` commit 7255728 (checked 2026-11-13, [run 43388796707](https://github.com/gustavnymoen/Muppbarnen/actions/runs/43388796707)); the test suite time is **not** re-measured.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
@@ -22,7 +22,7 @@ Run locally 2026-11-12. Merged with PR #242. The build log of the deploy was rea
 |---|---|---|---|---|
 | Unit tests | Not applicable, no logic changes (the existing 376 pass) | local | – | 2026-11-12 |
 | Browser tests | `npm run test:time`: 166 of 166 passed | local | Pass | 2026-11-12 |
-| Smoke test | Preview and Live tests after the merge | preview, live | Not checked | – |
+| Smoke test | Live tests on `main` commit 7255728, which contains TECH-025 (run 43388796707) | live | Pass | 2026-11-13 |
 | Accessibility | Not applicable, nothing visitors see changes | – | – | – |
 | Security | No install script approved; the one that was looked at (`unrs-resolver`) was read and denied. `/security-review` not needed | local | Pass | 2026-11-12 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
@@ -41,7 +41,7 @@ No test was added or changed, so the change cannot have made the suite slower; t
 
 - [x] Tests: R1 to R4 checked (the build log by the user); `test:unit` and `test:local` pass
 - [ ] Test suite: total time 4.8 s over the budget, measured with other work running on the machine; no tests changed
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests, 2026-11-13)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements match what was built; `solution.md` describes it
 - [x] Manual (no change), system docs and `wiki/log.md` updated

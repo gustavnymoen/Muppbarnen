@@ -17,7 +17,7 @@ import {
   uniqueName,
 } from "./helpers";
 import { addChild, addParent, addSantaEvent, addSantaMember, addWish, claimedByOf, clearFamily, clearSanta, setSizes } from "./family-db";
-import { eventCard, openEventCard } from "./santa";
+import { eventCard, foldOut, openEventCard, wishRow } from "./santa";
 import { newcomer, testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -347,8 +347,9 @@ test("MUPP-045-R2 R6 R7 the Secret Santa own page: a new wish keeps the card ope
   await expect(dialog.getByLabel("Namn")).toBeFocused();
   await expectNoA11yViolations(page);
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { level: 3, name: "Bok" })).toBeVisible();
+  await expect(wishRow(page, "Bok")).toBeVisible();
 
+  await foldOut(page, "Bok");
   await page.getByRole("button", { name: "Ändra Bok" }).click();
   await page.keyboard.type("Kokbok");
   await page.keyboard.press("Enter");

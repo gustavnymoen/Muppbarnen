@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, pageAnimationsDone, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
-import { addChild, addParent, addSantaDraw, addSantaMessage, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus } from "./family-db";
-import { eventCard, santaSignIn } from "./santa";
+import { addChild, addParent, addSantaDraw, addSantaMessage, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus, setSizes } from "./family-db";
+import { eventCard, foldOut, santaSignIn } from "./santa";
 import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
 
@@ -1394,7 +1394,37 @@ test("MUPP-039-R3 R4b the member grid on a 375 x 667 phone: eight names, two per
   }
 });
 
-test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 32 px, the plus is 44 px, the form fits the width, and the own page has the cross (one group) or the arrow (several) in the corner like the entrance", async ({ page }) => {
+test("MUPP-070-R1 R2 the sizes dialog is 70 % of the old width at most, fits 375 and 320 px with a long size, and Stäng is centred", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const vera = await addChild(await addParent(uniqueName("Förälder")), "Vera", birthdateIn(20).birthdate);
+    await setSizes(vera, { clothes: "Väldigt_lång_storlekstext_utan_ord", shoes: "30" });
+    await page.setViewportSize({ width: 375, height: 667 });
+    await goto(page, "/");
+    await page.getByRole("button", { name: "Storlekar" }).click();
+    const dialog = page.getByRole("dialog");
+    const close = dialog.getByRole("button", { name: "Stäng" });
+    await animationsDone(dialog);
+    for (const width of [375, 320]) {
+      await page.setViewportSize({ width, height: 667 });
+      const [box, closeBox] = [await settledBox(dialog), await settledBox(close)];
+      // 28 rem = 448 px before; never wider than 92 vw
+      expect(box.width).toBeLessThanOrEqual(0.7 * 448);
+      expect(box.width).toBeLessThanOrEqual(0.92 * width);
+      expect(inside(box, { x: 0, y: 0, width, height: 667 })).toBe(true);
+      expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      // R2: centred in the content of the dialog (inside its 20 px padding), and still a touch target
+      expect(Math.abs(closeBox.x + closeBox.width / 2 - (box.x + box.width / 2))).toBeLessThan(1);
+      expect(closeBox.height).toBeGreaterThanOrEqual(44);
+    }
+    await expectNoA11yViolations(page);
+  } finally {
+    await clearFamily();
+  }
+});
+
+test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 MUPP-070-R4 the Secret Santa wish list on a 375 x 667 phone: long titles wrap, icon buttons are 44 px in the folded-out row, the plus is 44 px, the form fits the width, and the own page has the cross (one group) or the arrow (several) in the corner like the entrance", async ({ page }) => {
   test.skip(!runsLocally, "needs the local test database");
   await clearSanta();
   const family = await addSantaEvent("Familjen Ek");
@@ -1411,8 +1441,13 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 the Secret Santa wish list on a 375
     const [headingBox, ownCard] = [await settledBox(ownHeading), await settledBox(ownHeading.locator("xpath=ancestor::section[1]"))];
     expect(Math.abs(headingBox.x + headingBox.width / 2 - (ownCard.x + ownCard.width / 2))).toBeLessThan(3);
     expect(await hasHorizontalScroll(page)).toBe(false);
+    // MUPP-070-R4: the pencil and the bin are only in the folded-out row, and are 44 px
+    await foldOut(page, "Bok");
     for (const name of [/^Ändra /, /^Ta bort /]) {
-      for (const button of await page.getByRole("button", { name }).all()) expect((await settledBox(button)).height).toBeGreaterThanOrEqual(32);
+      const button = page.getByRole("button", { name });
+      await expect(button).toHaveCount(1);
+      const box = await settledBox(button);
+      expect([box.width, box.height]).toEqual([44, 44]);
     }
     expect((await settledBox(page.getByRole("button", { name: "Ny önskning" }))).height).toBeGreaterThanOrEqual(44);
     await page.getByRole("button", { name: "Ny önskning" }).click();

@@ -2,7 +2,7 @@ import { expect, request as playwrightRequest, test } from "@playwright/test";
 import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
 import { addSantaDraw, addSantaEvent, addSantaMember, addSantaWish, ageSantaMail, clearFamily, clearSanta, santaWishes } from "./family-db";
 import { clearOutbox, readOutbox } from "./mail-outbox";
-import { santaSignIn } from "./santa";
+import { foldOut, santaSignIn, wishRow } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -146,7 +146,7 @@ test("MUPP-042-R3 a changed list mails the giver once an hour: the job refuses w
     await page.getByRole("button", { name: "Lägg till" }).click();
     // The card stays open with empty fields for the next wish; Esc closes it
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("heading", { level: 3, name: title })).toBeVisible();
+    await expect(wishRow(page, title)).toBeVisible();
   }
   expect((await santaWishes(bo)).map((w) => w.title)).toEqual(["Ny sak", "Ännu en sak"]);
   expect(await (await runJob()).json()).toEqual({ sent: 1, failed: 0 });
@@ -154,10 +154,11 @@ test("MUPP-042-R3 a changed list mails the giver once an hour: the job refuses w
   expect(JSON.stringify(readOutbox())).not.toMatch(/Testsson|Ny sak|Ännu en sak/);
 
   // Another change within the hour waits; with no new change later, nothing more is sent
+  await foldOut(page, "Ny sak");
   await page.getByRole("button", { name: "Ändra Ny sak" }).click();
   await page.getByLabel("Namn").fill("Ändrad sak");
   await page.getByRole("button", { name: "Spara" }).click();
-  await expect(page.getByRole("heading", { level: 3, name: "Ändrad sak" })).toBeVisible();
+  await expect(wishRow(page, "Ändrad sak")).toBeVisible();
   expect(await (await runJob()).json()).toEqual({ sent: 0, failed: 0 });
   await ageSantaMail(bo);
   expect(await (await runJob()).json()).toEqual({ sent: 1, failed: 0 });
@@ -178,7 +179,7 @@ test("MUPP-042-R3 a change while the group is only preparing sends no mail", asy
   await page.getByRole("button", { name: "Ny önskning" }).click();
   await page.getByLabel("Namn").fill("Tidig sak");
   await page.getByRole("button", { name: "Lägg till" }).click();
-  await expect(page.getByRole("heading", { level: 3, name: "Tidig sak" })).toBeVisible();
+  await expect(wishRow(page, "Tidig sak")).toBeVisible();
   const caller = await playwrightRequest.newContext({ baseURL: process.env.BASE_URL, extraHTTPHeaders: { "x-real-ip": testIp() } });
   expect(await (await caller.post("/api/santa-mails", { headers: { authorization: `Bearer ${process.env.SANTA_JOB_SECRET}` } })).json()).toEqual({ sent: 0, failed: 0 });
   expect(readOutbox()).toEqual([]);

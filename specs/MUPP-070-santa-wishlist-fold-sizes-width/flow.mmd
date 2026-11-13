@@ -1,0 +1,11 @@
+%% MUPP-070 Sizes dialog narrower, Secret Santa wish list folds out
+flowchart TD
+    A[Member opens Din önskelista] --> B[Rows are folded: title and chevron only R3 R4]
+    B -->|press a row| C[Row folds out: Beskrivning, Storlek, link, pencil and bin R3 R4]
+    C -->|press the row again| B
+    C -->|pencil| D[Edit form card; save shows the new text in the row]
+    C -->|bin| E{Confirm removal?}
+    E -- yes --> F[Row is gone]
+    E -- no --> C
+    D --> C
+    G[Visitor presses Storlekar] --> H[Narrow dialog with the sizes and a centred Stäng R1 R2]

@@ -36,7 +36,7 @@ export function SizesButton({ kid, mode, forKid, className = "" }: { kid: DeckKi
           <MeasureIcon />
         </IconButton>
       )}
-      <Dialog ref={dialog} title={`Storlekar för ${kid.name}`}>
+      <Dialog ref={dialog} narrow title={`Storlekar för ${kid.name}`}>
         <div className="space-y-4">
           {rows.length === 0 ? (
             <p>Inga storlekar inlagda än.</p>
@@ -50,9 +50,11 @@ export function SizesButton({ kid, mode, forKid, className = "" }: { kid: DeckKi
               ))}
             </dl>
           )}
-          <Button variant="secondary" onClick={() => dialog.current?.close()}>
-            Stäng
-          </Button>
+          <div className="flex justify-center">
+            <Button variant="secondary" onClick={() => dialog.current?.close()}>
+              Stäng
+            </Button>
+          </div>
         </div>
       </Dialog>
     </>

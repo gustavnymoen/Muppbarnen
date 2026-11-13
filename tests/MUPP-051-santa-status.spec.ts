@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { adminSignIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
 import { addParent, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaStatusOf, santaWishes, setSantaStatus } from "./family-db";
 import { clearOutbox, readOutbox } from "./mail-outbox";
-import { eventCard, openEventCard, santaSignIn } from "./santa";
+import { eventCard, openEventCard, santaSignIn, wishRow } from "./santa";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -142,7 +142,7 @@ test("MUPP-051-R6 MUPP-051-R4 a preparing group has the active list card and the
 
   // R4: the kept wish is there when the group has been activated again
   await page.getByRole("link", { name: "Min önskelista" }).click();
-  await expect(page.getByRole("heading", { level: 3, name: "Bok" })).toBeVisible();
+  await expect(wishRow(page, "Bok")).toBeVisible();
   await expectNoA11yViolations(page);
 
   // R4: the page was opened while preparing; after the deactivation the server refuses the change and the wish stays

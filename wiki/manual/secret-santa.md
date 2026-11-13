@@ -53,7 +53,7 @@ Stoppas lottningen, eller städas allt i januari, tas alla samtal bort.
 Tryck på kortet **Min önskelista** på din sida. Där finns din önskelista i den grupp du loggade in i. Är du med i flera grupper loggar du in i var och en för sig, och listorna är skilda: det du önskar i en grupp syns inte i en annan.
 
 1. Tryck plusset **Ny önskning**, skriv ett namn och tryck **Lägg till** (eller Enter i det sista fältet). Beskrivning, storlek och länk är valfria. Länken ska börja med `http://` eller `https://`. Kortet står kvar med tomma fält så att du kan skriva nästa önskning, och en grön ruta glider ner överst på skärmen ("fotboll lades till") syns i två sekunder. Tryck på krysset eller Esc när du är klar.
-2. Tryck på pennan vid en önskning för att ändra den (kortet stängs när du sparat), och på papperskorgen för att ta bort den.
+2. Tryck på en önskning för att fälla ut den: då ser du **Beskrivning:**, **Storlek:** (ett streck, –, betyder att inget är ifyllt) och länken, och längst ner pennan och papperskorgen. Tryck på pennan för att ändra önskningen (kortet stängs när du sparat), och på papperskorgen för att ta bort den. Tryck på raden igen för att fälla ihop den.
 
 Stängs gruppen igen ligger dina önskningar kvar och är tillbaka när den öppnas. Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som drar dig läsa dem.
 
