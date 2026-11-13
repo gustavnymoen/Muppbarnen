@@ -17,7 +17,7 @@ A signed-in member ([Secret Santa entrance](secret-santa-entrance.md)) keeps a l
 |---|---|
 | `db/migrations/006_secret_santa_wishes.sql` | The table `ss_wish`, one row per wish, with `ON DELETE CASCADE` to `ss_member` (rebuilt by migration `007`, [MUPP-048](../../specs/MUPP-048-santa-events/solution.md), with the same ids). |
 | `lib/santa-wishes.ts` | `listOwn`, `saveWish`, `removeWish`. Each takes the member id from the cookie. |
-| `app/secret-santa/wish-actions.ts` | The two server actions: site sign-in, `guardWrite()`, the member from the cookie. |
+| `app/secret-santa/wish-actions.ts` | The two server actions: `openSiteAction()` (site sign-in and `guardWrite()`), the member from the cookie. |
 | `app/secret-santa/min-sida/OwnWishList.tsx` | The member's card with slim rows and the form. |
 | `app/components/WishParts.tsx`, `lib/form-input.ts` | The fields, the details and the checks (`parseWish`, `MAX_*`) shared with the kids' lists. |
 

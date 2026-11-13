@@ -7,7 +7,7 @@ import { testIp } from "./site-session";
 // The test server runs the cleanup as if it were 1 February 2099 (SANTA_CLEANUP_TODAY, scripts/test-server.mjs) and knows the cron secret
 test.skip(!runsLocally, "the Secret Santa tests need the local test server (its own database and passwords)");
 
-const CRON = { authorization: "Bearer påhittad-cronhemlighet" };
+const CRON = { authorization: "Bearer påhittad-cronhemlighet-som-inte-skyddar-något-alls" };
 const realYear = new Date().getFullYear();
 
 test.beforeEach(async ({ page }) => {

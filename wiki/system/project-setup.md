@@ -32,7 +32,7 @@ Two names to choose at the start: the product's name (here **Muppbarnen**) and t
 | `playwright.config.ts`, `vitest.config.mts`, `vitest.global-setup.mjs`, `tests/helpers.ts` | Test configuration and shared test helpers |
 | `next.config.ts`, `eslint.config.mjs`, `.gitignore`, `.env.example` | Next.js settings with security headers, lint, ignores, the environment variables |
 
-The scripts and dependencies are in `package.json`; Node.js 24.
+The scripts and dependencies are in `package.json`; Node.js 24 (`engines.node` is `24.x`, so Vercel does not move to a new major version by itself). Dependency install scripts are blocked by default; `allowScripts` in `package.json` records the decisions (`npm install-scripts ls` lists what is undecided). ESLint stays on 9 until the plugins of `eslint-config-next` allow 10 ([TECH-025](../../specs/TECH-025-build-warnings/solution.md)).
 
 ## The steps
 

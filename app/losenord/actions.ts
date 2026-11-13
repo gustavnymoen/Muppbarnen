@@ -1,9 +1,10 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { checkLogin } from "@/lib/login-block";
 import { clientIp, guardMessage, guardWrite } from "@/lib/request-guard";
+import { setSessionCookie } from "@/lib/session-cookie";
 import { createSession, safeTarget, SESSION_COOKIE, SESSION_SECONDS, siteSecrets } from "@/lib/site-session";
 
 type LoginState = { error: string } | null;
@@ -19,12 +20,6 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
   if (result === "blocked") return { error: "För många försök. Försök igen om en stund." };
   if (result === "wrong" || !secrets) return { error: "Fel lösenord." };
 
-  (await cookies()).set(SESSION_COOKIE, createSession(secrets.secret), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: SESSION_SECONDS,
-    path: "/",
-  });
+  await setSessionCookie(SESSION_COOKIE, createSession(secrets.secret), SESSION_SECONDS);
   redirect(safeTarget(formData.get("till")));
 }

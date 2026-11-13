@@ -6,16 +6,15 @@ import type { FormState } from "@/app/components/form-state";
 import { ADMIN_PATH, adminSecrets } from "@/lib/admin-session";
 import { setAdminCookie } from "@/lib/admin-auth";
 import { checkLogin } from "@/lib/login-block";
-import { clientIp, guardMessage, guardWrite } from "@/lib/request-guard";
-import { requireSiteSession } from "@/lib/site-auth";
+import { openSiteAction } from "@/lib/action-open";
+import { clientIp } from "@/lib/request-guard";
 
 // Den enda adminåtgärden utan adminkontroll (lib/route-checks.test.ts): den är själva
 // inloggningen. Sajtkakan krävs som för allt annat, och spärren efter fel lösenord är
 // gemensam med sajtlösenordet.
 export async function adminLogin(_previous: FormState, formData: FormData): Promise<FormState> {
-  await requireSiteSession();
-  const guard = await guardWrite();
-  if (guard !== "ok") return { error: guardMessage(guard) };
+  const { refusal } = await openSiteAction();
+  if (refusal) return { error: refusal };
 
   const secrets = adminSecrets();
   if (!secrets) {

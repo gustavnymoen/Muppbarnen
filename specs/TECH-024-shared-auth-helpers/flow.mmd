@@ -1,0 +1,15 @@
+%% TECH-024 Shared access checks
+%% What a server action and a job route do first (R2, R3).
+flowchart TD
+    A[Server action] --> B[openAdminAction or openSiteAction]
+    B --> C[Site cookie, else redirect to the password page]
+    C --> D[Admin cookie, admin actions only, else redirect to /admin]
+    D --> E{Write limit and Origin}
+    E -- refusal --> F[The action answers with the text]
+    E -- ok --> G[The action does its work]
+    H[Job route: mails or cleanup] --> I[refuseJobCall]
+    I --> J{Write limit}
+    J -- over --> K[429]
+    J -- ok --> L{Bearer secret, 32+ characters}
+    L -- wrong or missing --> M[401]
+    L -- right --> N[The job runs]

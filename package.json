@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=24"
+    "node": "24.x"
   },
   "scripts": {
     "predev": "node scripts/db-setup.mjs --backup",
@@ -53,5 +53,9 @@
     "@vercel/cli-config": {
       "zod": "4.6.7"
     }
+  },
+  "allowScripts": {
+    "unrs-resolver": false,
+    "fsevents": false
   }
 }
