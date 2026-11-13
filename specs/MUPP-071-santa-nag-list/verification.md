@@ -18,8 +18,8 @@ feature: MUPP-071
 
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
-| Unit tests | `lib/santa-nag.test.ts` (new), additions to `santa-mail`, `santa-cleanup`, `santa-match` tests; `npm run test:unit` 387 passed | local | Pass | 2026-11-12 |
-| Browser tests | `tests/MUPP-071-santa-nag-list.spec.ts` (3) and one test in `tests/design.spec.ts`; full `npm run test:time`: 170 passed | local | Pass | 2026-11-12 |
+| Unit tests | `lib/santa-nag.test.ts` (new), additions to `santa-mail`, `santa-cleanup`, `santa-match` tests; `npm run test:unit` 388 passed | local | Pass | 2026-11-12 |
+| Browser tests | `tests/MUPP-071-santa-nag-list.spec.ts` (3) and one test in `tests/design.spec.ts`; full `npm run test:time` after the last change: 170 passed | local | Pass | 2026-11-12 |
 | Smoke test | Not applicable: the page is behind a sign-in and the smoke tests are read-only | n/a | n/a | 2026-11-12 |
 | Accessibility | axe on the empty, the queued and the "Du har tjatat nyss" state in the browser tests. The checklist in `wiki/system/accessibility.md` on the live site: not checked | local | Partly (live not checked) | 2026-11-12 |
 | Security | Security points of the review; `/security-review` run on the change: no findings | local | Pass | 2026-11-12 |
@@ -31,9 +31,9 @@ feature: MUPP-071
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before | 375 unit + 167 browser (TECH-022) | 338.8 s | 7.4 s |
-| After | 387 unit + 170 browser | 342.7 s | 7.4 s |
+| After | 388 unit + 170 browser | 340.2 s | 7.4 s |
 
-Over the 330 s budget, as it already was before this change (338.8 s, accepted by the user in TECH-022); the three new browser tests add about 4 s.
+Over the 330 s budget, as it already was before this change (338.8 s, accepted by the user in TECH-022); the three new browser tests add about 1 to 4 s (340.2 s now, 338.8 s before).
 
 ## Definition of Done
 
