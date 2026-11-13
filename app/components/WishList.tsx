@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition, type ComponentProps, type CSSProperties, type FormEvent, type Ref, type RefObject } from "react";
+import { useEffect, useId, useRef, useState, useTransition, type ComponentProps, type ReactNode, type CSSProperties, type FormEvent, type Ref, type RefObject } from "react";
 import { claimWishes, unclaimWish } from "@/app/actions";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
@@ -184,7 +184,8 @@ function InfoBubble({ children }: { children: string }) {
 // En rad: rubriken med märken, en kryssruta om den går att paxa eller en ångra-pil om den är paxad (MUPP-006-R1),
 // och detaljerna när raden är utfälld (MUPP-005-R1–R3). Utan claiming är raden bara att läsa, som på Secret Santa-matchningen
 // (MUPP-062-R2); roomy ger den lite mer höjd (R3).
-export function WishRow({ wish, claiming, roomy }: { wish: Wish; claiming?: { marked: boolean; onMark: () => void; onUnclaim: (button: HTMLElement) => void }; roomy?: boolean }) {
+// actions (MUPP-070): knappar som visas i den utfällda raden (Din önskelista i Secret Santa: ändra och ta bort).
+export function WishRow({ wish, claiming, roomy, actions }: { wish: Wish; claiming?: { marked: boolean; onMark: () => void; onUnclaim: (button: HTMLElement) => void }; roomy?: boolean; actions?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const link = webLink(wish.url);
@@ -236,6 +237,7 @@ export function WishRow({ wish, claiming, roomy }: { wish: Wish; claiming?: { ma
               </a>
             </p>
           )}
+          {actions && <div className="flex gap-2 pt-2">{actions}</div>}
         </div>
       )}
     </li>

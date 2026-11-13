@@ -7,8 +7,8 @@ import { PlusIcon } from "./icons";
 
 // Knappen som öppnar ett formulär som ett kort (MUPP-045): kortet växer ur knappen, har ett kryss och fokus i första fältet (Dialog.tsx).
 // Knappen är en ikonknapp (icon), en rund plusknapp (add, MUPP-053: en ny rad i en lista eller ram) eller en knapp med text (ett nytt objekt på översta nivån).
-// label är det knappen gäller för skärmläsaren ("Ändra Otis"), title rubriken på kortet.
-export function FormCard({ title, label, icon, add, text, onClose, children }: { title: string; label: string; icon?: ReactNode; add?: boolean; text?: string; onClose?: () => void; children: ReactNode }) {
+// big: ikonknappen är 44 px i stället för 32 px (en knapp i en utfälld rad, MUPP-070). label är det knappen gäller för skärmläsaren ("Ändra Otis"), title rubriken på kortet.
+export function FormCard({ title, label, icon, add, big, text, onClose, children }: { title: string; label: string; icon?: ReactNode; add?: boolean; big?: boolean; text?: string; onClose?: () => void; children: ReactNode }) {
   const card = useRef<DialogHandle>(null);
   const open = (event: MouseEvent<HTMLElement>) => card.current?.open(event.currentTarget);
   return (
@@ -18,7 +18,7 @@ export function FormCard({ title, label, icon, add, text, onClose, children }: {
           <PlusIcon />
         </IconButton>
       ) : icon ? (
-        <IconButton compact label={label} text={text} onClick={open}>
+        <IconButton compact={!big} label={label} text={text} onClick={open}>
           {icon}
         </IconButton>
       ) : (

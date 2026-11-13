@@ -2,6 +2,7 @@
 
 ## 2026-11-13
 
+* **Creation** [MUPP-070 Sizes dialog narrower, Secret Santa wish list folds out](../specs/MUPP-070-santa-wishlist-fold-sizes-width/solution.md): the sizes dialog is about 30 % narrower with a centred "Stäng", and "Din önskelista" in Secret Santa uses the shared `WishRow`: a row folds out to the details with the pencil and the bin inside it.
 * **Update** [MUPP-071](../specs/MUPP-071-santa-nag-list/verification.md): the live accessibility line is marked done by the user; no per-item details were recorded.
 
 ## 2026-11-12

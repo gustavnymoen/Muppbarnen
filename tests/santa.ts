@@ -14,6 +14,13 @@ export async function santaSignIn(page: Page, memberId: number) {
   await page.context().addCookies([{ name: SANTA_COOKIE, value, domain: "localhost", path: "/", secure: true, httpOnly: true, sameSite: "Lax" }]);
 }
 
+// A wish row of "Din önskelista" (MUPP-070): a button that folds out; foldOut leaves an open row open
+export const wishRow = (page: Page, title: string) => page.getByRole("button", { name: title, exact: true });
+export async function foldOut(page: Page, title: string) {
+  const row = wishRow(page, title);
+  if ((await row.getAttribute("aria-expanded")) === "false") await row.click();
+}
+
 // The names step: from the entrance to a person's sign-in form
 export async function pickName(page: Page, name: string) {
   await page.getByRole("link", { name, exact: true }).click();
