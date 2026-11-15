@@ -35,13 +35,15 @@ feature: MUPP-071
 
 Over the 330 s budget, as it already was before this change (338.8 s, accepted by the user in TECH-022); the three new browser tests add about 1 to 4 s (340.2 s now, 338.8 s before).
 
+Measured again on 2026-11-15 on `main` (which now also holds MUPP-070 and MUPP-072): 396 unit tests (0.7 s) and 176 browser tests, 387.1 s, one run, no other test run on the machine. One test (MUPP-013-R5 …) took 30 s against 7 to 8 s in earlier runs, which looks like noise in this single run and was not investigated, so 387.1 s is not a reliable figure for the suite. The latest CI run (pull request 254, 2026-11-13) measured 427.5 s for the browser tests against CI's limit of 455 s, and the slowest test 8.4 s against 9.3 s. The user accepted that the test times are over budget (in the chat, 2026-11-15); the growth is not from this card.
+
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done except the live ones; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: over the 330 s budget, as before (see above); the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet, nothing is merged
+- [x] Test suite: 340.2 s with this change, over the 330 s budget as before; the overrun is accepted by the user (2026-11-15); the new tests follow the quality rules
+- [x] Deployed, and the smoke tests pass against production (Live tests): merged in pull request 247 (merge commit `9660270`, 2026-11-13 09:34 Swedish time); Live tests run 43394306418 on that commit passed (job `live`, 2026-11-13)
 - [x] Accessibility: axe passes; the live checklist was gone through by the user (no per-item details recorded)
-- [ ] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built.
+- [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built (checked against `lib/santa-nag.ts`, `app/secret-santa/nag-actions.ts`, `NagButton.tsx`, migration `013`, `lib/santa-mail.ts` and the wiki on 2026-11-15)
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [x] No leftovers
 - [x] Clean code: `npm run lint`, `lint:docs`, `typecheck` and `build` pass
@@ -49,6 +51,8 @@ Over the 330 s budget, as it already was before this change (338.8 s, accepted b
 - [x] Technical tasks for larger improvements: none
 
 ## Requirements as built
+
+The card (#241) was compared with the code on `main` on 2026-11-15. R1 to R4 are built as written. One thing was added afterwards, by the follow-up card [MUPP-072](../MUPP-072-loading-state/verification.md): the nag button shows a spinner while the action runs, and under the locked button the text "Du kan bara tjata en gång i timmen." says why (tied to the button with `aria-describedby`). That is not part of R1 to R4 below.
 
 ### MUPP-071-R1 The button
 

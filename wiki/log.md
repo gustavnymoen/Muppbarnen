@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-15
+
+* **Update** [MUPP-071](../specs/MUPP-071-santa-nag-list/verification.md), [MUPP-072](../specs/MUPP-072-loading-state/verification.md), [MUPP-070](../specs/MUPP-070-santa-wishlist-fold-sizes-width/verification.md), [MUPP-068](../specs/MUPP-068-chat-keyboard-native/verification.md) and [MUPP-066](../specs/MUPP-066-chat-scroll/verification.md): open Definition-of-Done boxes closed (the test times over budget accepted by the user, Live tests runs recorded, MUPP-071's requirements checked against the code); the live accessibility checklist of MUPP-068 is still not done. `solution.md` of MUPP-071 now mentions the spinner and the explanation text of MUPP-072.
+
 ## 2026-11-13
 
 * **Update** [MUPP-072](../specs/MUPP-072-loading-state/verification.md): merged, Live tests passed against the live site; the live accessibility checklist is marked done by the user; no per-item details were recorded.
