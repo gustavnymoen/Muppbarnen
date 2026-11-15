@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-15
+
+* **Creation** [TECH-028 Date-proof browser tests](../specs/TECH-028-date-proof-tests/solution.md): the test server and the tests share one fixed date (`TEST_TODAY`, 2026-06-01), so the order of the cards no longer depends on the season; from 14 November a birthday 40 days ahead fell after Christmas Eve and broke three tests.
+
 ## 2026-11-13
 
 * **Update** [MUPP-072](../specs/MUPP-072-loading-state/verification.md): merged, Live tests passed against the live site; the live accessibility checklist is marked done by the user; no per-item details were recorded.
