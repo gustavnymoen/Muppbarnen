@@ -104,6 +104,7 @@ tags: [product, features]
 | [MUPP-071](MUPP-071-santa-nag-list/solution.md) | Secret Santa: nag the match for a list | Önskelista | Review |
 | [TECH-025](TECH-025-build-warnings/solution.md) | Build warnings on Vercel | Shared | Ongoing |
 | [MUPP-072](MUPP-072-loading-state/solution.md) | Loading state on buttons + nag button text | Shared | Done |
+| [MUPP-076](MUPP-076-santa-mail-partner-text/solution.md) | Secret Santa mails: partner sentence, contact the creator | Administration | Ongoing |
 | [TECH-024](TECH-024-shared-auth-helpers/solution.md) | Shared access checks | Shared | Review |
 | [MUPP-078](MUPP-078-secret-santa-members/solution.md) | Secret Santa members: partner and top buttons | Administration | Ongoing |
 | [MUPP-079](MUPP-079-santa-several-groups/solution.md) | Stay signed in to several Secret Santa groups | Shared | Ongoing |

@@ -2,18 +2,18 @@ import type { Mail } from "./mail";
 
 // Alla mejl som Secret Santa skickar, med mottagare, tid och text på ett ställe (MUPP-052). Korten som skickar dem
 // (MUPP-051, 041, 042, 043) anropar bara funktionerna här, och testerna läser samma texter. Ingen text får innehålla
-// ett medlemsnamn, en önskan eller ett meddelande; bara mejl 1 och 8 nämner en person: gruppens administratör. Mejl 1, 3 och 8 får också tipset om hemskärmen (installTip, MUPP-058).
+// ett medlemsnamn, en önskan eller ett meddelande; inget mejl nämner en person, och funktionerna tar bara gruppens namn. Mejl 1, 3 och 8 får också tipset om hemskärmen (installTip, MUPP-058).
 const subject = (group: string, what: string) => `Secret Santa: ${group} – ${what}`;
-const contact = (admin: string) => `Är det här inte du, eller vill du inte vara med, hör av dig till ${admin}.`;
+const contact = "Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen.";
 
 // Mejl 1: gruppen aktiveras (till alla medlemmar), och till en medlem som läggs till medan gruppen förbereds, direkt efter mejl 8
-export const activatedMail = (group: string, admin: string): Mail => ({
+export const activatedMail = (group: string): Mail => ({
   subject: subject(group, "Nu kan du skriva din önskelista"),
   text:
     `Ho-Ho! Nu har gruppen ${group} öppnat. Gå in på sajten, välj Secret Santa och din grupp, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt.\n` +
-    `Du kan inte matchas med din partner, dig själv eller den du hade förra året!\n` +
+    `Du kan inte matchas med dig själv eller den du hade förra året! Har admin även satt partners på deltagarna får du inte din partner.\n` +
     `Du kan fylla i din önskelista från och med nu och ändra fram till julafton, men var snäll mot din matchning och bestäm dig i tid!\n` +
-    `Allt är hemligt: ingen får veta vem som drar vem. ${contact(admin)}`,
+    `Allt är hemligt: ingen får veta vem som drar vem. ${contact}`,
   installTip: true,
 });
 
@@ -58,9 +58,9 @@ export const messageFromReceiverMail = (group: string): Mail => ({
 });
 
 // Mejl 8: en person läggs till i en grupp (till personen), i alla lägen där det går
-export const addedMail = (group: string, admin: string): Mail => ({
+export const addedMail = (group: string): Mail => ({
   subject: subject(group, "välkommen"),
-  text: `Du har lagts till i Secret Santa-gruppen ${group} av ${admin}. ${contact(admin)} När gruppen öppnar får du ett nytt mail som berättar hur det går till!`,
+  text: `Du har lagts till i Secret Santa-gruppen ${group}. ${contact} När gruppen öppnar får du ett nytt mail som berättar hur det går till!`,
   installTip: true,
 });
 

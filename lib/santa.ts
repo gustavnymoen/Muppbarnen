@@ -124,7 +124,7 @@ export async function removeEvent(actor: Parent | null, rawId: unknown): Promise
 
 // ---- Status
 
-type StatusChange = { eventName: string; adminName: string; recipients: Recipient[] };
+type StatusChange = { eventName: string; recipients: Recipient[] };
 
 // Aktivera (inaktiv → förbereder) eller avaktivera (förbereder → inaktiv), MUPP-051-R2. En startad grupp lämnas bara av
 // dragningen (MUPP-041). Svaret säger vem som ska få mejlet; att skicka det gör anroparen när statusen är sparad.
@@ -136,7 +136,7 @@ async function changeStatus(actor: Parent | null, rawId: unknown, from: EventSta
     if (event.status !== from) return WRONG_STATUS;
     await run("UPDATE ss_event SET status = ? WHERE id = ? AND status = ?", [to, event.id, from], tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
-    return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients };
+    return { ok: true, eventName: event.name, recipients };
   });
 }
 
@@ -181,7 +181,7 @@ export async function startDraw(actor: Parent | null, rawId: unknown, today = sw
     await run("UPDATE ss_event SET status = 'started' WHERE id = ? AND status = 'preparing'", [event.id], tx);
     await clearListChanges(event.id, tx);
     await clearMessages(event.id, tx);
-    return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
+    return { ok: true, eventName: event.name, recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
   });
 }
 
@@ -198,13 +198,8 @@ export async function stopDraw(actor: Parent | null, rawId: unknown): Promise<Ou
     await clearListChanges(event.id, tx);
     await clearMessages(event.id, tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
-    return { ok: true, eventName: event.name, adminName: await ownerName(event.owner_id, tx), recipients };
+    return { ok: true, eventName: event.name, recipients };
   });
-}
-
-// Den som mejlen säger att man ska höra av sig till: gruppens ägare
-async function ownerName(ownerId: number, tx: Executor) {
-  return (await get<{ name: string }>("SELECT name FROM parent WHERE id = ?", [ownerId], tx))?.name ?? "";
 }
 
 // ---- Medlemmar
@@ -230,7 +225,7 @@ async function contactTaken(eventId: number, phone: string, email: string, excep
 }
 
 // Det som behövs för att skicka mejlet till en ny adress; status avgör vilket: inaktiv välkomstmejlet, förbereder också aktiveringsmejlet, startad startmejlet
-export type NewMember = { name: string; email: string; eventName: string; adminName: string; status: EventStatus };
+export type NewMember = { name: string; email: string; eventName: string; status: EventStatus };
 
 // En ny medlem i gruppen (inte i en startad)
 // Partnern kan väljas redan här (MUPP-078-R1): en annan medlem i gruppen, eller ingen
@@ -249,7 +244,7 @@ export async function addMember(actor: Parent | null, input: { eventId: unknown;
     if (problem) return problem;
     const { lastId } = await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
     await setPartner(lastId, partnerId, tx);
-    return { ok: true, name, email, eventName: event.name, adminName: await ownerName(event.owner_id, tx), status: event.status };
+    return { ok: true, name, email, eventName: event.name, status: event.status };
   });
 }
 
@@ -293,7 +288,7 @@ export async function memberToMail(actor: Parent | null, rawId: unknown): Promis
   return withTransaction(async (tx) => {
     const member = await manageableMember(actor, rawId, tx);
     if (isOutcome(member)) return member;
-    return { ok: true, name: member.name, email: member.email, eventName: member.event_name, adminName: await ownerName(member.owner_id, tx), status: member.status };
+    return { ok: true, name: member.name, email: member.email, eventName: member.event_name, status: member.status };
   });
 }
 

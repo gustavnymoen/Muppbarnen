@@ -18,8 +18,8 @@ export async function mailEveryone(recipients: Recipient[], mail: Mail): Promise
 // aktiveringsmejlet (MUPP-051-R3); i en startad grupp startmejlet (MUPP-060-R4). Sant om allt gick iväg.
 export async function mailNewMember(member: NewMember): Promise<boolean> {
   if (member.status === "started") return (await sendMail(member.email, startedMail(member.eventName))).ok;
-  if (!(await sendMail(member.email, addedMail(member.eventName, member.adminName))).ok) return false;
-  return member.status !== "preparing" || (await sendMail(member.email, activatedMail(member.eventName, member.adminName))).ok;
+  if (!(await sendMail(member.email, addedMail(member.eventName))).ok) return false;
+  return member.status !== "preparing" || (await sendMail(member.email, activatedMail(member.eventName))).ok;
 }
 
 // Texten som administratören ser när något mejl inte gick iväg

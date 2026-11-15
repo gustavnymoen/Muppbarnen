@@ -64,9 +64,9 @@ The series shall send exactly these eight mails, to the recipients and at the ti
 - **Text:**
 
   Ho-Ho! Nu har gruppen <grupp> öppnat. Gå in på sajten, välj Secret Santa och din grupp, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt. 
-Du kan inte matchas med din partner, dig själv eller den du hade förra året!
+Du kan inte matchas med dig själv eller den du hade förra året! Har admin även satt partners på deltagarna får du inte din partner.
 Du kan fylla i din önskelista från och med nu och ändra fram till julafton, men var snäll mot din matchning och bestäm dig i tid!
-Allt är hemligt: ingen får veta vem som drar vem. Är det här inte du, eller vill du inte vara med, hör av dig till <administratörens namn>.
+Allt är hemligt: ingen får veta vem som drar vem. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen.
 
 #### Mail 2
 
@@ -132,15 +132,15 @@ Det är alltså två chattar, en i din lista om DIN önskelista, samt en i din m
 - **Subject:** Secret Santa: <grupp> – välkommen
 - **Text:**
 
-  Du har lagts till i Secret Santa-gruppen <grupp> av <administratörens namn>. Är det här inte du, eller vill du inte vara med, hör av dig till <administratörens namn>. När gruppen öppnar får du ett nytt mail som berättar hur det går till!
+  Du har lagts till i Secret Santa-gruppen <grupp>. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen. När gruppen öppnar får du ett nytt mail som berättar hur det går till!
 
 
 Acceptance criteria:
 
 - **Given** each mail, **then** its subject and text are exactly those above (with the group name filled in) plus the shared layout (R3).
-- **Given** any mail, **then** it holds no member name, wish, message text or answer; mails 1 and 8 name only the event's administrator.
+- **Given** any mail, **then** it holds no member name, wish, message text or answer; no mail names a person (changed by MUPP-076; MUPP-052 first named the administrator in mails 1 and 8).
 
-The name in mails 1 and 8 is the administrator of the event (the parent who created it), not a member; they are the only mails that name a person, and hold no wishes or draw. Mail 1 carries the explanation of how it works and the contact line, because it goes out every year when the event is activated, also to people who were added in an earlier year and so never get mail 8 again; mail 8 only says that you were added.
+Since MUPP-076 no mail names a person; mails 1 and 8 say to contact "den som skapade gruppen". Mail 1 carries the explanation of how it works and the contact line, because it goes out every year when the event is activated, also to people who were added in an earlier year and so never get mail 8 again; mail 8 only says that you were added.
 
 ### MUPP-052-R2 The confirmations
 
