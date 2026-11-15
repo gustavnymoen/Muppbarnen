@@ -37,8 +37,13 @@ export const dayAndMonth = (day: number, month: number) => `${day} ${MONTHS[mont
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 const dayNumber = (year: number, month: number, day: number) => Date.UTC(year, month - 1, day) / 86_400_000;
 
+// Testservern kör med ett fast datum (TEST_TODAY, ÅÅÅÅ-MM-DD), så att testerna ger samma resultat hela året: en födelsedag om 40 dagar
+// kan annars hamna efter julafton och ändra kortens ordning (TECH-028). Bara med en lokal databasfil: en driftsatt sajt går alltid efter klockan.
+export const clockNow = (fixed = process.env.TEST_TODAY, dbUrl = process.env.TURSO_DATABASE_URL) =>
+  fixed && dbUrl?.startsWith("file:") ? new Date(`${fixed}T12:00:00Z`) : new Date();
+
 // Dagens datum i Sverige, oavsett var servern står
-export function swedishToday(now = new Date()): Today {
+export function swedishToday(now = clockNow()): Today {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Stockholm", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
   const part = (type: string) => Number(parts.find((p) => p.type === type)!.value);
   return { year: part("year"), month: part("month"), day: part("day") };

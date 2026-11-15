@@ -1,0 +1,11 @@
+%% TECH-028 Date-proof browser tests
+%% Where the date comes from in the browser tests (R1).
+flowchart TD
+    A[npm run test:local] --> B[playwright.config.ts sets TEST_TODAY]
+    B --> C[scripts/test-server.mjs passes it on]
+    C --> D{Local database file?}
+    D -- yes --> E[clockNow gives TEST_TODAY at noon]
+    D -- no --> F[clockNow gives the real clock]
+    B --> G[tests/helpers.ts testToday: the same date]
+    E --> H[Site and tests agree on today]
+    G --> H
