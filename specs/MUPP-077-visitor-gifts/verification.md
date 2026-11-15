@@ -24,7 +24,7 @@ feature: MUPP-077
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
 | Unit tests | `lib/family.test.ts` (10 new), `db/db-setup.test.ts` updated for the new column; 411 pass | local | Pass | 2026-11-15 |
-| Browser tests | `tests/MUPP-077-visitor-gifts.spec.ts` (6 tests, axe in every state) and one new test in `tests/design.spec.ts` | local | Pass | 2026-11-15 |
+| Browser tests | `tests/MUPP-077-visitor-gifts.spec.ts` (4 tests, axe in every state) and one new test in `tests/design.spec.ts` | local | Pass | 2026-11-15 |
 | Smoke test | Not applicable: the flow writes data | – | – | – |
 | Accessibility | axe in every state of the browser tests. The checklist on the live site: not checked yet | local | Not checked on live | – |
 | Manual check on a phone with the keyboard up | Not checked | – | Not checked | – |
@@ -38,9 +38,9 @@ Full `playwright test` run after merging `main` (separate port and home; other s
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before | not measured | – | – |
-| After | 186 browser tests (7 new), 411 unit tests (10 new) | 6.2 min | not measured |
+| After | 184 browser tests (5 new), 411 unit tests (10 new) | 6.2 min | not measured |
 
-All 186 browser tests and all 411 unit tests pass. (Before merging `main`, three older tests failed on today's date; TECH-028 fixed them.)
+All browser tests and all 411 unit tests pass. (Before merging `main`, three older tests failed on today's date; TECH-028 fixed them.)
 
 ## Requirements as built
 

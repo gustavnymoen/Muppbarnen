@@ -40,9 +40,11 @@ async function openList(page: Page, wishes: (child: number) => Promise<void>, da
 }
 
 // En hel resa i samma lista (TECH-015): knappen sist i en lång lista, båda stegen, felen, tillbaka, sparandet och radens utseende
-test("MUPP-077-R1 R2 R3 R4 the add button ends a long list, step 1 checks the gift, step 2 the name, back keeps what was typed, and the gift is saved as claimed and shown as added", async ({ page }) => {
+test("MUPP-077-R1 R2 R3 R4 R5 the add button ends a long list, step 1 checks the gift, step 2 the name, back keeps what was typed, the gift is saved as claimed and shown as added, and a parent's claimed row keeps its dialog", async ({ page }) => {
   await openList(page, async (vera) => {
     for (let i = 1; i <= 12; i++) await addWish(vera, "birthday", `Önskan ${i}`);
+    // En förälders paxade rad (R5, sist i testet)
+    await addWish(vera, "birthday", "Cykel", { claimedBy: "Moster Lisa" });
   });
 
   // R1: sist i den scrollande ytan, efter sista raden
@@ -104,9 +106,17 @@ test("MUPP-077-R1 R2 R3 R4 the add button ends a long list, step 1 checks the gi
   await row(page, "Pussel").getByRole("button", { name: /^Pussel/ }).click();
   await expect(row(page, "Pussel")).toContainText(/Tillagd av Moster Lisa \d{4}-\d{2}-\d{2}/);
   await expectNoA11yViolations(page);
+
+  // R5: en förälders paxade rad har kvar dagens dialog, om paxningen
+  await undoClaim(page, "Cykel").click();
+  const ask = page.getByRole("alertdialog");
+  await expect(ask).toContainText("Cykel är paxad av Moster Lisa.");
+  await expect(ask).toHaveAccessibleName("Ta bort paxningen");
+  await expect(ask.getByRole("button", { name: "Ta bort", exact: true })).toBeVisible();
+  await expectNoA11yViolations(page);
 });
 
-test("MUPP-077-R1 R4 R5 the button is in an empty list too; the undo dialog asks to remove the gift, and removing it deletes the row", async ({ page }) => {
+test("MUPP-077-R1 R4 R5 R7 the button is in an empty list too; the undo dialog asks to remove the gift, removing it deletes the row, and without a site session nothing is saved", async ({ page }) => {
   await openList(page, async () => {});
   await expect(region(page)).toContainText("Inga önskningar än.");
   await expect(addButton(page)).toBeVisible();
@@ -144,18 +154,16 @@ test("MUPP-077-R1 R4 R5 the button is in an empty list too; the undo dialog asks
   await expect(ask).toHaveCount(0);
   await expect(row(page, "Lego")).toHaveCount(0);
   expect(await giftOf("Lego")).toBeUndefined();
-});
 
-test("MUPP-077-R5 a parent's claimed row keeps today's dialog, about the claim", async ({ page }) => {
-  await openList(page, async (vera) => {
-    await addWish(vera, "birthday", "Cykel", { claimedBy: "Moster Lisa" });
-  });
-  await undoClaim(page, "Cykel").click();
-  const ask = page.getByRole("alertdialog");
-  await expect(ask).toContainText("Cykel är paxad av Moster Lisa.");
-  await expect(ask).toHaveAccessibleName("Ta bort paxningen");
-  await expect(ask.getByRole("button", { name: "Ta bort", exact: true })).toBeVisible();
-  await expectNoA11yViolations(page);
+  // R7: utan sajtkaka sparas ingenting, och fönstret säger det (sist: kakorna tas bort)
+  await addButton(page).click();
+  await field(page, "Namn").fill("Kamera");
+  await dialog(page).getByRole("button", { name: "Nästa" }).click();
+  await field(page, "Ditt namn").fill("Moster Lisa");
+  await page.context().clearCookies();
+  await dialog(page).getByRole("button", { name: "Lägg till" }).click();
+  await expect(dialog(page).getByText("Något gick fel. Försök igen.")).toBeVisible();
+  expect(await giftOf("Kamera")).toBeUndefined();
 });
 
 test("MUPP-077-R1 R4 the button is on a card in the month after the occasion, and the gift lands in that list", async ({ page }) => {
@@ -168,18 +176,6 @@ test("MUPP-077-R1 R4 the button is on a card in the month after the occasion, an
   await field(page, "Ditt namn").fill("Moster Lisa");
   await dialog(page).getByRole("button", { name: "Lägg till" }).click();
   await expect(row(page, "Pussel")).toContainText("Tillagd av Moster Lisa");
-});
-
-test("MUPP-077-R7 without a site session nothing is saved, and the dialog says so", async ({ page }) => {
-  await openList(page, async () => {});
-  await addButton(page).click();
-  await field(page, "Namn").fill("Pussel");
-  await dialog(page).getByRole("button", { name: "Nästa" }).click();
-  await field(page, "Ditt namn").fill("Moster Lisa");
-  await page.context().clearCookies();
-  await dialog(page).getByRole("button", { name: "Lägg till" }).click();
-  await expect(dialog(page).getByText("Något gick fel. Försök igen.")).toBeVisible();
-  expect(await giftOf("Pussel")).toBeUndefined();
 });
 
 test("MUPP-077-R6 the admin page and the archive show who added a gift, and the warning names them", async ({ page }) => {
