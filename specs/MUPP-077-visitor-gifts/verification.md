@@ -23,7 +23,7 @@ feature: MUPP-077
 
 | Check | How it was done | Where | Result | Date |
 |---|---|---|---|---|
-| Unit tests | `lib/family.test.ts` (10 new), `db/db-setup.test.ts` updated for the new column | local | Pass | 2026-11-15 |
+| Unit tests | `lib/family.test.ts` (10 new), `db/db-setup.test.ts` updated for the new column; 411 pass | local | Pass | 2026-11-15 |
 | Browser tests | `tests/MUPP-077-visitor-gifts.spec.ts` (6 tests, axe in every state) and one new test in `tests/design.spec.ts` | local | Pass | 2026-11-15 |
 | Smoke test | Not applicable: the flow writes data | – | – | – |
 | Accessibility | axe in every state of the browser tests. The checklist on the live site: not checked yet | local | Not checked on live | – |
@@ -33,14 +33,14 @@ feature: MUPP-077
 
 ## Test suite
 
-Full `playwright test` run on a separate port and home, with other sessions running tests at the same time (so the time is not comparable to a quiet run).
+Full `playwright test` run after merging `main` (separate port and home; other sessions may have been running tests, so the time is not comparable to a quiet run).
 
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before | not measured | – | – |
-| After | 183 browser tests (+7), 406 unit tests (+10) | 6.9 min (under load) | not measured |
+| After | 186 browser tests (7 new), 411 unit tests (10 new) | 6.2 min | not measured |
 
-Three browser tests fail in the full run: `MUPP-017-R1`, `MUPP-021-R1` and `MUPP-013-R5 …` in `design.spec.ts`. They put a card with several kids "next" and today (15 November) the Christmas Eve card comes before it, so they fail on the date. They do not touch the code of this change; they were not run on `main` to confirm. They need a card of their own.
+All 186 browser tests and all 411 unit tests pass. (Before merging `main`, three older tests failed on today's date; TECH-028 fixed them.)
 
 ## Requirements as built
 
@@ -51,7 +51,7 @@ As in the card (`gh issue view 259`), with these details:
 
 ## Definition of Done
 
-- [x] Unit tests pass; browser tests pass except the three date-dependent ones above
+- [x] Unit tests and browser tests pass
 - [ ] Test suite within budgets: not measured on a quiet machine
 - [ ] Deployed, Live tests: not yet
 - [ ] Accessibility checklist on the live site: not yet

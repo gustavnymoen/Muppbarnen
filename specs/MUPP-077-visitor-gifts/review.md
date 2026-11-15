@@ -30,4 +30,4 @@ None.
 
 ## Outside the change
 
-- `MUPP-013-R5` (`tests/design.spec.ts`), `MUPP-017-R1` and `MUPP-021-R1` fail on today's date (the Christmas Eve card comes before the multi-kid card they expect to be next). Not caused by this change; should be fixed in a technical task.
+- None. (Three older tests failed on today's date before `main` was merged; TECH-028 fixed them.)
