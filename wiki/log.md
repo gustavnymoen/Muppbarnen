@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-15
+
+* **Creation** [MUPP-078 Secret Santa members: partner and top buttons](../specs/MUPP-078-secret-santa-members/solution.md): the "Ny person" card has the Partner field (hidden in an empty group), and every card puts the page back at the top when it closes, which fixes the page shifted under the status bar on iPhone.
+
 ## 2026-11-13
 
 * **Update** [MUPP-072](../specs/MUPP-072-loading-state/verification.md): merged, Live tests passed against the live site; the live accessibility checklist is marked done by the user; no per-item details were recorded.

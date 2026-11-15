@@ -88,6 +88,7 @@ function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged:
               <Form action={addMember} submit="Lägg till" says={{ field: "name", added: true }}>
                 <input type="hidden" name="eventId" value={event.id} />
                 <ContactFields />
+                {event.members.length > 0 && <PartnerField event={event} />}
               </Form>
             </FormCard>
           </AddRow>
@@ -193,15 +194,7 @@ function MemberCard({ member, event }: { member: SantaMember; event: SantaEvent 
           <MemberEdit memberId={member.id} title={`Ändra ${where}`}>
             <ContactFields member={member} />
             {/* Partnern ändras inte i en startad grupp (MUPP-060-R2) */}
-            {event.status !== "started" && (
-              <Field
-                name="partnerId"
-                type="select"
-                label="Partner"
-                defaultValue={member.partnerId ? String(member.partnerId) : ""}
-                options={[{ value: "", label: "Ingen" }, ...event.members.filter((m) => m.id !== member.id).map((m) => ({ value: String(m.id), label: m.name }))]}
-              />
-            )}
+            {event.status !== "started" && <PartnerField event={event} member={member} />}
           </MemberEdit>
           {event.status !== "started" && (
             <ConfirmAction
@@ -226,6 +219,19 @@ function ContactFields({ member }: { member?: SantaMember }) {
       <Field name="phone" type="tel" label="Telefon" defaultValue={member?.phone} hint="Skriv numret som 07XXXXXXXX" maxLength={10} autoComplete="off" required />
       <Field name="email" type="email" label="E-post" defaultValue={member?.email} maxLength={254} autoComplete="off" required />
     </>
+  );
+}
+
+// Partnern är ingen eller en annan person i gruppen; member är den som ändras (saknas när någon läggs till, MUPP-078)
+function PartnerField({ event, member }: { event: SantaEvent; member?: SantaMember }) {
+  return (
+    <Field
+      name="partnerId"
+      type="select"
+      label="Partner"
+      defaultValue={member?.partnerId ? String(member.partnerId) : ""}
+      options={[{ value: "", label: "Ingen" }, ...event.members.filter((m) => m.id !== member?.id).map((m) => ({ value: String(m.id), label: m.name }))]}
+    />
   );
 }
 

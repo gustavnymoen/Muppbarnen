@@ -1,0 +1,12 @@
+%% MUPP-078 Secret Santa members: partner and top buttons
+flowchart TD
+    A[Administrator opens Ny person] --> B{Anyone in the group?}
+    B -- no --> C[No Partner field]
+    B -- yes --> D[Partner: Ingen or a person]
+    C --> E[Lägg till]
+    D --> E
+    E --> F{Partner in this group?}
+    F -- no --> G[Välj en av de andra i gruppen, nothing saved]
+    G --> D
+    F -- yes or Ingen --> H[Person saved, pair set both ways]
+    I[Edit card closed] --> J[Document scrolled to the top, again when the keyboard is down]
