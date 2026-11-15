@@ -35,7 +35,7 @@ feature: MUPP-071
 
 Over the 330 s budget, as it already was before this change (338.8 s, accepted by the user in TECH-022); the three new browser tests add about 1 to 4 s (340.2 s now, 338.8 s before).
 
-Measured again on 2026-11-15 on `main` (which now also holds MUPP-070 and MUPP-072): 396 unit tests (0.7 s) and 176 browser tests, 387.1 s, one run, no other test run on the machine. One test (MUPP-013-R5 …) took 30 s against 7 to 8 s in earlier runs, which looks like noise in this single run and was not investigated, so 387.1 s is not a reliable figure for the suite. The latest CI run (pull request 254, 2026-11-13) measured 427.5 s for the browser tests against CI's limit of 455 s, and the slowest test 8.4 s against 9.3 s. The user accepted that the test times are over budget (in the chat, 2026-11-15); the growth is not from this card.
+Measured again on 2026-11-15 on `main` (which now also holds MUPP-070 and MUPP-072): 396 unit tests (0.7 s) and 176 browser tests, 387.1 s, one run, no other test run on the machine. One test (MUPP-013-R5 …) took 30 s against 7 to 8 s in earlier runs, which was the first sign of a test that depends on the date (it uses a birthday 40 days ahead, which since 2026-11-14 falls after Christmas Eve and changes the order of the cards; it failed in CI on 2026-11-15), so 387.1 s is not a reliable figure for the suite. The latest CI run (pull request 254, 2026-11-13) measured 427.5 s for the browser tests against CI's limit of 455 s, and the slowest test 8.4 s against 9.3 s. The user accepted that the test times are over budget (in the chat, 2026-11-15); the growth is not from this card.
 
 ## Definition of Done
 
