@@ -29,6 +29,16 @@ export const useCard = () => useContext(CardContext);
 // Fälten där det som står där markeras, så att det som skrivs ersätter det
 const SELECTABLE = new Set(["text", "tel", "email", "password", "search", "url"]);
 
+// Sidan själv scrollar aldrig (innehållsytan i Page gör det). iOS skjuter ändå upp dokumentet när tangentbordet till ett fält i kortet öppnas, och
+// lämnar det så när tangentbordet går ner, så att sidans topp hamnar under statusfältet (MUPP-078). Därför tillbaka till toppen när kortet stängs,
+// och en gång till när tangentbordet har gått ner (visualViewport ändrar storlek då).
+// Samma funktion varje gång, så att en lyssnare aldrig läggs till två gånger; open() tar bort den, så att den inte stör nästa kort
+const toTop = () => window.scrollTo(0, 0);
+function resetPageScroll() {
+  toTop();
+  window.visualViewport?.addEventListener("resize", toTop, { once: true });
+}
+
 function focusFirst(card: HTMLElement) {
   const field = card.querySelector<HTMLElement>(FIELDS);
   if (!field) return;
@@ -64,6 +74,7 @@ export function Dialog({ ref, title, form, centered, narrow, noAutofocus, backdr
 
   const open = (from?: HTMLElement | null) => {
     if (el.current?.open) return;
+    window.visualViewport?.removeEventListener("resize", toTop);
     opener.current = from ?? null;
     setSaid("");
     // flushSync: kortet ritas, visas och får fokus innan open() returnerar, alltså i samma tryck, så att iOS Safari visar tangentbordet (R4)
@@ -103,6 +114,7 @@ export function Dialog({ ref, title, form, centered, narrow, noAutofocus, backdr
         heading.focus();
       }
     }
+    resetPageScroll();
     setShown(false);
     setNoted("");
     if (announce) setSaid(announce);
