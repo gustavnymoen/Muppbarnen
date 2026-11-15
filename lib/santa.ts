@@ -228,7 +228,9 @@ async function contactTaken(eventId: number, phone: string, email: string, excep
 export type NewMember = { name: string; email: string; eventName: string; status: EventStatus };
 
 // En ny medlem i gruppen (inte i en startad)
-export async function addMember(actor: Parent | null, input: { eventId: unknown; name: unknown; phone: unknown; email: unknown }): Promise<Outcome<NewMember>> {
+// Partnern kan väljas redan här (MUPP-078-R1): en annan medlem i gruppen, eller ingen
+export async function addMember(actor: Parent | null, input: { eventId: unknown; name: unknown; phone: unknown; email: unknown; partnerId?: unknown }): Promise<Outcome<NewMember>> {
+  const partnerId = parsePartnerId(input.partnerId);
   const checked = collect({ name: parseText(input.name, 60, true), phone: parsePhone(input.phone), email: parseEmail(input.email) });
   return withTransaction(async (tx) => {
     const event = await manageableEvent(actor, input.eventId, tx);
@@ -238,16 +240,29 @@ export async function addMember(actor: Parent | null, input: { eventId: unknown;
     const { name, phone, email } = checked.values;
     const taken = await contactTaken(event.id, phone, email, null, tx);
     if (taken) return taken;
-    await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
+    const problem = await partnerProblem(input.partnerId, partnerId, event.id, null, tx);
+    if (problem) return problem;
+    const { lastId } = await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
+    await setPartner(lastId, partnerId, tx);
     return { ok: true, name, email, eventName: event.name, status: event.status };
   });
+}
+
+// Partnern ur formuläret: inget val ("" eller saknas) är ingen partner
+const parsePartnerId = (raw: unknown) => (raw === "" || raw === undefined ? null : parseId(raw));
+
+// Partnern ska vara ingen eller en annan medlem i samma grupp; selfId är den som sparas (null när hen läggs till). Ett värde som inte är ett id är fel.
+async function partnerProblem(raw: unknown, partnerId: number | null, eventId: number, selfId: number | null, tx: Executor) {
+  if (partnerId === null) return raw === "" || raw === undefined ? null : PARTNER_IN_GROUP;
+  const partner = partnerId === selfId ? undefined : await get<MemberRow>("SELECT id, event_id FROM ss_member WHERE id = ?", [partnerId], tx);
+  return partner?.event_id === eventId ? null : PARTNER_IN_GROUP;
 }
 
 // Medlemmens uppgifter och partnern: en annan medlem i samma grupp, eller ingen; länken sätts åt båda håll (MUPP-038-R5).
 // I en startad grupp ändras bara namn, telefon och e-post, och partnerId får inte följa med alls (MUPP-060-R2).
 // newEmail: den nya adressen när e-posten ändrades, så att administratören kan få frågan om den ska få mejlet (MUPP-060-R4)
 export async function saveMember(actor: Parent | null, input: { memberId: unknown; name: unknown; phone: unknown; email: unknown; partnerId?: unknown }): Promise<Outcome<{ newEmail?: string }>> {
-  const partnerId = input.partnerId === "" || input.partnerId === undefined ? null : parseId(input.partnerId);
+  const partnerId = parsePartnerId(input.partnerId);
   const checked = collect({ name: parseText(input.name, 60, true), phone: parsePhone(input.phone), email: parseEmail(input.email) });
   return withTransaction(async (tx) => {
     const member = await manageableMember(actor, input.memberId, tx);
@@ -257,11 +272,8 @@ export async function saveMember(actor: Parent | null, input: { memberId: unknow
     if (started && input.partnerId != null) return PARTNER_LOCKED;
     if (!checked.ok) return { ok: false, fields: checked.errors };
     const { name, phone, email } = checked.values;
-    if (!started && input.partnerId !== "" && input.partnerId !== undefined && partnerId === null) return PARTNER_IN_GROUP;
-    if (partnerId !== null) {
-      const partner = partnerId === member.id ? undefined : await get<MemberRow>("SELECT id, event_id FROM ss_member WHERE id = ?", [partnerId], tx);
-      if (partner?.event_id !== member.event_id) return PARTNER_IN_GROUP;
-    }
+    const problem = started ? null : await partnerProblem(input.partnerId, partnerId, member.event_id, member.id, tx);
+    if (problem) return problem;
     const taken = await contactTaken(member.event_id, phone, email, member.id, tx);
     if (taken) return taken;
     await run("UPDATE ss_member SET name = ?, phone = ?, email = ? WHERE id = ?", [name, phone, email, member.id], tx);

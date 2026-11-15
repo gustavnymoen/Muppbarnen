@@ -106,6 +106,7 @@ tags: [product, features]
 | [MUPP-072](MUPP-072-loading-state/solution.md) | Loading state on buttons + nag button text | Shared | Done |
 | [MUPP-076](MUPP-076-santa-mail-partner-text/solution.md) | Secret Santa mails: partner sentence, contact the creator | Administration | Ongoing |
 | [TECH-024](TECH-024-shared-auth-helpers/solution.md) | Shared access checks | Shared | Review |
+| [MUPP-078](MUPP-078-secret-santa-members/solution.md) | Secret Santa members: partner and top buttons | Administration | Ongoing |
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).

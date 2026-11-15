@@ -582,3 +582,46 @@ describe("MUPP-060 change a participant in a started group", () => {
     expect(await santa.memberToMail(emma, String(ids[0]))).toMatchObject({ ok: true, status: "preparing" });
   });
 });
+
+describe("MUPP-078-R1 partner when adding a person", () => {
+  const add = (eventId: number, name: string, partnerId?: unknown) =>
+    santa.addMember(emma, { eventId: String(eventId), name, phone: `07088${String(++counter).padStart(5, "0")}`, email: `${name.toLowerCase()}@exempel.se`, partnerId });
+  const partnersOf = async (eventId: number) => Object.fromEntries((await members(eventId)).map((m) => [m.name, m.partnerId]));
+
+  test("MUPP-078-R1 a person is added with a partner, and the link goes both ways", async () => {
+    const f = await event(emma, "Grupp A");
+    const anna = await person(emma, f, "Anna");
+    expect(await add(f, "Bo", String(anna))).toMatchObject({ ok: true });
+    const bo = (await get<{ id: number }>("SELECT id FROM ss_member WHERE name = 'Bo'"))!.id;
+    expect(await partnersOf(f)).toEqual({ Anna: bo, Bo: anna });
+  });
+
+  test("MUPP-078-R1 no partner ('Ingen', empty or missing) adds the person alone", async () => {
+    const f = await event(emma, "Grupp A");
+    await person(emma, f, "Anna");
+    expect(await add(f, "Bo", "")).toMatchObject({ ok: true });
+    expect(await add(f, "Cia")).toMatchObject({ ok: true });
+    expect(await partnersOf(f)).toEqual({ Anna: null, Bo: null, Cia: null });
+  });
+
+  test("MUPP-078-R1 a partner outside the group or not an id is refused and nobody is added", async () => {
+    const f = await event(emma, "Grupp A");
+    const g = await event(emma, "Grupp B");
+    await person(emma, f, "Anna");
+    const other = await person(emma, g, "Dan");
+    const bad = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } };
+    expect(await add(f, "Bo", String(other))).toEqual(bad);
+    expect(await add(f, "Bo", "99999")).toEqual(bad);
+    expect(await add(f, "Bo", "abc")).toEqual(bad);
+    expect((await members(f)).map((m) => m.name)).toEqual(["Anna"]);
+  });
+
+  test("MUPP-078-R1 a person who already has a partner can be chosen: the old pair is released, as when editing", async () => {
+    const f = await event(emma, "Grupp A");
+    const [anna, bo] = [await person(emma, f, "Anna"), await person(emma, f, "Bo")];
+    await santa.saveMember(emma, edit(anna, { name: "Anna", partnerId: String(bo) }));
+    expect(await add(f, "Cia", String(anna))).toMatchObject({ ok: true });
+    const cia = (await get<{ id: number }>("SELECT id FROM ss_member WHERE name = 'Cia'"))!.id;
+    expect(await partnersOf(f)).toEqual({ Anna: cia, Bo: null, Cia: anna });
+  });
+});
