@@ -21,7 +21,7 @@ A mail with `installTip: true` also gets the home-screen tip ([MUPP-058](../../s
 
 ## The Secret Santa mails
 
-`lib/santa-mail.ts` ([MUPP-052](../../specs/MUPP-052-santa-mail-texts/solution.md)) holds the nine mails of the Secret Santa series, one function each, returning `{ subject, text }` for `sendMail`. The functions take only the group's name (and, for mails 1 and 8, the name of the group's administrator), so no member name, wish or message text can get in. The subject always starts with "Secret Santa: <group> – ".
+`lib/santa-mail.ts` ([MUPP-052](../../specs/MUPP-052-santa-mail-texts/solution.md)) holds the nine mails of the Secret Santa series, one function each, returning `{ subject, text }` for `sendMail`. The functions take only the group's name, so no name of a member or an administrator, no wish and no message text can get in; the contact sentence of mails 1 and 8 says "den som skapade gruppen" ([MUPP-076](../../specs/MUPP-076-santa-mail-partner-text/solution.md)). The subject always starts with "Secret Santa: <group> – ".
 
 | Mail | Function | To | Sent by |
 |---|---|---|---|

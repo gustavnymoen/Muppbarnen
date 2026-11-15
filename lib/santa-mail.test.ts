@@ -3,7 +3,6 @@ import { INSTALL_TIP, MAIL_FOOTER, SITE_URL, layout } from "./mail";
 import { STATUS_CONFIRMATIONS, activatedMail, addedMail, deactivatedMail, listChangedMail, messageFromGiverMail, messageFromReceiverMail, nagListMail, startedMail, stoppedMail } from "./santa-mail";
 
 const G = "Familjen Test";
-const ADMIN = "Pelle Admin";
 // En medlem, en önskan och en meddelandetext som aldrig får synas i något mejl
 const SECRETS = ["Maja Medlem", "en röd cykel", "Hej, vad vill du ha?"];
 
@@ -11,13 +10,13 @@ const SECRETS = ["Maja Medlem", "en röd cykel", "Hej, vad vill du ha?"];
 const mails = [
   {
     n: 1,
-    mail: activatedMail(G, ADMIN),
+    mail: activatedMail(G),
     subject: "Secret Santa: Familjen Test – Nu kan du skriva din önskelista",
     text:
       "Ho-Ho! Nu har gruppen Familjen Test öppnat. Gå in på sajten, välj Secret Santa och din grupp, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt.\n" +
-      "Du kan inte matchas med din partner, dig själv eller den du hade förra året!\n" +
+      "Du kan inte matchas med dig själv eller den du hade förra året! Har admin även satt partners på deltagarna får du inte din partner.\n" +
       "Du kan fylla i din önskelista från och med nu och ändra fram till julafton, men var snäll mot din matchning och bestäm dig i tid!\n" +
-      "Allt är hemligt: ingen får veta vem som drar vem. Är det här inte du, eller vill du inte vara med, hör av dig till Pelle Admin.",
+      "Allt är hemligt: ingen får veta vem som drar vem. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen.",
   },
   {
     n: 2,
@@ -60,9 +59,9 @@ const mails = [
   },
   {
     n: 8,
-    mail: addedMail(G, ADMIN),
+    mail: addedMail(G),
     subject: "Secret Santa: Familjen Test – välkommen",
-    text: "Du har lagts till i Secret Santa-gruppen Familjen Test av Pelle Admin. Är det här inte du, eller vill du inte vara med, hör av dig till Pelle Admin. När gruppen öppnar får du ett nytt mail som berättar hur det går till!",
+    text: "Du har lagts till i Secret Santa-gruppen Familjen Test. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen. När gruppen öppnar får du ett nytt mail som berättar hur det går till!",
   },
   {
     n: 9,
@@ -88,12 +87,11 @@ describe("MUPP-052-R1 the mails", () => {
     expect(html).toContain(MAIL_FOOTER);
   });
 
-  test("MUPP-052-R1 no mail holds a member name, a wish or a message, and only mails 1 and 8 name the administrator", () => {
-    // Funktionerna tar bara gruppens namn och administratörens; en annan uppgift kan inte komma in i texten
+  test("MUPP-052-R1 no mail holds a member name, a wish or a message", () => {
+    // Funktionerna tar bara gruppens namn; en annan uppgift kan inte komma in i texten
     for (const { n, mail } of mails) {
       const all = `${mail.subject}\n${mail.text}`;
       for (const secret of SECRETS) expect(all, `mail ${n}`).not.toContain(secret);
-      expect(all.includes(ADMIN), `mail ${n}`).toBe(n === 1 || n === 8);
     }
   });
 });
