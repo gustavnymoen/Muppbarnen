@@ -1,6 +1,6 @@
 // Kontroll på servern av allt som kommer från formulär (specs/rules.md): typ,
 // längd och tillåtna värden. Ren kod, så att den går att enhetstesta.
-import { swedishToday } from "./deck";
+import { clockNow, swedishToday } from "./deck";
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -47,7 +47,7 @@ const MAX_MONTHS_AHEAD = 10;
 
 // Det senaste tillåtna födelsedatumet, ÅÅÅÅ-MM-DD, räknat från dagens datum i Sverige.
 // Månaden får inte rinna över: 30 april + 10 månader blir 28 februari, inte 2 mars.
-export function latestBirthdate(now = new Date()): string {
+export function latestBirthdate(now = clockNow()): string {
   const { year, month, day } = swedishToday(now);
   const target = new Date(Date.UTC(year, month - 1 + MAX_MONTHS_AHEAD, 1));
   const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
@@ -56,7 +56,7 @@ export function latestBirthdate(now = new Date()): string {
 }
 
 // Ett riktigt datum, ÅÅÅÅ-MM-DD, högst MAX_MONTHS_AHEAD månader fram
-export function parseBirthdate(raw: unknown, today = new Date()): Parsed<string> {
+export function parseBirthdate(raw: unknown, today = clockNow()): Parsed<string> {
   const bad = fail("Skriv ett riktigt datum, högst tio månader fram.");
   if (typeof raw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return bad;
   const date = new Date(`${raw}T00:00:00Z`);

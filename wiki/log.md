@@ -2,7 +2,12 @@
 
 ## 2026-11-15
 
+<<<<<<< HEAD
 * **Creation** [MUPP-078 Secret Santa members: partner and top buttons](../specs/MUPP-078-secret-santa-members/solution.md): the "Ny person" card has the Partner field (hidden in an empty group), and every card puts the page back at the top when it closes, which fixes the page shifted under the status bar on iPhone.
+=======
+* **Update** [MUPP-071](../specs/MUPP-071-santa-nag-list/verification.md), [MUPP-072](../specs/MUPP-072-loading-state/verification.md), [MUPP-070](../specs/MUPP-070-santa-wishlist-fold-sizes-width/verification.md), [MUPP-068](../specs/MUPP-068-chat-keyboard-native/verification.md) and [MUPP-066](../specs/MUPP-066-chat-scroll/verification.md): open Definition-of-Done boxes closed (the test times over budget accepted by the user, Live tests runs recorded, MUPP-071's requirements checked against the code); the live accessibility checklist of MUPP-068 is still not done. `solution.md` of MUPP-071 now mentions the spinner and the explanation text of MUPP-072.
+* **Creation** [TECH-028 Date-proof browser tests](../specs/TECH-028-date-proof-tests/solution.md): the test server and the tests share one fixed date (`TEST_TODAY`, 2026-06-01), so the order of the cards no longer depends on the season; from 14 November a birthday 40 days ahead fell after Christmas Eve and broke three tests.
+>>>>>>> origin/main
 
 ## 2026-11-13
 

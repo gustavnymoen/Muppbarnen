@@ -40,7 +40,7 @@ Over the 330 s budget, as it already was before this change (accepted by the use
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done except the live ones; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: over the 330 s budget, as before (see above)
+- [x] Test suite: 352.2 s, over the 330 s budget; the overrun is accepted by the user in the chat on 2026-11-15
 - [x] Deployed, and the smoke tests pass against production (Live tests): merged in pull request 252, Live tests passed on 2026-11-13
 - [x] Accessibility: axe passes; the live checklist was gone through by the user (no per-item details recorded)
 - [x] Requirements in the card match what was built (see below), no open questions left; `solution.md` describes how it was built
