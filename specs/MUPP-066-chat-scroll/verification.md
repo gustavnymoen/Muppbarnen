@@ -28,9 +28,9 @@ Run locally 2026-11-12. Not deployed yet. **Not checked on a real iPhone.** On t
 
 ## Definition of Done
 
-- [ ] Tests: real-phone check not done
-- [ ] Deployed, and Live tests pass
-- [ ] Accessibility: live checklist not done
+- [x] Tests: the real-phone check failed on the user's iPhone and the change was replaced by [MUPP-068](../MUPP-068-chat-keyboard-native/verification.md), whose real-phone check passed; nothing more to check here
+- [x] Deployed, and Live tests pass: Live tests run 43218089679 on the merge commit of PR #225 (`60960f1`) passed on 2026-11-12
+- [x] Accessibility: not applicable, the markup is unchanged and the change is replaced by MUPP-068 (its live checklist is not done)
 - [x] Requirements match what was built; `solution.md` describes it
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers; lint, lint:docs and typecheck pass

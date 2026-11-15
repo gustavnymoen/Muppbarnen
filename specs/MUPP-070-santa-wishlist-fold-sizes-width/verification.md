@@ -41,7 +41,7 @@ One new browser test (MUPP-070-R3 R4) and one in `design.spec.ts` (R1 R2) were a
 ## Definition of Done
 
 - [x] Tests: R1 to R5 checked; `test:unit` and `test:local` pass
-- [ ] Test suite: 7.9 s over the budget, not measured on a quiet machine
+- [x] Test suite: 337.9 s, 7.9 s over the budget, not measured again on a quiet machine; the overrun is accepted by the user in the chat on 2026-11-15
 - [x] Deployed, and the smoke tests pass against production (Live tests, 2026-11-13)
 - [x] Accessibility: axe passes; the checklist on the live site was done by the user (no per-item details recorded)
 - [x] Requirements in the card match what was built (copied below); `solution.md` describes it

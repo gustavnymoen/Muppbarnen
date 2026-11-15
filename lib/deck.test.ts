@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { buildDeck, dayAndMonth, isArchived, isoDate, nextOccurrence, occasionOf, parseDate, type DeckInput, type Sizes, type Wish, type Wishes } from "./deck";
+import { buildDeck, clockNow, dayAndMonth, isArchived, isoDate, nextOccurrence, occasionOf, parseDate, swedishToday, type DeckInput, type Sizes, type Wish, type Wishes } from "./deck";
 
 const today = { year: 2026, month: 10, day: 28 };
 // Påhittade barn
@@ -224,5 +224,13 @@ describe("MUPP-031-R4 which occasion a wish belongs to, and when it is archived"
     const newborn = { birthdate: "2026-10-20" };
     expect(archived("birthday", "2026-07-01", "2026-11-19", newborn)).toBe(false);
     expect(archived("birthday", "2026-07-01", "2026-11-20", newborn)).toBe(true);
+  });
+});
+
+describe("TECH-028-R1 the fixed date of the test server", () => {
+  test("is used only with a local database file", () => {
+    expect(isoDate(swedishToday(clockNow("2026-06-01", "file:/tmp/test.db")))).toBe("2026-06-01");
+    expect(clockNow("2026-06-01", "libsql://muppbarnen.turso.io").getTime()).toBeGreaterThan(Date.now() - 86_400_000);
+    expect(clockNow(undefined, "file:/tmp/test.db").getTime()).toBeGreaterThan(Date.now() - 86_400_000);
   });
 });

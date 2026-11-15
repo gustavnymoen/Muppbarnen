@@ -1,6 +1,6 @@
 import { createClient } from "@libsql/client";
 import { testDbFile } from "../lib/local-db.mjs";
-import { dateIn } from "./helpers";
+import { dateIn, testToday } from "./helpers";
 
 // The admin tests make their data straight in the local test database (the one
 // scripts/test-server.mjs rebuilds on every run, never the user's own) and remove it again.
@@ -160,7 +160,7 @@ export const santaDraw = (eventId: number, year?: number) =>
 
 // A draw row made by hand (MUPP-042): the member giver gives to the member receiver this year
 export const addSantaDraw = (eventId: number, giver: number, receiver: number) =>
-  withDb((db) => db.execute({ sql: "INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", args: [eventId, new Date().getFullYear(), giver, receiver] }));
+  withDb((db) => db.execute({ sql: "INSERT INTO ss_draw (event_id, year, giver_id, receiver_id) VALUES (?, ?, ?, ?)", args: [eventId, testToday().year, giver, receiver] }));
 
 // Makes the last change mail of a member's list two hours old, so the job may send the next one
 export const ageSantaMail = (memberId: number) =>

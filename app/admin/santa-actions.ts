@@ -62,6 +62,8 @@ export async function addMember(_previous: FormState, formData: FormData): Promi
     name: text(formData, "name"),
     phone: text(formData, "phone"),
     email: text(formData, "email"),
+    // Fältet finns inte när gruppen är tom: då ingen partner
+    partnerId: text(formData, "partnerId") ?? "",
   });
   // Välkomstmejlet (och i en grupp som förbereder aktiveringsmejlet) går efter att deltagaren är sparad
   return answer(formData, outcome, outcome.ok && !(await mailNewMember(outcome)) ? [outcome.name] : []);

@@ -34,8 +34,8 @@ Run locally 2026-11-12; merged and deployed (PR #231) the same day. Tried on an 
 ## Definition of Done
 
 - [x] Tests: the real-phone check is done by the user (not itemised)
-- [ ] Test suite: slightly over the 330 s budget (the cause is other tests)
-- [ ] Deployed, and Live tests pass
+- [x] Test suite: 337.4 s, slightly over the 330 s budget (the cause is other tests); the overrun is accepted by the user in the chat on 2026-11-15
+- [x] Deployed, and Live tests pass: Live tests run 43233499311 on the merge commit of PR #231 (`d7f13c2`) passed on 2026-11-12 (the run 43239909110 after the verification pull request #233 passed too)
 - [ ] Accessibility: live checklist not done
 - [x] Requirements match what was built; `solution.md` describes it
 - [x] Manual, system docs and `wiki/log.md` updated

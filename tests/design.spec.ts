@@ -1,8 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, pageAnimationsDone, runsLocally, settledBox, SHADOW, toCard, uniqueName } from "./helpers";
+import { type Box, adminSignIn, animationsDone, backgroundOf, birthdateIn, BRAND, CARD, contrast, css, DANGER, disjoint, EDGE, expectNoA11yViolations, expectTextMessage, goto, inside, PAGE, pageAnimationsDone, runsLocally, settledBox, SHADOW, testToday, toCard, uniqueName } from "./helpers";
 import { addChild, addParent, addSantaDraw, addSantaMessage, addSantaEvent, addSantaMember, addSantaWish, addWish, clearFamily, clearSanta, setSantaPartner, setSantaStatus, setSizes } from "./family-db";
 import { eventCard, foldOut, santaSignIn } from "./santa";
-import { swedishToday } from "../lib/deck";
 import { newVisitor } from "./site-session";
 
 // Utseendet: ett test per sida och läge, så att sidan laddas en gång för många kontroller.
@@ -192,7 +191,7 @@ test("MUPP-004-R3 R5 R8 R9 R10 the start page deck: a stack with one marked card
   await clearFamily();
   try {
     const parent = await addParent(uniqueName("Förälder"));
-    const today = swedishToday();
+    const today = testToday();
     // Sex barn med olika födelsedagar som räknas från idag, så att kortens ordning och antal inte hänger på datumet
     const birthdate2018In = (days: number) => {
       const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
@@ -606,7 +605,7 @@ test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big
   await clearFamily();
   try {
     const parent = await addParent(uniqueName("Förälder"));
-    const today = swedishToday();
+    const today = testToday();
     const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
     const twins = `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
     await addChild(parent, "Vera", twins);
@@ -662,7 +661,7 @@ test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear l
   await clearFamily();
   try {
     const parent = await addParent(uniqueName("Förälder"));
-    const today = swedishToday();
+    const today = testToday();
     const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
     const twins = `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
     const longName = "Maximiliana Wilhelmina Fredrika";
@@ -742,7 +741,7 @@ test("MUPP-013-R5 MUPP-005-R6 MUPP-028-R1 R2 R3 MUPP-034-R1 an open wish list sw
   try {
     const parent = await addParent(uniqueName("Förälder"));
     // Born in 20 days, so that the birthday card is the next one whatever the date is; the twins' card comes after it
-    const today = swedishToday();
+    const today = testToday();
     const date = new Date(Date.UTC(today.year, today.month - 1, today.day + 20));
     const child = await addChild(parent, "Vera", `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`);
     for (let i = 1; i <= 30; i++) await addWish(child, "birthday", `Önskning ${i}`);
@@ -1308,7 +1307,7 @@ test("MUPP-020-R1 R2 the card heading with a long date and the expected date fit
   await clearFamily();
   try {
     const parent = await addParent(uniqueName("Förälder"));
-    const today = swedishToday();
+    const today = testToday();
     const due = new Date(Date.UTC(today.year, today.month - 1 + 4, 29)).toISOString().slice(0, 10);
     await addChild(parent, "Alma", "2018-09-29");
     await addChild(parent, "Alva", "2018-09-29");
