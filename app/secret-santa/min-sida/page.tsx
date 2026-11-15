@@ -2,34 +2,34 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
-import { IconButton, IconLink } from "@/app/components/Button";
+import { IconLink } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import { ChatIcon, ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
-import { currentSantaMember, entranceEvents } from "@/lib/santa-auth";
+import { currentSantaMember, entranceEvents, entranceHref } from "@/lib/santa-auth";
 import { unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
-import { leave } from "../actions";
 
 export const metadata: Metadata = { title: "Din Secret Santa-sida" };
 
-export default function OwnPage() {
+export default function OwnPage({ searchParams }: PageProps<"/secret-santa/min-sida">) {
   return (
     <Suspense fallback={null}>
-      <Own />
+      <Own searchParams={searchParams} />
     </Suspense>
   );
 }
 
 // Sidan har ingen adress per person: vem du är kommer bara ur kakan, så ingen annans sida går att be om (MUPP-039-R6).
 // Vad som visas följer gruppens status (MUPP-051-R5, R6, MUPP-042-R1): i en startad grupp är det andra kortet länken till matchningens lista.
-async function Own() {
+async function Own({ searchParams }: { searchParams: PageProps<"/secret-santa/min-sida">["searchParams"] }) {
   await requireSiteSession();
-  const member = await currentSantaMember();
-  if (!member) redirect("/secret-santa");
-  // Med flera grupper loggar pilen ut ur gruppen så att en annan kan väljas; med en enda finns inget att välja, så korset går
-  // bara till startsidan och lämnar inloggningen kvar. Ingen kan byta till någon annans sida härifrån (MUPP-055-R1)
+  const { grupp } = await searchParams;
+  const member = await currentSantaMember(grupp);
+  if (!member) redirect(entranceHref(grupp));
+  // Med flera grupper leder pilen till valet av grupp, och inloggningarna i de andra grupperna ligger kvar (MUPP-079-R3); med en enda
+  // finns inget att välja, så korset går till startsidan. Ingen kan byta till någon annans sida härifrån (MUPP-055-R1)
   const severalGroups = (await entranceEvents()).length > 1;
   // Bara den egna matchningen läses (MUPP-042-R2); en startad grupp utan rad i dragningen får det gråa kortet
   const match = member.status === "started" ? await matchOf(member.id) : undefined;
@@ -39,11 +39,9 @@ async function Own() {
     <Page
       back={
         severalGroups ? (
-          <form action={leave}>
-            <IconButton type="submit" label="Tillbaka">
-              <ReturnIcon />
-            </IconButton>
-          </form>
+          <IconLink label="Tillbaka" href="/secret-santa?val=grupp">
+            <ReturnIcon />
+          </IconLink>
         ) : (
           <IconLink label="Stäng" href="/">
             <CrossIcon />
@@ -59,11 +57,11 @@ async function Own() {
           ) : (
             <ul className="grid auto-rows-fr gap-6">
               <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
-                <LinkCard href="/secret-santa/min-sida/onskelista" icon={<ChecklistIcon />} lines={["Min", "önskelista"]} unread={unread?.receiver} />
+                <LinkCard href={`/secret-santa/min-sida/onskelista?grupp=${member.eventId}`} icon={<ChecklistIcon />} lines={["Min", "önskelista"]} unread={unread?.receiver} />
               </li>
               <li className="divider-short [--divider-pad:0] [--divider-top:-0.75rem]">
                 {match ? (
-                  <LinkCard href="/secret-santa/min-sida/matchning" icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} unread={unread?.giver} />
+                  <LinkCard href={`/secret-santa/min-sida/matchning?grupp=${member.eventId}`} icon={<SantaHatIcon />} lines={["Min matchning:", match.name]} unread={unread?.giver} />
                 ) : (
                   <GreyCard lines={["Min matchnings", "önskelista"]} note="Inte tilldelad än" />
                 )}

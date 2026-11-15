@@ -142,14 +142,14 @@ test("MUPP-039-R4 R4b the form opens with the phone field in focus; email switch
 
 test("MUPP-039-R4 the saved phone in other writings, and the email in other letters, sign in", async ({ page }) => {
   const family = await oneFamily();
-  await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka on the own page signs out (MUPP-055)
+  await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka is on the own page (MUPP-055)
   await goto(page, `/secret-santa?grupp=${family}`);
   await pickName(page, "Anna Testsson");
   for (const typed of ["070-000 11 11", "+46700001111"]) {
     await sendPhone(page, typed);
     await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
-    await page.getByRole("button", { name: "Tillbaka" }).click();
-    await page.getByRole("link", { name: "Familjen Test" }).click();
+    await page.context().clearCookies({ name: SANTA_COOKIE });
+    await goto(page, `/secret-santa?grupp=${family}`);
     await pickName(page, "Anna Testsson");
   }
   await page.getByRole("radio", { name: "E-post" }).check();
@@ -158,9 +158,9 @@ test("MUPP-039-R4 the saved phone in other writings, and the email in other lett
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
 });
 
-test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id, the cleanup year and a signature; it is remembered and Tillbaka removes it", async ({ page }) => {
+test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is __Host-, HttpOnly, Secure, path / and holds only the id, the cleanup year and a signature; it is remembered", async ({ page }) => {
   await oneFamily();
-  await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka on the own page signs out (MUPP-055)
+  await addSantaEvent("Familjen Annan"); // two groups, so that Tillbaka is on the own page (MUPP-055)
   // R6: no cookie gives the entrance
   await goto(page, "/secret-santa/min-sida");
   await expect(page).toHaveURL(/\/secret-santa$/);
@@ -187,10 +187,10 @@ test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is 
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Testsson!" })).toBeVisible();
   await expectNoA11yViolations(page);
 
-  // R5: Tillbaka removes the cookie
-  await page.getByRole("button", { name: "Tillbaka" }).click();
+  // MUPP-079-R3: Tillbaka keeps the cookie, so it is the cleared cookie that signs out here
+  await page.context().clearCookies({ name: SANTA_COOKIE });
+  await goto(page, "/secret-santa");
   await expect(page.getByRole("link", { name: "Familjen Test" })).toBeVisible();
-  expect(await santaCookie(page)).toBeUndefined();
 
   // R6: the same signature on another person's id is not accepted
   const [, year, signature] = cookie.value.split(".");
@@ -207,7 +207,7 @@ test("MUPP-039-R5 R6 the own page is reached only with the own cookie, which is 
   await expect(page).toHaveURL(/\/secret-santa$/);
 });
 
-test("MUPP-055-R1 R2 the own page has no 'Byt person': several groups give the arrow Tillbaka, a form post that signs out and shows the groups; one group gives the cross Stäng to the start page and keeps the sign-in", async ({ page }) => {
+test("MUPP-055-R1 R2 the own page has no 'Byt person': several groups give the arrow Tillbaka, a link to the groups that keeps the sign-in (MUPP-079-R3); one group gives the cross Stäng to the start page and keeps the sign-in", async ({ page }) => {
   const family = await oneFamily();
   const anna = await addSantaMember(family, "Anna Extra", "0700003333", "anna.extra@exempel.invalid");
   await santaSignIn(page, anna);
@@ -227,19 +227,14 @@ test("MUPP-055-R1 R2 the own page has no 'Byt person': several groups give the a
   await goto(page, "/secret-santa/min-sida");
   await expect(page.getByRole("heading", { level: 1, name: "Hej Anna Extra!" })).toBeVisible();
 
-  // R1 R2: several groups: the arrow is a button in a form; the form post is what a request without the site session is refused on (lib/route-checks.test.ts)
+  // R1 R2: several groups: the arrow is a link to the choice of group and changes nothing
   await addSantaEvent("Familjen Annan");
   await goto(page, "/secret-santa/min-sida");
   await expect(page.getByRole("link", { name: "Stäng" })).toHaveCount(0);
-  const arrow = page.getByRole("button", { name: "Tillbaka" });
-  await expect(arrow).toHaveAttribute("type", "submit");
-  await expect(page.locator("form").filter({ has: arrow })).toHaveCount(1);
+  const arrow = page.getByRole("link", { name: "Tillbaka" });
   await expectNoA11yViolations(page);
-  // R1: the arrow in the page itself signs out and the own page then leads to the entrance
   await arrow.focus();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("link", { name: "Familjen Test" })).toBeVisible();
-  expect(await santaCookie(page)).toBeUndefined();
-  await goto(page, "/secret-santa/min-sida");
-  await expect(page).toHaveURL(/\/secret-santa$/);
+  expect(await santaCookie(page)).toBeDefined();
 });

@@ -86,7 +86,7 @@ test("MUPP-042-R1 R2 MUPP-062-R2 MUPP-064-R1 R2 R3 a started group gives the sec
   await expect(page.getByRole("main")).not.toContainText("Cia Testsson");
   await expectNoA11yViolations(page);
   await page.getByRole("link", { name: "Tillbaka" }).click();
-  await expect(page).toHaveURL(/\/secret-santa\/min-sida$/);
+  await expect(page).toHaveURL(/\/secret-santa\/min-sida(\?grupp=\d+)?$/);
 
   // R2: Bo's page names Cia (the draw is asymmetric on the page too: Bo does not see Anna, who gives to Bo)
   await santaSignIn(page, bo);
@@ -114,7 +114,7 @@ test("MUPP-042-R1 before the start the second card is grey with 'Inte tilldelad 
   await expect(page.getByRole("link", { name: /matchning/ })).toHaveCount(0);
   // Not even a row left over in the draw opens a match before the start
   await goto(page, "/secret-santa/min-sida/matchning");
-  await expect(page).toHaveURL(/\/secret-santa\/min-sida$/);
+  await expect(page).toHaveURL(/\/secret-santa\/min-sida(\?grupp=\d+)?$/);
   await expect(page.getByText("Önskelistan hos")).toHaveCount(0);
 });
 

@@ -11,13 +11,13 @@ import { nagForList } from "../nag-actions";
 // så att läget inte bara visas av en nedtonad färg. Servern kontrollerar allt en gång till.
 const LABELS: Record<NagState, string> = { free: "Tjata in en lista", queued: "Tjatet är på väg", recent: "Du har tjatat nyss" };
 
-export function NagButton({ state }: { state: NagState }) {
+export function NagButton({ state, eventId }: { state: NagState; eventId: number }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
   const press = () =>
     startTransition(async () => {
-      const result = await nagForList();
+      const result = await nagForList(eventId);
       setError(result.ok ? "" : (result.error ?? ""));
       router.refresh();
     });

@@ -23,6 +23,6 @@ Events, members and the draw rows `ss_draw` ([draw](secret-santa-draw.md)), whic
 
 ## Sign-ins
 
-The Secret Santa cookie holds the member id, the cleanup year and a signature (`lib/santa-session.ts`). After a cleanup the year in `ss_cleanup` is new, so every older cookie is refused by `currentSantaMember` and the members sign in again.
+The Secret Santa cookie holds a list of entries, each with a member id, the cleanup year and a signature (`lib/santa-session.ts`). After a cleanup the year in `ss_cleanup` is new, so every older entry is refused by `signedInMembers` and the members sign in again.
 
 [System documentation](index.md)

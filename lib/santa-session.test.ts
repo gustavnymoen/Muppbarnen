@@ -1,8 +1,10 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, test } from "vitest";
-import { createSantaSession, verifySantaSession } from "./santa-session";
+import { createSantaSession, joinSantaSessions, MAX_SANTA_SESSIONS, verifySantaSessions } from "./santa-session";
 
 const secret = "en-hemlig-nyckel-för-testet";
+// En kaka med en enda post, som före MUPP-079: listan har då en post eller ingen
+const verifySantaSession = (value: string | undefined, key: string | undefined) => verifySantaSessions(value, key)[0] ?? null;
 
 describe("MUPP-039-R5 the Secret Santa cookie", () => {
   test("MUPP-039-R5 holds only the member id, the cleanup year and a signature, and gives the id and year back", () => {
@@ -37,5 +39,30 @@ describe("MUPP-039-R5 the Secret Santa cookie", () => {
     const { createAdminSession } = await import("./admin-session");
     const admin = createAdminSession(secret, 42, 42);
     expect(verifySantaSession(`42.2026.${admin.split(".")[2]}`, secret)).toBeNull();
+  });
+});
+
+describe("MUPP-079 the cookie holds a list of memberships", () => {
+  test("MUPP-079-R1 two memberships are both read, in order, and the cookie holds nothing but ids, years and signatures", () => {
+    const value = joinSantaSessions([createSantaSession(secret, 42, 2026), createSantaSession(secret, 7, 2026)]);
+    expect(verifySantaSessions(value, secret)).toEqual([
+      { memberId: 42, cleanupYear: 2026 },
+      { memberId: 7, cleanupYear: 2026 },
+    ]);
+    expect(value).toMatch(/^(\d+\.\d{4}\.[0-9a-f]{64})(_\d+\.\d{4}\.[0-9a-f]{64})*$/);
+  });
+
+  test("MUPP-079-R1 at most 10 memberships: joining more drops the oldest, and reading ignores any beyond 10", () => {
+    const entries = Array.from({ length: 12 }, (_, i) => createSantaSession(secret, i + 1, 2026));
+    const joined = joinSantaSessions(entries);
+    expect(verifySantaSessions(joined, secret).map((e) => e.memberId)).toEqual([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(verifySantaSessions(entries.join("_"), secret)).toHaveLength(MAX_SANTA_SESSIONS);
+  });
+
+  test("MUPP-079-R5 an entry whose signature does not match is ignored and the others still count", () => {
+    const good = createSantaSession(secret, 42, 2026);
+    const forged = `43.2026.${good.split(".")[2]}`;
+    const other = createSantaSession("en-annan-nyckel", 44, 2026);
+    expect(verifySantaSessions([good, forged, other, "skräp"].join("_"), secret)).toEqual([{ memberId: 42, cleanupYear: 2026 }]);
   });
 });

@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Creation** [MUPP-079 Stay signed in to several Secret Santa groups](../specs/MUPP-079-santa-several-groups/solution.md): the Secret Santa cookie holds a signed entry per group (up to 10), the own page and its sub pages pick the group from `?grupp=`, and "Tillbaka" only switches group instead of signing out.
 * **Update** [MUPP-078](../specs/MUPP-078-secret-santa-members/verification.md): merged; the iPhone check, the live accessibility checklist, `/security-review` and Live tests are marked done by the user; no per-item details were recorded.
 * **Creation** [MUPP-078 Secret Santa members: partner and top buttons](../specs/MUPP-078-secret-santa-members/solution.md): the "Ny person" card has the Partner field (hidden in an empty group), and every card puts the page back at the top when it closes, which fixes the page shifted under the status bar on iPhone.
 * **Creation** [MUPP-076 Secret Santa mail: partner sentence](../specs/MUPP-076-santa-mail-partner-text/solution.md): mail 1 no longer says you cannot be matched with "din partner" outright, but that a partner is also excluded if the administrator has set partners. MUPP-075 is merged into the card: the mails say to contact "den som skapade gruppen", mail 8 no longer names who added you, and the mail functions take only the group's name.

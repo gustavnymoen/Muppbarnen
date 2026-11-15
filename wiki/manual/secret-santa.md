@@ -57,13 +57,13 @@ Tryck på kortet **Min önskelista** på din sida. Där finns din önskelista i 
 
 Stängs gruppen igen ligger dina önskningar kvar och är tillbaka när den öppnas. Bara du kan ändra dina önskningar. Ingen paxar dem; senare kan bara den som drar dig läsa dem.
 
-Uppe till vänster på din sida finns en pil (**Tillbaka**) om det finns flera grupper: den loggar ut dig och visar grupperna igen. Finns det bara en grupp är det ett kryss (**Stäng**) som tar dig till startsidan, och du är kvar inloggad.
+Uppe till vänster på din sida finns en pil (**Tillbaka**) om det finns flera grupper: den visar grupperna igen, och du är kvar inloggad i dem du loggat in i. Tryck på en grupp du redan loggat in i så kommer du direkt till din sida där, utan att skriva telefonnumret igen. Är du med i flera grupper loggar du alltså in en gång i var och en och kan sedan byta fritt. Du kan vara inloggad i högst tio grupper; loggar du in i fler glöms den som du loggade in i först. Finns det bara en grupp är det ett kryss (**Stäng**) som tar dig till startsidan, och du är kvar inloggad.
 
 Ingen annan kan se ditt nummer eller din e-post på sidan. Hör av dig till Gustav om de som är sparade är fel.
 
 ## Efter jul
 
-En månad efter julafton, den 24 januari, städas Secret Santa av sig själv: alla önskelistor tas bort och grupperna blir inaktiva igen. Grupperna, deltagarna och vem som handlade åt vem (så att ingen får samma person två år i rad) finns kvar. Du loggas ut och loggar in igen nästa gång. Inget mejl skickas. När nästa års grupp öppnas börjar alla med en tom önskelista.
+En månad efter julafton, den 24 januari, städas Secret Santa av sig själv: alla önskelistor tas bort och grupperna blir inaktiva igen. Grupperna, deltagarna och vem som handlade åt vem (så att ingen får samma person två år i rad) finns kvar. Du loggas ut från alla grupper och loggar in igen nästa gång. Inget mejl skickas. När nästa års grupp öppnas börjar alla med en tom önskelista.
 
 ## Mejlen du får
 
