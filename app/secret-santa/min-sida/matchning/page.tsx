@@ -56,7 +56,7 @@ async function Match() {
               <ul className="divide-y divide-edge">
                 {match.wishes.map((wish) => (
                   // Samma rad som på barnens listor, utan paxning: en Secret Santa-önskan är aldrig paxad eller köpbar flera gånger
-                  <WishRow key={wish.id} wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null }} roomy />
+                  <WishRow key={wish.id} wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null, addedBy: null }} roomy />
                 ))}
               </ul>
             )}

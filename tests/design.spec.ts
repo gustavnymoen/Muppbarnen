@@ -977,6 +977,74 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 MUPP-006-R1 R2 the wish
   }
 });
 
+test("MUPP-077-R1 R3 R4 R5 the add button, the added row, the two-step window and the undo dialog: colours, targets and fit at 320 px", async ({ page }) => {
+  test.skip(!runsLocally, "needs its own kids in the local test database");
+  await clearFamily();
+  try {
+    const child = await addChild(await addParent(uniqueName("Förälder")), "Vera", birthdateIn(20).birthdate);
+    await addWish(child, "birthday", "Cykel");
+    await addWish(child, "birthday", "Pussel", { claimedBy: "Moster Lisa", addedBy: "Moster Lisa" });
+    await page.setViewportSize({ width: 320, height: 640 });
+    await goto(page, "/");
+    const card = page.getByRole("article");
+    await animationsDone(card);
+    await card.getByRole("button", { name: /^Önskelista/ }).click();
+    const region = card.getByRole("region", { name: "Önskelista" });
+    await animationsDone(region);
+
+    // R4: "Tillagd av" has the colour of "Paxad" and is readable
+    const added = region.getByText("Tillagd av Moster Lisa", { exact: true });
+    expect(await css(added, "color")).toBe("rgb(227, 161, 95)");
+    expect(contrast(await css(added, "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+
+    // R1: the add button is a muted 44 px row without a frame, with the plus in the icon column (under the bins and the ticks)
+    const add = region.getByRole("button", { name: /^Lägg till/ });
+    const addBox = await settledBox(add);
+    expect(addBox.height).toBeGreaterThanOrEqual(44);
+    await expect(add).toHaveCSS("border-top-width", "0px");
+    expect(contrast(await css(add, "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
+    const plus = await settledBox(add.locator("svg"));
+    const bin = await settledBox(region.getByRole("button", { name: "Ta bort presenten Pussel" }).locator("svg"));
+    expect(Math.abs(plus.x + plus.width / 2 - (bin.x + bin.width / 2))).toBeLessThan(2);
+    
+    // R3: both steps of the window fit the phone and have 44 px targets
+    await add.click();
+    const dialog = page.locator("dialog[open]");
+    await animationsDone(dialog);
+    for (const [title, button] of [["Lägg till en present", "Nästa"], ["Ange ditt namn", "Lägg till"]]) {
+      if (title === "Ange ditt namn") {
+        await dialog.getByLabel("Namn", { exact: true }).fill("Pussel");
+        await dialog.getByRole("button", { name: "Nästa" }).click();
+      }
+      await expect(dialog).toHaveAccessibleName(title);
+      const box = await settledBox(dialog);
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(320);
+      expect((await settledBox(dialog.getByRole("button", { name: button, exact: true }))).height).toBeGreaterThanOrEqual(44);
+    }
+    expect((await settledBox(dialog.getByRole("button", { name: "Tillbaka" }))).width).toBeGreaterThanOrEqual(44);
+    await expectFormCardLooks(page, dialog);
+    await page.keyboard.press("Escape");
+
+    // R5 (expectFormCardLooks resizes the window): the undo dialog for an added gift has two buttons that fit the phone and are 44 px high, the action in the main colour
+    await page.setViewportSize({ width: 320, height: 640 });
+    await region.getByRole("button", { name: "Ta bort presenten Pussel" }).click();
+    const unclaim = page.getByRole("alertdialog");
+    await animationsDone(unclaim);
+    const unclaimBox = await settledBox(unclaim);
+    expect(unclaimBox.x).toBeGreaterThanOrEqual(0);
+    expect(unclaimBox.x + unclaimBox.width).toBeLessThanOrEqual(320);
+    for (const name of ["Avbryt", "Ta bort"]) {
+      const box = await settledBox(unclaim.getByRole("button", { name }));
+      expect(box.height, name).toBeGreaterThanOrEqual(44);
+      expect(box.x + box.width, name).toBeLessThanOrEqual(unclaimBox.x + unclaimBox.width);
+    }
+    await expect(unclaim.getByRole("button", { name: "Ta bort", exact: true })).toHaveCSS("background-color", BRAND);
+  } finally {
+    await clearFamily();
+  }
+});
+
 test("MUPP-023-R2 a wish title is on at most two lines with an ellipsis and smaller when long, and the opened row shows all of it", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();

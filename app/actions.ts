@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { claimWishes as claim, unclaimWish as unclaim, type ClaimResult, type UnclaimResult } from "@/lib/family";
+import { addVisitorGift, claimWishes as claim, removeAddedGift as removeGift, unclaimWish as unclaim, type ClaimResult, type Outcome, type UnclaimResult } from "@/lib/family";
 import { guardMessage, guardWrite } from "@/lib/request-guard";
 import { ONBOARDING_COOKIE, onboardingCookieOptions } from "@/lib/onboarding";
 import { hasSiteSession } from "@/lib/site-auth";
@@ -30,6 +30,26 @@ export async function unclaimWish(id: number): Promise<UnclaimResult> {
   const result = await unclaim(id);
   // Listan ska visa läget nu, också när någon annan hann ta bort paxningen
   if (!result.error) revalidatePath("/");
+  return result;
+}
+
+// Ta bort en present som en besökare lagt till (MUPP-077-R5), i samma ordning
+export async function removeAddedGift(id: number): Promise<UnclaimResult> {
+  if (!(await hasSiteSession())) return { ok: false, error: LOGGED_OUT };
+  const guard = await guardWrite();
+  if (guard !== "ok") return { ok: false, error: guardMessage(guard) };
+  const result = await removeGift(id);
+  if (!result.error) revalidatePath("/");
+  return result;
+}
+
+// Lägg till en present som inte stod i listan (MUPP-077-R4, R7): sajtkakan, gränsen för skrivande anrop, sedan reglerna i lib/family.ts
+export async function addGift(input: { childId: number; occasion: string; title: string; size: string; description: string; url: string; name: string }): Promise<Outcome> {
+  if (!(await hasSiteSession())) return { ok: false, error: LOGGED_OUT };
+  const guard = await guardWrite();
+  if (guard !== "ok") return { ok: false, error: guardMessage(guard) };
+  const result = await addVisitorGift(input);
+  if (result.ok) revalidatePath("/");
   return result;
 }
 

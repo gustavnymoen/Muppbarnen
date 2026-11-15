@@ -23,15 +23,15 @@ export const addChild = (parentId: number, name: string, birthdate = "2020-05-17
   );
 
 // addedAt: the day the wish was added (MUPP-031-R4), today unless the test says otherwise
-type WishDetails = { description?: string; size?: string; url?: string; unlimited?: boolean; claimedBy?: string; addedAt?: string };
+type WishDetails = { description?: string; size?: string; url?: string; unlimited?: boolean; claimedBy?: string; addedAt?: string; addedBy?: string };
 
 export const addWish = (childId: number, occasion: "birthday" | "christmas", title: string, details: WishDetails = {}) =>
   withDb(async (db) => {
     await db.execute({ sql: "INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", args: [childId, occasion] });
     const list = await db.execute({ sql: "SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", args: [childId, occasion] });
     await db.execute({
-      sql: "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, claimed_by, claimed_at, added_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      args: [list.rows[0].id, title, details.description ?? "", details.size ?? "", details.url ?? "", details.unlimited ? 1 : 0, details.claimedBy ?? null, details.claimedBy ? "2026-01-15" : null, details.addedAt ?? dateIn(0)],
+      sql: "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, claimed_by, claimed_at, added_at, added_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      args: [list.rows[0].id, title, details.description ?? "", details.size ?? "", details.url ?? "", details.unlimited ? 1 : 0, details.claimedBy ?? null, details.claimedBy ? "2026-01-15" : null, details.addedAt ?? dateIn(0), details.addedBy ?? null],
     });
   });
 
@@ -40,6 +40,13 @@ export const claimedByOf = (title: string) =>
   withDb(async (db) => {
     const row = (await db.execute({ sql: "SELECT claimed_by FROM wishlist_item WHERE title = ?", args: [title] })).rows[0];
     return row ? (row.claimed_by as string | null) : undefined;
+  });
+
+// A wish as the database holds it after a visitor added it (MUPP-077): who added and claimed it, or undefined when there is no such row
+export const giftOf = (title: string) =>
+  withDb(async (db) => {
+    const row = (await db.execute({ sql: "SELECT claimed_by, added_by, unlimited FROM wishlist_item WHERE title = ?", args: [title] })).rows[0];
+    return row && { claimedBy: row.claimed_by as string | null, addedBy: row.added_by as string | null, unlimited: row.unlimited === 1 };
   });
 
 // Another visitor claims a wish while the page is open

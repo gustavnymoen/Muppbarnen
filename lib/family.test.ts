@@ -513,3 +513,110 @@ describe("MUPP-031 the month after and the archive", () => {
     expect(await count()).toBe(2);
   });
 });
+
+describe("MUPP-077 gifts added by visitors", () => {
+  const today = { year: 2026, month: 10, day: 30 };
+  async function setup() {
+    const owner = await parent("Förälder", true);
+    const childId = await child(owner);
+    return { owner, childId };
+  }
+  const gift = (childId: number | string, extra = {}) => ({ childId: String(childId), occasion: "birthday", title: "Pussel", size: "", description: "", url: "", name: "Moster Lisa", ...extra });
+  const rowOf = (title: string) =>
+    get<{ claimed_by: string | null; claimed_at: string | null; added_by: string | null; added_at: string; unlimited: number }>("SELECT claimed_by, claimed_at, added_by, added_at, unlimited FROM wishlist_item WHERE title = ?", [title]);
+  const count = async () => (await get<{ n: number }>("SELECT COUNT(*) AS n FROM wishlist_item"))!.n;
+
+  test("MUPP-077-R4 the gift is saved as claimed by the visitor and marked, with today's date", async () => {
+    const { childId } = await setup();
+    expect(await family.addVisitorGift(gift(childId, { name: "  Moster Lisa  ", title: " Pussel ", description: "1000 bitar" }), today)).toEqual({ ok: true });
+    expect(await rowOf("Pussel")).toEqual({ claimed_by: "Moster Lisa", claimed_at: "2026-10-30", added_by: "Moster Lisa", added_at: "2026-10-30", unlimited: 0 });
+    const list = (await family.listWishlists((await family.findChild(childId))!, today)).birthday;
+    expect(list).toMatchObject([{ title: "Pussel", description: "1000 bitar", claimedBy: "Moster Lisa", addedBy: "Moster Lisa" }]);
+  });
+
+  test("MUPP-077-R4 a row from a parent has no added_by", async () => {
+    const { owner, childId } = await setup();
+    await family.saveItem(owner, item(childId, "Cykel"), today);
+    expect((await rowOf("Cykel"))!.added_by).toBeNull();
+  });
+
+  test("MUPP-077-R2 R3 R7 the fields and the name are checked on the server and nothing is saved", async () => {
+    const { childId } = await setup();
+    expect(await family.addVisitorGift(gift(childId, { title: " " }), today)).toMatchObject({ ok: false, fields: { title: expect.any(String) } });
+    expect(await family.addVisitorGift(gift(childId, { title: "a".repeat(61) }), today)).toMatchObject({ ok: false, fields: { title: expect.any(String) } });
+    expect(await family.addVisitorGift(gift(childId, { description: "a".repeat(101) }), today)).toMatchObject({ ok: false, fields: { description: expect.any(String) } });
+    expect(await family.addVisitorGift(gift(childId, { size: "a".repeat(41) }), today)).toMatchObject({ ok: false, fields: { size: expect.any(String) } });
+    expect(await family.addVisitorGift(gift(childId, { url: "javascript:alert(1)" }), today)).toMatchObject({ ok: false, fields: { url: expect.any(String) } });
+    expect(await family.addVisitorGift(gift(childId, { name: "  " }), today)).toEqual({ ok: false, fields: { name: "Skriv ditt namn." } });
+    expect(await family.addVisitorGift(gift(childId, { name: "a".repeat(61) }), today)).toMatchObject({ ok: false, fields: { name: expect.any(String) } });
+    expect(await count()).toBe(0);
+  });
+
+  test("MUPP-077-R7 an unknown child or a wrong occasion is refused with the same answer, and nothing is saved", async () => {
+    const { childId } = await setup();
+    const refused = { ok: false, error: "Det gick inte att lägga till presenten. Ladda om sidan och försök igen." };
+    expect(await family.addVisitorGift(gift(childId + 1000), today)).toEqual(refused);
+    expect(await family.addVisitorGift(gift("x"), today)).toEqual(refused);
+    expect(await family.addVisitorGift(gift(childId, { occasion: "easter" }), today)).toEqual(refused);
+    expect(await count()).toBe(0);
+  });
+
+  test("MUPP-077-R7 the text is kept as text and the query cannot be broken", async () => {
+    const { childId } = await setup();
+    const evil = "x'); DROP TABLE wishlist_item; --<b>";
+    expect(await family.addVisitorGift(gift(childId, { title: evil, name: evil }), today)).toEqual({ ok: true });
+    expect((await rowOf(evil))!.added_by).toBe(evil);
+  });
+
+  test("MUPP-077-R7 at most 20 added gifts per list, parents' rows and the other list do not count", async () => {
+    const { owner, childId } = await setup();
+    await family.saveItem(owner, item(childId, "Cykel"), today);
+    for (let i = 1; i <= family.MAX_ADDED_GIFTS; i++) expect(await family.addVisitorGift(gift(childId, { title: `Present ${i}` }), today)).toEqual({ ok: true });
+    expect(await family.addVisitorGift(gift(childId, { title: "En till" }), today)).toEqual({ ok: false, error: "Listan har redan många tillagda presenter." });
+    expect(await rowOf("En till")).toBeUndefined();
+    expect(await family.addVisitorGift(gift(childId, { title: "Julklapp", occasion: "christmas" }), today)).toEqual({ ok: true });
+    // Tar någon bort en present finns det plats igen
+    const first = (await get<{ id: number }>("SELECT id FROM wishlist_item WHERE title = 'Present 1'"))!;
+    expect(await family.removeAddedGift(first.id, today)).toEqual({ ok: true });
+    expect(await family.addVisitorGift(gift(childId, { title: "En till" }), today)).toEqual({ ok: true });
+  });
+
+  test("MUPP-077-R7 gifts from an earlier occasion are archived and do not count against the limit", async () => {
+    const { childId } = await setup();
+    const earlier = { year: 2025, month: 1, day: 10 };
+    for (let i = 1; i <= family.MAX_ADDED_GIFTS; i++) await family.addVisitorGift(gift(childId, { title: `Gammal ${i}` }), earlier);
+    expect(await family.addVisitorGift(gift(childId, { title: "Ny" }), today)).toEqual({ ok: true });
+  });
+
+  test("MUPP-077-R5 a visitor's gift has no claim to remove: unclaimWish leaves it as it is", async () => {
+    const { childId } = await setup();
+    await family.addVisitorGift(gift(childId), today);
+    const { id } = (await get<{ id: number }>("SELECT id FROM wishlist_item WHERE title = 'Pussel'"))!;
+    expect(await family.unclaimWish(id, today)).toEqual({ ok: false });
+    expect(await rowOf("Pussel")).toMatchObject({ claimed_by: "Moster Lisa", added_by: "Moster Lisa" });
+  });
+
+  test("MUPP-077-R5 removing the gift deletes the row", async () => {
+    const { childId } = await setup();
+    await family.addVisitorGift(gift(childId), today);
+    const { id } = (await get<{ id: number }>("SELECT id FROM wishlist_item WHERE title = 'Pussel'"))!;
+    expect(await family.removeAddedGift(id, today)).toEqual({ ok: true });
+    expect(await rowOf("Pussel")).toBeUndefined();
+    expect(await family.removeAddedGift(id, today)).toEqual({ ok: false });
+  });
+
+  test("MUPP-077-R5 a parent's row is never deleted that way, and neither is an archived or a bad id", async () => {
+    const { owner, childId } = await setup();
+    await family.saveItem(owner, item(childId, "Cykel"), today);
+    await family.claimWishes([(await get<{ id: number }>("SELECT id FROM wishlist_item WHERE title = 'Cykel'"))!.id], "Moster", today);
+    const cykel = (await get<{ id: number }>("SELECT id FROM wishlist_item WHERE title = 'Cykel'"))!;
+    expect(await family.removeAddedGift(cykel.id, today)).toMatchObject({ ok: false, error: expect.any(String) });
+    expect(await rowOf("Cykel")).toBeDefined();
+
+    await family.addVisitorGift(gift(childId), { year: 2025, month: 1, day: 10 });
+    const old = (await get<{ id: number }>("SELECT id FROM wishlist_item WHERE title = 'Pussel'"))!;
+    expect(await family.removeAddedGift(old.id, today)).toEqual({ ok: false });
+    expect(await rowOf("Pussel")).toBeDefined();
+    for (const id of [0, -1, "x", null, 999999]) expect((await family.removeAddedGift(id, today)).ok, String(id)).toBe(false);
+  });
+});

@@ -40,7 +40,7 @@ export function OwnWishList({ eventName, wishes }: { eventName: string; wishes: 
 function WishCard({ eventName, wish }: { eventName: string; wish: SantaWish }) {
   return (
     <WishRow
-      wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null }}
+      wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null, addedBy: null }}
       roomy
       actions={
         <>

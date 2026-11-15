@@ -27,7 +27,7 @@ export function ArchiveGroupCard({ group }: { group: ArchiveGroup }) {
               <SlimCard
                 level={4}
                 title={item.title}
-                note={item.claimedBy ? `Paxad av ${item.claimedBy}` : item.unlimited ? "Obegränsad" : undefined}
+                note={item.addedBy ? `Tillagd av ${item.addedBy}` : item.claimedBy ? `Paxad av ${item.claimedBy}` : item.unlimited ? "Obegränsad" : undefined}
                 actions={<CopyItem itemId={item.id} title={item.title} />}
               />
             </li>

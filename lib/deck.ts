@@ -9,7 +9,7 @@ import { sortWishes } from "./wishes";
 // Storlekarna som föräldrarna skrivit in (MUPP-010); tom text där ingen storlek finns
 export type Sizes = { clothes: string; shoes: string; head: string; gloves: string };
 export type DeckInput = { id: number; parentId: number; name: string; birthdate: string; picture: string; sizes: Sizes };
-// claimedBy och claimedAt (ÅÅÅÅ-MM-DD) finns när någon har paxat önskningen (MUPP-005)
+// claimedBy och claimedAt (ÅÅÅÅ-MM-DD) finns när någon har paxat önskningen (MUPP-005); addedBy när en besökare lagt till den (MUPP-077)
 export type Wish = {
   id: number;
   title: string;
@@ -19,6 +19,7 @@ export type Wish = {
   unlimited: boolean;
   claimedBy: string | null;
   claimedAt: string | null;
+  addedBy: string | null;
 };
 export type Wishes = Map<number, { birthday: Wish[]; christmas: Wish[] }>;
 export type Today = { year: number; month: number; day: number };

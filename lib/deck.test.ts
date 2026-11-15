@@ -6,7 +6,7 @@ const today = { year: 2026, month: 10, day: 28 };
 const noSizes: Sizes = { clothes: "", shoes: "", head: "", gloves: "" };
 const kid = (id: number, name: string, birthdate: string, parentId = 1, sizes: Sizes = noSizes): DeckInput => ({ id, parentId, name, birthdate, picture: "", sizes });
 const noWishes: Wishes = new Map();
-const wish = (id: number, title: string, extra: Partial<Wish> = {}): Wish => ({ id, title, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
+const wish = (id: number, title: string, extra: Partial<Wish> = {}): Wish => ({ id, title, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, addedBy: null, ...extra });
 
 describe("MUPP-004-R2 next occurrence", () => {
   test("today counts", () => expect(nextOccurrence(10, 28, today).days).toBe(0));
