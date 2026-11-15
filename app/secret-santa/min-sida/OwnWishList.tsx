@@ -11,7 +11,7 @@ import { removeWish, saveWish } from "../wish-actions";
 
 // Medlemmens egen önskelista i gruppen (MUPP-040). Samma formulär och rader som barnens listor,
 // men ingen pax och ingen "obegränsad". Listan visas bara här, för ägaren.
-export function OwnWishList({ eventName, wishes }: { eventName: string; wishes: SantaWish[] }) {
+export function OwnWishList({ eventId, eventName, wishes }: { eventId: number; eventName: string; wishes: SantaWish[] }) {
   return (
     <Card as="section" className="space-y-3">
       <div className="text-center">
@@ -24,20 +24,20 @@ export function OwnWishList({ eventName, wishes }: { eventName: string; wishes: 
       ) : (
         <ul className="divide-y divide-edge">
           {wishes.map((wish) => (
-            <WishCard key={wish.id} eventName={eventName} wish={wish} />
+            <WishCard key={wish.id} eventId={eventId} eventName={eventName} wish={wish} />
           ))}
         </ul>
       )}
       <AddRow>
         <FormCard title={`Ny önskning, ${eventName}`} label={`Ny önskning, ${eventName}`} add>
-          <WishForm submit="Lägg till" />
+          <WishForm eventId={eventId} submit="Lägg till" />
         </FormCard>
       </AddRow>
     </Card>
   );
 }
 
-function WishCard({ eventName, wish }: { eventName: string; wish: SantaWish }) {
+function WishCard({ eventId, eventName, wish }: { eventId: number; eventName: string; wish: SantaWish }) {
   return (
     <WishRow
       wish={{ ...wish, unlimited: false, claimedBy: null, claimedAt: null }}
@@ -47,13 +47,13 @@ function WishCard({ eventName, wish }: { eventName: string; wish: SantaWish }) {
           <FormCard big title={`Ändra ${wish.title}`} label={`Ändra ${wish.title}`} icon={<PencilIcon />}>
             <div className="space-y-4">
               <WishDetails item={wish} />
-              <WishForm wish={wish} submit="Spara" />
+              <WishForm eventId={eventId} wish={wish} submit="Spara" />
             </div>
           </FormCard>
           <ConfirmAction
             big
             action={removeWish}
-            fields={{ wishId: String(wish.id) }}
+            fields={{ wishId: String(wish.id), eventId: String(eventId) }}
             label="Ta bort"
             subject={wish.title}
             title={`Ta bort ”${wish.title}”?`}
@@ -65,9 +65,10 @@ function WishCard({ eventName, wish }: { eventName: string; wish: SantaWish }) {
   );
 }
 
-function WishForm({ wish, submit }: { wish?: SantaWish; submit: string }) {
+function WishForm({ eventId, wish, submit }: { eventId: number; wish?: SantaWish; submit: string }) {
   return (
     <Form action={saveWish} submit={submit} says={{ field: "title", added: !wish }} again={!wish}>
+      <input type="hidden" name="eventId" value={eventId} />
       {wish && <input type="hidden" name="wishId" value={wish.id} />}
       <WishFields item={wish} />
     </Form>

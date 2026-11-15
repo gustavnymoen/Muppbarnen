@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
-import { createSantaSession } from "../lib/santa-session";
+import { createSantaSession, joinSantaSessions } from "../lib/santa-session";
 import { goto } from "./helpers";
 import { santaCleanupYear } from "./family-db";
 
@@ -8,9 +8,10 @@ import { santaCleanupYear } from "./family-db";
 export const SANTA_COOKIE = "__Host-santa_session";
 
 // Signs in without the form (TECH-018): the cookie the site would set, signed with the test server's
-// made-up key (set in playwright.config.ts). Tests of the sign-in itself use the form.
-export async function santaSignIn(page: Page, memberId: number) {
-  const value = createSantaSession(process.env.SITE_SESSION_SECRET!, memberId, await santaCleanupYear());
+// made-up key (set in playwright.config.ts). Several ids sign in to several groups at once (MUPP-079). Tests of the sign-in itself use the form.
+export async function santaSignIn(page: Page, ...memberIds: number[]) {
+  const year = await santaCleanupYear();
+  const value = joinSantaSessions(memberIds.map((id) => createSantaSession(process.env.SITE_SESSION_SECRET!, id, year)));
   await page.context().addCookies([{ name: SANTA_COOKIE, value, domain: "localhost", path: "/", secure: true, httpOnly: true, sameSite: "Lax" }]);
 }
 

@@ -20,7 +20,7 @@ const TEXTS: Record<ChatSide, { title: string; label: string; empty: string }> =
 
 // unread och initial kommer från sidan. Märket följer unread rakt av och sparas inte i ett eget tillstånd: Next behåller tidigare besökta sidor med
 // sitt tillstånd, så ett sparat "läst" skulle stå kvar och dölja ett nytt meddelande. När samtalet lästs laddas sidan om, och märket går.
-export function ChatButton({ side, unread, initial }: { side: ChatSide; unread: boolean; initial: ChatMessage[] }) {
+export function ChatButton({ eventId, side, unread, initial }: { eventId: number; side: ChatSide; unread: boolean; initial: ChatMessage[] }) {
   const card = useRef<DialogHandle>(null);
   const texts = TEXTS[side];
   return (
@@ -37,7 +37,7 @@ export function ChatButton({ side, unread, initial }: { side: ChatSide; unread: 
         </Button>
       </div>
       <Dialog ref={card} form centered noAutofocus title={texts.title} className="open:flex h-[75dvh] flex-col">
-        <Chat side={side} empty={texts.empty} initial={initial} unread={unread} />
+        <Chat eventId={eventId} side={side} empty={texts.empty} initial={initial} unread={unread} />
       </Dialog>
     </>
   );
@@ -45,7 +45,7 @@ export function ChatButton({ side, unread, initial }: { side: ChatSide; unread: 
 
 // Tangentbordet öppnas inte av sig självt när kortet öppnas (noAutofocus, MUPP-068) och kortet ändrar inte sin storlek med skript: iOS flyttar fältet i sikte när man trycker i det
 // Innehållet finns bara medan kortet är öppet, så samtalet läses (och märks som läst) varje gång det öppnas
-function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string; initial: ChatMessage[]; unread: boolean }) {
+function Chat({ eventId, side, empty, initial, unread }: { eventId: number; side: ChatSide; empty: string; initial: ChatMessage[]; unread: boolean }) {
   const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>(initial);
   const [error, setError] = useState("");
@@ -55,7 +55,7 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
 
   useEffect(() => {
     let current = true;
-    loadChat(side).then((result) => {
+    loadChat(eventId, side).then((result) => {
       if (!result.ok) return current && setError(result.error);
       if (current) setMessages(result.messages);
       // Också när kortet hunnit stängas: meddelandena är lästa, så märket ska bort
@@ -72,10 +72,10 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (document.hidden) return;
-      loadChat(side).then((result) => result.ok && setMessages((now) => (JSON.stringify(now) === JSON.stringify(result.messages) ? now : result.messages)));
+      loadChat(eventId, side).then((result) => result.ok && setMessages((now) => (JSON.stringify(now) === JSON.stringify(result.messages) ? now : result.messages)));
     }, POLL_MS);
     return () => window.clearInterval(timer);
-  }, [side]);
+  }, [eventId, side]);
 
   // Nyaste meddelandet längst ner syns alltid. En gång direkt och en gång när kortet ritats färdigt: iOS Safari räknar listans höjd först då, och utan det stannar listan lite ovanför slutet (MUPP-068)
   useEffect(() => {
@@ -89,7 +89,7 @@ function Chat({ side, empty, initial, unread }: { side: ChatSide; empty: string;
     event.preventDefault();
     const text = field.current?.value ?? "";
     startTransition(async () => {
-      const result = await sendChat(side, text);
+      const result = await sendChat(eventId, side, text);
       if (!result.ok) return setError(result.error);
       setError("");
       setMessages(result.messages);

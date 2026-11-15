@@ -6,7 +6,7 @@ import { IconLink } from "@/app/components/Button";
 import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { parseId } from "@/lib/form-input";
-import { currentSantaMember, entranceEvents, entranceMembers, findMember } from "@/lib/santa-auth";
+import { entranceEvents, entranceMembers, findMember, signedInMembers } from "@/lib/santa-auth";
 import { requireSiteSession } from "@/lib/site-auth";
 import { EscBack } from "./EscBack";
 import { SignInForm } from "./SignInForm";
@@ -29,18 +29,22 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 // Tre steg i adressen: gruppen (hoppas över med en enda), namnet, och sedan inloggningen. Bara namn visas här.
 async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-santa">["searchParams"] }) {
   await requireSiteSession();
-  if (await currentSantaMember()) redirect("/secret-santa/min-sida");
-
   const query = await searchParams;
-  const events = await entranceEvents();
+  const signedIn = await signedInMembers();
   const wanted = parseId(first(query.grupp));
+  // Inloggad i gruppen i adressen: rakt till sidan. Utan grupp i adressen och med en enda inloggning är det den gruppen, som förut; ?val=grupp (pilen
+  // på den egna sidan) hoppar över det så att en annan grupp kan väljas (MUPP-079-R3)
+  const already = wanted !== null ? signedIn.find((m) => m.eventId === wanted) : query.val === undefined && signedIn.length === 1 ? signedIn[0] : undefined;
+  if (already) redirect(`/secret-santa/min-sida?grupp=${already.eventId}`);
+
+  const events = await entranceEvents();
   const event = events.find((e) => e.id === wanted) ?? (events.length === 1 ? events[0] : undefined);
   const members = event ? await entranceMembers(event.id) : [];
   const chosen = parseId(first(query.person));
   const member = event && members.some((m) => m.memberId === chosen) && chosen !== null ? await findMember(chosen) : undefined;
 
   // Från inloggningen tillbaka till namnen; från namnen till grupperna, eller till startsidan när det bara finns en grupp (MUPP-048-R8)
-  const backHref = !event ? undefined : member ? `/secret-santa?grupp=${event.id}` : events.length > 1 ? "/secret-santa" : "/";
+  const backHref = !event ? undefined : member ? `/secret-santa?grupp=${event.id}` : events.length > 1 ? "/secret-santa?val=grupp" : "/";
 
   return (
     <Page

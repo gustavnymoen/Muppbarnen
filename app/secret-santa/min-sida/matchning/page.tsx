@@ -6,7 +6,7 @@ import { IconLink } from "@/app/components/Button";
 import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { WishRow } from "@/app/components/WishList";
-import { currentSantaMember } from "@/lib/santa-auth";
+import { currentSantaMember, entranceHref } from "@/lib/santa-auth";
 import { peekChat, unreadSides } from "@/lib/santa-chat";
 import { matchOf } from "@/lib/santa-match";
 import { requireSiteSession } from "@/lib/site-auth";
@@ -15,26 +15,28 @@ import { NagButton } from "../NagButton";
 
 export const metadata: Metadata = { title: "Min matchning" };
 
-export default function MatchPage() {
+export default function MatchPage({ searchParams }: PageProps<"/secret-santa/min-sida/matchning">) {
   return (
     <Suspense fallback={null}>
-      <Match />
+      <Match searchParams={searchParams} />
     </Suspense>
   );
 }
 
 // Önskelistan hos den man ska handla åt (MUPP-042-R1), bara att läsa. Vems lista det är kommer ur dragningen med den inloggades eget id (ur
 // kakan), så ingen annans matchning går att be om, och sidan nämner aldrig vem som ska handla åt en själv (R2).
-async function Match() {
+async function Match({ searchParams }: { searchParams: PageProps<"/secret-santa/min-sida/matchning">["searchParams"] }) {
   await requireSiteSession();
-  const member = await currentSantaMember();
-  if (!member) redirect("/secret-santa");
+  const { grupp } = await searchParams;
+  const member = await currentSantaMember(grupp);
+  if (!member) redirect(entranceHref(grupp));
+  const ownPage = `/secret-santa/min-sida?grupp=${member.eventId}`;
   const match = member.status === "started" ? await matchOf(member.id) : undefined;
-  if (!match) redirect("/secret-santa/min-sida");
+  if (!match) redirect(ownPage);
   return (
     <Page
       back={
-        <IconLink label="Tillbaka" href="/secret-santa/min-sida">
+        <IconLink label="Tillbaka" href={ownPage}>
           <ReturnIcon />
         </IconLink>
       }
@@ -50,7 +52,7 @@ async function Match() {
             {match.wishes.length === 0 ? (
               <div className="space-y-3 text-center">
                 <p className="text-muted">Inga önskningar ännu.</p>
-                <NagButton state={match.nag} />
+                <NagButton state={match.nag} eventId={member.eventId} />
               </div>
             ) : (
               <ul className="divide-y divide-edge">
@@ -61,7 +63,7 @@ async function Match() {
               </ul>
             )}
           </Card>
-          <ChatButton side="giver" unread={(await unreadSides(member.id)).giver} initial={await peekChat(member.id, "giver")} />
+          <ChatButton eventId={member.eventId} side="giver" unread={(await unreadSides(member.id)).giver} initial={await peekChat(member.id, "giver")} />
         </div>
       </PageContent>
     </Page>

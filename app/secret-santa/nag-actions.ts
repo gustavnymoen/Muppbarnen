@@ -9,9 +9,9 @@ import { requestNag } from "@/lib/santa-nag";
 // (Ett namngivet svarstyp: kontrollen i lib/route-checks.test.ts läser funktionens första { som början på kroppen)
 export type NagResult = { ok: boolean; error?: string };
 
-export async function nagForList(): Promise<NagResult> {
+export async function nagForList(eventId: number): Promise<NagResult> {
   const { refusal } = await openSiteAction();
   if (refusal) return { ok: false, error: refusal };
-  const member = await currentSantaMember();
+  const member = await currentSantaMember(eventId);
   return member && (await requestNag(member.id)).ok ? { ok: true } : { ok: false, error: "Du kan inte tjata just nu." };
 }

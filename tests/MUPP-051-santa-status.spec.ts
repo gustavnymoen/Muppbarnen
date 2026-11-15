@@ -121,7 +121,7 @@ test("MUPP-051-R4 R5 an inactive group gives only 'Vi har inte kört igång än'
 
   // R4: the list page does not show a list; the way to it is closed
   await goto(page, "/secret-santa/min-sida/onskelista");
-  await expect(page).toHaveURL(/\/secret-santa\/min-sida$/);
+  await expect(page).toHaveURL(/\/secret-santa\/min-sida(\?grupp=\d+)?$/);
   await expect(page.getByText("Kvarglömd bok")).toHaveCount(0);
 });
 

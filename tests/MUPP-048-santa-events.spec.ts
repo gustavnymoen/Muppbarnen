@@ -158,14 +158,14 @@ test("MUPP-048-R8 the names step has Tillbaka in place of Byt grupp: with severa
   // Several groups: Tillbaka and Esc go back to the list with nothing picked
   await addSantaEvent("Eriks jul", emma);
   await goto(page, `/secret-santa?grupp=${first}`);
-  await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveAttribute("href", "/secret-santa");
+  await expect(page.getByRole("link", { name: "Tillbaka" })).toHaveAttribute("href", "/secret-santa?val=grupp");
   await page.getByRole("link", { name: "Tillbaka" }).click();
-  await expect(page).toHaveURL(/\/secret-santa$/);
+  await expect(page).toHaveURL(/\/secret-santa\?val=grupp$/);
   await expect(page.getByRole("link", { name: "Emmas jul" })).toBeVisible();
   await page.getByRole("link", { name: "Emmas jul" }).click();
   await expect(page.getByText("Vem är du i Emmas jul?")).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page).toHaveURL(/\/secret-santa$/);
+  await expect(page).toHaveURL(/\/secret-santa\?val=grupp$/);
   await expect(page.getByRole("link", { name: "Eriks jul" })).toBeVisible();
 
   // The sign-in step still goes back to the names of the same group (MUPP-047)

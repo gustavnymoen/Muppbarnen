@@ -6,7 +6,7 @@ import { parseId } from "./form-input";
 import type { EventStatus } from "./santa";
 import { cleanupYear } from "./santa-cleanup";
 import { setSessionCookie } from "./session-cookie";
-import { createSantaSession, SANTA_COOKIE, SANTA_SESSION_SECONDS, verifySantaSession } from "./santa-session";
+import { createSantaSession, joinSantaSessions, SANTA_COOKIE, SANTA_SESSION_SECONDS, verifySantaSessions } from "./santa-session";
 import { siteSecrets } from "./site-session";
 
 // Ingången till Secret Santa (MUPP-039): vad besökaren får se innan hen loggat in (bara namn),
@@ -26,12 +26,13 @@ export async function entranceMembers(eventId: number): Promise<EntranceMember[]
   return rows.map((r) => ({ memberId: r.id, name: r.name }));
 }
 
+type MemberRow = { id: number; name: string; event_id: number; event_name: string; status: EventStatus };
+const MEMBER_SQL = "SELECT m.id, m.name, m.event_id, e.name AS event_name, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id";
+const toMember = (row: MemberRow): SantaMember => ({ id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name, status: row.status });
+
 export async function findMember(id: number): Promise<SantaMember | undefined> {
-  const row = await get<{ id: number; name: string; event_id: number; event_name: string; status: EventStatus }>(
-    "SELECT m.id, m.name, m.event_id, e.name AS event_name, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?",
-    [id],
-  );
-  return row && { id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name, status: row.status };
+  const row = await get<MemberRow>(`${MEMBER_SQL} WHERE m.id = ?`, [id]);
+  return row && toMember(row);
 }
 
 // ---- Jämförelsen
@@ -79,21 +80,45 @@ export async function checkSantaSignIn(ip: string, input: Attempt, wait = wrongW
 
 // ---- Kakan
 
-// Den inloggade medlemmen, eller null. Medlemmen läses ur databasen vid varje förfrågan; är hen borttagen gäller kakan inte längre,
-// och inte heller en kaka från före den årliga rensningen (MUPP-044-R4).
-export async function currentSantaMember() {
-  const session = verifySantaSession((await cookies()).get(SANTA_COOKIE)?.value, siteSecrets()?.secret);
-  if (session === null || session.cleanupYear !== (await cleanupYear())) return null;
-  return (await findMember(session.memberId)) ?? null;
+// Medlemmarna kakan visar att besökaren är inloggad som, en per grupp, den äldsta inloggningen först (MUPP-079-R1). Varje medlem läses ur databasen vid
+// varje förfrågan; är hen borttagen gäller hens post inte längre, och inte heller en post från före den årliga rensningen (MUPP-044-R4).
+// Det drabbar bara den posten: de andra grupperna fungerar som förut (MUPP-079-R4).
+export async function signedInMembers() {
+  const entries = verifySantaSessions((await cookies()).get(SANTA_COOKIE)?.value, siteSecrets()?.secret);
+  const year = await cleanupYear();
+  const current = entries.filter((e) => e.cleanupYear === year).map((e) => e.memberId);
+  if (current.length === 0) return [];
+  const found = await all<MemberRow>(`${MEMBER_SQL} WHERE m.id IN (${current.map(() => "?").join(",")})`, current);
+  const byId = new Map(found.map((row) => [row.id, toMember(row)]));
+  // En per grupp hålls av setSantaCookie; skulle kakan ändå ha två (den sätts aldrig så) gäller den senaste
+  const perEvent = new Map<number, SantaMember>();
+  for (const id of current) {
+    const member = byId.get(id);
+    if (member) perEvent.set(member.eventId, member);
+  }
+  return [...perEvent.values()];
 }
 
-export async function setSantaCookie(memberId: number) {
+// Den inloggade medlemmen i gruppen (adressens ?grupp=), eller undefined. Gruppens id väljer bara bland kakans poster och ger aldrig tillträde (MUPP-079-R3).
+// Saknas gruppen i adressen och kakan har en enda inloggning är det den, som förut.
+export async function currentSantaMember(rawEventId: unknown) {
+  const members = await signedInMembers();
+  if (rawEventId === undefined) return members.length === 1 ? members[0] : undefined;
+  const eventId = parseId(String(rawEventId));
+  return eventId === null ? undefined : members.find((m) => m.eventId === eventId);
+}
+
+// Lägger till inloggningen i kakan; en tidigare inloggning i samma grupp ersätts (MUPP-055) och de äldsta faller bort efter 10 (MUPP-079-R2)
+export async function setSantaCookie(member: SantaMember) {
   const secret = siteSecrets()?.secret;
   if (!secret) return;
-  await setSessionCookie(SANTA_COOKIE, createSantaSession(secret, memberId, await cleanupYear()), SANTA_SESSION_SECONDS);
+  const year = await cleanupYear();
+  const kept = (await signedInMembers()).filter((m) => m.eventId !== member.eventId);
+  await setSessionCookie(SANTA_COOKIE, joinSantaSessions([...kept, member].map((m) => createSantaSession(secret, m.id, year))), SANTA_SESSION_SECONDS);
 }
 
-// Tas bort med samma regler som när den sattes: en __Host-kaka utan Secure godtas inte ens för att tömmas
-export async function clearSantaCookie() {
-  await setSessionCookie(SANTA_COOKIE, "", 0);
+// Dit en sida skickar den som inte är inloggad i gruppen i adressen: till den gruppens namn, eller till valet av grupp om adressen inte har någon
+export function entranceHref(rawEventId: unknown) {
+  const eventId = parseId(String(rawEventId));
+  return eventId === null ? "/secret-santa" : `/secret-santa?grupp=${eventId}`;
 }

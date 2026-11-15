@@ -161,7 +161,7 @@ describe("MUPP-038-R3 MUPP-048-R5 members", () => {
     expect(await members(f)).toMatchObject([{ name: "Anna", phone: "0701234567", email: "anna@exempel.se", partnerId: null }]);
   });
 
-  test("MUPP-048-R5 a phone number and an email belong to one member of an event, the email ignoring case", async () => {
+  test("MUPP-048-R5 MUPP-079-R6 a phone number and an email belong to one member of an event, the email ignoring case", async () => {
     const f = await event(emma, "Grupp A");
     await person(emma, f, "Anna", "0701111111", "anna@exempel.se");
     const bo = await person(emma, f, "Bo", "0702222222", "bo@exempel.se");
@@ -175,7 +175,7 @@ describe("MUPP-038-R3 MUPP-048-R5 members", () => {
     expect(await count("ss_member")).toBe(2);
   });
 
-  test("MUPP-048-R5 the same phone and email can be in two events, as two separate members", async () => {
+  test("MUPP-048-R5 MUPP-079-R6 the same phone and email can be in two events, as two separate members", async () => {
     const a = await event(emma, "Grupp A");
     const b = await event(erik, "Grupp B");
     const annaA = await person(emma, a, "Anna", "0701111111", "anna@exempel.se");
