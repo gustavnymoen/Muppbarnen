@@ -33,7 +33,7 @@ Over the 330 s budget, as before this change; the user accepted that the test ti
 
 - [x] Tests: `npm run test:unit` and `npm run test:local` pass with the fixed date
 - [x] Test suite: 358.1 s, over the 330 s budget as before; the overrun is accepted by the user (2026-11-15)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet merged
+- [x] Deployed, and the smoke tests pass against production (Live tests): merged in pull request 264, Live tests (run 43756237858) passed on the merge commit 46ee961 on 2026-11-15
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built; `solution.md` describes how it was built
 - [x] Manual: not applicable; system docs (`wiki/system/testing.md`) and `wiki/log.md` updated

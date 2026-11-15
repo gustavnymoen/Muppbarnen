@@ -280,7 +280,6 @@ describe("MUPP-051-R2 activate and deactivate", () => {
     expect(await santa.activateEvent(emma, String(id))).toEqual({
       ok: true,
       eventName: "Emmas jul",
-      adminName: "Emma",
       recipients: [
         { name: "Anna", email: "anna@exempel.se" },
         { name: "Bo", email: "bo@exempel.se" },
@@ -357,7 +356,7 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
   test("MUPP-051-R3 an added member answers with what the welcome mail needs: the address, the event, the administrator and the status", async () => {
     const id = await event(emma, "Emmas jul");
     const input = (n: number) => ({ eventId: String(id), name: `Ny ${n}`, phone: `070009999${n}`, email: `ny${n}@exempel.se` });
-    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", adminName: "Emma", status: "inactive" });
+    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", status: "inactive" });
     await santa.activateEvent(emma, String(id));
     expect(await santa.addMember(emma, input(2))).toMatchObject({ ok: true, status: "preparing" });
   });
@@ -387,7 +386,7 @@ describe("MUPP-041-R2 R3 R4 start the draw", () => {
   test("MUPP-041-R2 R4 a preparing event is drawn once: one row per giver for this year, the event is started, and the answer has the mail data but no pair", async () => {
     const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
     const outcome = await santa.startDraw(emma, String(id));
-    expect(outcome).toEqual({ ok: true, eventName: "Emmas jul", adminName: "Emma", setAside: [], recipients: [{ name: "Anna", email: "anna@exempel.se" }, { name: "Bo", email: "bo@exempel.se" }, { name: "Cia", email: "cia@exempel.se" }] });
+    expect(outcome).toEqual({ ok: true, eventName: "Emmas jul", setAside: [], recipients: [{ name: "Anna", email: "anna@exempel.se" }, { name: "Bo", email: "bo@exempel.se" }, { name: "Cia", email: "cia@exempel.se" }] });
     expect(await statusOf(id)).toBe("started");
     const rows = await drawRows(id);
     expect(rows.map((r) => r.giver_id)).toEqual(ids);
@@ -574,7 +573,7 @@ describe("MUPP-060 change a participant in a started group", () => {
   test("MUPP-060-R4 the mail data is read from the saved address, per status, and only for someone who may manage the group", async () => {
     const { id, ids } = await started();
     await santa.saveMember(emma, change(ids[0], { email: "ny@exempel.se" }));
-    expect(await santa.memberToMail(emma, String(ids[0]))).toEqual({ ok: true, name: "Anna", email: "ny@exempel.se", eventName: "Emmas jul", adminName: "Emma", status: "started" });
+    expect(await santa.memberToMail(emma, String(ids[0]))).toEqual({ ok: true, name: "Anna", email: "ny@exempel.se", eventName: "Emmas jul", status: "started" });
     expect(await santa.memberToMail(master, String(ids[0]))).toMatchObject({ ok: true });
     expect(await santa.memberToMail(erik, String(ids[0]))).toEqual(refused);
     expect(await santa.memberToMail(null, String(ids[0]))).toEqual(refused);

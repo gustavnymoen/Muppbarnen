@@ -210,7 +210,8 @@ test("MUPP-051-R2 R3 the mails: activation and deactivation go to every particip
   await expect(card).toContainText("Status: Förbereder");
   await expect(page.getByText("Sparat, men Bertil Testsson fick inget mejl.").first()).toBeVisible();
   expect(subjects()).toEqual(["anna@exempel.invalid Secret Santa: Emmas jul – Nu kan du skriva din önskelista"]);
-  expect(readOutbox()[0].text).toContain(emma);
+  expect(readOutbox()[0].text).not.toContain(emma);
+  expect(readOutbox()[0].text).toContain("hör av dig till den som skapade gruppen");
   expect(JSON.stringify(readOutbox())).not.toContain("Testsson");
 
   // R3: a new participant in a preparing group: the welcome mail and then the activation mail

@@ -27,7 +27,7 @@ export async function activateEvent(_previous: FormState, formData: FormData): P
   const { parent, refusal } = await openAdminAction();
   if (refusal) return failed(formData, { error: refusal });
   const outcome = await santa.activateEvent(parent, text(formData, "eventId"));
-  return answer(formData, outcome, outcome.ok ? await mailEveryone(outcome.recipients, activatedMail(outcome.eventName, outcome.adminName)) : []);
+  return answer(formData, outcome, outcome.ok ? await mailEveryone(outcome.recipients, activatedMail(outcome.eventName)) : []);
 }
 
 export async function deactivateEvent(_previous: FormState, formData: FormData): Promise<FormState> {
