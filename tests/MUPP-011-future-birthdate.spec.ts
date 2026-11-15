@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { dayAndMonth, swedishToday } from "../lib/deck";
+import { dayAndMonth } from "../lib/deck";
 import { latestBirthdate } from "../lib/form-input";
 import { addParent, clearFamily } from "./family-db";
-import { adminSignIn, expectNoA11yViolations, goto, openCard, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, expectNoA11yViolations, goto, openCard, runsLocally, testNow, testToday, uniqueName } from "./helpers";
 import { testIp } from "./site-session";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
@@ -11,7 +11,7 @@ test.skip(!runsLocally, "needs the local test database");
 // Ett datum `months` månader fram, och en dag till
 const isoDate = (date: Date) => date.toISOString().slice(0, 10);
 const monthsAhead = (months: number) => {
-  const today = swedishToday();
+  const today = testToday();
   return new Date(Date.UTC(today.year, today.month - 1 + months, 15));
 };
 
@@ -31,7 +31,7 @@ test("MUPP-011-R1 R2 R4 MUPP-020-R2 an expected child is added, listed and shown
 
   // R1: the date field's limit is the server's, and a date after it is refused
   const form = await openCard(kids, "Nytt barn");
-  await expect(form.getByLabel("Födelsedatum")).toHaveAttribute("max", latestBirthdate());
+  await expect(form.getByLabel("Födelsedatum")).toHaveAttribute("max", latestBirthdate(testNow()));
   const name = uniqueName("Väntad");
   await form.getByLabel("Namn").fill(name);
   await form.getByLabel("Födelsedatum").fill(isoDate(monthsAhead(11)));

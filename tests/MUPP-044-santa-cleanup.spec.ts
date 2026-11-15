@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { adminSignIn, goto, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, goto, runsLocally, testToday, uniqueName } from "./helpers";
 import { addParent, addSantaDrawRows, addSantaEvent, addSantaMember, addSantaWish, clearFamily, clearSanta, santaDraw, santaStatusOf, santaWishes, setSantaCleanupYear } from "./family-db";
 import { eventCard, openEventCard, santaSignIn } from "./santa";
 import { testIp } from "./site-session";
@@ -8,7 +8,7 @@ import { testIp } from "./site-session";
 test.skip(!runsLocally, "the Secret Santa tests need the local test server (its own database and passwords)");
 
 const CRON = { authorization: "Bearer påhittad-cronhemlighet-som-inte-skyddar-något-alls" };
-const realYear = new Date().getFullYear();
+const realYear = testToday().year; // the server files a draw under the year of its fixed date (TECH-028)
 
 test.beforeEach(async ({ page }) => {
   await page.context().setExtraHTTPHeaders({ "x-real-ip": testIp() });
