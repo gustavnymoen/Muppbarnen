@@ -9,9 +9,14 @@ import { adminSessionFile } from "./site-session";
 // can't be undone run only locally.
 export const runsLocally = (process.env.BASE_URL ?? "").startsWith("http://localhost");
 
+// Today as the local test server sees it: a fixed date (TEST_TODAY, TECH-028), otherwise the real one
+// Only for the local test server: playwright.config.ts sets TEST_TODAY only then, so the runs against the live site use the real clock
+export const testNow = () => (process.env.TEST_TODAY ? new Date(`${process.env.TEST_TODAY}T12:00:00Z`) : new Date());
+export const testToday = () => swedishToday(testNow());
+
 // The date `days` days from today in Swedish time (negative: ago), as text, ÅÅÅÅ-MM-DD
 export function dateIn(days: number) {
-  const today = swedishToday();
+  const today = testToday();
   return new Date(Date.UTC(today.year, today.month - 1, today.day + days)).toISOString().slice(0, 10);
 }
 

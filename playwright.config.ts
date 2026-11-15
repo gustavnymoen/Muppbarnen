@@ -26,6 +26,8 @@ if (local) {
   process.env.ADMIN_SESSION_SECRET = "påhittad-adminnyckel-som-inte-skyddar-något-alls";
   // Och för jobbet som mejlar om ändrade önskelistor (MUPP-042)
   process.env.SANTA_JOB_SECRET = "påhittad-jobbnyckel-som-inte-skyddar-något-alls";
+  // Samma fasta datum som testservern (scripts/test-server.mjs), för testernas egna datum
+  process.env.TEST_TODAY ??= "2026-06-01";
 }
 const siteSignIn = process.env.SITE_PASSWORD ? siteSessionFile : undefined;
 

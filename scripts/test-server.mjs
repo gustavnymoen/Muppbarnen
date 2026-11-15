@@ -32,6 +32,8 @@ const env = {
   // Den årliga rensningen (MUPP-044): en påhittad hemlighet och ett datum efter 24 januari, så att testerna kan köra den
   CRON_SECRET: "påhittad-cronhemlighet-som-inte-skyddar-något-alls",
   SANTA_CLEANUP_TODAY: "2099-02-01",
+  // Ett fast datum, så att testerna inte beror på årstiden (TECH-028); tests/helpers.ts läser samma värde
+  TEST_TODAY: process.env.TEST_TODAY ?? "2026-06-01",
 };
 
 // prebuild (scripts/db-setup.mjs) skapar testdatabasen

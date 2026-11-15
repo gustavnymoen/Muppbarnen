@@ -105,6 +105,7 @@ tags: [product, features]
 | [TECH-025](TECH-025-build-warnings/solution.md) | Build warnings on Vercel | Shared | Ongoing |
 | [MUPP-072](MUPP-072-loading-state/solution.md) | Loading state on buttons + nag button text | Shared | Done |
 | [TECH-024](TECH-024-shared-auth-helpers/solution.md) | Shared access checks | Shared | Review |
+| [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 
