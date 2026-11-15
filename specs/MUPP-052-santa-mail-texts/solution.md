@@ -21,7 +21,7 @@ No page. `lib/santa-mail.ts` has one function per mail (`activatedMail`, `deacti
 
 ## Decisions
 
-- **Functions take only the group and, for mails 1 and 8, the administrator.** A member name, a wish or a message cannot get into a text because there is nowhere to pass it; the unit test checks it anyway.
+- **Functions take only the group** (MUPP-076 removed the administrator's name). A member name, a wish or a message cannot get into a text because there is nowhere to pass it; the unit test checks it anyway.
 - **No heading.** The card's mails have a subject and a text, so the `heading` of TECH-017 is gone from `Mail`, the layout and the outbox; the subject says what the mail is about. This stacks on [TECH-017](../TECH-017-sending-email/solution.md) (PR #169).
 - **Texts are stored as the card has them**: a single line break between lines, which the layout shows as a line break inside the paragraph (R3). A blank line would start a paragraph.
 - **The button is a styled link**, with the colours of the primary button (`DESIGN.md`) and its radius, so it stays a link where a client blocks styles. Fredoka is not available in mail, so it uses a rounded system font.
