@@ -62,7 +62,7 @@ test("MUPP-053-R1 R2 R4 the admin pages: plus buttons for a new wish, parent and
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text button Ny grupp under Grupper, a plus for a new person and a new wish", async ({ page }) => {
+test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text button Ny Secret Santa under Secret Santa, a plus for a new person and a new wish", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
   const family = await addSantaEvent("Familjen Ek");
@@ -71,11 +71,11 @@ test("MUPP-053-R1 R3 the Secret Santa tab and a participant's own page: a text b
   await adminSignIn(page, chef);
   await page.getByRole("tab", { name: "Secret Santa" }).click();
 
-  // R3: "Grupper" and "Ny grupp", never "Familjer" or "Ny familj"; a text button, not a plus
-  await expect(page.getByRole("heading", { level: 2, name: "Grupper" })).toBeVisible();
+  // R3: "Grupper" and "Ny Secret Santa", never "Familjer" or "Ny familj"; a text button, not a plus
+  await expect(page.getByRole("heading", { level: 2, name: "Secret Santa", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Familjer" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Ny familj" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Ny grupp", exact: true })).toHaveText("Ny grupp");
+  await expect(page.getByRole("button", { name: "Ny Secret Santa", exact: true })).toHaveText("Ny Secret Santa");
 
   // R1: a plus for a new person, in the group's card
   const ek = eventCard(page, "Familjen Ek");

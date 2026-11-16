@@ -4,13 +4,13 @@ import type { Mail } from "./mail";
 // (MUPP-051, 041, 042, 043) anropar bara funktionerna här, och testerna läser samma texter. Ingen text får innehålla
 // ett medlemsnamn, en önskan eller ett meddelande; inget mejl nämner en person, och funktionerna tar bara gruppens namn. Mejl 1, 3 och 8 får också tipset om hemskärmen (installTip, MUPP-058).
 const subject = (group: string, what: string) => `Secret Santa: ${group} – ${what}`;
-const contact = "Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen.";
+const contact = "Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade Secret Santa.";
 
 // Mejl 1: gruppen aktiveras (till alla medlemmar), och till en medlem som läggs till medan gruppen förbereds, direkt efter mejl 8
 export const activatedMail = (group: string): Mail => ({
   subject: subject(group, "Nu kan du skriva din önskelista"),
   text:
-    `Ho-Ho! Nu har gruppen ${group} öppnat. Gå in på sajten, välj Secret Santa och din grupp, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt.\n` +
+    `Ho-Ho! Nu har Secret Santa ${group} öppnat. Gå in på sajten, välj Secret Santa och sedan ${group}, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt.\n` +
     `Du kan inte matchas med dig själv eller den du hade förra året! Har admin även satt partners på deltagarna får du inte din partner.\n` +
     `Du kan fylla i din önskelista från och med nu och ändra fram till julafton, men var snäll mot din matchning och bestäm dig i tid!\n` +
     `Allt är hemligt: ingen får veta vem som drar vem. ${contact}`,
@@ -20,7 +20,7 @@ export const activatedMail = (group: string): Mail => ({
 // Mejl 2: gruppen avaktiveras (till alla)
 export const deactivatedMail = (group: string): Mail => ({
   subject: subject(group, "är avaktiverad!"),
-  text: `Gruppen ${group} är avaktiverad. Det går inte att skriva önskelistor just nu. Du får ett nytt mail om den öppnas igen. Något kan ha gått fel i admin-joxandet!`,
+  text: `Secret Santa ${group} är avaktiverad. Det går inte att skriva önskelistor just nu. Du får ett nytt mail om den öppnas igen. Något kan ha gått fel i admin-joxandet!`,
 });
 
 // Mejl 3: dragningen är gjord och gruppen startad (till alla)
@@ -62,7 +62,7 @@ export const messageFromReceiverMail = (group: string): Mail => ({
 // Mejl 8: en person läggs till i en grupp (till personen), i alla lägen där det går
 export const addedMail = (group: string): Mail => ({
   subject: subject(group, "välkommen"),
-  text: `Du har lagts till i Secret Santa-gruppen ${group}. ${contact} När gruppen öppnar får du ett nytt mail som berättar hur det går till!`,
+  text: `Du har lagts till i Secret Santa ${group}. ${contact} När den öppnar får du ett nytt mail som berättar hur det går till!`,
   installTip: true,
 });
 
@@ -74,8 +74,8 @@ export const nagListMail = (group: string): Mail => ({
 
 // Frågan i dialogen för varje statusändring (MUPP-052-R2); MUPP-051 och MUPP-041 sätter in dem i sina knappar
 export const STATUS_CONFIRMATIONS = {
-  activate: { title: "Är du säker?", text: "Alla i gruppen får ett mail och kan börja skriva önskelistor." },
-  deactivate: { title: "Är du säker?", text: "Alla i gruppen får ett mail. Önskelistorna finns kvar." },
+  activate: { title: "Är du säker?", text: "Alla i Secret Santa får ett mail och kan börja skriva önskelistor." },
+  deactivate: { title: "Är du säker?", text: "Alla i Secret Santa får ett mail. Önskelistorna finns kvar." },
   start: {
     title: "Är du säker?",
     text: "Alla får en person att handla åt och ett mail. Efter det går det inte att lägga till eller ta bort någon, men namn, telefon och e-post kan rättas.",

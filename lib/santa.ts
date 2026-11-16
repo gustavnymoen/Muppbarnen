@@ -1,5 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
+import { familiesFor } from "./families";
 import { collect, parseAmount, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
 import { swedishToday } from "./deck";
@@ -17,21 +18,21 @@ export type SantaMember = { id: number; name: string; phone: string; email: stri
 // Gruppens status (MUPP-051): inaktiv tills administratören aktiverar den, förbereder medan medlemmar läggs till och
 // önskelistor skrivs, startad när dragningen är gjord (MUPP-041)
 export type EventStatus = "inactive" | "preparing" | "started";
-export type SantaEvent = { id: number; name: string; status: EventStatus; ownerId: number; ownerName: string; amount: number | null; members: SantaMember[] };
+export type SantaEvent = { id: number; name: string; status: EventStatus; ownerId: number; ownerName: string; amount: number | null; familyId: number; familyName: string; members: SantaMember[] };
 // Den som ska få ett mejl om gruppen; namnet är bara för administratörens lista över dem som inte fick något
 export type Recipient = { name: string; email: string };
 
 const NOT_ALLOWED = { ok: false, error: "Du kan inte göra det här." } as const;
 const GONE = { ok: false, error: "Det finns inte längre. Ladda om sidan." } as const;
-const NAME_TAKEN = { ok: false, fields: { name: "Det finns redan en grupp med det namnet." } } as const;
-const PHONE_TAKEN = { ok: false, fields: { phone: "Numret används redan av en annan person i gruppen." } } as const;
-const EMAIL_TAKEN = { ok: false, fields: { email: "E-postadressen används redan av en annan person i gruppen." } } as const;
-const STARTED = { ok: false, error: "Gruppen är startad. Deltagare kan inte läggas till eller tas bort nu." } as const;
-const WRONG_STATUS = { ok: false, error: "Gruppens status har redan ändrats. Ladda om sidan." } as const;
-const PARTNER_LOCKED = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." } as const;
-const PARTNER_IN_GROUP = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } } as const;
+const NAME_TAKEN = { ok: false, fields: { name: "Det finns redan en Secret Santa med det namnet." } } as const;
+const PHONE_TAKEN = { ok: false, fields: { phone: "Numret används redan av en annan person i den här Secret Santa." } } as const;
+const EMAIL_TAKEN = { ok: false, fields: { email: "E-postadressen används redan av en annan person i den här Secret Santa." } } as const;
+const STARTED = { ok: false, error: "Secret Santa är startad. Deltagare kan inte läggas till eller tas bort nu." } as const;
+const WRONG_STATUS = { ok: false, error: "Statusen har redan ändrats. Ladda om sidan." } as const;
+const PARTNER_LOCKED = { ok: false, error: "Secret Santa är startad. Partnern kan inte ändras nu." } as const;
+const PARTNER_IN_GROUP = { ok: false, fields: { partnerId: "Välj en av de andra i Secret Santa." } } as const;
 
-type EventRow = { id: number; owner_id: number; name: string; status: EventStatus; amount: number | null };
+type EventRow = { id: number; owner_id: number; name: string; status: EventStatus; amount: number | null; family_id: number };
 
 // Gruppens ägare och huvudadministratören får ändra den (MUPP-048-R3)
 const canManage = (actor: Parent | null, event: Pick<EventRow, "owner_id">): actor is Parent => actor !== null && (actor.isMasterAdmin || event.owner_id === actor.id);
@@ -48,7 +49,7 @@ async function nameTaken(name: string, exceptId: number | null, tx: Executor) {
 // Gruppen, om förfrågan avser en som aktören får ändra
 async function manageableEvent(actor: Parent | null, rawId: unknown, tx: Executor): Promise<EventRow | Failure> {
   const id = parseId(rawId);
-  const event = id === null ? undefined : await get<EventRow>("SELECT id, owner_id, name, status, amount FROM ss_event WHERE id = ?", [id], tx);
+  const event = id === null ? undefined : await get<EventRow>("SELECT id, owner_id, name, status, amount, family_id FROM ss_event WHERE id = ?", [id], tx);
   if (!event) return GONE;
   return canManage(actor, event) ? event : NOT_ALLOWED;
 }
@@ -64,8 +65,8 @@ export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
   if (!actor) return [];
   // Samma urval för grupperna och medlemmarna (fast SQL-text): kontaktuppgifter för andras grupper läses aldrig ens in
   const args = [actor.isMasterAdmin ? 1 : 0, actor.id];
-  const events = await all<EventRow & { owner_name: string }>(
-    "SELECT e.id, e.owner_id, e.name, e.status, e.amount, p.name AS owner_name FROM ss_event e JOIN parent p ON p.id = e.owner_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY e.name, e.id",
+  const events = await all<EventRow & { owner_name: string; family_name: string }>(
+    "SELECT e.id, e.owner_id, e.name, e.status, e.amount, e.family_id, p.name AS owner_name, f.name AS family_name FROM ss_event e JOIN parent p ON p.id = e.owner_id JOIN family f ON f.id = e.family_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY e.name, e.id",
     args,
   );
   const rows = await all<{ id: number; event_id: number; name: string; phone: string; email: string; partner_member_id: number | null; wishes: number }>(
@@ -79,13 +80,15 @@ export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
     ownerId: e.owner_id,
     ownerName: e.owner_name,
     amount: e.amount,
+    familyId: e.family_id,
+    familyName: e.family_name,
     members: rows.filter((r) => r.event_id === e.id).map((r) => ({ id: r.id, name: r.name, phone: r.phone, email: r.email, partnerId: r.partner_member_id, hasWishes: r.wishes > 0 })),
   }));
 }
 
 // ---- Grupper
 
-export async function saveEvent(actor: Parent | null, input: { id?: unknown; name: unknown; amount?: unknown }): Promise<Outcome> {
+export async function saveEvent(actor: Parent | null, input: { id?: unknown; name: unknown; amount?: unknown; familyId?: unknown }): Promise<Outcome> {
   if (!actor) return NOT_ALLOWED;
   const checked = collect({ name: parseText(input.name, 60, true), amount: parseAmount(input.amount) });
   if (!checked.ok) return { ok: false, fields: checked.errors };
@@ -95,9 +98,11 @@ export async function saveEvent(actor: Parent | null, input: { id?: unknown; nam
     const event = creating ? null : await manageableEvent(actor, input.id, tx);
     if (event && isOutcome(event)) return event;
     if (await nameTaken(name, event?.id ?? null, tx)) return NAME_TAKEN;
+    const family = await chooseFamily(actor, input.familyId, event?.family_id ?? null, tx);
+    if (isOutcome(family)) return family;
     try {
-      if (event) await run("UPDATE ss_event SET name = ?, amount = ? WHERE id = ?", [name, amount, event.id], tx);
-      else await run("INSERT INTO ss_event (owner_id, name, amount) VALUES (?, ?, ?)", [actor.id, name, amount], tx);
+      if (event) await run("UPDATE ss_event SET name = ?, amount = ?, family_id = ? WHERE id = ?", [name, amount, family.id, event.id], tx);
+      else await run("INSERT INTO ss_event (owner_id, name, amount, family_id) VALUES (?, ?, ?, ?)", [actor.id, name, amount, family.id], tx);
     } catch (error) {
       // Två föräldrar som sparar samma namn samtidigt: indexet i databasen stoppar den andra
       if (/constraint/i.test(String(error))) return NAME_TAKEN;
@@ -105,6 +110,20 @@ export async function saveEvent(actor: Parent | null, input: { id?: unknown; nam
     }
     return { ok: true };
   });
+}
+
+// Gruppens familj (MUPP-073-R3): den som valts bland aktörens familjer, och med bara en att välja bland behövs inget val.
+// Utan val vid ändring ligger familjen kvar, också om aktören inte hör till den (huvudadministratören satte den).
+async function chooseFamily(actor: Parent, raw: unknown, current: number | null, tx: Executor): Promise<{ id: number } | Failure> {
+  const choices = await familiesFor(actor, tx);
+  if (raw === undefined || raw === "") {
+    if (current !== null) return { id: current };
+    if (choices.length === 0) return { ok: false, error: "Du hör inte till någon familj. Be huvudadministratören lägga till dig." };
+    return choices.length === 1 ? { id: choices[0].id } : { ok: false, fields: { familyId: "Välj familj." } };
+  }
+  const id = parseId(raw);
+  if (id !== null && (id === current || choices.some((f) => f.id === id))) return { id };
+  return { ok: false, fields: { familyId: "Välj en av familjerna i listan." } };
 }
 
 // Gruppen och dess medlemmar med önskelistor tas bort. Allt görs här och inte bara av ON DELETE CASCADE: en
@@ -133,7 +152,7 @@ async function changeStatus(actor: Parent | null, rawId: unknown, from: EventSta
   return withTransaction(async (tx) => {
     const event = await manageableEvent(actor, rawId, tx);
     if (isOutcome(event)) return event;
-    if (event.status === "started") return { ok: false, error: "Gruppen är startad. Dragningen måste stoppas först." };
+    if (event.status === "started") return { ok: false, error: "Secret Santa är startad. Dragningen måste stoppas först." };
     if (event.status !== from) return WRONG_STATUS;
     await run("UPDATE ss_event SET status = ? WHERE id = ? AND status = ?", [to, event.id, from], tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);

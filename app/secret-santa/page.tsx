@@ -60,10 +60,10 @@ async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-san
       <PageContent>
         <div className="mx-auto max-w-md space-y-4">
           <Heading level={1}>Secret Santa</Heading>
-          {events.length === 0 && <p className="text-muted">Det finns inga grupper ännu.</p>}
+          {events.length === 0 && <p className="text-muted">Det finns inga Secret Santa ännu.</p>}
           {!event && events.length > 1 && (
             <>
-              <p>Vilken grupp är du med i?</p>
+              <p>Vilken Secret Santa är du med i?</p>
               <ul className="space-y-2">
                 {events.map((e) => (
                   <li key={e.id}>

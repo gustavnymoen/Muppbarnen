@@ -5,10 +5,11 @@ import { failed, type FormState } from "@/app/components/form-state";
 import { openAdminAction } from "@/lib/action-open";
 import { setAdminCookie } from "@/lib/admin-auth";
 import { ADMIN_PATH } from "@/lib/admin-session";
+import * as families from "@/lib/families";
 import * as family from "@/lib/family";
 import { parseId } from "@/lib/form-input";
 import { removePicture } from "@/lib/pictures";
-import { answer, logPictureError, text } from "./action-helpers";
+import { answer, familyIdsOf, logPictureError, text } from "./action-helpers";
 
 // Adminens serveråtgärder. Varje åtgärd gör samma tre saker först, i den här ordningen
 // (specs/rules.md): sajtkakan, adminkakan och gränsen för skrivande anrop. Därefter
@@ -95,8 +96,23 @@ export async function saveParent(_previous: FormState, formData: FormData): Prom
     id: text(formData, "parentId") ?? undefined,
     name: text(formData, "name"),
     isMasterAdmin: checked(formData, "isMasterAdmin"),
+    familyIds: familyIdsOf(formData),
   });
   return answer(formData, outcome);
+}
+
+// ---- Familjer (huvudadministratören, MUPP-073)
+
+export async function saveFamily(_previous: FormState, formData: FormData): Promise<FormState> {
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
+  return answer(formData, await families.saveFamily(parent, { id: text(formData, "familyId") ?? undefined, name: text(formData, "name"), description: text(formData, "description") }));
+}
+
+export async function removeFamily(_previous: FormState, formData: FormData): Promise<FormState> {
+  const { parent, refusal } = await openAdminAction();
+  if (refusal) return failed(formData, { error: refusal });
+  return answer(formData, await families.removeFamily(parent, text(formData, "familyId")));
 }
 
 export async function removeParent(_previous: FormState, formData: FormData): Promise<FormState> {

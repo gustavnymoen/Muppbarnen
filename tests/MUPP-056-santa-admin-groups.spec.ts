@@ -77,8 +77,8 @@ test("MUPP-056-R2 R4 R5 several own groups are closed with name, status and part
   await expect(foldButton(page, "Emmas påsk")).toHaveAttribute("aria-expanded", "false");
 
   // R5: a new group is open at once
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Emmas midsommar");
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Emmas midsommar");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(foldButton(page, "Emmas midsommar")).toHaveAttribute("aria-expanded", "true");
 

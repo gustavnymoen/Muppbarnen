@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-17
+
+* **Creation** [MUPP-073 Families](../specs/MUPP-073-families/solution.md): the master admin makes families (name and a short description), puts parents in them and gives every Secret Santa a family; the word "grupp" is replaced by "Secret Santa" everywhere visitors and admins read it, so a family and a Secret Santa are not mixed up.
+
 ## 2026-11-16
 
 * **Update** [MUPP-074](../specs/MUPP-074-santa-amount/verification.md): merged in pull request 276; Live tests passed against the live site (run 43845878124); the live accessibility checklist is marked done by the user, with no per-item details recorded. [MUPP-076](../specs/MUPP-076-santa-mail-partner-text/verification.md): the test-time box is closed, the overrun accepted by the user.

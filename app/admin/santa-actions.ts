@@ -13,7 +13,7 @@ import { answer, text } from "./action-helpers";
 export async function saveEvent(_previous: FormState, formData: FormData): Promise<FormState> {
   const { parent, refusal } = await openAdminAction();
   if (refusal) return failed(formData, { error: refusal });
-  return answer(formData, await santa.saveEvent(parent, { id: text(formData, "eventId") ?? undefined, name: text(formData, "name"), amount: text(formData, "amount") }));
+  return answer(formData, await santa.saveEvent(parent, { id: text(formData, "eventId") ?? undefined, name: text(formData, "name"), amount: text(formData, "amount"), familyId: text(formData, "familyId") ?? undefined }));
 }
 
 export async function removeEvent(_previous: FormState, formData: FormData): Promise<FormState> {

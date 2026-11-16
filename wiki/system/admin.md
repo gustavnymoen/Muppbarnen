@@ -25,7 +25,7 @@ The admin page is where the parents fill in the kids' sizes and wish lists, and 
 | Rules | `lib/family.ts`, `lib/form-input.ts` | Every read and every change. A function takes the actor (read from the database), checks the right and the input, and returns `{ ok }` or a message. |
 | Pictures | `lib/pictures.ts`, `lib/picture-upload.ts`, `lib/image-type.ts`, `app/admin/picture-actions.ts`, `app/bilder/[id]/route.ts` | See below. |
 | Forms | `app/components/Form.tsx`, `FormCard.tsx`, `ListPicker.tsx`, `ConfirmAction.tsx` | Every form that a button opens is a card ([Form cards](form-cards.md)); shared with the rest of the site: see [Design system](design.md). The parent of a kid is chosen in the site's own list (`ListPicker`), which sends the parent's id in a hidden field named `parentId`. |
-| Add buttons | `app/components/FormCard.tsx` (`add`, `AddRow`), `icons.tsx` (`SwapIcon`) | Rows are added with a round 44 px plus, a new top-level object ("Ny grupp") with a centred text button, and "Byt förälder" is a swap icon ([MUPP-053](../../specs/MUPP-053-add-buttons/solution.md), [Design system](design.md)). |
+| Add buttons | `app/components/FormCard.tsx` (`add`, `AddRow`), `icons.tsx` (`SwapIcon`) | Rows are added with a round 44 px plus, a new top-level object ("Ny Secret Santa") with a centred text button, and "Byt förälder" is a swap icon ([MUPP-053](../../specs/MUPP-053-add-buttons/solution.md), [Design system](design.md)). |
 | Compact layout | `app/components/SlimCard.tsx`, `Button.tsx` (`IconButton`, `IconLink`), `icons.tsx` | See below. |
 
 ## Compact layout
@@ -59,6 +59,10 @@ Migration `004_added_at.sql` ([MUPP-031](../../specs/MUPP-031-month-after/soluti
 **Gifts added by visitors** ([MUPP-077](../../specs/MUPP-077-visitor-gifts/solution.md)): migration `014_added_by.sql` adds `wishlist_item.added_by` (the visitor's name, NULL for a parent's row). The items of `listWishlists` carry `addedBy`; `WishlistSection` shows "Tillagd av {name}" as the row's note and the remove warning becomes "{title} är tillagd av {name}. Hen kan redan ha köpt den.", and the archive (`ArchiveGroupCard`) shows "Tillagd av {name}". The parents can see an added gift; there is no hiding.
 
 **Removing a claimed item** ([MUPP-007](../../specs/MUPP-007-remove-claimed/solution.md)): the items of `listWishlists` carry `claimedBy` and `claimedAt`, and when one is claimed the "Ta bort" dialog starts its text with "{title} är paxad av {name} {day month}. Hen kan redan ha köpt den." (`claimWarning` in `WishlistSection.tsx`). The text is the dialog's description, so it is read out with it; "Avbryt" and Esc keep the item. Archived items have no remove button, "Töm listan" and removing a kid do not warn.
+
+## Families (MUPP-073)
+
+The master admin splits the site into families on the Hantera page (`app/admin/hantera/page.tsx`): a family has a name (unique ignoring case) and a description of at most 30 characters, a parent belongs to one or more families (checkboxes `family-<id>` in the parent form, read by `familyIdsOf`, at least one) and a Secret Santa belongs to exactly one family. `lib/families.ts` has the rules (`saveFamily`, `removeFamily`, `familiesFor`, `checkFamilyIds`); `saveParent` (`lib/family.ts`) and `saveEvent` (`lib/santa.ts`) take the family choice and check it on the server. An ordinary admin chooses among the families the master admin put them in (`familiesFor`), and the choice is only asked when there is more than one. Migration `016_families.sql` makes one default family with every parent and Secret Santa, and two triggers give a parent or Secret Santa that is inserted without a family the first one, so a script or test never leaves one without. Nothing changes for visitors; the visitor's choice of families is MUPP-080, a card of its own. See [MUPP-073](../../specs/MUPP-073-families/solution.md).
 
 ## Pictures
 

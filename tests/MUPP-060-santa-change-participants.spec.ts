@@ -127,7 +127,7 @@ test("MUPP-060-R4 a mail that cannot be sent is named, the change stays saved, a
   await card.getByRole("button", { name: "Ändra Anna Testsson i Emmas jul" }).click();
   await page.getByLabel("Telefon").fill("0700002222");
   await page.getByRole("button", { name: "Spara", exact: true }).click();
-  await expect(page.getByText("Numret används redan av en annan person i gruppen.")).toBeVisible();
+  await expect(page.getByText("Numret används redan av en annan person i den här Secret Santa.")).toBeVisible();
 
   // R4: an address the mail check refuses (put in the database, the form would not take it): the change stays saved, and the administrator is told who got no mail
   await page.getByLabel("Telefon").fill("0700001111");

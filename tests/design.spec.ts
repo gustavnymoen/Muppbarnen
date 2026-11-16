@@ -440,10 +440,10 @@ test("MUPP-038-R1 R2 R3 MUPP-053-R1 R3 MUPP-059-R1 the Secret Santa tab on a pho
     await expect(card.getByRole("heading", { level: 4 })).toHaveCount(8);
     for (const row of await card.locator("article").all()) expect((await settledBox(row)).height).toBeLessThanOrEqual(56);
     expect(await hasHorizontalScroll(page)).toBe(false);
-    // MUPP-053-R1 R3: a 44 px plus for a new person inside the group's card, and "Ny grupp" a text button centred under the groups
+    // MUPP-053-R1 R3: a 44 px plus for a new person inside the group's card, and "Ny Secret Santa" a text button centred under the groups
     const plus = await settledBox(card.getByRole("button", { name: "Ny person i Familjen Ek" }));
     expect([plus.width, plus.height]).toEqual([44, 44]);
-    const [cardBox, groupButton] = await Promise.all([settledBox(card), settledBox(page.getByRole("button", { name: "Ny grupp", exact: true }))]);
+    const [cardBox, groupButton] = await Promise.all([settledBox(card), settledBox(page.getByRole("button", { name: "Ny Secret Santa", exact: true }))]);
     expect(plus.y + plus.height).toBeLessThanOrEqual(cardBox.y + cardBox.height);
     expect(groupButton.height).toBeGreaterThanOrEqual(44);
     expect(Math.abs(groupButton.x + groupButton.width / 2 - 160)).toBeLessThanOrEqual(2);
@@ -571,7 +571,7 @@ test("TECH-006-R4 MUPP-053-R2 R4 MUPP-063-R1 R2 R3 the admin start shows a short
     await page.setViewportSize({ width: 1920, height: 800 });
     const barnLeft = (await settledBox(cards.first())).x;
     await page.getByRole("tab", { name: "Secret Santa" }).click();
-    const santa = await settledBox(page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Grupper" }) }));
+    const santa = await settledBox(page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Secret Santa", exact: true }) }));
     expect(santa.width).toBeLessThanOrEqual(672);
     expect(santa.x).toBe(barnLeft);
     await page.getByRole("tab", { name: "Barn" }).click();

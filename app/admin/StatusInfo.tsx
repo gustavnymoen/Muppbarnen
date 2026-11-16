@@ -18,7 +18,7 @@ export function StatusInfo() {
         <dl className="space-y-3">
           <div>
             <dt className="font-heading font-semibold">Inaktiv</dt>
-            <dd>Gruppen har ej startat.</dd>
+            <dd>Secret Santa har ej startat.</dd>
           </div>
           <div>
             <dt className="font-heading font-semibold">Förbereder</dt>

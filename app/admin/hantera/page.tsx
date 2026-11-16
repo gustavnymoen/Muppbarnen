@@ -4,7 +4,7 @@ import { Avatar } from "@/app/components/Avatar";
 import { IconLink, LinkButton } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
-import { Field, Form } from "@/app/components/Form";
+import { CheckGroup, Field, Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
 import { ImageIcon, ChecklistIcon, PencilIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
@@ -13,10 +13,11 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import { childColor } from "@/lib/child-colors";
 import { isExpected } from "@/lib/deck";
 import { latestBirthdate } from "@/lib/form-input";
+import { listFamilies, listParentFamilies, type Family } from "@/lib/families";
 import { listChildren, listParents, type Child, type Parent } from "@/lib/family";
 import { pictureUrl } from "@/lib/picture-url";
 import { requireSiteSession } from "@/lib/site-auth";
-import { removeChild, removeChildPicture, removeParent, saveChild, saveParent } from "../actions";
+import { removeChild, removeChildPicture, removeFamily, removeParent, saveChild, saveFamily, saveParent } from "../actions";
 import { saveChildPicture } from "../picture-actions";
 
 // Bara huvudadministratören. För andra ser sidan ut som en sida som inte finns.
@@ -32,7 +33,7 @@ async function ManageContent() {
   await requireSiteSession();
   const { parent } = await requireAdminSession();
   if (!parent?.isMasterAdmin) notFound();
-  const [parents, children] = await Promise.all([listParents(), listChildren()]);
+  const [parents, children, families, parentFamilies] = await Promise.all([listParents(), listChildren(), listFamilies(), listParentFamilies()]);
 
   return (
     <Page>
@@ -44,18 +45,35 @@ async function ManageContent() {
             </Heading>
             <Card as="section" className="space-y-3">
               <Heading level={2} small>
+                Familjer
+              </Heading>
+              <ul className="space-y-2">
+                {families.map((f) => (
+                  <li key={f.id}>
+                    <FamilyRow family={f} />
+                  </li>
+                ))}
+              </ul>
+              <AddRow>
+                <FormCard title="Ny familj" label="Ny familj" add>
+                  <FamilyForm submit="Lägg till" />
+                </FormCard>
+              </AddRow>
+            </Card>
+            <Card as="section" className="space-y-3">
+              <Heading level={2} small>
                 Föräldrar
               </Heading>
               <ul className="space-y-2">
                 {parents.map((p) => (
                   <li key={p.id}>
-                    <ParentRow parent={p} />
+                    <ParentRow parent={p} families={families} familyIds={parentFamilies.get(p.id) ?? []} />
                   </li>
                 ))}
               </ul>
               <AddRow>
                 <FormCard title="Ny förälder" label="Ny förälder" add>
-                  <ParentForm submit="Lägg till" />
+                  <ParentForm submit="Lägg till" families={families} familyIds={families.length === 1 ? [families[0].id] : []} />
                 </FormCard>
               </AddRow>
             </Card>
@@ -83,15 +101,16 @@ async function ManageContent() {
   );
 }
 
-function ParentRow({ parent }: { parent: Parent }) {
+function ParentRow({ parent, families, familyIds }: { parent: Parent; families: Family[]; familyIds: number[] }) {
+  const names = families.filter((f) => familyIds.includes(f.id)).map((f) => f.name);
   return (
     <SlimCard
       title={parent.name}
-      note={parent.isMasterAdmin ? "Huvudadministratör" : undefined}
+      note={[parent.isMasterAdmin ? "Huvudadministratör" : "", names.join(", ")].filter(Boolean).join(" · ") || undefined}
       actions={
         <>
           <FormCard title={`Ändra ${parent.name}`} label={`Ändra ${parent.name}`} icon={<PencilIcon />}>
-            <ParentForm parent={parent} submit="Spara" />
+            <ParentForm parent={parent} submit="Spara" families={families} familyIds={familyIds} />
           </FormCard>
           <ConfirmAction
             action={removeParent}
@@ -107,11 +126,56 @@ function ParentRow({ parent }: { parent: Parent }) {
   );
 }
 
-function ParentForm({ parent, submit }: { parent?: Parent; submit: string }) {
+function FamilyRow({ family }: { family: Family }) {
+  const counts = `${family.parents} ${family.parents === 1 ? "förälder" : "föräldrar"}, ${family.events} Secret Santa`;
+  return (
+    <SlimCard
+      title={family.name}
+      note={
+        <>
+          {family.description}
+          <span className="block">{counts}</span>
+        </>
+      }
+      actions={
+        <>
+          <FormCard title={`Ändra ${family.name}`} label={`Ändra ${family.name}`} icon={<PencilIcon />}>
+            <FamilyForm family={family} submit="Spara" />
+          </FormCard>
+          <ConfirmAction
+            action={removeFamily}
+            fields={{ familyId: String(family.id) }}
+            label="Ta bort"
+            subject={family.name}
+            title={`Ta bort ${family.name}?`}
+            text={`${family.name} tas bort. Det går bara om familjen inte har några föräldrar eller Secret Santa.`}
+          />
+        </>
+      }
+    />
+  );
+}
+
+function FamilyForm({ family, submit }: { family?: Family; submit: string }) {
+  return (
+    <Form action={saveFamily} submit={submit} says={{ field: "name", added: !family }}>
+      {family && <input type="hidden" name="familyId" value={family.id} />}
+      <Field name="name" label="Namn" defaultValue={family?.name} maxLength={60} required />
+      <Field name="description" label="Beskrivning" defaultValue={family?.description} maxLength={30} hint="Visas när besökare väljer familj. Högst 30 tecken." />
+    </Form>
+  );
+}
+
+function ParentForm({ parent, submit, families, familyIds }: { parent?: Parent; submit: string; families: Family[]; familyIds: number[] }) {
   return (
     <Form action={saveParent} submit={submit} says={{ field: "name", added: !parent }}>
       {parent && <input type="hidden" name="parentId" value={parent.id} />}
       <Field name="name" label="Namn" defaultValue={parent?.name} maxLength={60} required />
+      <CheckGroup name="families" label="Familjer" hint="Välj de familjer föräldern tillhör.">
+        {families.map((f) => (
+          <Field key={f.id} name={`family-${f.id}`} type="checkbox" label={f.name} defaultChecked={familyIds.includes(f.id)} />
+        ))}
+      </CheckGroup>
       <Field name="isMasterAdmin" type="checkbox" label="Huvudadministratör" defaultChecked={parent?.isMasterAdmin} hint="Får skapa och ändra föräldrar, barn och bilder." />
     </Form>
   );

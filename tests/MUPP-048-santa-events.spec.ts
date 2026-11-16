@@ -27,8 +27,8 @@ async function openSantaTab(page: Page, parent: string) {
 }
 
 async function createEvent(page: Page, name: string) {
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill(name);
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill(name);
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
 }
 
@@ -40,7 +40,7 @@ test("MUPP-048-R1 R3 MUPP-059-R1 a parent who is not master admin has the tab, c
 
   // R1: Emma creates a group with a member, which she then administers
   await openSantaTab(page, emma);
-  await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
+  await expect(page.getByText("Inga Secret Santa ännu.")).toBeVisible();
   await createEvent(page, "Emmas jul");
   const emmas = eventCard(page, "Emmas jul");
   await expect(emmas).toContainText("0 deltagare");
@@ -52,13 +52,13 @@ test("MUPP-048-R1 R3 MUPP-059-R1 a parent who is not master admin has the tab, c
   await expect(emmas).toContainText("1 deltagare");
   await expectNoA11yViolations(page);
   await emmas.getByRole("button", { name: "Byt namn på Emmas jul" }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Emmas julafton");
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Emmas julafton");
   await page.getByRole("button", { name: "Spara", exact: true }).click();
   await expect(eventCard(page, "Emmas julafton")).toBeVisible();
 
   // R3: Erik has the tab and sees nothing of Emma's group; his own group is his alone
   await openSantaTab(page, erik);
-  await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
+  await expect(page.getByText("Inga Secret Santa ännu.")).toBeVisible();
   await expect(page.getByText("Emmas julafton")).toHaveCount(0);
   await expect(page.getByText("Anna Testsson")).toHaveCount(0);
   await createEvent(page, "Eriks jul");
@@ -83,9 +83,9 @@ test("MUPP-048-R3 an action sent for someone else's group is refused on the serv
   await createEvent(page, "Eriks jul");
   const eriks = eventCard(page, "Eriks jul");
   await eriks.getByRole("button", { name: "Byt namn på Eriks jul" }).click();
-  const form = page.locator("form").filter({ has: page.getByLabel("Gruppens namn", { exact: true }) });
+  const form = page.locator("form").filter({ has: page.getByLabel("Namn på Secret Santa", { exact: true }) });
   await form.locator("input[name=eventId]").evaluate((input: HTMLInputElement, id) => (input.value = id), String(emmas));
-  await form.getByLabel("Gruppens namn", { exact: true }).fill("Kapad");
+  await form.getByLabel("Namn på Secret Santa", { exact: true }).fill("Kapad");
   await form.getByRole("button", { name: "Spara", exact: true }).click();
   await expect(form.getByRole("alert").filter({ hasText: /\S/ })).toHaveText("Du kan inte göra det här.");
   expect(await santaEventNames()).toEqual(["Emmas jul", "Eriks jul"]);
@@ -100,10 +100,10 @@ test("MUPP-048-R2 a group name is refused when another group has it, ignoring ca
 
   await openSantaTab(page, erik);
   await createEvent(page, "julen 2026 ");
-  await expect(page.getByRole("alert").filter({ hasText: "Det finns redan en grupp med det namnet." })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Det finns redan en Secret Santa med det namnet." })).toBeVisible();
   expect(await santaEventNames()).toEqual(["Julen 2026"]);
   await expectNoA11yViolations(page);
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Julen 2027");
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Julen 2027");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(eventCard(page, "Julen 2027")).toBeVisible();
   expect(await santaEventNames()).toEqual(["Julen 2026", "Julen 2027"]);
@@ -119,7 +119,7 @@ test("MUPP-048-R4 R5 the entrance lists every group; the same person in two grou
 
   // R4: all groups are listed, then only the picked group's names, and no phone or email anywhere
   await goto(page, "/secret-santa");
-  await expect(page.getByText("Vilken grupp är du med i?")).toBeVisible();
+  await expect(page.getByText("Vilken Secret Santa är du med i?")).toBeVisible();
   await expect(page.getByRole("link", { name: "Emmas jul" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Eriks jul" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Anna Testsson" })).toHaveCount(0);

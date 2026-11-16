@@ -23,8 +23,8 @@ test("MUPP-074-R1 R4 an amount is set when creating and editing a group, shown o
   await adminSignIn(page, emma);
   await page.getByRole("tab", { name: "Secret Santa" }).click();
 
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Emmas jul");
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Emmas jul");
   await page.getByLabel("Belopp (kr)").fill("200");
   await expectNoA11yViolations(page);
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
@@ -74,8 +74,8 @@ test("MUPP-074-R1 the server refuses an amount that is not a whole number above 
   await addParent(emma);
   await adminSignIn(page, emma);
   await page.getByRole("tab", { name: "Secret Santa" }).click();
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Emmas jul");
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Emmas jul");
   // The number field does not stop a decimal or a negative number being sent; the server does
   await page.getByLabel("Belopp (kr)").fill("-5");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
