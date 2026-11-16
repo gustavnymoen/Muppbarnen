@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-16
+
+* **Update** [MUPP-079](../specs/MUPP-079-santa-several-groups/verification.md): merged; Live tests passed against the live site; the live accessibility checklist and a check on a real phone are not done.
+
 ## 2026-11-15
 
 * **Creation** [MUPP-077 Add gifts not on the wish list](../specs/MUPP-077-visitor-gifts/solution.md): a visitor adds a gift that is not on a child's list in a two-step window (the gift, then the name); it is saved as claimed and shown as "Tillagd av {name}", can be removed through the undo arrow (it has no claim to hand over), and is shown in admin and the archive (`added_by`, migration 014).

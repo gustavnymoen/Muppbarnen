@@ -40,7 +40,7 @@ The total is over the 330 s budget, as it already was on `main`; this change add
 
 - [x] Tests: every requirement is tested; `npm run test:unit` passes; the browser suite passed except two tests fixed afterwards and run on their own
 - [ ] Test suite: over the total budget as before; the 25 % growth rule holds (the total is lower than the last recorded one)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 43765010550 on `main` after the merge, 2026-11-15, success
 - [ ] Accessibility: axe passes; the live checklist is not checked
 - [x] Requirements in the card match what was built (below); `solution.md` describes how it was built
 - [x] Manual, system docs and log updated
