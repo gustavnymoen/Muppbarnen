@@ -1,0 +1,5 @@
+%% MUPP-081 Family change: the deck starts at the next event
+flowchart TD
+    A[Visitor browses the deck] --> B[Visitor changes the choice of families]
+    B --> C[Page is rendered again with the new cards and a new key]
+    C --> D[BirthdayDeck starts anew: first upcoming card, nothing open] 

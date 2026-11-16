@@ -3,6 +3,8 @@
 ## 2026-11-17
 
 * **Creation** [MUPP-082 Cards by number of kids](../specs/MUPP-082-christmas-card-by-kids/solution.md): every card, Christmas Eve and birthdays, shows one kid as the single card, two like the twin card, three as wide rows and four or more as tiles, so a family's card is not left half empty.
+* **Update** [MUPP-081](../specs/MUPP-081-family-change-deck/verification.md): merged in pull request 286; Live tests passed against the live site (run 43908481547); the live accessibility checklist is not done.
+* **Fix** [MUPP-081 Family change: the deck starts at the next event](../specs/MUPP-081-family-change-deck/solution.md): after a visitor changes the choice of families the start page deck starts at the first upcoming card with nothing open, instead of keeping its position.
 * **Update** [MUPP-073](../specs/MUPP-073-families/verification.md): merged in pull request 280; Live tests passed against the live site (run 43875048906); the live accessibility checklist is not done; the Turso migration ran in the Vercel build, whose log was not read.
 * **Creation** [MUPP-080 Choose families](../specs/MUPP-080-choose-families/solution.md): with two or more families a visitor chooses which to see, in a cookie on the device; the start page and Secret Santa then show only their children and Secret Santa, with a card that asks for a choice and a button at the top left to change it.
 * **Creation** [MUPP-073 Families](../specs/MUPP-073-families/solution.md): the master admin makes families (name and a short description), puts parents in them and gives every Secret Santa a family; the word "grupp" is replaced by "Secret Santa" everywhere visitors and admins read it, so a family and a Secret Santa are not mixed up.

@@ -29,7 +29,8 @@ async function HomeContent() {
   return (
     <Page home onboarding={onboarding} filter={view.kind === "chosen" && <FamilyButton families={families} chosen={view.choice} />}>
       <PageContent>
-        {view.kind === "choose" ? <FamilyCard families={families} fill /> : <BirthdayDeck cards={cards} />}
+        {/* key: ett nytt val startar leken om, så position och öppen lista nollställs (MUPP-081-R1) */}
+        {view.kind === "choose" ? <FamilyCard families={families} fill /> : <BirthdayDeck key={JSON.stringify(view.kind === "chosen" && view.choice)} cards={cards} />}
       </PageContent>
     </Page>
   );
