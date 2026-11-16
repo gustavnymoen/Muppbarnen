@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Creation** [MUPP-077 Add gifts not on the wish list](../specs/MUPP-077-visitor-gifts/solution.md): a visitor adds a gift that is not on a child's list in a two-step window (the gift, then the name); it is saved as claimed and shown as "Tillagd av {name}", can be removed through the undo arrow (it has no claim to hand over), and is shown in admin and the archive (`added_by`, migration 014).
 * **Creation** [TECH-029 Test suite time](../specs/TECH-029-test-suite-time/solution.md): the browser tests went from 185 tests and 364.3 s to 179 and 322.9 s (axe runs in the page, the parent is chosen in the admin cookie, the Christmas card repeats less, five pairs of tests merged and one repeat removed), and `CLAUDE.md` and `testing.md` say that a feature adds as few and as fast browser tests as its requirements allow and merges or removes tests before it would go over the budget.
 * **Creation** [MUPP-079 Stay signed in to several Secret Santa groups](../specs/MUPP-079-santa-several-groups/solution.md): the Secret Santa cookie holds a signed entry per group (up to 10), the own page and its sub pages pick the group from `?grupp=`, and "Tillbaka" only switches group instead of signing out.
 * **Update** [MUPP-078](../specs/MUPP-078-secret-santa-members/verification.md): merged; the iPhone check, the live accessibility checklist, `/security-review` and Live tests are marked done by the user; no per-item details were recorded.

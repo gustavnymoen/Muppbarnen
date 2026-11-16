@@ -18,7 +18,7 @@ export type Child = {
 };
 export type WishlistItem = { id: number; title: string; description: string; size: string; url: string; unlimited: boolean };
 // En önskning på adminsidan, med vem som paxat den och när (MUPP-007)
-export type AdminItem = WishlistItem & { claimedBy: string | null; claimedAt: string | null };
+export type AdminItem = WishlistItem & { claimedBy: string | null; claimedAt: string | null; addedBy: string | null };
 // Ett tillfälle i arkivet (MUPP-031-R5): "Födelsedag 2025" och önskningarna, med vem som paxat dem
 export type ArchiveGroup = { key: string; date: string; name: string; items: AdminItem[] };
 
@@ -79,15 +79,16 @@ export async function listChildren(parentId?: number) {
 
 type ItemRow = { id: number; title: string; description: string; size: string; url: string; unlimited: number };
 const toItem = (row: ItemRow): WishlistItem => ({ id: row.id, title: row.title, description: row.description, size: row.size, url: row.url, unlimited: row.unlimited === 1 });
-const toAdminItem = (row: ItemRow & { claimed_by: string | null; claimed_at: string | null }): AdminItem => ({ ...toItem(row), claimedBy: row.claimed_by, claimedAt: row.claimed_at });
+type ClaimRow = ItemRow & { claimed_by: string | null; claimed_at: string | null; added_by: string | null };
+const toAdminItem = (row: ClaimRow): AdminItem => ({ ...toItem(row), claimedBy: row.claimed_by, claimedAt: row.claimed_at, addedBy: row.added_by });
 
 const ARCHIVE_NAMES: Record<Occasion, string> = { birthday: "Födelsedag", christmas: "Julafton" };
 
 // Barnets två listor, utan det som är arkiverat, och arkivet: ett tillfälle per grupp, det senaste först (MUPP-031-R4, R5).
 // Julafton heter efter sitt eget år, också när den arkiveras i januari.
 export async function listWishlists(child: Child, today = swedishToday()) {
-  const rows = await all<{ occasion: Occasion; added_at: string; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
-    `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at
+  const rows = await all<{ occasion: Occasion; added_at: string } & ClaimRow>(
+    `SELECT w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at, i.added_by
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id
      WHERE w.child_id = ? ORDER BY i.id`,
     [child.id],
@@ -113,29 +114,29 @@ export async function listWishlists(child: Child, today = swedishToday()) {
 export async function listDeckInput(today = swedishToday()): Promise<{ children: DeckInput[]; wishes: Wishes }> {
   const children = await listChildren();
   const kids = new Map(children.map((c) => [c.id, c]));
-  const rows = await all<{ child_id: number; occasion: Occasion; added_at: string; claimed_by: string | null; claimed_at: string | null } & ItemRow>(
-    `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at
+  const rows = await all<{ child_id: number; occasion: Occasion; added_at: string } & ClaimRow>(
+    `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at, i.added_by
      FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id ORDER BY i.id`,
   );
   const wishes: Wishes = new Map();
   for (const row of rows) {
     if (isArchived(kids.get(row.child_id)!, row.occasion, row.added_at, today)) continue;
     const lists = wishes.get(row.child_id) ?? { birthday: [], christmas: [] };
-    lists[row.occasion].push({ ...toItem(row), claimedBy: row.claimed_by, claimedAt: row.claimed_at });
+    lists[row.occasion].push(toAdminItem(row));
     wishes.set(row.child_id, lists);
   }
   return { children, wishes };
 }
 
 // En önskning med det som avgör om den är arkiverad: listans tillfälle och barnets födelsedatum (MUPP-031-R4)
-type ItemFacts = ItemRow & { occasion: Occasion; added_at: string; child_id: number; birthdate: string };
+type ItemFacts = ItemRow & { occasion: Occasion; added_at: string; added_by: string | null; child_id: number; birthdate: string };
 
 async function findItem(rawId: unknown) {
   const id = parseId(typeof rawId === "number" ? String(rawId) : rawId);
   return id === null
     ? undefined
     : get<ItemFacts>(
-        `SELECT i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, w.occasion, w.child_id, c.birthdate
+        `SELECT i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.added_by, w.occasion, w.child_id, c.birthdate
          FROM wishlist_item i JOIN wishlist w ON w.id = i.wishlist_id JOIN child c ON c.id = w.child_id WHERE i.id = ?`,
         [id],
       );
@@ -178,6 +179,7 @@ export async function claimWishes(rawIds: unknown, rawName: unknown, today = swe
 
 // Ta bort en paxning (MUPP-006): vem som helst med sajtlösenordet, en önskan i taget. ok är false om den redan var
 // opaxad, inte finns, är arkiverad (MUPP-031-R4) eller kan köpas flera gånger; error bara när id:t är fel.
+// En present som en besökare lagt till (MUPP-077) har ingen paxning att ta bort: den tas bort med removeAddedGift.
 export type UnclaimResult = { ok: boolean; error?: string };
 
 export async function unclaimWish(rawId: unknown, today = swedishToday()): Promise<UnclaimResult> {
@@ -185,7 +187,17 @@ export async function unclaimWish(rawId: unknown, today = swedishToday()): Promi
   if (id === null) return { ok: false, error: "Det gick inte att ta bort paxningen. Ladda om sidan och försök igen." };
   const item = await findItem(id);
   if (!item || archived(item, today)) return { ok: false };
-  const { changes } = await run("UPDATE wishlist_item SET claimed_by = NULL, claimed_at = NULL WHERE id = ? AND claimed_by IS NOT NULL AND unlimited = 0", [id]);
+  const { changes } = await run("UPDATE wishlist_item SET claimed_by = NULL, claimed_at = NULL WHERE id = ? AND claimed_by IS NOT NULL AND unlimited = 0 AND added_by IS NULL", [id]);
+  return { ok: changes > 0 };
+}
+
+// Ta bort en present som en besökare lagt till (MUPP-077-R5): vem som helst med sajtlösenordet, som paxningar kan tas bort.
+// En present som en förälder lagt till raderas aldrig här (error), och inte heller en arkiverad (ok false, som för paxningar).
+export async function removeAddedGift(rawId: unknown, today = swedishToday()): Promise<UnclaimResult> {
+  const item = await findItem(rawId);
+  if (!item || archived(item, today)) return { ok: false };
+  if (item.added_by === null) return { ok: false, error: "Den presenten går inte att ta bort här." };
+  const { changes } = await run("DELETE FROM wishlist_item WHERE id = ? AND added_by IS NOT NULL", [item.id]);
   return { ok: changes > 0 };
 }
 
@@ -355,7 +367,7 @@ export async function saveItem(
     const child = await manageableChild(actor, input.childId);
     if (!child || !occasion) return NOT_ALLOWED;
     if (!checked.ok) return { ok: false, fields: checked.errors };
-    await addItem(child.id, occasion, { ...checked.values, unlimited: input.unlimited }, today);
+    await addItem(child, occasion, { ...checked.values, unlimited: input.unlimited }, today);
     return { ok: true };
   }
 
@@ -367,17 +379,46 @@ export async function saveItem(
   return { ok: true };
 }
 
-// En ny önskning i barnets lista, tillagd idag; listan skapas när första önskningen läggs till
-async function addItem(childId: number, occasion: Occasion, item: Omit<WishlistItem, "id">, today: Today) {
-  await withTransaction(async (tx) => {
-    await run("INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", [childId, occasion], tx);
-    const list = await get<{ id: number }>("SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", [childId, occasion], tx);
+// Högst så här många presenter som besökare lagt till i en lista (MUPP-077-R7)
+export const MAX_ADDED_GIFTS = 20;
+
+// En ny önskning i barnets lista, tillagd idag; listan skapas när första önskningen läggs till. Med by (en besökares namn, MUPP-077)
+// läggs den till som paxad av besökaren och märkt med vem som lade till den; är gränsen nådd läggs ingenting till och svaret är false.
+async function addItem(child: Pick<Child, "id" | "birthdate">, occasion: Occasion, item: Omit<WishlistItem, "id">, today: Today, by?: string) {
+  return withTransaction(async (tx) => {
+    await run("INSERT OR IGNORE INTO wishlist (child_id, occasion) VALUES (?, ?)", [child.id, occasion], tx);
+    const list = await get<{ id: number }>("SELECT id FROM wishlist WHERE child_id = ? AND occasion = ?", [child.id, occasion], tx);
+    if (by !== undefined) {
+      // Arkiverade presenter räknas inte: listan fortsätter efter varje tillfälle
+      const added = await all<{ added_at: string }>("SELECT added_at FROM wishlist_item WHERE wishlist_id = ? AND added_by IS NOT NULL", [list!.id], tx);
+      if (added.filter((row) => !isArchived(child, occasion, row.added_at, today)).length >= MAX_ADDED_GIFTS) return false;
+    }
+    const day = isoDate(today);
     await run(
-      "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [list!.id, item.title, item.description, item.size, item.url, item.unlimited ? 1 : 0, isoDate(today)],
+      "INSERT INTO wishlist_item (wishlist_id, title, description, size, url, unlimited, added_at, claimed_by, claimed_at, added_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [list!.id, item.title, item.description, item.size, item.url, item.unlimited ? 1 : 0, day, by ?? null, by === undefined ? null : day, by ?? null],
       tx,
     );
+    return true;
   });
+}
+
+// En besökare lägger till en present som inte stod i listan (MUPP-077-R4, R7): vem som helst med sajtlösenordet, sparad som paxad av besökaren.
+// Barnet och tillfället kontrolleras här; ett barn som inte finns ger samma svar som ett fel tillfälle, så att id:n inte avslöjas.
+export async function addVisitorGift(
+  input: { childId: unknown; occasion: unknown; title: unknown; size: unknown; description: unknown; url: unknown; name: unknown },
+  today = swedishToday(),
+): Promise<Outcome> {
+  const id = parseId(typeof input.childId === "number" ? String(input.childId) : input.childId);
+  const child = id === null ? undefined : await findChild(id);
+  const occasion = parseOccasion(input.occasion);
+  if (!child || !occasion) return { ok: false, error: "Det gick inte att lägga till presenten. Ladda om sidan och försök igen." };
+  const name = parseText(input.name, 60, true);
+  const gift = parseWish(input);
+  const fields = { ...(gift.ok ? {} : gift.errors), ...(name.ok ? {} : { name: name.error === "Fyll i det här fältet." ? "Skriv ditt namn." : name.error }) };
+  if (!gift.ok || !name.ok) return { ok: false, fields };
+  const added = await addItem(child, occasion, { ...gift.values, unlimited: false }, today, name.value);
+  return added ? { ok: true } : { ok: false, error: "Listan har redan många tillagda presenter." };
 }
 
 // Önskningen om aktören får ändra barnets lista och den inte är arkiverad (MUPP-031-R4)
@@ -399,6 +440,6 @@ export async function copyArchivedItem(actor: Parent | null, rawItemId: unknown,
   const occasion = parseOccasion(rawOccasion);
   const item = await findItem(rawItemId);
   if (!occasion || !item || !archived(item, today) || !(await manageableChild(actor, String(item.child_id)))) return NOT_ALLOWED;
-  await addItem(item.child_id, occasion, toItem(item), today);
+  await addItem({ id: item.child_id, birthdate: item.birthdate }, occasion, toItem(item), today);
   return { ok: true };
 }

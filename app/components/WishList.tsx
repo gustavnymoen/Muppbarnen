@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useTransition, type ComponentProps, type ReactNode, type CSSProperties, type FormEvent, type Ref, type RefObject } from "react";
-import { claimWishes, unclaimWish } from "@/app/actions";
+import { claimWishes, removeAddedGift, unclaimWish } from "@/app/actions";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
+import type { Occasion } from "@/lib/form-input";
 import { canClaim, canUnclaim, isLongTitle, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
+import { AddGiftDialog } from "./AddGiftDialog";
 import { Dialog, type DialogHandle } from "./Dialog";
-import { ChevronDownIcon, ChevronUpIcon, CrossIcon, InfoIcon, UndoIcon } from "./icons";
+import { ChevronDownIcon, ChevronUpIcon, CrossIcon, InfoIcon, PlusIcon, TrashIcon, UndoIcon } from "./icons";
 
 // Knappen som öppnar en önskelista (utseende i globals.css): önskelistan är det viktigaste på sajten, så den är en tydlig knapp
 // med "Önskelista" och en pil ner; den smala varianten (small) på kort med flera barn har bara texten.
@@ -48,6 +50,8 @@ export function WishButton({
 // och "Stäng önskelistan" annars; den tar tillbaka till kortet med flera barn eller Julafton (MUPP-013-R5, MUPP-005-R6, -R7).
 export function WishList({
   id,
+  kidId,
+  occasion,
   wishes,
   color,
   solo,
@@ -55,6 +59,8 @@ export function WishList({
   onToggle,
 }: {
   id: string;
+  kidId: number;
+  occasion: Occasion;
   wishes: Wish[];
   color: ChildColor;
   solo: boolean;
@@ -63,19 +69,20 @@ export function WishList({
 }) {
   return (
     <section className={`flex min-h-0 flex-col gap-3 ${open ? "flex-1" : ""}`}>
-      {open ? <OpenList id={id} wishes={wishes} solo={solo} onToggle={onToggle} /> : <WishButton id={`${id}-knapp`} aria-expanded={false} aria-controls={id} color={color} onClick={onToggle} />}
+      {open ? <OpenList id={id} kidId={kidId} occasion={occasion} wishes={wishes} solo={solo} onToggle={onToggle} /> : <WishButton id={`${id}-knapp`} aria-expanded={false} aria-controls={id} color={color} onClick={onToggle} />}
     </section>
   );
 }
 
 // Den utfällda listan. Markeringarna hör till den här komponenten, som bara finns medan listan är öppen:
 // när listan fälls ihop eller kortet stängs är de borta (MUPP-005-R3).
-function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; solo: boolean; onToggle: () => void }) {
+function OpenList({ id, kidId, occasion, wishes, solo, onToggle }: { id: string; kidId: number; occasion: Occasion; wishes: Wish[]; solo: boolean; onToggle: () => void }) {
   const [marked, setMarked] = useState<number[]>([]);
   const [notice, setNotice] = useState("");
   const dialog = useRef<DialogHandle>(null);
   const [unclaiming, setUnclaiming] = useState<Wish | null>(null);
   const unclaimDialog = useRef<DialogHandle>(null);
+  const addDialog = useRef<DialogHandle>(null);
 
   const toggle = (wishId: number) => setMarked((ids) => (ids.includes(wishId) ? ids.filter((i) => i !== wishId) : [...ids, wishId]));
   // Knappen som öppnade fönstret har försvunnit, så fokus går till knappen som fäller ihop listan
@@ -112,6 +119,17 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
             {notice}
           </p>
         )}
+        {/* Sist i den scrollande ytan, också i en tom lista (MUPP-077-R1): en dämpad rad med ett plus i ikonkolumnen, så att den hör till listan i stället för att vara ännu en knapp */}
+        <div className={wishes.length > 0 ? "border-t border-edge" : ""}>
+          <button type="button" onClick={(event) => addDialog.current?.open(event.currentTarget)} className="press flex min-h-11 w-full items-center gap-1 rounded-control text-left text-muted hover:bg-edge hover:text-text">
+            <span className="flex min-h-11 min-w-11 shrink-0 items-center justify-center">
+              <PlusIcon />
+            </span>
+            <span>
+              Lägg till egen present<span className="sr-only"> som inte står i listan</span>
+            </span>
+          </button>
+        </div>
       </div>
       {/* Paxa ligger fast under raderna, ovanför knappen, så att den syns direkt även när man kryssar högst upp i en lång lista (MUPP-028-R3) */}
       {marked.length > 0 && (
@@ -133,6 +151,7 @@ function OpenList({ id, wishes, solo, onToggle }: { id: string; wishes: Wish[]; 
       >
         <CrossIcon />
       </IconButton>
+      <AddGiftDialog ref={addDialog} kidId={kidId} occasion={occasion} onDone={(message) => addDialog.current?.close(message)} />
       <ClaimDialog ref={dialog} wishes={wishes.filter((w) => marked.includes(w.id))} onDone={claimed} />
       <UnclaimDialog ref={unclaimDialog} wish={unclaiming} onDone={(message) => done(message, unclaimDialog.current)} />
     </div>
@@ -199,10 +218,9 @@ export function WishRow({ wish, claiming, roomy, actions }: { wish: Wish; claimi
           </label>
         )}
         {claiming && canUnclaim(wish) && (
-          <IconButton frameless label={`Ta bort paxningen på ${wish.title}`} onClick={(event) => claiming.onUnclaim(event.currentTarget)} className="shrink-0">
-            <span className="text-claimed">
-              <UndoIcon />
-            </span>
+          <IconButton frameless label={wish.addedBy !== null ? `Ta bort presenten ${wish.title}` : `Ta bort paxningen på ${wish.title}`} onClick={(event) => claiming.onUnclaim(event.currentTarget)} className="shrink-0">
+            {/* En tillagd present (MUPP-077) har ingen paxning att ångra: den tas bort, så den har en papperskorg */}
+            <span className="text-claimed">{wish.addedBy !== null ? <TrashIcon /> : <UndoIcon />}</span>
           </IconButton>
         )}
         {wish.unlimited && wish.claimedBy === null && <InfoBubble>Den här presenten kan köpas flera gånger, så den går inte att paxa.</InfoBubble>}
@@ -210,7 +228,7 @@ export function WishRow({ wish, claiming, roomy, actions }: { wish: Wish; claimi
           <span className="flex min-w-0 flex-col">
             {/* Högst två rader med ellips och mindre text när titeln är lång (MUPP-023); den utfällda raden visar hela titeln */}
             <span className={`wrap-anywhere ${open ? "" : "line-clamp-2"} ${isLongTitle(wish.title) ? "text-sm" : ""}`}>{wish.title}</span>
-            {wish.claimedBy !== null && <span className="text-sm font-semibold text-claimed">Paxad</span>}
+            {(wish.claimedBy !== null || wish.addedBy !== null) && <span className="text-sm font-semibold text-claimed">{wish.addedBy !== null ? `Tillagd av ${wish.addedBy}` : "Paxad"}</span>}
             {wish.unlimited && <span className="text-sm text-muted">Kan köpas flera gånger</span>}
           </span>
           {open ? <ChevronUpIcon /> : <ChevronDownIcon />}
@@ -218,7 +236,13 @@ export function WishRow({ wish, claiming, roomy, actions }: { wish: Wish; claimi
       </div>
       {open && (
         <div id={detailsId} className="space-y-1 pb-2 text-sm">
-          {wish.claimedBy !== null && (
+          {/* En present som en besökare lagt till (MUPP-077-R4): "Tillagd av" i stället för "Paxad av" när samma namn står på båda */}
+          {wish.addedBy !== null && (
+            <p className="text-claimed">
+              Tillagd av {wish.addedBy} {wish.claimedAt}
+            </p>
+          )}
+          {wish.claimedBy !== null && wish.addedBy === null && (
             <p className="text-claimed">
               Paxad av {wish.claimedBy} {wish.claimedAt}
             </p>
@@ -296,31 +320,34 @@ function ClaimDialog({ ref, wishes, onDone }: { ref: Ref<DialogHandle>; wishes: 
 }
 
 // Frågan innan en paxning tas bort (MUPP-006). Fokus börjar på "Avbryt", så att Enter inte råkar ta bort den (som i ConfirmAction).
+// På en present som en besökare lagt till (MUPP-077-R5) är det själva presenten som tas bort: den har ingen paxning att ångra.
 // wish är null tills fönstret öppnats första gången.
 function UnclaimDialog({ ref, wish, onDone }: { ref: RefObject<DialogHandle | null>; wish: Wish | null; onDone: (message: string) => void }) {
   const id = useId();
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+  const added = wish?.addedBy != null;
 
   const confirm = () => {
     if (!wish) return;
     start(async () => {
       // Utan sajtkaka stoppar proxy.ts anropet innan åtgärden körs; en omladdning leder till lösenordssidan
-      const result = await unclaimWish(wish.id).catch(() => null);
+      const result = await (added ? removeAddedGift(wish.id) : unclaimWish(wish.id)).catch(() => null);
       if (!result) return setError("Något gick fel. Ladda om sidan och försök igen.");
       if (result.error) return setError(result.error);
-      onDone(result.ok ? `Paxningen på ${wish.title} är borttagen.` : `Paxningen på ${wish.title} var redan borttagen. Listan är uppdaterad.`);
+      const what = added ? "Presenten" : "Paxningen på";
+      onDone(result.ok ? `${what} ${wish.title} är borttagen.` : `${what} ${wish.title} var redan borttagen. Listan är uppdaterad.`);
     });
   };
 
   return (
-    <Dialog ref={ref} role="alertdialog" title="Ta bort paxningen" aria-describedby={`${id}-text`} onClose={() => setError("")}>
+    <Dialog ref={ref} role="alertdialog" title={added ? "Ta bort presenten" : "Ta bort paxningen"} aria-describedby={`${id}-text`} onClose={() => setError("")}>
       <div className="space-y-4">
         <div id={`${id}-text`} className="space-y-2">
           <p className="wrap-anywhere">
-            <span className="font-semibold">{wish?.title}</span> är paxad av {wish?.claimedBy}.
+            <span className="font-semibold">{wish?.title}</span> {added ? `är tillagd av ${wish?.addedBy}` : `är paxad av ${wish?.claimedBy}`}.
           </p>
-          <p>Är du säker? Ta bara bort paxningen på presenter du själv har paxat.</p>
+          <p>{added ? "Är du säker? Ta bara bort presenter du själv har lagt till." : "Är du säker? Ta bara bort paxningen på presenter du själv har paxat."}</p>
         </div>
         <p role="alert" className="text-danger">
           {error}

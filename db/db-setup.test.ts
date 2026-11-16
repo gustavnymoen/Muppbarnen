@@ -21,7 +21,7 @@ describe("MUPP-003-R7 the family tables", () => {
     expect(await columns("parent")).toEqual(["id", "name", "is_master_admin"]);
     expect(await columns("child")).toEqual(["id", "parent_id", "name", "birthdate", "picture", "size_clothes", "size_shoes", "size_head", "size_gloves"]);
     expect(await columns("wishlist")).toEqual(["id", "child_id", "occasion"]);
-    expect(await columns("wishlist_item")).toEqual(["id", "wishlist_id", "title", "description", "size", "url", "unlimited", "claimed_by", "claimed_at", "added_at"]);
+    expect(await columns("wishlist_item")).toEqual(["id", "wishlist_id", "title", "description", "size", "url", "unlimited", "claimed_by", "claimed_at", "added_at", "added_by"]);
     const applied = await queryUnitDb<{ name: string }>("SELECT name FROM schema_migrations WHERE name = '003_family.sql'");
     expect(applied).toHaveLength(1);
   });

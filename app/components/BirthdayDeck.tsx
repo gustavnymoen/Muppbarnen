@@ -247,6 +247,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
         <KidFace
           key={single.id}
           cardKey={card.key}
+          occasion={card.kind}
           after={card.after}
           date={date}
           kid={single}
@@ -294,7 +295,7 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
 
 // Ett barn som hela kort: stor bild, namn, ålder och önskelistan. Med listan öppen bara en liten bild och namnet på en rad (MUPP-030-R2)
 // cardKey ingår i id:na: samma barn finns på flera kort, och korten bredvid ritas också
-function KidFace({ cardKey, after, date, kid, solo, open, onToggle }: { cardKey: string; after: boolean; date: string; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
+function KidFace({ cardKey, occasion, after, date, kid, solo, open, onToggle }: { cardKey: string; occasion: DeckCard["kind"]; after: boolean; date: string; kid: DeckKid; solo: boolean; open: boolean; onToggle: () => void }) {
   return (
     <>
       {open ? (
@@ -319,7 +320,7 @@ function KidFace({ cardKey, after, date, kid, solo, open, onToggle }: { cardKey:
           <SizesButton kid={kid} mode="text" className="mt-2 [@media(max-height:600px)]:mt-0" />
         </div>
       )}
-      <WishList id={`lista-${cardKey}-${kid.id}`} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />
+      <WishList id={`lista-${cardKey}-${kid.id}`} kidId={kid.id} occasion={occasion} wishes={kid.wishes} color={kid.color} solo={solo} open={open} onToggle={onToggle} />
     </>
   );
 }
