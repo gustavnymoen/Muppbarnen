@@ -1,0 +1,15 @@
+%% MUPP-079 Stay signed in to several Secret Santa groups
+flowchart TD
+    A[Visitor opens a Secret Santa page] --> B{?grupp= in the address?}
+    B -- no --> C{Exactly one valid membership?}
+    C -- yes --> F
+    C -- no --> D[Choice of group]
+    B -- yes --> E{Signed membership for that group, valid and not cleaned up?}
+    E -- yes --> F[Own page of that group R3]
+    E -- "no: removed, old year, bad signature R4 R5" --> G[Names of that group, sign in with phone or email]
+    D --> G
+    D -- "a group already signed in to" --> F
+    G --> H[Membership added to the cookie, the other groups kept R2]
+    H --> F
+    F -- Tillbaka --> I["/secret-santa?val=grupp: choice of group, sign-ins kept R3"]
+    I --> D

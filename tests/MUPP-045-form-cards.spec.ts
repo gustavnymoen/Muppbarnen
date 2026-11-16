@@ -49,8 +49,7 @@ test("MUPP-045-R2 R3 R4 R5 R7 Hantera, a kid's edit card: title and values, the 
   const chef = uniqueName("Chef");
   await addChild(await addParent(chef, true), "Otis", "2019-03-09");
   await page.setViewportSize({ width: 375, height: 667 });
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  await adminSignIn(page, chef, "/admin/hantera");
   const pencil = page.getByRole("button", { name: "Ändra Otis" });
   const dialog = card(page);
   const name = dialog.getByLabel("Namn");
@@ -118,8 +117,7 @@ test("MUPP-045-R2 R5 R7 R8 Hantera, a new parent, a new kid with the parent list
   await addChild(await addParent(chef, true), "Otis");
   await addParent(mia);
   await page.setViewportSize({ width: 375, height: 667 });
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  await adminSignIn(page, chef, "/admin/hantera");
   const dialog = card(page);
 
   // R2 R5: a new parent has empty fields and focus in the first; Enter in the only text field sends it (a checkbox after it is no field for Enter),
@@ -186,8 +184,7 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   const mia = uniqueName("Mia");
   const kidId = await addChild(await addParent(mia), "Otis");
   await page.setViewportSize({ width: 320, height: 568 });
-  await adminSignIn(page, mia);
-  await goto(page, `/admin/barn/${kidId}/onskelistor`);
+  await adminSignIn(page, mia, `/admin/barn/${kidId}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
   const dialog = card(page);
   const [name, size, description, link] = ["Namn", "Storlek", "Beskrivning", "Länk"].map((label) => dialog.getByLabel(label));

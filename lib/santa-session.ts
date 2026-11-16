@@ -16,12 +16,27 @@ const sign = (memberId: number, year: number, secret: string) => createHmac("sha
 // stämmer året inte längre och kakan gäller inte, så alla loggas ut. Inget annat än id:t och året.
 export const createSantaSession = (secret: string, memberId: number, cleanupYear: number) => `${memberId}.${cleanupYear}.${sign(memberId, cleanupYear, secret)}`;
 
-// Medlemmens id och rensningsåret för en kaka som vi signerat med den här nyckeln, annars null. Att året är det nuvarande kontrollerar anroparen.
-export function verifySantaSession(value: string | undefined, secret: string | undefined) {
-  if (!value || !secret) return null;
+// Kakan är en lista med sådana poster, äldsta först, åtskilda av "_" (MUPP-079). Varje post är signerad för sig, så att en ändrad
+// eller påhittad post bara faller bort och aldrig kan peka ut en annan medlem. En gammal kaka med en enda post gäller som en lista med en post.
+export const MAX_SANTA_SESSIONS = 10;
+const SEPARATOR = "_";
+
+export const joinSantaSessions = (entries: string[]) => entries.slice(-MAX_SANTA_SESSIONS).join(SEPARATOR);
+
+// En posts medlem och rensningsår om vi signerat den med den här nyckeln, annars null
+function verifyEntry(value: string, secret: string) {
   const match = /^(\d{1,12})\.(\d{4})\.([0-9a-f]{64})$/.exec(value);
   if (!match) return null;
   const [memberId, year] = [Number(match[1]), Number(match[2])];
   const ok = timingSafeEqual(Buffer.from(match[3], "hex"), Buffer.from(sign(memberId, year, secret), "hex"));
   return ok ? { memberId, cleanupYear: year } : null;
+}
+
+// Alla poster i kakan som vi signerat, i kakans ordning (högst så många som får finnas). Att året är det nuvarande och att medlemmen finns kontrollerar anroparen.
+export function verifySantaSessions(value: string | undefined, secret: string | undefined) {
+  if (!value || !secret) return [];
+  return value
+    .split(SEPARATOR)
+    .slice(0, MAX_SANTA_SESSIONS)
+    .flatMap((entry) => verifyEntry(entry, secret) ?? []);
 }

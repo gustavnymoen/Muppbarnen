@@ -17,6 +17,9 @@ async function withDb<T>(fn: (db: ReturnType<typeof createClient>) => Promise<T>
 export const addParent = (name: string, master = false) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO parent (name, is_master_admin) VALUES (?, ?)", args: [name, master ? 1 : 0] })).lastInsertRowid));
 
+export const parentIdOf = (name: string) =>
+  withDb(async (db) => Number((await db.execute({ sql: "SELECT id FROM parent WHERE name = ?", args: [name] })).rows[0].id));
+
 export const addChild = (parentId: number, name: string, birthdate = "2020-05-17") =>
   withDb(async (db) =>
     Number((await db.execute({ sql: "INSERT INTO child (parent_id, name, birthdate) VALUES (?, ?, ?)", args: [parentId, name, birthdate] })).lastInsertRowid),
@@ -123,6 +126,8 @@ export const addSantaEvent = (name: string, ownerId?: number, status: SantaStatu
 // The Secret Santa cookie holds the member id
 export const addSantaMember = (eventId: number, name: string, phone: string, email: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", args: [eventId, name, phone, email] })).lastInsertRowid));
+
+export const removeSantaMember = (memberId: number) => withDb((db) => db.execute({ sql: "DELETE FROM ss_member WHERE id = ?", args: [memberId] }));
 
 // An address that the site's own form would not accept, to see what happens when a mail cannot be sent (MUPP-060)
 export const setSantaEmail = (memberId: number, email: string) => withDb((db) => db.execute({ sql: "UPDATE ss_member SET email = ? WHERE id = ?", args: [email, memberId] }));

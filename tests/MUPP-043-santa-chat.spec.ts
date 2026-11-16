@@ -104,7 +104,7 @@ test("MUPP-043-R2 R5 the receiver sees the giver's message with a notice before 
   expect(await page.content()).not.toContain("Anna Testsson");
   // The same notice in the opened list
   await page.getByRole("link", { name: "Min önskelista" }).click();
-  await expect(page).toHaveURL(/\/min-sida\/onskelista$/);
+  await expect(page).toHaveURL(/\/min-sida\/onskelista(\?grupp=\d+)?$/);
   await expect(page.getByRole("button", { name: "Chatt med din Secret Santa, nytt meddelande" })).toBeVisible();
   await page.getByRole("button", { name: /^Chatt med din Secret Santa/ }).click();
   const chat = chatOf(page, "Din Secret Santa");
@@ -229,7 +229,7 @@ test("MUPP-043-R5 a new message shows on the button also when the same list was 
   await santaSignIn(page, anna);
   await goto(page, "/secret-santa/min-sida");
   await page.getByRole("link", { name: /^Min matchning/ }).click();
-  await expect(page).toHaveURL(/\/matchning$/);
+  await expect(page).toHaveURL(/\/matchning(\?grupp=\d+)?$/);
   await expect(page.getByRole("button", { name: "Chatt med din matchning, nytt meddelande" })).toBeVisible();
   // The messages come with the page, so they are shown the moment the card opens; opening reads them and the notice goes
   await page.getByRole("button", { name: /^Chatt med din matchning/ }).click();
@@ -239,9 +239,9 @@ test("MUPP-043-R5 a new message shows on the button also when the same list was 
   // Back to the cards and into the same list again without a reload: a message that came meanwhile gives the notice again
   await addSantaMessage(event, anna, bo, false, "Andra");
   await page.getByRole("link", { name: "Tillbaka" }).click();
-  await expect(page).toHaveURL(/\/min-sida$/);
+  await expect(page).toHaveURL(/\/min-sida(\?grupp=\d+)?$/);
   await page.getByRole("link", { name: /^Min matchning/ }).click();
-  await expect(page).toHaveURL(/\/matchning$/);
+  await expect(page).toHaveURL(/\/matchning(\?grupp=\d+)?$/);
   await expect(page.getByRole("button", { name: "Chatt med din matchning, nytt meddelande" })).toBeVisible();
 });
 

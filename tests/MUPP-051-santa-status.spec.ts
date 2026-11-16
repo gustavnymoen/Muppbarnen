@@ -121,7 +121,7 @@ test("MUPP-051-R4 R5 an inactive group gives only 'Vi har inte kört igång än'
 
   // R4: the list page does not show a list; the way to it is closed
   await goto(page, "/secret-santa/min-sida/onskelista");
-  await expect(page).toHaveURL(/\/secret-santa\/min-sida$/);
+  await expect(page).toHaveURL(/\/secret-santa\/min-sida(\?grupp=\d+)?$/);
   await expect(page.getByText("Kvarglömd bok")).toHaveCount(0);
 });
 
@@ -154,10 +154,13 @@ test("MUPP-051-R6 MUPP-051-R4 a preparing group has the active list card and the
   expect((await santaWishes(anna)).map((w) => w.title)).toEqual(["Bok"]);
 });
 
-test("MUPP-051-R2 the i icon is 44 px, opens the three explanations and closes with Esc, the cross and a press outside", async ({ page }) => {
+test("MUPP-051-R2 R7 the i icon is 44 px, opens the three explanations and closes with Esc, the cross and a press outside; the count and the delete question say deltagare, in singular and plural, and nowhere does the tab say medlem", async ({ page }) => {
   const emma = uniqueName("Emma");
-  await addSantaEvent("Emmas jul", await addParent(emma), "inactive");
+  const event = await addSantaEvent("Emmas jul", await addParent(emma), "inactive");
+  await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   await openSantaTab(page, emma);
+
+  // R2: the i icon
   const info = page.getByRole("button", { name: "Vad betyder statusen?" });
   expect((await settledBox(info)).height).toBeGreaterThanOrEqual(44);
   const dialog = page.getByRole("dialog", { name: "Vad betyder statusen?" });
@@ -174,13 +177,8 @@ test("MUPP-051-R2 the i icon is 44 px, opens the three explanations and closes w
   await info.click();
   await page.mouse.click(2, 2);
   await expect(dialog).toBeHidden();
-});
 
-test("MUPP-051-R7 the count and the delete question say deltagare, in singular and plural, and nowhere does the tab say medlem", async ({ page }) => {
-  const emma = uniqueName("Emma");
-  const event = await addSantaEvent("Emmas jul", await addParent(emma), "inactive");
-  await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid");
-  await openSantaTab(page, emma);
+  // R7: the count and the delete question
   const card = eventCard(page, "Emmas jul");
   await expect(card).toContainText("1 deltagare");
   await addSantaMember(event, "Bertil Testsson", "0700002222", "bertil@exempel.invalid");

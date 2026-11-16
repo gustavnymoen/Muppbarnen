@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { failed, saved, type FormState } from "@/app/components/form-state";
 import { openSiteAction } from "@/lib/action-open";
-import { currentSantaMember } from "@/lib/santa-auth";
+import { currentSantaMember, entranceHref } from "@/lib/santa-auth";
 import * as wishes from "@/lib/santa-wishes";
 import type { Outcome } from "@/lib/family";
 
@@ -12,12 +12,13 @@ import type { Outcome } from "@/lib/family";
 // inloggad (ur kakan, aldrig ur formuläret); reglerna i lib/santa-wishes.ts kontrollerar att önskningen är hens egen.
 
 const OWN_PAGE = "/secret-santa/min-sida/onskelista";
+// Gruppen kommer ur formuläret men väljer bara bland kakans inloggningar (MUPP-079-R3)
 const field = (formData: FormData, name: string) => formData.get(name);
 
 export async function saveWish(_previous: FormState, formData: FormData): Promise<FormState> {
   const { refusal } = await openSiteAction();
   if (refusal) return failed(formData, { error: refusal });
-  const member = await ownMember();
+  const member = await ownMember(formData);
   const wishId = field(formData, "wishId");
   return answer(
     formData,
@@ -34,14 +35,14 @@ export async function saveWish(_previous: FormState, formData: FormData): Promis
 export async function removeWish(_previous: FormState, formData: FormData): Promise<FormState> {
   const { refusal } = await openSiteAction();
   if (refusal) return failed(formData, { error: refusal });
-  const member = await ownMember();
+  const member = await ownMember(formData);
   return answer(formData, await wishes.removeWish(member.id, field(formData, "wishId")));
 }
 
 // Den inloggade medlemmen ur kakan; utan den går besökaren till ingången
-async function ownMember() {
-  const member = await currentSantaMember();
-  if (!member) redirect("/secret-santa");
+async function ownMember(formData: FormData) {
+  const member = await currentSantaMember(field(formData, "eventId"));
+  if (!member) redirect(entranceHref(field(formData, "eventId")));
   return member;
 }
 

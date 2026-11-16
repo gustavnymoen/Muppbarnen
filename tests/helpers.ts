@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
-import AxeBuilder from "@axe-core/playwright";
-import { expect, type Locator, type Page } from "@playwright/test";
+import axe from "axe-core";
+import { expect, type BrowserContext, type Locator, type Page } from "@playwright/test";
+import { createAdminSession } from "../lib/admin-session";
+import { parentIdOf } from "./family-db";
 import { dayAndMonth, swedishToday } from "../lib/deck";
 import { adminSessionFile } from "./site-session";
 
@@ -47,16 +49,22 @@ export async function goto(page: Page, path: string) {
 }
 
 // Signs in on /admin with the admin cookie that tests/global-setup.ts got through the form
-// once (TECH-014), and, when a parent is named, chooses who you are. The tests of the
-// sign-in itself use the form instead.
-export async function adminSignIn(page: Page, parentName?: string) {
-  await page.context().addCookies(JSON.parse(readFileSync(adminSessionFile, "utf8")).cookies);
-  await goto(page, "/admin");
+// once (TECH-014), and, when a parent is named, chooses who you are. The choice is part of the
+// signed cookie, so it is set in the cookie, as the page would (TECH-029) instead of by clicking the
+// parent in the list. The tests of the sign-in and of the choice itself use the page.
+// A test that goes straight on to another admin page names it in path, so that /admin is not loaded just to be left.
+export async function adminSignIn(page: Page, parentName?: string, path = "/admin") {
+  const { cookies } = JSON.parse(readFileSync(adminSessionFile, "utf8")) as { cookies: { name: string; value: string }[] };
   if (parentName) {
-    await page.getByRole("button", { name: parentName, exact: true }).click();
-    // The choice is stored when the page shows "Byt förälder"; a page opened before that has no parent
-    await expect(page.getByRole("button", { name: "Byt förälder" })).toBeVisible();
+    const cookie = cookies.find((c) => c.name.endsWith("admin_session"))!;
+    // The cookie is "<expires>.<parent id>.<signature>" (lib/admin-session.ts): the expiry is kept
+    const expires = cookie.value.split(".")[0];
+    cookie.value = createAdminSession(process.env.ADMIN_SESSION_SECRET!, await parentIdOf(parentName), Number(expires));
   }
+  await page.context().addCookies(cookies as Parameters<BrowserContext["addCookies"]>[0]);
+  await goto(page, path);
+  if (path !== "/admin") return;
+  if (parentName) await expect(page.getByRole("button", { name: "Byt förälder" })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Admin" })).toBeVisible();
 }
 
@@ -190,17 +198,19 @@ export async function expectNoA11yViolations(page: Page) {
   // The title is streamed in with the page, so it can be missing for a
   // moment (axe rule document-title)
   await expect(page).toHaveTitle(/.+/);
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
-    // Something faded on purpose and hidden from screen readers (decoration,
-    // WCAG 1.4.3 exception) can be left out here, with a comment saying why:
-    // .exclude('[aria-hidden="true"].decoration')
-    // The toast after a save is aria-hidden and moves on timers of its own (it slides in when the
-    // save is answered and fades out two seconds later), so a wait for the animations that exist
-    // now can miss it and axe reads it half see-through (TECH-019-R4). Its contrast is checked
-    // when it has settled, in design.spec.ts (MUPP-054-R1 R3).
-    .exclude("[data-toast]")
-    .analyze();
+  // axe runs in the page itself: @axe-core/playwright opens an extra page for every check, which cost
+  // about 150 ms of each of the 188 checks of the suite (TECH-029)
+  if (!(await page.evaluate(() => "axe" in window))) await page.evaluate(axe.source);
+  // The toast after a save is aria-hidden and moves on timers of its own (it slides in when the
+  // save is answered and fades out two seconds later), so a wait for the animations that exist
+  // now can miss it and axe reads it half see-through (TECH-019-R4). Its contrast is checked
+  // when it has settled, in design.spec.ts (MUPP-054-R1 R3). Something else faded on purpose and
+  // hidden from screen readers (decoration, WCAG 1.4.3 exception) can be added to the exclude list,
+  // with a comment saying why.
+  const results = await page.evaluate(
+    (tags) => (window as unknown as { axe: typeof axe }).axe.run({ exclude: [["[data-toast]"]] }, { runOnly: { type: "tag", values: tags } }),
+    ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+  );
   // Rule, description and elements, so that a failure can be understood from the report
   const violations = results.violations.map((v) => ({
     rule: v.id,

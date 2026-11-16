@@ -58,8 +58,7 @@ test("MUPP-023-R3 the title field stops at 60 characters, and the server refuses
   await page.context().setExtraHTTPHeaders({ "x-real-ip": testIp() });
   const mia = uniqueName("Mia");
   const kid = await addChild(await addParent(mia, true), uniqueName("Barn"));
-  await adminSignIn(page, mia);
-  await goto(page, `/admin/barn/${kid}/onskelistor`);
+  await adminSignIn(page, mia, `/admin/barn/${kid}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag", exact: true }) });
   await birthday.getByRole("button", { name: "Ny önskning" }).click();
 

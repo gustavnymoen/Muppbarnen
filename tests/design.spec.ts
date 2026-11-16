@@ -1533,7 +1533,7 @@ test("MUPP-040-R1 R2 MUPP-053-R1 MUPP-055-R1 MUPP-070-R4 the Secret Santa wish l
     await expectBackInCorner(page, page.getByRole("link", { name: "Stäng" }));
     await addSantaEvent("Familjen Ask");
     await goto(page, "/secret-santa/min-sida");
-    await expectBackInCorner(page, page.getByRole("button", { name: "Tillbaka" }));
+    await expectBackInCorner(page, page.getByRole("link", { name: "Tillbaka" }));
   } finally {
     await clearSanta();
   }
@@ -1717,7 +1717,7 @@ test("MUPP-043-R5 the chat on a 375 x 667 phone: the cards have only a tiny oran
 
     // The chat is opened from inside the list: a button at the bottom of the screen, narrower than the list and at least 44 px high
     await matchCard.click();
-    await expect(page).toHaveURL(/\/matchning$/);
+    await expect(page).toHaveURL(/\/matchning(\?grupp=\d+)?$/);
     const bubble = await settledBox(page.getByRole("button", { name: /^Chatt med din matchning/ }));
     const list = await settledBox(page.getByRole("heading", { level: 2, name: /^Önskelistan hos/ }).locator(".."));
     expect(bubble.height).toBeGreaterThanOrEqual(44);
