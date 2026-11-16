@@ -112,7 +112,7 @@ tags: [product, features]
 | [MUPP-079](MUPP-079-santa-several-groups/solution.md) | Stay signed in to several Secret Santa groups | Shared | Done |
 | [MUPP-073](MUPP-073-families/solution.md) | Families | Administration | Done |
 | [MUPP-080](MUPP-080-choose-families/solution.md) | Choose families | Startsida | Done |
-| [MUPP-081](MUPP-081-family-change-deck/solution.md) | Family change: the deck starts at the next event | Startsida | Review |
+| [MUPP-081](MUPP-081-family-change-deck/solution.md) | Family change: the deck starts at the next event | Startsida | Done |
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 | [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |
 
