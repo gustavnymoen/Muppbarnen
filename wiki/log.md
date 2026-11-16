@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-16
+
+* **Update** [TECH-029](../specs/TECH-029-test-suite-time/verification.md): merged in pull request 271; CI ran 179 browser tests in 361.2 s of its 455 s limit (20.6 % under) and Live tests passed against the live site; the local budget was raised from 330 s to 350 s by the user; ten runs without a database lock were not made.
+
 ## 2026-11-15
 
 * **Creation** [TECH-029 Test suite time](../specs/TECH-029-test-suite-time/solution.md): the browser tests went from 185 tests and 364.3 s to 179 and 322.9 s (axe runs in the page, the parent is chosen in the admin cookie, the Christmas card repeats less, five pairs of tests merged and one repeat removed), and `CLAUDE.md` and `testing.md` say that a feature adds as few and as fast browser tests as its requirements allow and merges or removes tests before it would go over the budget.
