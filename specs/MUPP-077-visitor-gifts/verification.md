@@ -33,14 +33,14 @@ feature: MUPP-077
 
 ## Test suite
 
-Full `playwright test` run after merging `main` (separate port and home; other sessions may have been running tests, so the time is not comparable to a quiet run).
+The feature's own browser tests (5: four in `tests/MUPP-077-visitor-gifts.spec.ts` and one in `tests/design.spec.ts`) take 14.6 s locally, merged by journey so that each page is loaded once. Before the merge with TECH-029 they were 7 tests and about 23 s; CI failed twice on the 455 s limit (455.4 s and 456.3 s) and the feature waited for TECH-029 ([#271](https://github.com/gustavnymoen/Muppbarnen/pull/271)), which brought the suite to 179 tests in 361.2 s in CI (322.9 s locally).
 
-| | Tests | Total time | Slowest test |
-|---|---|---|---|
-| Before | not measured | – | – |
-| After | 184 browser tests (5 new), 411 unit tests (10 new) | 6.2 min | not measured |
+| | Tests | Total time |
+|---|---|---|
+| Before MUPP-077 and TECH-029 | 179 browser tests | 322.9 s locally, 361.2 s in CI (after TECH-029) |
+| After MUPP-077 | 5 more browser tests, 10 more unit tests (411 in all) | about 14.6 s more locally; CI measured on the pull request |
 
-All browser tests and all 411 unit tests pass. (Before merging `main`, three older tests failed on today's date; TECH-028 fixed them.)
+All the feature's tests pass on the code merged with `main`. The full suite after this merge is run by CI on the pull request.
 
 ## Requirements as built
 
