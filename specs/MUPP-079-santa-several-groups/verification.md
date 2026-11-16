@@ -23,7 +23,7 @@ feature: MUPP-079
 | Unit tests | `lib/santa-session.test.ts` (list, limit, forged entries), `lib/santa.test.ts` (R6) | local | Pass | 2026-11-15 |
 | Browser tests | `tests/MUPP-079-santa-several-groups.spec.ts`, 6 tests | local | Pass | 2026-11-15 |
 | Smoke test | Not applicable: no main page or flow is added; the sign-in flow is the same | | | |
-| Accessibility | axe on the choice of group and the own page of both groups; the live checklist of `wiki/system/accessibility.md` is not checked | local | Pass (axe); live checklist not checked | 2026-11-15 |
+| Accessibility | axe on the choice of group and the own page of both groups; the live checklist of `wiki/system/accessibility.md` is marked done by the user, no per-item details were recorded | local, live | Pass (axe); checklist as reported by the user | 2026-11-16 |
 | Security | Security points in the review; `/security-review` run, no findings at confidence 8 or higher | local | Pass | 2026-11-15 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-15 |
 
@@ -41,7 +41,7 @@ The total is over the 330 s budget, as it already was on `main`; this change add
 - [x] Tests: every requirement is tested; `npm run test:unit` passes; the browser suite passed except two tests fixed afterwards and run on their own
 - [ ] Test suite: over the total budget as before; the 25 % growth rule holds (the total is lower than the last recorded one)
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 43765010550 on `main` after the merge, 2026-11-15, success
-- [ ] Accessibility: axe passes; the live checklist is not checked
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (no per-item details recorded)
 - [x] Requirements in the card match what was built (below); `solution.md` describes how it was built
 - [x] Manual, system docs and log updated
 - [x] No leftovers: `leave` and `clearSantaCookie` are deleted
@@ -105,6 +105,8 @@ Acceptance criteria:
 ## Test plan
 
 ## Notes
+
+- The live accessibility checklist and a check on a real phone are marked done by the user on 2026-11-16; no per-item details were recorded.
 
 - A visitor with exactly one sign-in who opens `/secret-santa` without a group is sent straight to that group, as the card says. "Tillbaka" on the own page links to `/secret-santa?val=grupp`, which switches that redirect off so the choice of group can be reached.
 - Without `?grupp=` the own page and its sub pages use the cookie's single entry, so old bookmarks keep working.
