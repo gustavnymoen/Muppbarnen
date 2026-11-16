@@ -112,11 +112,22 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   await expect(kidCard).toBeVisible();
 });
 
-test("MUPP-010-R1 R5 the wish list page has only the lists, as slim rows, and the kid's sizes are a card on the parent's page", async ({ page }) => {
+test("MUPP-010-R1 R2 R5 MUPP-083-R1 R2 R3 R4 the wish list page has only the lists, as slim rows, and the kid's sizes are a card on the parent's page; the sizes open from the page, and arrows flip between the kids", async ({ page }) => {
   const mia = uniqueName("Mia");
   const kid = uniqueName("Barn");
-  const kidId = await addChild(await addParent(mia), kid);
+  const parentId = await addParent(mia);
+  await addChild(parentId, kid);
+  const younger = uniqueName("Syskon");
+  const youngerId = await addChild(parentId, younger, "2022-03-01");
   await adminSignIn(page, mia);
+
+  // R2: the measuring tape and the checklist have the accessible name as a tooltip and are at least 32 px wide
+  for (const [role, name] of [["button", `Storlekar för ${kid}`], ["link", `Önskelistor för ${kid}`]] as const) {
+    const control = page.getByRole(role, { name });
+    await expect(control).toHaveAttribute("title", name);
+    expect((await settledBox(control)).width).toBeGreaterThanOrEqual(32);
+  }
+  await expectNoA11yViolations(page);
 
   // The sizes: a card on the parent's page (MUPP-045-R2), with nothing of the wish lists
   await page.getByRole("button", { name: `Storlekar för ${kid}` }).click();
@@ -128,8 +139,8 @@ test("MUPP-010-R1 R5 the wish list page has only the lists, as slim rows, and th
   await expect(sizes).toHaveCount(0);
   await expectNoA11yViolations(page);
 
-  // R5: the wish list page has Födelsedag and Jul as separate cards and no sizes
-  await goto(page, `/admin/barn/${kidId}/onskelistor`);
+  // R5: the checklist opens the wish list page, which has Födelsedag and Jul as separate cards and no sizes
+  await page.getByRole("link", { name: `Önskelistor för ${kid}` }).click();
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
   const christmas = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Jul" }) });
   await expect(birthday).toBeVisible();
@@ -155,32 +166,57 @@ test("MUPP-010-R1 R5 the wish list page has only the lists, as slim rows, and th
   await item.getByRole("button", { name: "Ändra Pussel" }).click();
   await expect(item.getByLabel("Namn")).toHaveValue("Pussel");
   await expectNoA11yViolations(page);
-});
 
-test("MUPP-010-R6 five kids fit on a phone without scrolling", async ({ page }) => {
-  const chef = uniqueName("Chef");
-  const chefId = await addParent(chef, true);
-  for (const name of ["Alva", "Bo", "Cleo", "Dan", "Eli"]) await addChild(chefId, name);
-  await adminSignIn(page, chef);
+  // MUPP-083-R2: in the open edit card the sizes open on top of it, and closing them keeps what is typed
+  await item.getByLabel("Namn").fill("Pussel 500 bitar");
+  await page.getByRole("button", { name: "Storlekar" }).last().click();
+  const sizesDialog = page.getByRole("dialog", { name: `Storlekar för ${kid}` });
+  await expect(sizesDialog).toContainText("128");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("dialog[open]")).toHaveCount(1);
+  await expect(item.getByLabel("Namn")).toHaveValue("Pussel 500 bitar");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
 
-  // The page is opened once and measured at each width by resizing the window (TECH-015)
-  await goto(page, "/admin");
-  await expect(page.getByRole("heading", { level: 2 }).first()).toBeVisible();
-  const kids = page.getByRole("article");
-  await expect(kids).toHaveCount(5);
-  for (const [width, height] of [[375, 667], [430, 932]]) {
+  // MUPP-083-R1: the corner button opens the sizes, and the dialog says so when none are filled in
+  const corner = page.getByRole("button", { name: "Storlekar" });
+  await corner.first().click();
+  await expect(sizesDialog).toContainText("Kläder");
+  await expectNoA11yViolations(page);
+  await sizesDialog.getByRole("button", { name: "Stäng" }).click();
+  await expect(corner.first()).toBeFocused();
+
+  // MUPP-083-R3: the arrows go to the next kid and round again; R4: on a phone they cover no text or button of the lists
+  const left = page.getByRole("link", { name: "Föregående barn" });
+  const right = page.getByRole("link", { name: "Nästa barn" });
+  const covered = [item.getByText("Pussel", { exact: true }), item.getByRole("button", { name: "Ändra Pussel" }), item.getByRole("button", { name: "Ta bort Pussel" })];
+  for (const [width, height] of [[320, 568], [375, 667], [430, 932]]) {
     await page.setViewportSize({ width, height });
-    // The parent's own page: all five kids are inside the screen, the page itself does not scroll
-    for (const index of [0, 4]) {
-      const box = await settledBox(kids.nth(index));
-      expect(box.y + box.height, `kid ${index} at ${width}`).toBeLessThanOrEqual(height);
+    const arrows = await Promise.all([left, right].map(settledBox));
+    for (const arrow of arrows) {
+      expect(arrow.width, `arrow width at ${width}`).toBeGreaterThanOrEqual(44);
+      for (const box of await Promise.all(covered.map(settledBox))) {
+        const apart = arrow.x + arrow.width <= box.x || box.x + box.width <= arrow.x;
+        expect(apart, `an arrow covers the row at ${width}`).toBe(true);
+      }
     }
   }
+  await right.click();
+  await expect(page.getByRole("heading", { level: 1, name: younger })).toBeVisible();
+  await right.click();
+  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  await left.click();
+  await expect(page).toHaveURL(new RegExp(`/admin/barn/${youngerId}/onskelistor`));
+  await page.getByRole("button", { name: "Storlekar" }).first().click();
+  await expect(page.getByRole("dialog")).toContainText("Inga storlekar inlagda än.");
 });
 
-test("MUPP-010-R6 the open cards and the kid pages have no sideways scroll at 320, 375 and 430 px, and pass axe", async ({ page }) => {
+test("MUPP-010-R6 five kids fit on a phone, the keyboard reaches the buttons of a kid, and the open cards and the kid pages have no sideways scroll at 320, 375 and 430 px, and pass axe", async ({ page }) => {
   const chef = uniqueName("Chef");
-  const kidId = await addChild(await addParent(chef, true), uniqueName("Barn"));
+  const chefId = await addParent(chef, true);
+  const kid = uniqueName("Barn");
+  const kidId = await addChild(chefId, kid);
+  for (const name of ["Alva", "Bo", "Cleo", "Dan"]) await addChild(chefId, name);
   await adminSignIn(page, chef);
 
   // Each page is opened once and checked at each width by resizing the window (TECH-015)
@@ -202,6 +238,28 @@ test("MUPP-010-R6 the open cards and the kid pages have no sideways scroll at 32
     }
   };
   await goto(page, "/admin/hantera");
+  await page.waitForLoadState("networkidle");
+
+  // With the keyboard only: Tab to the pencil, Enter opens, Esc closes, and Tab reaches the trash can and the confirmation
+  const kidCard = card(page, kid);
+  const pencil = kidCard.getByRole("button", { name: `Ändra ${kid}` });
+  await kidCard.getByRole("link", { name: `Önskelistor för ${kid}` }).focus();
+  await page.keyboard.press("Tab");
+  await expect(pencil).toBeFocused();
+  await expect(pencil).toHaveCSS("outline-width", "3px");
+  await page.keyboard.press("Enter");
+  await expect(kidCard.getByLabel("Namn")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(kidCard.getByLabel("Namn")).toHaveCount(0);
+  await expect(pencil).toBeFocused();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(kidCard.getByRole("button", { name: `Ta bort ${kid}` })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(dialog(page).getByRole("button", { name: "Avbryt" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).toBeHidden();
+
   await page.getByRole("button", { name: "Nytt barn" }).click();
   await dateInsideForm(page.locator("form").filter({ has: page.getByLabel("Födelsedatum") }).first(), "add");
   await noSidewaysScroll("add");
@@ -215,57 +273,19 @@ test("MUPP-010-R6 the open cards and the kid pages have no sideways scroll at 32
   await noSidewaysScroll("picture");
   await page.keyboard.press("Escape");
   await goto(page, "/admin");
-  await page.getByRole("button", { name: /^Storlekar för / }).click();
+  // The parent's own page: all five kids are inside the screen, the page itself does not scroll
+  await expect(page.getByRole("article")).toHaveCount(5);
+  for (const [width, height] of [[375, 667], [430, 932]]) {
+    await page.setViewportSize({ width, height });
+    for (const index of [0, 4]) {
+      const box = await settledBox(page.getByRole("article").nth(index));
+      expect(box.y + box.height, `kid ${index} at ${width}`).toBeLessThanOrEqual(height);
+    }
+  }
+  await page.getByRole("button", { name: /^Storlekar för / }).first().click();
   await noSidewaysScroll("sizes");
   await expectNoA11yViolations(page);
   await goto(page, `/admin/barn/${kidId}/onskelistor`);
   await noSidewaysScroll("lists");
   await expectNoA11yViolations(page);
-});
-
-test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc closes, and Tab reaches the trash can and the confirmation", async ({ page }) => {
-  const chef = uniqueName("Chef");
-  const kid = uniqueName("Barn");
-  await addChild(await addParent(chef, true), kid);
-  await adminSignIn(page, chef, "/admin/hantera");
-  await page.waitForLoadState("networkidle");
-  const kidCard = card(page, kid);
-  const pencil = kidCard.getByRole("button", { name: `Ändra ${kid}` });
-
-  await kidCard.getByRole("link", { name: `Önskelistor för ${kid}` }).focus();
-  await page.keyboard.press("Tab");
-  await expect(pencil).toBeFocused();
-  await expect(pencil).toHaveCSS("outline-width", "3px");
-  await page.keyboard.press("Enter");
-  await expect(kidCard.getByLabel("Namn")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(kidCard.getByLabel("Namn")).toHaveCount(0);
-  await expect(pencil).toBeFocused();
-
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await expect(kidCard.getByRole("button", { name: `Ta bort ${kid}` })).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(dialog(page).getByRole("button", { name: "Avbryt" })).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(dialog(page)).toBeHidden();
-});
-
-test("MUPP-010-R2 R5 a kid on the parent's page has a measuring tape that opens the sizes and a checklist to a page with only the wish lists", async ({ page }) => {
-  const mia = "Mia";
-  await addChild(await addParent(mia), "Otis");
-  await adminSignIn(page, mia);
-  for (const [role, name] of [["button", "Storlekar för Otis"], ["link", "Önskelistor för Otis"]] as const) {
-    const control = page.getByRole(role, { name });
-    await expect(control).toHaveAttribute("title", name);
-    expect((await settledBox(control)).width).toBeGreaterThanOrEqual(32);
-  }
-  await expectNoA11yViolations(page);
-  await page.getByRole("button", { name: "Storlekar för Otis" }).click();
-  await expect(page.getByLabel("Kläder")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Födelsedag" })).toHaveCount(0);
-  await page.keyboard.press("Escape");
-  await page.getByRole("link", { name: "Önskelistor för Otis" }).click();
-  await expect(page.getByRole("heading", { level: 2, name: "Födelsedag" })).toBeVisible();
-  await expect(page.getByLabel("Kläder")).toHaveCount(0);
 });

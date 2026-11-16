@@ -187,7 +187,7 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   await adminSignIn(page, mia, `/admin/barn/${kidId}/onskelistor`);
   const birthday = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Födelsedag" }) });
   const dialog = card(page);
-  const [name, size, description, link] = ["Namn", "Storlek", "Beskrivning", "Länk"].map((label) => dialog.getByLabel(label));
+  const [name, size, description, link] = ["Namn", "Storlek", "Beskrivning", "Länk"].map((label) => dialog.getByLabel(label, { exact: true }));
   const unlimited = dialog.getByLabel("Obegränsad");
   const confirmation = dialog.locator("p[role=status]"); // not the busy button's region (MUPP-072)
   const save = dialog.getByRole("button", { name: "Lägg till" });

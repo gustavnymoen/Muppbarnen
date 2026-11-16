@@ -299,7 +299,7 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
   // Add: Lego (unlimited, with everything), with markup in the text that must stay text
   const title = "<b>Lego</b> & Duplo";
   await form.getByLabel("Namn").fill(title);
-  await form.getByLabel("Storlek").fill("Stor");
+  await form.getByLabel("Storlek", { exact: true }).fill("Stor");
   await form.getByLabel("Beskrivning").fill("<script>alert(1)</script> En stor ask");
   await form.getByLabel("Länk").fill("https://exempel.se/lego");
   await form.getByLabel("Obegränsad").check();

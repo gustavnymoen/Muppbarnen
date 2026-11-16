@@ -113,6 +113,7 @@ tags: [product, features]
 | [MUPP-073](MUPP-073-families/solution.md) | Families | Administration | Done |
 | [MUPP-080](MUPP-080-choose-families/solution.md) | Choose families | Startsida | Done |
 | [MUPP-082](MUPP-082-christmas-card-by-kids/solution.md) | Cards by number of kids | Startsida | Done |
+| [MUPP-083](MUPP-083-admin-wishlist-sizes/solution.md) | Admin wish lists: sizes and flipping between kids | Administration | Ongoing |
 | [MUPP-081](MUPP-081-family-change-deck/solution.md) | Family change: the deck starts at the next event | Startsida | Done |
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 | [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |

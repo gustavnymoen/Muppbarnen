@@ -1,0 +1,9 @@
+%% MUPP-083 Admin wish lists: sizes and flipping between kids
+flowchart TD
+    A[Wish list page of a kid] --> B{Tap}
+    B -- Storlekar at the top, R1 --> C[Read-only sizes dialog] --> A
+    B -- Ny önskning or Ändra --> D[Form card] --> E{Storlekar at the bottom, R2}
+    E -- tap --> F[Sizes dialog on top of the card] -- Esc or Stäng --> D
+    B -- Nästa barn or Föregående barn, R3 --> G{Another kid in the parent's list?}
+    G -- yes, circular --> H[Wish list page of that kid]
+    G -- only one kid --> I[No arrows]

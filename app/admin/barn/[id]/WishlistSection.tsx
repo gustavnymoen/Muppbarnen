@@ -4,6 +4,7 @@ import { Field, Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
+import { SizesButton } from "@/app/components/SizesButton";
 import { SlimCard } from "@/app/components/SlimCard";
 import { WishDetails, WishFields } from "@/app/components/WishParts";
 import { dayAndMonth, parseDate } from "@/lib/deck";
@@ -77,13 +78,19 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
 
 function ItemForm({ child, occasion, item, submit }: { child: Child; occasion: Occasion; item?: WishlistItem; submit: string }) {
   return (
-    <Form action={saveItem} submit={submit} says={{ field: "title", added: !item }} again={!item}>
-      <input type="hidden" name="childId" value={child.id} />
-      <input type="hidden" name="occasion" value={occasion} />
-      {item && <input type="hidden" name="itemId" value={item.id} />}
-      <WishFields item={item} />
-      <Field name="unlimited" type="checkbox" label="Obegränsad" defaultChecked={item?.unlimited} hint="Utan kryss kan önskningen paxas en gång." />
-    </Form>
+    <div className="space-y-4">
+      <Form action={saveItem} submit={submit} says={{ field: "title", added: !item }} again={!item}>
+        <input type="hidden" name="childId" value={child.id} />
+        <input type="hidden" name="occasion" value={occasion} />
+        {item && <input type="hidden" name="itemId" value={item.id} />}
+        <WishFields item={item} />
+        <Field name="unlimited" type="checkbox" label="Obegränsad" defaultChecked={item?.unlimited} hint="Utan kryss kan önskningen paxas en gång." />
+      </Form>
+      {/* Storlekarna till hands medan önskningen skrivs (MUPP-083-R2); utanför formuläret, så att det som är skrivet står kvar */}
+      <div className="flex justify-end">
+        <SizesButton kid={child} mode="corner" />
+      </div>
+    </div>
   );
 }
 

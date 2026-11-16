@@ -160,8 +160,10 @@ export function Dialog({ ref, title, form, centered, narrow, noAutofocus, backdr
         ref={el}
         aria-labelledby={`${id}-titel`}
         // Esc: kortet viker sig i knappen. Är en lista (ListPicker) öppen är det den som stängs, inte kortet.
+        // stopPropagation: Reacts onCancel bubblar genom komponentträdet, så en ruta i ett kort (storlekarna, MUPP-083) skulle annars stänga kortet också
         onCancel={(event) => {
           event.preventDefault();
+          event.stopPropagation();
           if (!el.current?.querySelector("[aria-haspopup=listbox][aria-expanded=true]")) close();
         }}
         // Tangenttryck och svep inuti kortet ska inte nå kortleken bakom (Esc ska stänga kortet, inte önskelistan)
