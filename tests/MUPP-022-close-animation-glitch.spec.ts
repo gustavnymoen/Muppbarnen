@@ -39,7 +39,8 @@ const cards = [
   { name: "the Christmas card", prepare: toChristmas, open: (page: Page) => card(page).getByRole("button", { name: /^Öppna Vera/ }) },
 ];
 
-for (const { name, prepare, open } of cards) {
+// Rörelsen och fokusregeln är gemensamma för korten (transition.ts, MUPP-032): kortet med flera barn får hela provet, julkortet bara den första delen av R1
+for (const [index, { name, prepare, open }] of cards.entries()) {
   test(`MUPP-022-R1 ${name}: the closed view shrinks as a whole, with transform and opacity only, and the copy is always removed, also when cut short or interrupted`, async ({ page }) => {
     await twoKids(page);
     await prepare(page);
@@ -59,6 +60,7 @@ for (const { name, prepare, open } of cards) {
     await expect(open(page)).toBeFocused();
     expect(await page.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSTransition) && a.effect instanceof KeyframeEffect && a.playState === "running").length)).toBe(0);
     await expectNoA11yViolations(page);
+    if (index > 0) return;
 
     // En kopia som avbryts eller klipps av ligger inte heller kvar (samma kort och läge, så samma test, TECH-014)
     await open(page).click();
@@ -78,7 +80,7 @@ for (const { name, prepare, open } of cards) {
     await expect(ghost(page)).toHaveCount(0);
   });
 
-  test(`MUPP-022-R2 ${name}: no focus ring after a close with the pointer, the ring after Esc`, async ({ page }) => {
+  if (index === 0) test(`MUPP-022-R2 ${name}: no focus ring after a close with the pointer, the ring after Esc`, async ({ page }) => {
     await twoKids(page);
     await prepare(page);
     const outline = () => open(page).evaluate((node) => getComputedStyle(node).outlineStyle);

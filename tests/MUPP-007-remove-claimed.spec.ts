@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { addChild, addParent, addWish, claimedByOf, clearFamily, countRows } from "./family-db";
-import { adminSignIn, birthdateIn, expectNoA11yViolations, goto, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, birthdateIn, expectNoA11yViolations, runsLocally, uniqueName } from "./helpers";
 import { testIp } from "./site-session";
 
 // De här testen gör egna barn i testdatabasen, så de körs bara lokalt
@@ -21,8 +21,7 @@ async function openVerasList(page: Page) {
   await addWish(vera, "birthday", "Cykel", { claimedBy: "Moster Lisa" });
   await addWish(vera, "birthday", "Pussel");
   await addWish(vera, "birthday", "Strumpor", { unlimited: true });
-  await adminSignIn(page, name);
-  await goto(page, `/admin/barn/${vera}/onskelistor`);
+  await adminSignIn(page, name, `/admin/barn/${vera}/onskelistor`);
 }
 
 // R3 först, eftersom den inte ändrar något; samma lista i hela testet (TECH-015)

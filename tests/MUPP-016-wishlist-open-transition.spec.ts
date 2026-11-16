@@ -58,68 +58,75 @@ function expectCutOut(clipPath: string, size: { width: number; height: number },
   for (const [got, want] of [[cut.x, button.x - cardBox.x], [cut.y, button.y - cardBox.y], [cut.width, button.width], [cut.height, button.height]]) expect(got).toBeCloseTo(want, 0);
 }
 
-for (const kind of ["birthday", "christmas"] as const) {
-  const name = kind === "birthday" ? "the card with several kids" : "the Christmas card";
-  test(`MUPP-016-R3 R4 ${name}: the kid's view grows from the pressed button and shrinks back to it`, async ({ page }) => {
-    await twoKids(page);
-    if (kind === "christmas") await toChristmas(page);
-    const open = card(page).getByRole("button", { name: kind === "birthday" ? "Önskelista för Vera" : /^Öppna Vera/ });
-    const [button, before] = [await settledBox(open), await settledBox(card(page))];
+// Samma rörelse på båda korten (en gemensam kod, transition.ts): det första kortet får hela provet, julkortet öppnas och stängs en gång
+async function growsAndShrinks(page: Page, open: Locator, full: boolean) {
+  const [button, before] = [await settledBox(open), await settledBox(card(page))];
 
-    // R3: vyn börjar på knappens plats och storlek och växer till hela kortet
-    await open.click();
-    const grow = await clips(card(page));
-    const [from, to] = grow.clip;
-    expectCutOut(from, grow, button, before);
-    expect(to).toMatch(/^inset\(0px round/);
-    await animationsDone(card(page));
-    await expect(region(page)).toBeVisible();
-    await expect(card(page).getByRole("heading", { level: 3, name: "Vera" })).toBeVisible();
-    await expect(card(page).getByRole("button", { name: /^Tillbaka/ })).toBeVisible();
-    await expect(card(page).getByRole("button", { name: /^Stäng/ })).toBeVisible();
-    await expect(card(page).getByRole("button", { name: /^Storlekar/ })).toBeVisible();
-    expect((await clips(card(page))).clip).toEqual([]); // inget som växer är kvar (kortets egen inton ligger kvar i sitt slutläge)
-    await expectNoA11yViolations(page);
+  // R3: vyn börjar på knappens plats och storlek och växer till hela kortet
+  await open.click();
+  const grow = await clips(card(page));
+  const [from, to] = grow.clip;
+  expectCutOut(from, grow, button, before);
+  expect(to).toMatch(/^inset\(0px round/);
+  await animationsDone(card(page));
+  await expect(region(page)).toBeVisible();
+  await expect(card(page).getByRole("heading", { level: 3, name: "Vera" })).toBeVisible();
+  await expect(card(page).getByRole("button", { name: /^Tillbaka/ })).toBeVisible();
+  await expect(card(page).getByRole("button", { name: /^Stäng/ })).toBeVisible();
+  await expect(card(page).getByRole("button", { name: /^Storlekar/ })).toBeVisible();
+  expect((await clips(card(page))).clip).toEqual([]); // inget som växer är kvar (kortets egen inton ligger kvar i sitt slutläge)
+  if (full) await expectNoA11yViolations(page);
 
-    // R4: stänger man med Stäng, Tillbaka eller Esc krymper vyn tillbaka till knappen, och fokus är på den
-    const closers = [
-      () => region(page).getByRole("button", { name: /^Stäng/ }).click(),
-      () => card(page).getByRole("button", { name: /^Tillbaka/ }).click(),
-      () => page.keyboard.press("Escape"),
-    ];
-    for (const [i, closeView] of closers.entries()) {
-      const view = await settledBox(card(page));
-      await closeView();
-      await expect(region(page)).toHaveCount(0);
-      await expect(open).toBeFocused();
-      await expect(ghost(page)).toHaveCount(1);
-      expectOnto((await transformsOf(ghost(page))).at(-1)!, view, button);
-      await pageAnimationsDone(page);
-      await expect(ghost(page)).toHaveCount(0);
-      // Det stängda läget är detsamma efter alla tre, så axe körs en gång (TECH-014)
-      if (i === 0) await expectNoA11yViolations(page);
+  // R4: stänger man med Stäng, Tillbaka eller Esc krymper vyn tillbaka till knappen, och fokus är på den
+  const closers = [
+    () => page.keyboard.press("Escape"),
+    () => region(page).getByRole("button", { name: /^Stäng/ }).click(),
+    () => card(page).getByRole("button", { name: /^Tillbaka/ }).click(),
+  ].slice(0, full ? 3 : 1);
+  for (const [i, closeView] of closers.entries()) {
+    const view = await settledBox(card(page));
+    await closeView();
+    await expect(region(page)).toHaveCount(0);
+    await expect(open).toBeFocused();
+    await expect(ghost(page)).toHaveCount(1);
+    expectOnto((await transformsOf(ghost(page))).at(-1)!, view, button);
+    await pageAnimationsDone(page);
+    await expect(ghost(page)).toHaveCount(0);
+    // Det stängda läget är detsamma efter alla tre, så axe körs en gång (TECH-014)
+    if (full && i === 0) await expectNoA11yViolations(page);
+    if (i < closers.length - 1) {
       await open.click();
       await animationsDone(card(page));
     }
+  }
+  if (!full) return;
 
-    // R4: ändras fönstret medan vyn är öppen krymper den till där knappen nu sitter (läget mäts när den stängs)
-    await page.setViewportSize({ width: 360, height: 740 });
-    await animationsDone(card(page));
-    const moved = await settledBox(card(page));
-    await page.keyboard.press("Escape");
-    expectOnto((await transformsOf(ghost(page))).at(-1)!, moved, await settledBox(open));
-    await expect(ghost(page)).toHaveCount(0);
-  });
+  // R4: ändras fönstret medan vyn är öppen krymper den till där knappen nu sitter (läget mäts när den stängs)
+  await open.click();
+  await animationsDone(card(page));
+  await page.setViewportSize({ width: 360, height: 740 });
+  await animationsDone(card(page));
+  const moved = await settledBox(card(page));
+  await page.keyboard.press("Escape");
+  expectOnto((await transformsOf(ghost(page))).at(-1)!, moved, await settledBox(open));
+  await expect(ghost(page)).toHaveCount(0);
 }
+
+test("MUPP-016-R3 R4 the kid's view grows from the pressed button and shrinks back to it, on the card with several kids and on the Christmas card", async ({ page }) => {
+  await twoKids(page);
+  await growsAndShrinks(page, card(page).getByRole("button", { name: "Önskelista för Vera" }), true);
+  await toChristmas(page);
+  await growsAndShrinks(page, card(page).getByRole("button", { name: /^Öppna Vera/ }), false);
+});
 
 test.describe("with reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   // Övergångar av färg (ett tryck som mörknar knappen) är ingen rörelse; det som inte får finnas är animationer
   const noMotion = (page: Page) => page.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSTransition)).map((a) => (a as CSSAnimation).animationName ?? "web-animation"));
 
-  for (const kind of ["birthday", "christmas"] as const) {
-    test(`MUPP-016-R5 the kid's view on the ${kind} card opens and closes at once, without movement`, async ({ page }) => {
-      await twoKids(page);
+  test("MUPP-016-R5 the kid's view on the birthday card and on the christmas card opens and closes at once, without movement", async ({ page }) => {
+    await twoKids(page);
+    for (const kind of ["birthday", "christmas"] as const) {
       if (kind === "christmas") await toChristmas(page);
       const open = card(page).getByRole("button", { name: kind === "birthday" ? "Önskelista för Vera" : /^Öppna Vera/ });
       await open.click();
@@ -130,8 +137,8 @@ test.describe("with reduced motion", () => {
       await expect(open).toBeFocused();
       await expect(ghost(page)).toHaveCount(0);
       expect(await noMotion(page)).toEqual([]);
-    });
-  }
+    }
+  });
 });
 
 test("MUPP-016-R6 the transitions never get in the way: double press and press during motion", async ({ page }) => {

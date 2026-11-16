@@ -55,8 +55,7 @@ async function openVerasLists(page: Page) {
   await addWish(vera, "birthday", "Cykel", { addedAt: dateIn(-50), claimedBy: "Moster Lisa" });
   await addWish(vera, "birthday", "Pussel", { addedAt: dateIn(-45), size: "100 bitar" });
   await addWish(vera, "birthday", "Lego");
-  await adminSignIn(page, name);
-  await goto(page, `/admin/barn/${vera}/onskelistor`);
+  await adminSignIn(page, name, `/admin/barn/${vera}/onskelistor`);
   const archive = page.locator("section", { has: page.getByRole("heading", { level: 2, name: "Arkiv" }) });
   const group = `Födelsedag ${dateIn(-40).slice(0, 4)}`;
   return { archive, group, toggle: archive.getByRole("button", { name: `Visa ${group}` }) };
