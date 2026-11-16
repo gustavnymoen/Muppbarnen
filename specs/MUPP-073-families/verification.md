@@ -21,11 +21,11 @@ feature: MUPP-073
 |---|---|---|---|---|
 | Unit tests | `npm run test:unit` | local | Pass (430 tests, 11 new in `lib/families.test.ts`) | 2026-11-17 |
 | Browser tests | `tests/MUPP-073-families.spec.ts` (2 tests, axe on the empty-name error and on the Secret Santa form); the existing tests changed only in the wording "grupp" → "Secret Santa" | local | Pass (190 tests) | 2026-11-17 |
-| Smoke test | Unchanged: no main page or flow was added or changed | not applicable | Not applicable | 2026-11-17 |
+| Smoke test | Unchanged: no main page or flow was added or changed. Live tests (the smoke tests) ran after the merge | live | Pass (Live tests run 43875048906 on `edc9aa5`) | 2026-11-16 |
 | Accessibility | axe in the two browser tests. The live checklist: not done yet | local | Partly: live checklist not done | 2026-11-17 |
 | Security | `/security-review` on the branch: no findings (master-admin check on every new action, ids checked on the server, parameterized SQL, `chooseFamily` limits an ordinary admin to their own families, no new cookie or route); the reviewer's security points passed | local | Pass | 2026-11-17 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-17 |
-| Migration against Turso | The migration (with two triggers) has run on the local test databases and on the local development database, never on Turso. Try it on a copy of the production database first | not checked | Not checked | |
+| Migration against Turso | `016_families.sql` has run on the local test databases and the local development database. On Turso it is run by the build on Vercel (`scripts/db-setup.mjs` before `build`, all or nothing per migration); the build log was not read. Seen: Vercel's status for the merge commit `edc9aa5` is "Deployment has completed" and Live tests passed against the site. Not tried on a copy of the production database first | live | Build and Live tests green; migration output not checked | 2026-11-16 |
 
 ## Test suite
 
@@ -42,7 +42,7 @@ Within the budget. The change added 2 browser tests (about 5 s: 2.9 s and 2.3 s 
 
 - [x] Tests: every requirement has a test; unit and browser tests pass
 - [x] Test suite: 342.5 s, within the 350 s budget
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests, run 43875048906, 2026-11-16)
 - [ ] Accessibility: axe passes; the live checklist is not done
 - [x] Requirements in the card match what was built; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
