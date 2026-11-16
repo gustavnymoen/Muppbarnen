@@ -8,6 +8,7 @@
 
 ## 2026-11-16
 
+* **Update** [MUPP-080](../specs/MUPP-080-choose-families/verification.md): merged in pull request 282; Live tests passed against the live site (run 43886892076); the look of the card and the icon button is checked in `tests/design.spec.ts` and by `/impeccable critique` (nothing to fix); the live accessibility checklist is not done.
 * **Update** [MUPP-074](../specs/MUPP-074-santa-amount/verification.md): merged in pull request 276; Live tests passed against the live site (run 43845878124); the live accessibility checklist is marked done by the user, with no per-item details recorded. [MUPP-076](../specs/MUPP-076-santa-mail-partner-text/verification.md): the test-time box is closed, the overrun accepted by the user.
 * **Update** [TECH-029](../specs/TECH-029-test-suite-time/verification.md): ten whole-suite runs in a row on `main` had no database lock; they found two flaky tests, `MUPP-071-R1` (a bare `boundingBox()`, now `settledBox`) and `MUPP-029-R1 R2` (the closing copy's motion is read before anything else is waited for), both fixed and run 25 times each under load.
 * **Creation** [MUPP-074 Amount on Secret Santa groups](../specs/MUPP-074-santa-amount/solution.md): a group can have an amount in whole kronor, set in admin; it shows on the group's card, as a pill beside "Hej" on the members' page and in the draw mail.
