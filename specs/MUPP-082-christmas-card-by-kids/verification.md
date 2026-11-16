@@ -20,7 +20,7 @@ feature: MUPP-082
 |---|---|---|---|---|
 | Unit tests | None planned (a layout); `npm run test:unit` passes (438 tests) | local | Pass | 2026-11-16 |
 | Browser tests | The two planned tests in `tests/design.spec.ts` got more kids and the IDs. Eleven older tests assumed tiles for Christmas Eve with two or three kids, or the wish buttons on a birthday card with three kids, and were adjusted: they open Vera by her wish button on the two-kid Christmas card (`MUPP-004`, `MUPP-014`, `MUPP-015`, `MUPP-016`, `MUPP-022`, `MUPP-037`), by the row "Öppna Vera" on the three-kid cards (`MUPP-017`) and `TECH-013-R5` checks the rows | local | Pass | 2026-11-16 |
-| Smoke test | Not needed (no main page or flow is added) | n/a | Not applicable | 2026-11-16 |
+| Smoke test | Not needed for the change (no main page or flow is added); Live tests (the smoke tests) ran after the merge, run 43922083284 on merge commit `15bf9fc` | live | Pass | 2026-11-16 |
 | Accessibility | axe on all three layouts in the test above; rows and tiles at least 44 px high (rows checked). The live checklist for the cards (items 1-4, 6, 7) is not done | local | Partly: live checklist not done | 2026-11-16 |
 | Security | Not needed (no data, input or access changes) | n/a | Not applicable | 2026-11-16 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-16 |
@@ -40,7 +40,7 @@ No test was added; the two planned tests got more page loads (about 3 s together
 
 - [x] Tests: every requirement has a test; unit and browser tests pass
 - [x] Test suite: 349.6 s, within the 350 s budget
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
+- [x] Deployed (pull request 288, merge commit `15bf9fc`), and the smoke tests pass against production (Live tests, run 43922083284)
 - [ ] Accessibility: axe passes; the live checklist is not done
 - [x] Requirements in the card match what was built; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
