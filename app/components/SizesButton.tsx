@@ -14,7 +14,7 @@ const ROWS = [
   ["gloves", "Handskar"],
 ] as const;
 
-// Knappen som öppnar ett barns storlekar i en dialogruta (MUPP-014); också på barnets önskelistsida i adminen (MUPP-083). Tre lägen:
+// Knappen som öppnar ett barns storlekar i en dialogruta (MUPP-014); och i formulärkorten på barnets önskelistsida i adminen (MUPP-083, MUPP-085). Tre lägen:
 // "text" är knappen "Storlekar" på kortet med ett barn, "icon" är ikonknappen bredvid önskelistknappen på kortet med flera barn
 // (forKid hänger på barnets namn för skärmläsaren), och "corner" är samma ikonknapp uppe i hörnet av en öppen barnvy.
 // Knappen finns även när inga storlekar är inlagda; rutan säger det då. Rutans text är vanlig text, aldrig HTML.

@@ -257,3 +257,15 @@ export async function signInSanta(page: Page, event: string, name: string, phone
   await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { level: 1, name: `Hej ${name}!` })).toBeVisible();
 }
+
+// MUPP-085-R5: the one way back, an arrow link "Tillbaka" in the header's corner, 44 px, level with the menu button
+export async function expectBackArrow(page: Page, href: string) {
+  const back = page.getByRole("link", { name: "Tillbaka" });
+  await expect(back).toHaveAttribute("href", href);
+  const [arrow, menu] = await Promise.all([settledBox(back), settledBox(page.getByRole("button", { name: "Meny" }))]);
+  expect(arrow.width).toBeGreaterThanOrEqual(44);
+  expect(arrow.height).toBeGreaterThanOrEqual(44);
+  expect(arrow.x + arrow.width).toBeLessThan(menu.x);
+  expect(Math.abs(arrow.y + arrow.height / 2 - (menu.y + menu.height / 2))).toBeLessThan(1);
+  await expect(page.getByRole("link", { name: /^Till (barnen|startsidan)$/ })).toHaveCount(0);
+}

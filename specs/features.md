@@ -118,6 +118,7 @@ tags: [product, features]
 | [MUPP-081](MUPP-081-family-change-deck/solution.md) | Family change: the deck starts at the next event | Startsida | Done |
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 | [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |
+| [MUPP-085](MUPP-085-admin-wishlist-flipping/solution.md) | Admin wish lists: arrows, slide and button places | Administration | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

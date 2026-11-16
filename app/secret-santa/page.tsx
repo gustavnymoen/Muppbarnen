@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { IconLink } from "@/app/components/Button";
-import { ReturnIcon } from "@/app/components/icons";
+import { BackLink } from "@/app/components/BackLink";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { FamilyButton, FamilyCard } from "@/app/components/FamilyChoice";
 import { familyView } from "@/lib/family-view";
@@ -57,9 +56,7 @@ async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-san
       filter={!event && view.kind === "chosen" && <FamilyButton families={families} chosen={view.choice} />}
       back={
         backHref && (
-          <IconLink label="Tillbaka" href={backHref}>
-            <ReturnIcon />
-          </IconLink>
+          <BackLink href={backHref} />
         )
       }
     >
