@@ -22,7 +22,7 @@ feature: MUPP-085
 |---|---|---|---|---|
 | Unit tests | None new: the neighbour rule is unchanged (`lib/kid-neighbours.test.ts`); 441 pass. The slide direction is not a function of its own (it is two lines inside `KidFlipper`), so it is checked in the browser test (the arrows go both ways and round the end) | local | Pass | 2026-11-16 |
 | Browser tests | No new file or test: the checks joined the wish list page test, the Hantera test, the not-found check and the "Lägg till present" test; MUPP-083's checks of the top sizes button were removed | local | Pass | 2026-11-16 |
-| Smoke test | Not needed (no main page or flow is added); Live tests run after the merge | live | Not checked yet | |
+| Smoke test | Not needed for the change (no main page or flow is added); Live tests (the smoke tests) ran after the merge, run 43946433890 on merge commit `0df47a7` | live | Pass | 2026-11-16 |
 | Accessibility | axe on the page and after a flip, focus on the name after a flip, reduced motion. The checklist items on the live site: not checked | local | Pass (axe) | 2026-11-16 |
 | Security | Security points in the review; `/security-review` not needed (no new route, action or query; only the parent's own kids are rendered) | local | Pass | 2026-11-16 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-16 |
@@ -42,7 +42,7 @@ The wish list page test went from about 5.4 s to about 7.6 s (under the 8 s budg
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (345.5 s of 350 s), and the new checks follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
+- [x] Deployed (pull request 296, merge commit `0df47a7`), and the smoke tests pass against production (Live tests, run 43946433890)
 - [ ] Accessibility: axe passes; the live checklist is not done
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual, system docs, `DESIGN.md` and `wiki/log.md` updated
