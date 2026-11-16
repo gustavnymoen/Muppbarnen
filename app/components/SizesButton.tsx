@@ -14,12 +14,12 @@ const ROWS = [
   ["gloves", "Handskar"],
 ] as const;
 
-// Knappen som öppnar ett barns storlekar i en dialogruta (MUPP-014). Tre lägen:
+// Knappen som öppnar ett barns storlekar i en dialogruta (MUPP-014); också på barnets önskelistsida i adminen (MUPP-083). Tre lägen:
 // "text" är knappen "Storlekar" på kortet med ett barn, "icon" är ikonknappen bredvid önskelistknappen på kortet med flera barn
 // (forKid hänger på barnets namn för skärmläsaren), och "corner" är samma ikonknapp uppe i hörnet av en öppen barnvy.
 // Knappen finns även när inga storlekar är inlagda; rutan säger det då. Rutans text är vanlig text, aldrig HTML.
 // Rutan är ett kort (Dialog.tsx): det växer ur knappen, håller tangentbordet kvar, stängs med Esc och ger fokus tillbaka till knappen.
-export function SizesButton({ kid, mode, forKid, className = "" }: { kid: DeckKid; mode: "text" | "icon" | "corner"; forKid?: boolean; className?: string }) {
+export function SizesButton({ kid, mode, forKid, className = "" }: { kid: Pick<DeckKid, "name" | "sizes">; mode: "text" | "icon" | "corner"; forKid?: boolean; className?: string }) {
   const dialog = useRef<DialogHandle>(null);
   const rows = ROWS.filter(([key]) => kid.sizes[key] !== "");
   const open = (event: MouseEvent<HTMLElement>) => dialog.current?.open(event.currentTarget);

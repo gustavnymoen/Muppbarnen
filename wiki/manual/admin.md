@@ -56,6 +56,9 @@ Varje formulär öppnas som ett kort som växer fram ur knappen du tryckte på, 
 
 Tryck checklistan **Önskelistor för …** vid barnet: en sida med bara önskelistorna öppnas. Varje barn har två listor, **Födelsedag** och **Jul**.
 
+- **Storlekar:** måttbandet uppe till höger, på raden med **Till barnen**, visar barnets storlekar, så att du slipper gå tillbaka. Samma måttband finns nere till höger i korten **Ny önskning** och **Ändra …**: det du har skrivit står kvar när du stänger storlekarna (tryck **Stäng** eller Esc). Storlekarna kan bara läsas här; de ändras på din sida.
+- **Bläddra mellan barnen:** pilarna vid vänster och höger kant, **Föregående barn** och **Nästa barn**, öppnar nästa barns önskelistor, äldst först och runt: efter det sista barnet kommer det första. Pilarna finns inte om du bara har ett barn.
+
 - **Lägg till:** tryck plusset **Ny önskning**, fyll i **Namn** (måste finnas, högst 60 tecken; ett äldre längre namn måste kortas när du ändrar önskningen), och om du vill **Storlek**, **Beskrivning** (högst 100 tecken) och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
 - **Se mer och ändra:** tryck pennan **Ändra …** vid önskningen. Då syns storlek, beskrivning och länk, och formuläret, i ett kort. Ändra och tryck **Spara**.
 - **Ta bort:** tryck papperskorgen **Ta bort …**. Du får en fråga som nämner önskningen; svara **Ta bort** eller **Avbryt**. Om någon redan har paxat önskningen står det i frågan vem och vilken dag, till exempel "Cykel är paxad av Moster Lisa 30 oktober. Hen kan redan ha köpt den." Prata med personen först om du vill; **Avbryt** (eller Esc) låter önskningen och paxningen vara.
