@@ -13,7 +13,7 @@ How it is built. What is built and why (goal, scope, requirements) is in the car
 
 ## Data
 
-Migration `db/migrations/014_santa_amount.sql` adds `ss_event.amount INTEGER` with `CHECK (amount IS NULL OR amount > 0)`; NULL means no amount, and existing groups get NULL. `lib/form-input.ts` has `parseAmount`: empty or missing gives none, a text of one to six digits above 0 gives the number, and everything else (letters, decimals, minus, a range, a non-text value) is refused with "Skriv ett helt antal kronor, till exempel 200." The server checks it in `saveEvent` (`lib/santa.ts`), which writes the amount with the name in the same statement, so clearing the field removes it.
+Migration `db/migrations/015_santa_amount.sql` adds `ss_event.amount INTEGER` with `CHECK (amount IS NULL OR amount > 0)`; NULL means no amount, and existing groups get NULL. `lib/form-input.ts` has `parseAmount`: empty or missing gives none, a text of one to six digits above 0 gives the number, and everything else (letters, decimals, minus, a range, a non-text value) is refused with "Skriv ett helt antal kronor, till exempel 200." The server checks it in `saveEvent` (`lib/santa.ts`), which writes the amount with the name in the same statement, so clearing the field removes it.
 
 ## Interface
 
