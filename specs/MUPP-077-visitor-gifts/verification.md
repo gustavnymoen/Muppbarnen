@@ -25,9 +25,9 @@ feature: MUPP-077
 |---|---|---|---|---|
 | Unit tests | `lib/family.test.ts` (10 new), `db/db-setup.test.ts` updated for the new column; 411 pass | local | Pass | 2026-11-15 |
 | Browser tests | `tests/MUPP-077-visitor-gifts.spec.ts` (4 tests, axe in every state) and one new test in `tests/design.spec.ts` | local | Pass | 2026-11-15 |
-| Smoke test | Not applicable: the flow writes data | – | – | – |
-| Accessibility | axe in every state of the browser tests. The checklist on the live site: not checked yet | local | Not checked on live | – |
-| Manual check on a phone with the keyboard up | Not checked | – | Not checked | – |
+| Smoke test | Not applicable: the flow writes data; the Live tests (smoke tests) passed after the deploy | live | Pass | 2026-11-16 |
+| Accessibility | axe in every state of the browser tests; the checklist on the live site was marked done by the user, with no per-item details | local, live | Pass | 2026-11-16 |
+| Manual check on a phone with the keyboard up | Marked done by the user, with no details recorded | phone | Pass | 2026-11-16 |
 | Security | Security points in the review; `/security-review` run, no finding | local | Pass | 2026-11-15 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-15 |
 
@@ -52,9 +52,9 @@ As in the card (`gh issue view 259`), with these details:
 ## Definition of Done
 
 - [x] Unit tests and browser tests pass
-- [ ] Test suite within budgets: not measured on a quiet machine
-- [ ] Deployed, Live tests: not yet
-- [ ] Accessibility checklist on the live site: not yet
+- [x] Test suite within budgets: CI 361.2 s of 455 s after TECH-029; the feature's own tests add 14.6 s locally
+- [x] Deployed, and the Live tests passed against the live site on the merge commit `53a16da` (2026-11-16)
+- [x] Accessibility checklist on the live site: marked done by the user (2026-11-16); no per-item details were recorded
 - [x] Requirements match what was built; `solution.md` written
 - [x] Manual, system docs and log updated
 - [x] No leftovers; `npm run lint`, `lint:docs`, `typecheck` and `build` pass
