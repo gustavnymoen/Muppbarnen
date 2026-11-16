@@ -30,7 +30,7 @@ async function threeCards(page: Page) {
   await animationsDone(card(page));
 }
 
-// Tre barn på samma födelsedag (ett kort med flera barn) och Julafton, med en önskning var
+// Tre barn på samma födelsedag (breda rader, MUPP-082-R3) och Julafton (också rader), med en önskning var
 async function threeKids(page: Page) {
   const parent = await addParent(uniqueName("Förälder"));
   const { birthdate } = birthdateIn(20);
@@ -96,15 +96,12 @@ test("MUPP-017-R1 a card with several kids next is shown as the overview, with n
 // Samma sida för båda korten: först kortet med flera barn, sedan bläddras det till Julafton (TECH-015)
 test("MUPP-017-R2 the card with several kids and Christmas Eve: next and previous change kid on the same card, wrap around, forget the marks and are announced", async ({ page }) => {
   await threeKids(page);
-  for (const [open, occasion] of [
-    [/^Önskelista för Vera/, "Cykel åt"],
-    [/^Öppna Vera/, "Pussel åt"],
-  ] as const) {
+  for (const occasion of ["Cykel åt", "Pussel åt"]) {
     if (occasion === "Pussel åt") {
       while ((await card(page).getByRole("heading", { level: 2 }).innerText()) !== "Julafton") await next(page).click();
     }
     const heading = await card(page).getByRole("heading", { level: 2 }).innerText();
-    await card(page).getByRole("button", { name: open }).click();
+    await card(page).getByRole("button", { name: /^Öppna Vera/ }).click();
     await region(page).getByRole("checkbox", { name: `${occasion} Vera` }).check();
 
     await next(page).click();
@@ -164,7 +161,7 @@ test("MUPP-017-R4 Tillbaka is only an icon, named after where it goes, 44 px, at
   // Samma sida i båda bredderna, fönstret ändras (TECH-015)
   for (const width of [320, 375]) {
     await page.setViewportSize({ width, height: 667 });
-    const open = card(page).getByRole("button", { name: /^Önskelista för Vera/ });
+    const open = card(page).getByRole("button", { name: /^Öppna Vera/ });
     await open.click();
     const back = card(page).getByRole("button", { name: "Tillbaka till alla barn" });
     await expect(back).toBeVisible();

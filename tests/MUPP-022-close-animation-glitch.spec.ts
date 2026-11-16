@@ -36,7 +36,7 @@ async function toChristmas(page: Page) {
 
 const cards = [
   { name: "the card with several kids", prepare: async () => {}, open: (page: Page) => card(page).getByRole("button", { name: "Önskelista för Vera" }) },
-  { name: "the Christmas card", prepare: toChristmas, open: (page: Page) => card(page).getByRole("button", { name: /^Öppna Vera/ }) },
+  { name: "the Christmas card", prepare: toChristmas, open: (page: Page) => card(page).getByRole("button", { name: "Önskelista för Vera" }) },
 ];
 
 // Rörelsen och fokusregeln är gemensamma för korten (transition.ts, MUPP-032): kortet med flera barn får hela provet, julkortet bara den första delen av R1

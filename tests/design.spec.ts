@@ -600,7 +600,7 @@ test("TECH-006-R4 MUPP-053-R2 R4 MUPP-063-R1 R2 R3 the admin start shows a short
   }
 });
 
-test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
+test("TECH-006-R5 MUPP-005-R7 MUPP-082-R4 the cards: a narrow one-line wish button and a big picture and a line between kids sharing a birthday, tiles on Christmas Eve, and a wish list button filled with the kid's colour", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -610,6 +610,9 @@ test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big
     const twins = `2019-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
     await addChild(parent, "Vera", twins);
     await addChild(parent, "Vilda", twins);
+    // Two more kids, so that Christmas Eve has tiles (it has them from four kids)
+    await addChild(parent, "Ville", birthdateIn(100).birthdate);
+    await addChild(parent, "Vanja", birthdateIn(110).birthdate);
     await page.setViewportSize({ width: 375, height: 667 });
     await goto(page, "/");
     const card = page.getByRole("article");
@@ -640,7 +643,7 @@ test("TECH-006-R5 MUPP-005-R7 the cards: a narrow one-line wish button and a big
     expect(await css(kids.first(), "height", "::before")).not.toBe("1px");
     await expectNoA11yViolations(page);
 
-    // Christmas Eve: the kids are tiles, two by two
+    // Christmas Eve with four kids: the kids are tiles, two by two
     for (let i = 0; i < 3 && (await card.getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
       await page.getByRole("button", { name: "Nästa kort" }).click();
       await animationsDone(card);
@@ -707,7 +710,7 @@ test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear l
   }
 });
 
-test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async ({ page }) => {
+test("MUPP-013-R3 MUPP-082-R2 R3 R4 a card by the number of kids: like the twin card, wide rows, and tiles with a long name on one line", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -716,13 +719,45 @@ test("MUPP-013-R3 Christmas Eve: a long name is on one line in its tile", async 
     await addChild(parent, longName);
     await addChild(parent, "Vera");
     await page.setViewportSize({ width: 375, height: 667 });
-    await goto(page, "/");
     const card = page.getByRole("article");
-    await animationsDone(card);
-    for (let i = 0; i < 3 && (await card.getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
-      await page.getByRole("button", { name: "Nästa kort" }).click();
+    const toChristmas = async () => {
+      await goto(page, "/");
       await animationsDone(card);
-    }
+      for (let i = 0; i < 3 && (await card.getByRole("heading", { level: 2 }).innerText()) !== "Julafton"; i++) {
+        await page.getByRole("button", { name: "Nästa kort" }).click();
+        await animationsDone(card);
+      }
+    };
+    // MUPP-082-R2: with two kids Christmas Eve is like the card for twins (a wish button each, no tiles)
+    await toChristmas();
+    await expect(card.getByRole("button", { name: /^Önskelista för / })).toHaveCount(2);
+    await expect(card.getByRole("button", { name: /^Öppna / })).toHaveCount(0);
+    await expectNoA11yViolations(page);
+    // MUPP-082-R3: three kids are wide rows, one under the other, with the picture to the left of the name
+    await addChild(parent, "Ville");
+    await toChristmas();
+    const expectRows = async () => {
+      const [first, second, third] = await card.getByRole("button", { name: /^Öppna / }).evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+      expect(second.y).toBeGreaterThan(first.y + first.height - 1);
+      expect(third.y).toBeGreaterThan(second.y + second.height - 1);
+      expect(second.x).toBe(first.x);
+      expect(first.width).toBeGreaterThan(200);
+      expect(second.width).toBe(first.width);
+      expect(third.width).toBe(first.width);
+      expect(Math.min(first.height, second.height, third.height)).toBeGreaterThanOrEqual(44);
+      expect(await card.locator("ul").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+      await expectNoA11yViolations(page);
+    };
+    await expectRows();
+    // The same on the birthday card of these kids (they share a birthdate), the card before Christmas Eve
+    await page.getByRole("button", { name: "Föregående kort" }).click();
+    await animationsDone(card);
+    await expect(card.getByRole("heading", { level: 2 })).not.toHaveText("Julafton");
+    await settledBox(card.getByRole("button", { name: /^Öppna / }).first());
+    await expectRows();
+    // MUPP-082-R4: from four kids the kids are tiles
+    await addChild(parent, "Vanja");
+    await toChristmas();
     const [tileName, otherName] = [card.getByText(longName, { exact: true }), card.getByText("Vera", { exact: true })];
     expect((await settledBox(tileName)).height).toBeLessThanOrEqual((await settledBox(otherName)).height);
     // The tile is narrower than the card: this name does not fit even at 12 px, so it is cut with an ellipsis
@@ -1279,7 +1314,7 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
         await page.setViewportSize(viewport);
       }
 
-      // R5: on the card with three kids the arrows, 44 px and on the screen, are clear of every kid's buttons
+      // R5: on the card with three kids (wide rows, MUPP-082-R3) the arrows, 44 px and on the screen, are clear of every kid's row
       await toCard(page, three.date);
       const arrows = [await settledBox(page.getByRole("button", { name: "Föregående kort" })), await settledBox(page.getByRole("button", { name: "Nästa kort" }))];
       for (const arrow of arrows) {
@@ -1288,12 +1323,10 @@ for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }
         expect(arrow.x + arrow.width).toBeLessThanOrEqual(viewport.width);
       }
       for (let i = 0; i < 3; i++) {
-        const buttons = [card.getByRole("button", { name: /^Önskelista för / }).nth(i), card.getByRole("button", { name: /^Storlekar för / }).nth(i)];
-        await buttons[0].scrollIntoViewIfNeeded();
-        for (const button of buttons) {
-          const box = await settledBox(button);
-          for (const arrow of arrows) expect(disjoint(box, arrow)).toBe(true);
-        }
+        const row = card.getByRole("button", { name: /^Öppna / }).nth(i);
+        await row.scrollIntoViewIfNeeded();
+        const box = await settledBox(row);
+        for (const arrow of arrows) expect(disjoint(box, arrow)).toBe(true);
       }
       if (viewport.width === 320) await expectNoA11yViolations(page);
     } finally {

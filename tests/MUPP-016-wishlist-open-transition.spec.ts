@@ -116,7 +116,7 @@ test("MUPP-016-R3 R4 the kid's view grows from the pressed button and shrinks ba
   await twoKids(page);
   await growsAndShrinks(page, card(page).getByRole("button", { name: "Önskelista för Vera" }), true);
   await toChristmas(page);
-  await growsAndShrinks(page, card(page).getByRole("button", { name: /^Öppna Vera/ }), false);
+  await growsAndShrinks(page, card(page).getByRole("button", { name: "Önskelista för Vera" }), false);
 });
 
 test.describe("with reduced motion", () => {
@@ -128,7 +128,7 @@ test.describe("with reduced motion", () => {
     await twoKids(page);
     for (const kind of ["birthday", "christmas"] as const) {
       if (kind === "christmas") await toChristmas(page);
-      const open = card(page).getByRole("button", { name: kind === "birthday" ? "Önskelista för Vera" : /^Öppna Vera/ });
+      const open = card(page).getByRole("button", { name: "Önskelista för Vera" });
       await open.click();
       await expect(region(page)).toBeVisible();
       expect(await noMotion(page)).toEqual([]);

@@ -112,6 +112,7 @@ tags: [product, features]
 | [MUPP-079](MUPP-079-santa-several-groups/solution.md) | Stay signed in to several Secret Santa groups | Shared | Done |
 | [MUPP-073](MUPP-073-families/solution.md) | Families | Administration | Done |
 | [MUPP-080](MUPP-080-choose-families/solution.md) | Choose families | Startsida | Done |
+| [MUPP-082](MUPP-082-christmas-card-by-kids/solution.md) | Cards by number of kids | Startsida | Ongoing |
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 | [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |
 

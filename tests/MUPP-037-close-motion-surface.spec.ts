@@ -73,7 +73,7 @@ test("MUPP-037-R1 on a card with several kids, and then on the Christmas card, o
   await expectContentFades(page);
 
   await toCard(page, "Julafton");
-  await card(page).getByRole("button", { name: /^Öppna Vera/ }).click();
+  await card(page).getByRole("button", { name: "Önskelista för Vera" }).click();
   await animationsDone(card(page));
   await card(page).getByRole("button", { name: /^Tillbaka/ }).click();
   await expectContentFades(page);
