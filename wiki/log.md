@@ -3,7 +3,7 @@
 ## 2026-11-17
 
 * **Update** [MUPP-073](../specs/MUPP-073-families/verification.md): merged in pull request 280; Live tests passed against the live site (run 43875048906); the live accessibility checklist is not done; the Turso migration ran in the Vercel build, whose log was not read.
-
+* **Creation** [MUPP-080 Choose families](../specs/MUPP-080-choose-families/solution.md): with two or more families a visitor chooses which to see, in a cookie on the device; the start page and Secret Santa then show only their children and Secret Santa, with a card that asks for a choice and a button at the top left to change it.
 * **Creation** [MUPP-073 Families](../specs/MUPP-073-families/solution.md): the master admin makes families (name and a short description), puts parents in them and gives every Secret Santa a family; the word "grupp" is replaced by "Secret Santa" everywhere visitors and admins read it, so a family and a Secret Santa are not mixed up.
 
 ## 2026-11-16

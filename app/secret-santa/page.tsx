@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { IconLink } from "@/app/components/Button";
 import { ReturnIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
+import { FamilyButton, FamilyCard } from "@/app/components/FamilyChoice";
+import { familyView } from "@/lib/family-view";
 import { parseId } from "@/lib/form-input";
 import { entranceEvents, entranceMembers, findMember, signedInMembers } from "@/lib/santa-auth";
 import { requireSiteSession } from "@/lib/site-auth";
@@ -37,17 +39,22 @@ async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-san
   const already = wanted !== null ? signedIn.find((m) => m.eventId === wanted) : query.val === undefined && signedIn.length === 1 ? signedIn[0] : undefined;
   if (already) redirect(`/secret-santa/min-sida?grupp=${already.eventId}`);
 
-  const events = await entranceEvents();
-  const event = events.find((e) => e.id === wanted) ?? (events.length === 1 ? events[0] : undefined);
+  // Med två eller fler familjer listas bara Secret Santa i de valda, och innan något valts visas ett kort som ber om det (MUPP-080).
+  // Då hoppas listan aldrig över, inte ens med en enda Secret Santa: så syns det om familjerna är fel valda (MUPP-080-R5)
+  const { families, view } = await familyView();
+  const filtering = view.kind !== "single";
+  const events = view.kind === "choose" ? [] : await entranceEvents(view.kind === "chosen" ? view.ids : null);
+  const event = events.find((e) => e.id === wanted) ?? (!filtering && events.length === 1 ? events[0] : undefined);
   const members = event ? await entranceMembers(event.id) : [];
   const chosen = parseId(first(query.person));
   const member = event && members.some((m) => m.memberId === chosen) && chosen !== null ? await findMember(chosen) : undefined;
 
   // Från inloggningen tillbaka till namnen; från namnen till grupperna, eller till startsidan när det bara finns en grupp (MUPP-048-R8)
-  const backHref = !event ? undefined : member ? `/secret-santa?grupp=${event.id}` : events.length > 1 ? "/secret-santa?val=grupp" : "/";
+  const backHref = !event ? undefined : member ? `/secret-santa?grupp=${event.id}` : events.length > 1 || filtering ? "/secret-santa?val=grupp" : "/";
 
   return (
     <Page
+      filter={!event && view.kind === "chosen" && <FamilyButton families={families} chosen={view.choice} />}
       back={
         backHref && (
           <IconLink label="Tillbaka" href={backHref}>
@@ -60,8 +67,9 @@ async function Entrance({ searchParams }: { searchParams: PageProps<"/secret-san
       <PageContent>
         <div className="mx-auto max-w-md space-y-4">
           <Heading level={1}>Secret Santa</Heading>
-          {events.length === 0 && <p className="text-muted">Det finns inga Secret Santa ännu.</p>}
-          {!event && events.length > 1 && (
+          {view.kind === "choose" && <FamilyCard families={families} />}
+          {view.kind !== "choose" && events.length === 0 && <p className="text-muted">Det finns inga Secret Santa ännu.</p>}
+          {!event && events.length > (filtering ? 0 : 1) && (
             <>
               <p>Vilken Secret Santa är du med i?</p>
               <ul className="space-y-2">

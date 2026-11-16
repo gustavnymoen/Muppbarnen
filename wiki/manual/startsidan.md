@@ -10,7 +10,7 @@ tags: [startsida, meny, kortlek]
 
 ## Startsidan
 
-Överst finns bara menyknappen. Sajtens namn visas inte som rubrik; du kommer alltid tillbaka till startsidan via **Start** i menyn.
+Överst finns menyknappen och, när det finns flera familjer, en knapp med en familj och en tratt uppe till vänster (se **Välj familj** nedan). Sajtens namn visas inte som rubrik; du kommer alltid tillbaka till startsidan via **Start** i menyn.
 
 Under det ligger en **karusell med kort** med barnens födelsedagar och julafton. Alla kort är lika stora. Det kort som kommer härnäst ligger överst och är märkt med ett gult "✦ Nästa födelsedag ✦" (eller "Nästa: Julafton"). Föregående och nästa kort skymtar mörkare på sidorna.
 
@@ -32,6 +32,12 @@ Under det ligger en **karusell med kort** med barnens födelsedagar och julafton
 - **Barn som inte är födda än:** kortet visar "Beräknad" och datumet, till exempel "Beräknad 17 mars", i stället för åldern. Från födelsedagen och 30 dagar framåt står det **Född** på kortet, med listan som föräldrarna kanske gjort i förväg, och sedan "Fyller 1 år" inför första födelsedagen. Det avgörs bara av datumet, inte av när barnet lades in.
 - **En månad efter:** ett födelsedagskort och julkortet ligger kvar med sin önskelista i 30 dagar efter dagen, så att den som firar senare också kan se listan och paxa. På födelsedagskortet står det då till exempel "Fyllde 6 år". Korten ligger före det som kommer härnäst: startsidan öppnar som vanligt på kortet märkt "Nästa", och trycker du på **Föregående kort** kommer du till det som just varit. Efter 30 dagar byts kortet till nästa år, med en tom lista (julkortet byts den 24 januari).
 - Finns inga barn än står det "Inga barn har lagts till än." Barnen läggs in på [adminsidan](admin.md).
+
+## Välj familj
+
+Finns det flera familjer på sajten ser du först ett kort, **Vilken familj tillhör du?**, och inga barn. Kryssa i de familjer du hör till (varje familj har en kort beskrivning) och tryck **Spara**. Då visas bara barnen i de familjerna, och bara Secret Santa i dem. Väljer du **Alla** visas allt, också familjer som läggs till senare. Du måste välja minst en familj eller Alla.
+
+Efteråt finns en rund knapp uppe till vänster med en familj och en tratt (på bred skärm står valet bredvid, till exempel **Alla** eller **2 valda**). Tryck på den för att ändra. Valet sparas på din enhet i ett år; på en annan telefon eller dator väljer du igen. Det är bara en filtrering av vad som visas, ingen kontroll av vem du är. Finns det bara en familj ser du ingen knapp och inget kort.
 
 ## Menyn
 

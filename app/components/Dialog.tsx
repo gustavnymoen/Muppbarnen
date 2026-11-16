@@ -57,12 +57,14 @@ type Props = Omit<ComponentProps<"dialog">, "title" | "ref" | "onClose"> & {
   // Sätter inte fokus i första fältet när kortet öppnas, så att tangentbordet på en telefon inte öppnas av sig självt (chatten, MUPP-068)
   noAutofocus?: boolean;
   backdropClose?: boolean;
+  // Kortet ligger under sidhuvudet i stället för över det, så att knappen det växte ur och menyn syns (valet av familj, MUPP-080)
+  belowHeader?: boolean;
   // Öppnas av sig själv första gången (utan knapp att växa ur)
   defaultOpen?: boolean;
   onClose?: () => void;
 };
 
-export function Dialog({ ref, title, form, centered, narrow, noAutofocus, backdropClose, defaultOpen, onClose, className = "", children, ...props }: Props) {
+export function Dialog({ ref, title, form, centered, narrow, noAutofocus, backdropClose, belowHeader, defaultOpen, onClose, className = "", children, ...props }: Props) {
   const id = useId();
   const el = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
@@ -169,7 +171,7 @@ export function Dialog({ ref, title, form, centered, narrow, noAutofocus, backdr
         onMouseDown={onMouseDown}
         onClick={onClick}
         // <dialog> centrerar sin text som standard; texten ska stå vänsterställd
-        className={`${narrow ? "w-[min(92vw,19.5rem)]" : "w-[min(92vw,28rem)]"} text-left rounded-card border border-edge bg-card p-5 text-text shadow-card backdrop:bg-black/70 ${form && !centered ? "mx-auto mt-4 mb-auto" : "m-auto"} ${className}`}
+        className={`${narrow ? "w-[min(92vw,19.5rem)]" : "w-[min(92vw,28rem)]"} text-left rounded-card border border-edge bg-card p-5 text-text shadow-card backdrop:bg-black/70 ${form && !centered ? `mx-auto mb-auto ${belowHeader ? "mt-[calc(max(1rem,env(safe-area-inset-top))+4.5rem)]" : "mt-4"}` : "m-auto"} ${className}`}
       >
         {shown && (
           <CardContext value={{ close, confirm, focusFirst: refocus }}>

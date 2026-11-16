@@ -133,14 +133,15 @@ const SANTA_OWNER = "Santa-testförälder";
 // makes it "preparing" unless the test says otherwise.
 export type SantaStatus = "inactive" | "preparing" | "started";
 
-export const addSantaEvent = (name: string, ownerId?: number, status: SantaStatus = "preparing", amount: number | null = null) =>
+// familyId: the family of the Secret Santa (MUPP-073); left out, the database gives it the first family
+export const addSantaEvent = (name: string, ownerId?: number, status: SantaStatus = "preparing", amount: number | null = null, familyId: number | null = null) =>
   withDb(async (db) => {
     let owner = ownerId;
     if (owner === undefined) {
       const found = await db.execute({ sql: "SELECT id FROM parent WHERE name = ?", args: [SANTA_OWNER] });
       owner = found.rows[0] ? Number(found.rows[0].id) : Number((await db.execute({ sql: "INSERT INTO parent (name) VALUES (?)", args: [SANTA_OWNER] })).lastInsertRowid);
     }
-    return Number((await db.execute({ sql: "INSERT INTO ss_event (owner_id, name, status, amount) VALUES (?, ?, ?, ?)", args: [owner, name, status, amount] })).lastInsertRowid);
+    return Number((await db.execute({ sql: "INSERT INTO ss_event (owner_id, name, status, amount, family_id) VALUES (?, ?, ?, ?, ?)", args: [owner, name, status, amount, familyId] })).lastInsertRowid);
   });
 
 // The Secret Santa cookie holds the member id

@@ -5,11 +5,19 @@ export const SITE_NAME = "Kusinportalen";
 
 // Sidhuvudet på varje sida: bara menyn (TECH-006: sajtens namn syns inte som rubrik). På startsidan
 // finns namnet kvar som en dold h1, så att sidan har en rubrik för skärmläsare; andra sidor har en egen h1.
-export function SiteHeader({ home, onboarding, back }: { home?: boolean; onboarding?: boolean; back?: ReactNode }) {
+export function SiteHeader({ home, onboarding, back, filter }: { home?: boolean; onboarding?: boolean; back?: ReactNode; filter?: ReactNode }) {
   return (
     // back: en Tillbaka-knapp längst till vänster, mitt emot menyn (MUPP-047)
     <header className="flex items-center justify-between gap-3 pb-4">
-      {back ?? <span />}
+      {/* filter: valet av familjer (MUPP-080), bredvid Tillbaka */}
+      {back || filter ? (
+        <div className="flex min-w-0 items-center gap-2">
+          {back}
+          {filter}
+        </div>
+      ) : (
+        <span />
+      )}
       {home && <h1 className="sr-only">{SITE_NAME}</h1>}
       <SiteMenu onboarding={onboarding} />
     </header>

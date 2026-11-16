@@ -9,8 +9,8 @@ tags: [secret-santa, inloggning, önskelista]
 # Secret Santa
 
 1. Öppna menyn och välj **Secret Santa**.
-2. Finns det flera Secret Santa väljer du din. Finns det bara en visas namnen direkt.
-3. Tryck på ditt namn. Tryckte du på fel Secret Santa eller fel namn går du tillbaka med pilen uppe till vänster (**Tillbaka**) eller med Esc. Från namnen går pilen till listan med Secret Santa, eller till startsidan när det bara finns en Secret Santa.
+2. Finns det flera familjer väljer du först vilka du hör till, med knappen med en familj och en tratt uppe till vänster ([Startsidan](startsidan.md)). Du ser bara Secret Santa i de familjerna, och du väljer din i listan, också när det bara finns en. Finns det bara en familj visas listan bara om det finns flera Secret Santa, och annars namnen direkt.
+3. Tryck på ditt namn. Tryckte du på fel Secret Santa eller fel namn går du tillbaka med pilen uppe till vänster (**Tillbaka**) eller med Esc. Från namnen går pilen till listan med Secret Santa, eller till startsidan när det bara finns en familj och en enda Secret Santa.
 4. Skriv ditt telefonnummer, eller välj **E-post** och skriv din e-postadress. Det ska vara det som föräldrarna har sparat åt dig. Mellanslag och bindestreck gör inget, och `+46` går bra i stället för 0. I e-postadressen spelar stora och små bokstäver ingen roll.
 5. Tryck **Fortsätt**. Du kommer till din egen sida, och nästa gång du öppnar Secret Santa går du direkt dit. Har den som skapade Secret Santa bestämt ett belopp för presenterna står det som en liten ruta, till exempel **200 kr**, bredvid "Hej …" högst upp.
 

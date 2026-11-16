@@ -29,6 +29,12 @@ const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
             </>,
           ],
           ["Ångrat dig eller klickat fel?", <>Tryck på den orangea pilen vid en paxad present, så blir den ledig igen. Ta bara bort din egen paxning.</>],
+          [
+            "Välj familj",
+            <>
+              Finns det flera familjer väljer du vilka du hör till med knappen med en familj och en tratt uppe till vänster. Du ser bara barnen och Secret Santa i dem. Valet filtrerar bara det som visas, och du kan ändra det när som helst.
+            </>,
+          ],
         ],
       },
       {

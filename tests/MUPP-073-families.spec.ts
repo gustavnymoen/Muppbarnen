@@ -17,7 +17,7 @@ test.afterEach(async () => {
   await clearTestFamilies();
 });
 
-test("MUPP-073-R1 R2 R3 the master admin makes a family, puts a parent in it and moves a Secret Santa to it, and the refused cases say why", async ({ page }) => {
+test("MUPP-073-R1 R2 R3 R4 the master admin makes a family, puts a parent in it and moves a Secret Santa to it, and the refused cases say why; an ordinary admin chooses among their own families only when there is more than one and cannot reach the settings", async ({ page }) => {
   const master = uniqueName("Chef");
   await addParent(master, true);
   await addFamily(uniqueName("Andra"), "Annan sida");
@@ -72,15 +72,14 @@ test("MUPP-073-R1 R2 R3 the master admin makes a family, puts a parent in it and
   await expect(edit).toBeHidden();
   expect(await familyOfEvent("E2E Emmas jul")).toMatch(/Andra/);
   await expect(eventCard(page, "E2E Emmas jul")).toContainText("Familj: ");
-});
 
-test("MUPP-073-R3 R4 an ordinary admin chooses among their own families only when there is more than one, and cannot reach the family settings", async ({ page }) => {
-  const emma = uniqueName("Emma");
-  const emmaId = await addParent(emma);
+  // R3 R4: an ordinary admin chooses among their own families only when there is more than one, and cannot reach the family settings
+  const emma2 = uniqueName("Emma");
+  const emmaId = await addParent(emma2);
   const x = await addFamily(uniqueName("X"));
   const y = await addFamily(uniqueName("Y"));
   await setParentFamilies(emmaId, x);
-  await adminSignIn(page, emma);
+  await adminSignIn(page, emma2);
 
   // One family: no question, the group gets it
   await page.getByRole("tab", { name: "Secret Santa" }).click();

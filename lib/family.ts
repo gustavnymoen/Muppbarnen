@@ -111,9 +111,11 @@ export async function listWishlists(child: Child, today = swedishToday()) {
 }
 
 // Barnen, deras storlekar (MUPP-014) och önskningarna till kortleken på startsidan (MUPP-004, MUPP-005), i listans ordning;
-// det arkiverade kommer inte med (MUPP-031-R4)
-export async function listDeckInput(today = swedishToday()): Promise<{ children: DeckInput[]; wishes: Wishes }> {
-  const children = await listChildren();
+// det arkiverade kommer inte med (MUPP-031-R4). familyIds: bara barnen vars förälder hör till någon av familjerna (MUPP-080-R3);
+// utan (null) alla. Övriga barn och deras önskningar kommer inte med, så de skickas aldrig till webbläsaren.
+export async function listDeckInput(today = swedishToday(), familyIds: number[] | null = null): Promise<{ children: DeckInput[]; wishes: Wishes }> {
+  const inFamilies = familyIds && new Set((await all<{ parent_id: number }>(`SELECT DISTINCT parent_id FROM parent_family WHERE family_id IN (${familyIds.map(() => "?").join(",") || "NULL"})`, familyIds)).map((r) => r.parent_id));
+  const children = (await listChildren()).filter((c) => !inFamilies || inFamilies.has(c.parentId));
   const kids = new Map(children.map((c) => [c.id, c]));
   const rows = await all<{ child_id: number; occasion: Occasion; added_at: string } & ClaimRow>(
     `SELECT w.child_id, w.occasion, i.id, i.title, i.description, i.size, i.url, i.unlimited, i.added_at, i.claimed_by, i.claimed_at, i.added_by
@@ -121,7 +123,8 @@ export async function listDeckInput(today = swedishToday()): Promise<{ children:
   );
   const wishes: Wishes = new Map();
   for (const row of rows) {
-    if (isArchived(kids.get(row.child_id)!, row.occasion, row.added_at, today)) continue;
+    const kid = kids.get(row.child_id);
+    if (!kid || isArchived(kid, row.occasion, row.added_at, today)) continue;
     const lists = wishes.get(row.child_id) ?? { birthday: [], christmas: [] };
     lists[row.occasion].push(toAdminItem(row));
     wishes.set(row.child_id, lists);
