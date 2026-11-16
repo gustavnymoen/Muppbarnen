@@ -1,0 +1,19 @@
+%% MUPP-077 Gifts added by visitors
+flowchart TD
+    A[Visitor opens the wish list] --> B[Presses Lägg till at the end of the list]
+    B --> C[Step 1: the gift]
+    C --> D{Fields valid? R2}
+    D -- no --> E[Error on the field, stay on step 1]
+    E --> C
+    D -- yes --> F[Step 2: Ange ditt namn]
+    F -- back arrow --> C
+    F --> G{Name given? R3}
+    G -- no --> H[Skriv ditt namn.]
+    H --> F
+    G -- yes --> I{Site session, guardWrite, child and occasion, limit of 20? R7}
+    I -- no --> J[Error in the window, nothing saved]
+    I -- yes --> K[Row saved as claimed and added by the visitor R4]
+    K --> L[Tillagd av name in the list, admin and archive R4 R6]
+    L --> M[Undo arrow R5]
+    M --> N[Ta bort paxningen: row stays unclaimed]
+    M --> O[Ta bort presenten: row deleted]

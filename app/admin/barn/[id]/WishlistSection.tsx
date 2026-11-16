@@ -40,8 +40,9 @@ export function WishlistSection({ child, occasion, items }: { child: Child; occa
   );
 }
 
-// Varningen när någon har paxat önskningen (MUPP-007-R1): vem och vilken dag. Arkiverade önskningar har ingen borttagningsknapp.
-function claimWarning({ title, claimedBy, claimedAt }: AdminItem) {
+// Varningen när någon har paxat önskningen (MUPP-007-R1): vem och vilken dag; en present som en besökare lagt till (MUPP-077-R6) har ingen dag. Arkiverade önskningar har ingen borttagningsknapp.
+function claimWarning({ title, claimedBy, claimedAt, addedBy }: AdminItem) {
+  if (addedBy) return `${title} är tillagd av ${addedBy}. Hen kan redan ha köpt den. `;
   if (!claimedBy) return "";
   const day = claimedAt ? parseDate(claimedAt) : null;
   return `${title} är paxad av ${claimedBy}${day ? ` ${dayAndMonth(day.day, day.month)}` : ""}. Hen kan redan ha köpt den. `;
@@ -51,7 +52,7 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
   return (
     <SlimCard
       title={item.title}
-      note={item.unlimited ? "Obegränsad" : undefined}
+      note={item.addedBy ? `Tillagd av ${item.addedBy}` : item.unlimited ? "Obegränsad" : undefined}
       actions={
         <>
           <FormCard title={`Ändra ${item.title}`} label={`Ändra ${item.title}`} icon={<PencilIcon />}>
