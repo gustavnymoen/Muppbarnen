@@ -1,5 +1,5 @@
 import { expect, request as playwrightRequest, test } from "@playwright/test";
-import { expectNoA11yViolations, goto, runsLocally } from "./helpers";
+import { expectNoA11yViolations, goto, runsLocally, settledBox } from "./helpers";
 import { addSantaDraw, addSantaEvent, addSantaMember, addSantaWish, ageSantaNag, ageSantaNagRequest, clearFamily, clearSanta } from "./family-db";
 import { clearOutbox, readOutbox } from "./mail-outbox";
 import { santaSignIn } from "./santa";
@@ -44,8 +44,7 @@ test("MUPP-071-R1 the button is shown under 'Inga önskningar ännu.' only when 
   await expect(page.getByText("Inga önskningar ännu.")).toBeVisible();
   const button = page.getByRole("button", { name: NAG, exact: true });
   await expect(button).toBeEnabled();
-  // The layout can round a 44 px button to 43.99998 px; half a pixel of slack keeps the check from failing on that
-  expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(43.5);
+  expect((await settledBox(button)).height).toBeGreaterThanOrEqual(44);
   // The icon is an SVG that screen readers skip; the name of the button is its text
   await expect(button.locator("svg")).toHaveAttribute("aria-hidden", "true");
   await expectNoA11yViolations(page);
