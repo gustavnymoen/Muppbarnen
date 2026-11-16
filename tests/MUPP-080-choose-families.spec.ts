@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { addChild, addFamily, addParent, addSantaEvent, clearFamily, clearSanta, clearTestFamilies, setParentFamilies } from "./family-db";
-import { birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, uniqueName } from "./helpers";
+import { birthdateIn, expectNoA11yViolations, goto, pageAnimationsDone, runsLocally, settledBox, uniqueName } from "./helpers";
 import { testIp } from "./site-session";
 
 // The tests make their data straight in the local test database (never the user's own) and remove it again
@@ -36,6 +36,12 @@ test("MUPP-080-R1 R2 R3 R4 R5 R6 a visitor is asked to choose, sees only the cho
   await expect(page.getByRole("heading", { level: 2, name: "Vilken familj tillhör du?" })).toBeVisible();
   await expect(page.getByRole("article")).toHaveCount(0);
   await expectNoA11yViolations(page);
+  // The look: the card is no wider than a child card, fits the screen and has rows of 44 px
+  const askBox = await settledBox(page.getByRole("region", { name: "Vilken familj tillhör du?" }));
+  expect(askBox.x).toBeGreaterThanOrEqual(0);
+  expect(askBox.x + askBox.width).toBeLessThanOrEqual(375);
+  expect(askBox.width).toBeLessThanOrEqual(448);
+  for (const row of await page.getByRole("region", { name: "Vilken familj tillhör du?" }).getByRole("checkbox").all()) expect((await row.locator("xpath=..").boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await goto(page, "/secret-santa");
   await expect(page.getByRole("heading", { level: 2, name: "Vilken familj tillhör du?" })).toBeVisible();
   await expect(page.getByRole("link", { name: santaX })).toHaveCount(0);
@@ -56,8 +62,13 @@ test("MUPP-080-R1 R2 R3 R4 R5 R6 a visitor is asked to choose, sees only the cho
   await expect(page.getByRole("link", { name: santaX })).toBeVisible();
   await expect(page.getByRole("link", { name: santaY })).toHaveCount(0);
   await expect(page.getByText("Vilken Secret Santa är du med i?")).toBeVisible();
-  // The button fits next to the menu and is 44 px high on a phone
-  expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  // The look: the button is a 44 px icon in the top left corner, clear of the menu button, and nothing scrolls sideways
+  const [buttonBox, menuBox] = [await settledBox(button), await settledBox(page.getByRole("button", { name: "Meny" }))];
+  expect(buttonBox.width).toBeGreaterThanOrEqual(44);
+  expect(buttonBox.height).toBeGreaterThanOrEqual(44);
+  expect(buttonBox.x).toBeLessThanOrEqual(24);
+  expect(buttonBox.y).toBeLessThanOrEqual(24);
+  expect(buttonBox.x + buttonBox.width).toBeLessThanOrEqual(menuBox.x);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
   // R3: the start page shows that family's children
