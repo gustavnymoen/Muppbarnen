@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **Update** [MUPP-074](../specs/MUPP-074-santa-amount/verification.md): merged in pull request 276; Live tests passed against the live site (run 43845878124); the live accessibility checklist is marked done by the user, with no per-item details recorded. [MUPP-076](../specs/MUPP-076-santa-mail-partner-text/verification.md): the test-time box is closed, the overrun accepted by the user.
 * **Creation** [MUPP-074 Amount on Secret Santa groups](../specs/MUPP-074-santa-amount/solution.md): a group can have an amount in whole kronor, set in admin; it shows on the group's card, as a pill beside "Hej" on the members' page and in the draw mail.
 * **Update** [MUPP-079](../specs/MUPP-079-santa-several-groups/verification.md): the live accessibility checklist and a check on a real phone are marked done by the user; no per-item details were recorded.
 * **Update** [MUPP-077](../specs/MUPP-077-visitor-gifts/verification.md): merged, Live tests passed against the live site; the live accessibility checklist and the phone check with the keyboard up are marked done by the user; no per-item details were recorded.

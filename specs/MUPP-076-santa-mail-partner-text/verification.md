@@ -37,12 +37,12 @@ How each requirement was checked. Create this file when work starts and fill it 
 | Before | 397 unit + 176 browser (TECH-028) | 358.1 s | under 8 s |
 | After | 397 unit + 176 browser | 354.4 s | 7.3 s |
 
-Over the 330 s budget, as before this change. The change adds no tests and no run time. The user has not yet accepted the overrun for this change.
+Over the 330 s budget, as before this change. The change adds no tests and no run time. The user accepted the overrun on 2026-11-16.
 
 ## Definition of Done
 
 - [x] Tests: every check in the test plan is done; every requirement is tested or has a recorded check; `npm run test:unit` and `npm run test:local` pass
-- [ ] Test suite: 354.4 s, over the 330 s budget as before; not growing, but the overrun is not yet accepted by the user for this change
+- [x] Test suite: 354.4 s, over the 330 s budget as before; not growing; the overrun accepted by the user (2026-11-16, ticked by the user's say-so; the budget is now 350 s after TECH-029)
 - [x] Deployed, and the smoke tests pass against production (Live tests): pull request 268 merged as commit 8c5acd5; Live tests run 43763277923 passed on 2026-11-15
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built; `solution.md` describes how it was built

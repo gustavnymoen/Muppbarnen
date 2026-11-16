@@ -106,7 +106,7 @@ tags: [product, features]
 | [MUPP-072](MUPP-072-loading-state/solution.md) | Loading state on buttons + nag button text | Shared | Done |
 | [MUPP-077](MUPP-077-visitor-gifts/solution.md) | Add gifts not on the wish list | Önskelista | Done |
 | [MUPP-076](MUPP-076-santa-mail-partner-text/solution.md) | Secret Santa mails: partner sentence, contact the creator | Administration | Ongoing |
-| [MUPP-074](MUPP-074-santa-amount/solution.md) | Amount on Secret Santa groups | Administration | Ongoing |
+| [MUPP-074](MUPP-074-santa-amount/solution.md) | Amount on Secret Santa groups | Administration | Done |
 | [TECH-024](TECH-024-shared-auth-helpers/solution.md) | Shared access checks | Shared | Review |
 | [MUPP-078](MUPP-078-secret-santa-members/solution.md) | Secret Santa members: partner and top buttons | Administration | Ongoing |
 | [MUPP-079](MUPP-079-santa-several-groups/solution.md) | Stay signed in to several Secret Santa groups | Shared | Done |
