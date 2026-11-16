@@ -110,7 +110,7 @@ tags: [product, features]
 | [MUPP-078](MUPP-078-secret-santa-members/solution.md) | Secret Santa members: partner and top buttons | Administration | Ongoing |
 | [MUPP-079](MUPP-079-santa-several-groups/solution.md) | Stay signed in to several Secret Santa groups | Shared | Done |
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
-| [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Review |
+| [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 

@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **Update** [TECH-029](../specs/TECH-029-test-suite-time/verification.md): merged in pull request 271; CI ran 179 browser tests in 361.2 s of its 455 s limit (20.6 % under) and Live tests passed against the live site; the local budget was raised from 330 s to 350 s by the user; ten runs without a database lock were not made.
 * **Update** [MUPP-079](../specs/MUPP-079-santa-several-groups/verification.md): merged; Live tests passed against the live site; the live accessibility checklist and a check on a real phone are not done.
 
 ## 2026-11-15
