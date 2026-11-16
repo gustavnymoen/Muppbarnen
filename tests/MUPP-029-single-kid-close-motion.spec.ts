@@ -52,11 +52,13 @@ test("MUPP-029-R1 R2 the single kid list grows out of the button and shrinks bac
 
   // R1: när listan fälls ihop krymper kopian till knappens plats, och kortet är stängt med fokus på knappen; R2: bara transform och opacity
   await card(page).getByRole("button", { name: "Fäll ihop önskelistan" }).click();
+  // Kopian lever bara i 200 ms: dess rörelse läses först, innan något annat väntas in (annars kan den vara slut, och transformsOf tom)
+  await expect(ghost(page)).toHaveCount(1);
+  const [properties, transforms] = [await animated(ghost(page)), await transformsOf(ghost(page))];
   await expect(region(page)).toHaveCount(0);
   await expect(openButton(page)).toBeFocused();
-  await expect(ghost(page)).toHaveCount(1);
-  expect(await animated(ghost(page))).toEqual(["opacity", "transform"]);
-  expectOnto((await transformsOf(ghost(page))).at(-1)!, list, button);
+  expect(properties).toEqual(["opacity", "transform"]);
+  expectOnto(transforms.at(-1)!, list, button);
   // Inget blir kvar när rörelsen är slut
   await pageAnimationsDone(page);
   await expect(ghost(page)).toHaveCount(0);
