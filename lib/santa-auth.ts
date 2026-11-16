@@ -19,7 +19,11 @@ type SantaContact = "phone" | "email";
 
 // ---- Läsa (bara namn)
 
-export const entranceEvents = () => all<{ id: number; name: string }>("SELECT id, name FROM ss_event ORDER BY name, id");
+// familyIds: bara Secret Santa i de familjerna (MUPP-080-R4); utan (null) alla
+export const entranceEvents = (familyIds: number[] | null = null) =>
+  familyIds
+    ? all<{ id: number; name: string }>(`SELECT id, name FROM ss_event WHERE family_id IN (${familyIds.map(() => "?").join(",") || "NULL"}) ORDER BY name, id`, familyIds)
+    : all<{ id: number; name: string }>("SELECT id, name FROM ss_event ORDER BY name, id");
 
 export async function entranceMembers(eventId: number): Promise<EntranceMember[]> {
   const rows = await all<{ id: number; name: string }>("SELECT id, name FROM ss_member WHERE event_id = ? ORDER BY name, id", [eventId]);

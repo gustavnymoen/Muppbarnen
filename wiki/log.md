@@ -2,6 +2,7 @@
 
 ## 2026-11-17
 
+* **Creation** [MUPP-080 Choose families](../specs/MUPP-080-choose-families/solution.md): with two or more families a visitor chooses which to see, in a cookie on the device; the start page and Secret Santa then show only their children and Secret Santa, with a card that asks for a choice and a button at the top left to change it.
 * **Creation** [MUPP-073 Families](../specs/MUPP-073-families/solution.md): the master admin makes families (name and a short description), puts parents in them and gives every Secret Santa a family; the word "grupp" is replaced by "Secret Santa" everywhere visitors and admins read it, so a family and a Secret Santa are not mixed up.
 
 ## 2026-11-16

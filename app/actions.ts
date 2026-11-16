@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { addVisitorGift, claimWishes as claim, removeAddedGift as removeGift, unclaimWish as unclaim, type ClaimResult, type Outcome, type UnclaimResult } from "@/lib/family";
+import { failed, saved, type FormState } from "@/app/components/form-state";
+import { checkFamilyIds } from "@/lib/families";
+import { FAMILY_COOKIE, familyCookieOptions, serializeChoice } from "@/lib/family-choice";
 import { guardMessage, guardWrite } from "@/lib/request-guard";
 import { ONBOARDING_COOKIE, onboardingCookieOptions } from "@/lib/onboarding";
 import { hasSiteSession } from "@/lib/site-auth";
@@ -58,4 +61,20 @@ export async function markOnboardingSeen(): Promise<void> {
   if (!(await hasSiteSession())) return;
   if ((await guardWrite()) !== "ok") return;
   (await cookies()).set(ONBOARDING_COOKIE, "1", onboardingCookieOptions());
+}
+
+// Besökarens val av familjer (MUPP-080-R1, R6): "Alla" eller en eller flera familjer, i en kaka på enheten. Sajtkakan och gränsen för
+// skrivande anrop först; id:n kontrolleras som heltal som finns. Alla och familjer samtidigt (utan script) räknas som Alla.
+export async function chooseFamilies(_previous: FormState, formData: FormData): Promise<FormState> {
+  if (!(await hasSiteSession())) return failed(formData, { error: LOGGED_OUT });
+  const guard = await guardWrite();
+  if (guard !== "ok") return failed(formData, { error: guardMessage(guard) });
+  const all = formData.get("all") === "on";
+  const picked = [...formData.entries()].flatMap(([key, value]) => (key.startsWith("family-") && value === "on" ? [key.slice("family-".length)] : []));
+  const ids = all ? [] : await checkFamilyIds(picked);
+  if (!ids || (!all && ids.length === 0)) return failed(formData, { fields: { families: "Välj minst en familj, eller Alla." } });
+  (await cookies()).set(FAMILY_COOKIE, serializeChoice(all ? "all" : ids), familyCookieOptions());
+  // Startsidan och Secret Santa visar olika saker nu
+  revalidatePath("/", "layout");
+  return saved;
 }

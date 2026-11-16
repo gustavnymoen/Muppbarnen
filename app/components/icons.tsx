@@ -163,3 +163,14 @@ export const UndoIcon = () => (
     <path d="M3 3v5h5" />
   </Icon>
 );
+
+// Familjerna (två vuxna och ett barn) med ett filter (tratt) nere till höger: knappen som väljer vilka familjer som visas (MUPP-080)
+export const FamilyFilterIcon = () => (
+  <Icon size={26}>
+    <circle cx="7" cy="5.5" r="2.3" />
+    <circle cx="15" cy="5.5" r="2.3" />
+    <path d="M2.5 15v-2.2A3.3 3.3 0 0 1 5.8 9.5h2.4A3.3 3.3 0 0 1 11.5 12.8V15" />
+    <path d="M10.5 15v-2.2a3.3 3.3 0 0 1 3.3-3.3h2.4a3.3 3.3 0 0 1 3.3 3.3V15" />
+    <path d="M13 16.5h10l-4 4.5v3.2l-2-1.2v-2z" fill="currentColor" strokeWidth="1.2" />
+  </Icon>
+);

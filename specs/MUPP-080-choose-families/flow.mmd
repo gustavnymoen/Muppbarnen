@@ -1,0 +1,17 @@
+%% MUPP-080 Choose families
+%% What a visitor sees on the start page and Secret Santa depends on the families that exist and on the cookie.
+flowchart TD
+    A[Visitor opens the start page or Secret Santa] --> B{Two or more families?}
+    B -- no --> C[Everything shown as before - R2]
+    B -- yes --> D{Valid choice in the cookie?}
+    D -- no --> E[Card: Vilken familj tillhör du? - R2]
+    E --> F[Dialog Välj familj]
+    D -- yes --> G[Only the chosen families' children and Secret Santa - R3 R4]
+    G --> H[Button Familj at the top left - R6]
+    H --> F
+    F --> I{Alla or at least one family?}
+    I -- no --> J[Message, nothing saved]
+    J --> F
+    I -- yes --> K[Cookie saved, pages shown again - R1 R6]
+    K --> G
+    G --> L[Secret Santa always listed, also one - R5]
