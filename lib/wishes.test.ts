@@ -3,7 +3,7 @@ import type { Wish } from "./deck";
 import { canClaim, canUnclaim, isLongTitle, sortWishes, webLink } from "./wishes";
 
 // Påhittade önskningar
-const wish = (id: number, extra: Partial<Wish> = {}): Wish => ({ id, title: `Önskan ${id}`, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, ...extra });
+const wish = (id: number, extra: Partial<Wish> = {}): Wish => ({ id, title: `Önskan ${id}`, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, addedBy: null, ...extra });
 const claimed = { claimedBy: "Moster", claimedAt: "2026-10-30" };
 
 describe("MUPP-019-R2 the order of the rows", () => {

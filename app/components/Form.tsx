@@ -8,7 +8,7 @@ import { ListPicker } from "./ListPicker";
 import { toast } from "./Toaster";
 import type { FormAction, FormState } from "./form-state";
 
-const FormStateContext = createContext<FormState>(null);
+export const FormStateContext = createContext<FormState>(null);
 
 // iOS Safari ger datumfältet en egen minimibredd; utan det här krymper det inte till formulärets bredd (MUPP-033)
 const dateFit = "flex items-center min-w-0 max-w-full appearance-none text-left";
