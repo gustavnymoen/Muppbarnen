@@ -56,8 +56,9 @@ Varje formulär öppnas som ett kort som växer fram ur knappen du tryckte på, 
 
 Tryck checklistan **Önskelistor för …** vid barnet: en sida med bara önskelistorna öppnas. Varje barn har två listor, **Födelsedag** och **Jul**.
 
-- **Storlekar:** måttbandet uppe till höger, på raden med **Till barnen**, visar barnets storlekar, så att du slipper gå tillbaka. Samma måttband finns nere till höger i korten **Ny önskning** och **Ändra …**: det du har skrivit står kvar när du stänger storlekarna (tryck **Stäng** eller Esc). Storlekarna kan bara läsas här; de ändras på din sida.
-- **Bläddra mellan barnen:** pilarna vid vänster och höger kant, **Föregående barn** och **Nästa barn**, öppnar nästa barns önskelistor, äldst först och runt: efter det sista barnet kommer det första. Pilarna finns inte om du bara har ett barn.
+- **Tillbaka:** pilen längst upp till vänster, mitt emot menyn, tar dig tillbaka till barnen. Den ser likadan ut på alla sidor.
+- **Storlekar:** i korten **Ny önskning** och **Ändra …** står knappen **Storlekar** på samma rad som **Lägg till** eller **Spara**, till höger. Den visar barnets storlekar medan du skriver: det du har skrivit står kvar när du stänger storlekarna (tryck **Stäng** eller Esc). Storlekarna kan bara läsas här; de ändras på din sida.
+- **Bläddra mellan barnen:** pilarna vid vänster och höger kant, mitt på skärmen, **Föregående barn** och **Nästa barn**, eller svep åt sidan, byter till nästa barns önskelistor: nästa barn glider in. Det går äldst först och runt: efter det sista barnet kommer det första. Svepet fungerar inte medan ett kort är öppet. Pilarna finns inte om du bara har ett barn. Bakåtknappen i webbläsaren går tillbaka till barnet innan.
 
 - **Lägg till:** tryck plusset **Ny önskning**, fyll i **Namn** (måste finnas, högst 60 tecken; ett äldre längre namn måste kortas när du ändrar önskningen), och om du vill **Storlek**, **Beskrivning** (högst 100 tecken) och **Länk** (börjar med http:// eller https://). Kryssa i **Obegränsad** om flera får ge samma sak, annars kan önskningen paxas en gång. Tryck **Lägg till**.
 - **Se mer och ändra:** tryck pennan **Ändra …** vid önskningen. Då syns storlek, beskrivning och länk, och formuläret, i ett kort. Ändra och tryck **Spara**.

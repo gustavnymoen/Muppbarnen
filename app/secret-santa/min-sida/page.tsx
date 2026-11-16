@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import { BackLink } from "@/app/components/BackLink";
 import { IconLink } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import { Chip } from "@/app/components/Chip";
-import { ChatIcon, ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
+import { ChatIcon, ChecklistIcon, CrossIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember, entranceEvents, entranceHref } from "@/lib/santa-auth";
 import { unreadSides } from "@/lib/santa-chat";
@@ -40,9 +41,7 @@ async function Own({ searchParams }: { searchParams: PageProps<"/secret-santa/mi
     <Page
       back={
         severalGroups ? (
-          <IconLink label="Tillbaka" href="/secret-santa?val=grupp">
-            <ReturnIcon />
-          </IconLink>
+          <BackLink href="/secret-santa?val=grupp" />
         ) : (
           <IconLink label="Stäng" href="/">
             <CrossIcon />

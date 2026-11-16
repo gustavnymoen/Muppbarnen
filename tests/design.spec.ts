@@ -1056,7 +1056,10 @@ test("MUPP-077-R1 R3 R4 R5 the add button, the added row, the two-step window an
       expect(box.x + box.width).toBeLessThanOrEqual(320);
       expect((await settledBox(dialog.getByRole("button", { name: button, exact: true }))).height).toBeGreaterThanOrEqual(44);
     }
-    expect((await settledBox(dialog.getByRole("button", { name: "Tillbaka" }))).width).toBeGreaterThanOrEqual(44);
+    // MUPP-085-R6: the step back is the same return arrow as everywhere, 44 px
+    const stepBack = dialog.getByRole("button", { name: "Tillbaka" });
+    expect((await settledBox(stepBack)).width).toBeGreaterThanOrEqual(44);
+    await expect(stepBack.locator('path[d^="M20 20v-7"]')).toHaveCount(1);
     await expectFormCardLooks(page, dialog);
     await page.keyboard.press("Escape");
 

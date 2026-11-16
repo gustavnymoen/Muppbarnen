@@ -1,8 +1,8 @@
 import { readdirSync } from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
-import { addChild, addParent, clearFamily, pictureOf } from "./family-db";
+import { adminSignIn, expectBackArrow, expectNoA11yViolations, goto, runsLocally, settledBox, uniqueName } from "./helpers";
+import { addChild, addParent, addWish, clearFamily, pictureOf } from "./family-db";
 import { testIp } from "./site-session";
 
 // Like the MUPP-003 tests, these need the local test server (its own database, passwords and picture folder)
@@ -39,6 +39,8 @@ test("MUPP-010-R1 R2 R6 Hantera starts with every card closed: two headings, sli
   await expect(kidCard.getByRole("img")).toHaveCount(0);
   await expect(page.locator("main input:visible, main select:visible, main textarea:visible")).toHaveCount(0);
   await expect(page.locator("dialog[open]")).toHaveCount(0);
+  // MUPP-085-R5: the arrow back to the kids, not a text button
+  await expectBackArrow(page, "/admin");
   // R6: a slim card is about one line high
   for (const slim of [parentCard, kidCard]) expect((await settledBox(slim)).height).toBeLessThanOrEqual(56);
 
@@ -112,13 +114,16 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   await expect(kidCard).toBeVisible();
 });
 
-test("MUPP-010-R1 R2 R5 MUPP-083-R1 R2 R3 R4 the wish list page has only the lists, as slim rows, and the kid's sizes are a card on the parent's page; the sizes open from the page, and arrows flip between the kids", async ({ page }) => {
+test("MUPP-010-R1 R2 R5 MUPP-083-R2 MUPP-085-R1 R2 R3 R4 R5 the wish list page has only the lists, as slim rows, and the kid's sizes are a card on the parent's page; Storlekar is beside the save button, and arrows and swipes flip between the kids with a slide", async ({ page }) => {
   const mia = uniqueName("Mia");
   const kid = uniqueName("Barn");
   const parentId = await addParent(mia);
   await addChild(parentId, kid);
   const younger = uniqueName("Syskon");
   const youngerId = await addChild(parentId, younger, "2022-03-01");
+  // MUPP-085-R2: a kid of another parent is never in the page
+  const strangerWish = uniqueName("Hemlig");
+  await addWish(await addChild(await addParent(uniqueName("Annan")), uniqueName("Främling")), "christmas", strangerWish);
   await adminSignIn(page, mia);
 
   // R2: the measuring tape and the checklist have the accessible name as a tooltip and are at least 32 px wide
@@ -149,6 +154,10 @@ test("MUPP-010-R1 R2 R5 MUPP-083-R1 R2 R3 R4 the wish list page has only the lis
   await expect(page.getByLabel("Kläder")).toHaveCount(0);
   // R1: no card is open when the page opens
   await expect(page.locator("main form:visible")).toHaveCount(0);
+  // MUPP-085-R4: no Storlekar button on the page itself, only in the open cards; R5: the arrow back to the kids; R2: only the parent's own kids are in the page
+  await expect(page.getByRole("button", { name: "Storlekar" })).toHaveCount(0);
+  await expectBackArrow(page, "/admin");
+  expect(await page.content()).not.toContain(strangerWish);
 
   // An item is a slim row with its icon buttons
   await birthday.getByRole("button", { name: "Ny önskning, Födelsedag" }).click();
@@ -167,6 +176,12 @@ test("MUPP-010-R1 R2 R5 MUPP-083-R1 R2 R3 R4 the wish list page has only the lis
   await expect(item.getByLabel("Namn")).toHaveValue("Pussel");
   await expectNoA11yViolations(page);
 
+  // MUPP-085-R3: Storlekar is on the row of Spara, at the right, as high
+  const [save, sizesButton] = await Promise.all([item.getByRole("button", { name: "Spara" }), item.getByRole("button", { name: "Storlekar" })].map(settledBox));
+  expect(Math.abs(save.y + save.height / 2 - (sizesButton.y + sizesButton.height / 2))).toBeLessThan(1);
+  expect(save.height).toBe(sizesButton.height);
+  expect(sizesButton.x).toBeGreaterThan(save.x + save.width);
+
   // MUPP-083-R2: in the open edit card the sizes open on top of it, and closing them keeps what is typed
   await item.getByLabel("Namn").fill("Pussel 500 bitar");
   await page.getByRole("button", { name: "Storlekar" }).last().click();
@@ -178,17 +193,9 @@ test("MUPP-010-R1 R2 R5 MUPP-083-R1 R2 R3 R4 the wish list page has only the lis
   await page.keyboard.press("Escape");
   await expect(page.locator("dialog[open]")).toHaveCount(0);
 
-  // MUPP-083-R1: the corner button opens the sizes, and the dialog says so when none are filled in
-  const corner = page.getByRole("button", { name: "Storlekar" });
-  await corner.first().click();
-  await expect(sizesDialog).toContainText("Kläder");
-  await expectNoA11yViolations(page);
-  await sizesDialog.getByRole("button", { name: "Stäng" }).click();
-  await expect(corner.first()).toBeFocused();
-
-  // MUPP-083-R3: the arrows go to the next kid and round again; R4: on a phone they cover no text or button of the lists
-  const left = page.getByRole("link", { name: "Föregående barn" });
-  const right = page.getByRole("link", { name: "Nästa barn" });
+  // MUPP-085-R1: on a phone the arrows (fixed in the middle of the screen) cover no text or button of the lists
+  const left = page.getByRole("button", { name: "Föregående barn" });
+  const right = page.getByRole("button", { name: "Nästa barn" });
   const covered = [item.getByText("Pussel", { exact: true }), item.getByRole("button", { name: "Ändra Pussel" }), item.getByRole("button", { name: "Ta bort Pussel" })];
   for (const [width, height] of [[320, 568], [375, 667], [430, 932]]) {
     await page.setViewportSize({ width, height });
@@ -201,14 +208,53 @@ test("MUPP-010-R1 R2 R5 MUPP-083-R1 R2 R3 R4 the wish list page has only the lis
       }
     }
   }
+
+  // MUPP-085-R2: the arrow slides the next kid in without loading anything (no request, the header stays), the URL follows, focus goes to the name, and Back and Forward follow
+  const requests: string[] = [];
+  page.on("request", (request) => requests.push(request.url()));
+  await page.evaluate(() => ((window as unknown as { kept: boolean }).kept = true));
   await right.click();
+  await expect(page.locator(".slide-in")).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1, name: younger })).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/admin/barn/${youngerId}/onskelistor`));
+  await expect(page.locator(".slide-in")).toHaveCount(0);
+  await expect(page.locator("h1 > span")).toBeFocused();
+  expect(requests.filter((url) => !url.includes("/_next/static")), "flipping loads nothing").toEqual([]);
+  expect(await page.evaluate(() => (window as unknown as { kept?: boolean }).kept)).toBe(true);
+  await expectNoA11yViolations(page);
+  await page.goBack();
+  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  // R2: the lists are fresh after the save (the wish added earlier is in the kid's panel again)
+  await expect(item).toBeVisible();
+  // The arrows go round the end, and a sideways swipe on empty ground does the same as the arrow
+  await right.click();
   await right.click();
   await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  await expect(page.locator(".slide-in")).toHaveCount(0);
+  const swipe = async (from: Locator) => {
+    const box = await settledBox(from);
+    const y = box.y + box.height / 2;
+    // The drag starts on the element itself and goes left
+    await page.mouse.move(box.x + box.width / 2, y);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 - 120, y, { steps: 4 });
+    await page.mouse.up();
+  };
+  // No swipe from a button, nor inside an open card (what is typed would be lost)
+  await swipe(item.getByRole("button", { name: "Ändra Pussel" }));
+  await item.getByRole("button", { name: "Ändra Pussel" }).click();
+  await swipe(page.locator("dialog[open]").getByLabel("Namn"));
+  await swipe(page.locator("dialog[open]").getByRole("heading", { level: 2 }));
+  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
+  await swipe(page.getByRole("heading", { level: 2, name: "Jul" }));
+  await expect(page.getByRole("heading", { level: 1, name: younger })).toBeVisible();
+  // Reduced motion: the kid changes and nothing moves
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await left.click();
-  await expect(page).toHaveURL(new RegExp(`/admin/barn/${youngerId}/onskelistor`));
-  await page.getByRole("button", { name: "Storlekar" }).first().click();
-  await expect(page.getByRole("dialog")).toContainText("Inga storlekar inlagda än.");
+  await expect(page.getByRole("heading", { level: 1, name: kid })).toBeVisible();
+  await expect(page.locator(".slide-in, .slide-out")).toHaveCount(0);
 });
 
 test("MUPP-010-R6 five kids fit on a phone, the keyboard reaches the buttons of a kid, and the open cards and the kid pages have no sideways scroll at 320, 375 and 430 px, and pass axe", async ({ page }) => {

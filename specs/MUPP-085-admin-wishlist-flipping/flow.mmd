@@ -1,0 +1,9 @@
+%% MUPP-085 Admin wish lists: arrows, slide and button places
+flowchart TD
+    A[Wish list page of a kid: all the parent's kids are in the page] --> B{Tap or swipe}
+    B -- Nästa barn, Föregående barn or a sideways swipe, R1 R2 --> C[URL changes, the old kid slides out, the next slides in, focus on the name]
+    C --> A
+    B -- Back in the browser --> C
+    B -- Ny önskning or Ändra --> D[Form card: Spara or Lägg till with Storlekar on the same row, R3]
+    D --> E[Sizes dialog on top of the card]
+    B -- Tillbaka arrow in the header, R5 --> F[Admin page]

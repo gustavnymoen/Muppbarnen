@@ -78,19 +78,14 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
 
 function ItemForm({ child, occasion, item, submit }: { child: Child; occasion: Occasion; item?: WishlistItem; submit: string }) {
   return (
-    <div className="space-y-4">
-      <Form action={saveItem} submit={submit} says={{ field: "title", added: !item }} again={!item}>
-        <input type="hidden" name="childId" value={child.id} />
-        <input type="hidden" name="occasion" value={occasion} />
-        {item && <input type="hidden" name="itemId" value={item.id} />}
-        <WishFields item={item} />
-        <Field name="unlimited" type="checkbox" label="Obegränsad" defaultChecked={item?.unlimited} hint="Utan kryss kan önskningen paxas en gång." />
-      </Form>
-      {/* Storlekarna till hands medan önskningen skrivs (MUPP-083-R2); utanför formuläret, så att det som är skrivet står kvar */}
-      <div className="flex justify-end">
-        <SizesButton kid={child} mode="corner" />
-      </div>
-    </div>
+    // Storlekarna till hands medan önskningen skrivs (MUPP-083-R2), på samma rad som knappen som sparar (MUPP-085-R3)
+    <Form action={saveItem} submit={submit} aside={<SizesButton kid={child} mode="text" />} says={{ field: "title", added: !item }} again={!item}>
+      <input type="hidden" name="childId" value={child.id} />
+      <input type="hidden" name="occasion" value={occasion} />
+      {item && <input type="hidden" name="itemId" value={item.id} />}
+      <WishFields item={item} />
+      <Field name="unlimited" type="checkbox" label="Obegränsad" defaultChecked={item?.unlimited} hint="Utan kryss kan önskningen paxas en gång." />
+    </Form>
   );
 }
 
