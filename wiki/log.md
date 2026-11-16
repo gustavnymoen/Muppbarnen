@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Creation** [TECH-029 Test suite time](../specs/TECH-029-test-suite-time/solution.md): the browser tests went from 185 tests and 364.3 s to 179 and 322.9 s (axe runs in the page, the parent is chosen in the admin cookie, the Christmas card repeats less, five pairs of tests merged and one repeat removed), and `CLAUDE.md` and `testing.md` say that a feature adds as few and as fast browser tests as its requirements allow and merges or removes tests before it would go over the budget.
 * **Creation** [MUPP-079 Stay signed in to several Secret Santa groups](../specs/MUPP-079-santa-several-groups/solution.md): the Secret Santa cookie holds a signed entry per group (up to 10), the own page and its sub pages pick the group from `?grupp=`, and "Tillbaka" only switches group instead of signing out.
 * **Update** [MUPP-078](../specs/MUPP-078-secret-santa-members/verification.md): merged; the iPhone check, the live accessibility checklist, `/security-review` and Live tests are marked done by the user; no per-item details were recorded.
 * **Creation** [MUPP-078 Secret Santa members: partner and top buttons](../specs/MUPP-078-secret-santa-members/solution.md): the "Ny person" card has the Partner field (hidden in an empty group), and every card puts the page back at the top when it closes, which fixes the page shifted under the status bar on iPhone.

@@ -1,0 +1,15 @@
+%% TECH-029 Test suite time
+%% How a feature's tests are kept cheap: look for an existing test first, and merge or remove before a limit is touched.
+flowchart TD
+    A[Feature needs a browser test] --> B{A rule?}
+    B -- yes --> C[Unit test for the cases, one browser test to show it - TECH-029-R3]
+    B -- no --> D{A test already opens this page in this state?}
+    D -- yes --> E[Add the check to it, name the requirement]
+    D -- no --> F[New test with shared set-up]
+    C --> G[npm run test:time]
+    E --> G
+    F --> G
+    G --> H{Over the budget?}
+    H -- no --> I[Record the seconds added in verification.md]
+    H -- yes --> J[Merge or remove tests first, never raise a limit in the same pull request]
+    J --> G

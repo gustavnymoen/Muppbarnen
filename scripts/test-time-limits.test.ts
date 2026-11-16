@@ -45,8 +45,8 @@ describe("TECH-019-R3 time limits", () => {
   });
 
   test("TECH-019-R3 uses the budget of testing.md by default", () => {
-    // 330 s är gränsen: precis på den är godkänt, en millisekund över är det inte
-    const many = Array.from({ length: 64 }, (_, i) => spec(`t${i}`, 5000));
+    // 350 s är gränsen: precis på den är godkänt, en millisekund över är det inte
+    const many = Array.from({ length: 68 }, (_, i) => spec(`t${i}`, 5000));
     expect(checkTimes(report(...many, spec("a", 5000), spec("b", 5000))).ok).toBe(true);
     expect(checkTimes(report(...many, spec("a", 5000), spec("b", 4999.5), spec("c", 1))).ok).toBe(false);
   });

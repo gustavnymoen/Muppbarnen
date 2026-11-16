@@ -159,7 +159,7 @@ test("MUPP-017-R3 swiping does nothing, the arrow keys stay in the claim dialog,
   await expect(kidName(page)).toHaveText("Otto");
 });
 
-test("MUPP-017-R4 Tillbaka is only an icon, named after where it goes, 44 px, and works as before at 320 and 375 px", async ({ page }) => {
+test("MUPP-017-R4 Tillbaka is only an icon, named after where it goes, 44 px, at 320 and 375 px", async ({ page }) => {
   await threeKids(page);
   // Samma sida i båda bredderna, fönstret ändras (TECH-015)
   for (const width of [320, 375]) {
@@ -175,13 +175,7 @@ test("MUPP-017-R4 Tillbaka is only an icon, named after where it goes, 44 px, an
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `at ${width}`).toBe(true);
     await expectNoA11yViolations(page);
 
-    await region(page).getByRole("checkbox", { name: "Cykel åt Vera" }).check();
-    await back.click();
-    await expect(region(page)).toHaveCount(0);
-    await expect(open).toBeFocused();
-    await open.click();
-    await expect(region(page).getByRole("checkbox", { name: "Cykel åt Vera" })).not.toBeChecked();
-    // Vyn stängs igen, så att nästa bredd börjar som den här
+    // Att Tillbaka gör som Stäng (fokus, markeringar borta) testas i MUPP-015; här stängs vyn bara, så att nästa bredd börjar som den här
     await back.click();
     await expect(region(page)).toHaveCount(0);
   }

@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
 import { adminSignIn, animationsDone, backgroundOf, contrast, css, DANGER, expectNoA11yViolations, goto, openCard, pickOption, runsLocally, uniqueName } from "./helpers";
-import { addChild, addParent, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
+import { addChild, addParent, addWish, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
 // The admin pages are tested against the local test server only: it has made-up passwords and its
@@ -434,8 +434,7 @@ test("MUPP-003-R6 a picture is uploaded, shown only through the site, replaced, 
   const kidId = await addChild(chefId, kid);
   const noPicture = await addChild(chefId, uniqueName("Utan bild"));
 
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  await adminSignIn(page, chef, "/admin/hantera");
   const row = page.getByRole("article").filter({ hasText: kid });
   const upload = async (file: { name: string; mimeType: string; buffer: Buffer }) => {
     const form = await openCard(row, `Bild för ${kid}`);
@@ -566,14 +565,8 @@ test("MUPP-003-R8 every admin page works at 320, 430 and 1280 px: no sideways sc
   const miaId = await addParent(mia, true);
   await addParent(chef);
   const kid = await addChild(miaId, uniqueName("Barn"));
+  await addWish(kid, "birthday", "Pussel");
   await adminSignIn(page, mia);
-  await goto(page, `/admin/barn/${kid}/onskelistor`);
-  const form = await openCard(list(page, "Födelsedag"), "Ny önskning");
-  await form.getByLabel("Namn").fill("Pussel");
-  await form.getByRole("button", { name: "Lägg till" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Pussel lades till" })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { level: 3, name: "Pussel" })).toBeVisible();
 
   // Every page is opened once and measured at each width by resizing the window (TECH-015)
   for (const path of ["/admin", `/admin/barn/${kid}/onskelistor`, "/admin/hantera"]) {

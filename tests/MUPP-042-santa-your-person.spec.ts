@@ -103,7 +103,8 @@ test("MUPP-042-R1 R2 MUPP-062-R2 MUPP-064-R1 R2 R3 a started group gives the sec
   await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(0);
 });
 
-test("MUPP-042-R1 before the start the second card is grey with 'Inte tilldelad än', and the match page leads back", async ({ page }) => {
+test("MUPP-042-R1 R3 before the start the second card is grey with 'Inte tilldelad än', the match page leads back, and a change of a list sends no mail", async ({ page }) => {
+  clearOutbox();
   const event = await addSantaEvent("Familjen Test", undefined, "preparing");
   const anna = await addSantaMember(event, "Anna Testsson", "0700001111", "anna@exempel.invalid");
   const bo = await addSantaMember(event, "Bo Testsson", "0700002222", "bo@exempel.invalid");
@@ -116,6 +117,17 @@ test("MUPP-042-R1 before the start the second card is grey with 'Inte tilldelad 
   await goto(page, "/secret-santa/min-sida/matchning");
   await expect(page).toHaveURL(/\/secret-santa\/min-sida(\?grupp=\d+)?$/);
   await expect(page.getByText("Önskelistan hos")).toHaveCount(0);
+
+  // R3: a change while the group is only preparing sends no mail
+  await goto(page, "/secret-santa/min-sida/onskelista");
+  await page.getByRole("button", { name: "Ny önskning" }).click();
+  await page.getByLabel("Namn").fill("Tidig sak");
+  await page.getByRole("button", { name: "Lägg till" }).click();
+  await expect(wishRow(page, "Tidig sak")).toBeVisible();
+  const caller = await playwrightRequest.newContext({ baseURL: process.env.BASE_URL, extraHTTPHeaders: { "x-real-ip": testIp() } });
+  expect(await (await caller.post("/api/santa-mails", { headers: { authorization: `Bearer ${process.env.SANTA_JOB_SECRET}` } })).json()).toEqual({ sent: 0, failed: 0 });
+  expect(readOutbox()).toEqual([]);
+  await caller.dispose();
 });
 
 test("MUPP-042-R3 a changed list mails the giver once an hour: the job refuses without its secret, collects changes, sends nothing when nothing changed, and names the group but nobody", async ({ page }) => {
@@ -168,20 +180,4 @@ test("MUPP-042-R3 a changed list mails the giver once an hour: the job refuses w
   expect(readOutbox()).toHaveLength(2);
   await caller.dispose();
   clearOutbox();
-});
-
-test("MUPP-042-R3 a change while the group is only preparing sends no mail", async ({ page }) => {
-  clearOutbox();
-  const event = await addSantaEvent("Familjen Test", undefined, "preparing");
-  const bo = await addSantaMember(event, "Bo Testsson", "0700002222", "bo@exempel.invalid");
-  await santaSignIn(page, bo);
-  await goto(page, "/secret-santa/min-sida/onskelista");
-  await page.getByRole("button", { name: "Ny önskning" }).click();
-  await page.getByLabel("Namn").fill("Tidig sak");
-  await page.getByRole("button", { name: "Lägg till" }).click();
-  await expect(wishRow(page, "Tidig sak")).toBeVisible();
-  const caller = await playwrightRequest.newContext({ baseURL: process.env.BASE_URL, extraHTTPHeaders: { "x-real-ip": testIp() } });
-  expect(await (await caller.post("/api/santa-mails", { headers: { authorization: `Bearer ${process.env.SANTA_JOB_SECRET}` } })).json()).toEqual({ sent: 0, failed: 0 });
-  expect(readOutbox()).toEqual([]);
-  await caller.dispose();
 });

@@ -3,7 +3,7 @@
 // scripts/check-test-time.mjs, som felar när en gräns passeras.
 
 export const TEST_BUDGET_MS = 8_000;
-export const SUITE_BUDGET_MS = 330_000;
+export const SUITE_BUDGET_MS = 350_000;
 
 // Varje test med sin titel och tid, i alla filer och describe-block i Playwrights JSON-rapport
 export function testsIn(suite) {

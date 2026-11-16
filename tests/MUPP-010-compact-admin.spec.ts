@@ -28,8 +28,7 @@ test("MUPP-010-R1 R2 R6 Hantera starts with every card closed: two headings, sli
   const kid = "Otis";
   await addChild(chefId, kid);
   await page.setViewportSize({ width: 375, height: 667 });
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  await adminSignIn(page, chef, "/admin/hantera");
 
   // R1: the headings, one slim card per parent and kid, no card open, no form field in sight
   await expect(page.getByRole("heading", { level: 2, name: "Föräldrar" })).toBeVisible();
@@ -71,8 +70,7 @@ test("MUPP-010-R4 a picture is uploaded, shown as a row with Bild and a trash ca
   const chef = uniqueName("Chef");
   const kid = uniqueName("Barn");
   const kidId = await addChild(await addParent(chef, true), kid);
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  await adminSignIn(page, chef, "/admin/hantera");
   const kidCard = card(page, kid);
   const pictureButton = kidCard.getByRole("button", { name: `Bild för ${kid}` });
   const files = () => readdirSync(testPicturesDir).filter((f) => f.startsWith(`barn-${kidId}-`));
@@ -229,8 +227,7 @@ test("MUPP-010-R6 with the keyboard only: Tab to the pencil, Enter opens, Esc cl
   const chef = uniqueName("Chef");
   const kid = uniqueName("Barn");
   await addChild(await addParent(chef, true), kid);
-  await adminSignIn(page, chef);
-  await goto(page, "/admin/hantera");
+  await adminSignIn(page, chef, "/admin/hantera");
   await page.waitForLoadState("networkidle");
   const kidCard = card(page, kid);
   const pencil = kidCard.getByRole("button", { name: `Ändra ${kid}` });

@@ -18,7 +18,7 @@ test.afterEach(async () => {
 });
 
 // Holds every server action (a POST to the page) for a while, so that the busy state can be looked at
-async function slowActions(page: Page, ms = 1500) {
+async function slowActions(page: Page, ms = 1000) {
   await page.route("**/secret-santa/**", async (route) => {
     if (route.request().method() === "POST") await new Promise((resolve) => setTimeout(resolve, ms));
     await route.continue();
@@ -47,14 +47,29 @@ async function startedEvent() {
   return { anna, bo };
 }
 
-test("MUPP-072-R1 R2 R3 deleting a wish: the confirm button is locked at once, shows a spinner after a moment, and is done when the wish is gone", async ({ page }) => {
+test("MUPP-072-R1 R2 R3 saving a form and deleting a wish: the button is locked at once, shows a spinner after a moment, and is done when the action is", async ({ page }) => {
   const { anna } = await startedEvent();
   await addSantaWish(anna, "Bok");
   await santaSignIn(page, anna);
   await goto(page, "/secret-santa/min-sida/onskelista");
+  await slowActions(page);
+
+  // Saving a form
+  await page.getByRole("button", { name: "Ny önskning" }).click();
+  const add = page.locator("form").filter({ has: page.getByRole("button", { name: "Lägg till" }) });
+  await add.getByLabel("Namn").fill("Pussel");
+  const submit = add.getByRole("button", { name: "Lägg till" });
+  await submit.click();
+  await expectBusyThenDone(page, submit);
+  await expect(submit).toBeEnabled();
+  await expect(submit).not.toHaveAttribute("aria-busy");
+  await expect(submit.locator(".spinner")).toHaveCount(0);
+  await expect(page.getByRole("status").filter({ hasText: "Arbetar" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  // Deleting a wish
   await foldOut(page, "Bok");
   await page.getByRole("button", { name: "Ta bort Bok" }).click();
-  await slowActions(page);
   const confirm = page.getByRole("alertdialog").getByRole("button", { name: "Ta bort" });
   await confirm.evaluate(() => Promise.all(document.getAnimations().map((animation) => animation.finished)));
   const before = (await confirm.boundingBox())!;
@@ -70,24 +85,7 @@ test("MUPP-072-R1 R2 R3 deleting a wish: the confirm button is locked at once, s
   expect(Math.abs(during.width - before.width)).toBeLessThan(1);
   expect(during.height).toBe(before.height);
   await expect(wishRow(page, "Bok")).toHaveCount(0);
-  expect(await santaWishes(anna)).toEqual([]);
-});
-
-test("MUPP-072-R1 R2 R3 saving a form shows the same busy state", async ({ page }) => {
-  const { anna } = await startedEvent();
-  await santaSignIn(page, anna);
-  await goto(page, "/secret-santa/min-sida/onskelista");
-  await page.getByRole("button", { name: "Ny önskning" }).click();
-  const add = page.locator("form").filter({ has: page.getByRole("button", { name: "Lägg till" }) });
-  await add.getByLabel("Namn").fill("Pussel");
-  await slowActions(page);
-  const submit = add.getByRole("button", { name: "Lägg till" });
-  await submit.click();
-  await expectBusyThenDone(page, submit);
-  await expect(submit).toBeEnabled();
-  await expect(submit).not.toHaveAttribute("aria-busy");
-  await expect(submit.locator(".spinner")).toHaveCount(0);
-  await expect(page.getByRole("status").filter({ hasText: "Arbetar" })).toHaveCount(0);
+  expect((await santaWishes(anna)).map((w) => w.title)).toEqual(["Pussel"]);
 });
 
 test("MUPP-072-R1 R5 the nag button is busy while the action runs; locked, it says why in a text tied to it, and free it says nothing", async ({ page }) => {

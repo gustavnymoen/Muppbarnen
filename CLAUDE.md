@@ -22,7 +22,7 @@ Every change to the site's behaviour belongs to a card with an ID (`MUPP-001`, `
 1. **Specify.** Pick the top card in Backlog with the user. Work out in the card, together with the user: Goal, Scope, numbered requirements (`<ID>-R1`, `<ID>-R2`, …) with acceptance criteria, a test plan (which unit tests, browser tests and smoke test, what accessibility checks, and whether `/security-review` is needed; see `wiki/system/testing.md`), and open questions. When the requirements and the test plan are settled and no open questions remain, move the card to **Specified**.
 2. **Start.** Create a Git branch named `<ID>-<name>`, for example `MUPP-010-wishlist`, and the folder `specs/<ID>-<name>/` from `specs/_template/`: `solution.md` (how it is built: data, interface, decisions and why), `flow.mmd` and `verification.md`. Move the card to **Ongoing**.
 3. **Build.** Implement exactly what the requirements say, and write the unit tests in the test plan together with the code they test. If a requirement turns out to be wrong or incomplete, stop and update the card with the user first, then the code. Never let code and requirements disagree. Keep `solution.md` up to date as the work goes.
-4. **Test.** Write the tests in the card's test plan: the browser tests (checks of the look go into `tests/design.spec.ts`, in the test for their page and state, never one test per CSS value), and a smoke test when the feature adds or changes a main page or flow. Every requirement has at least one test named after it, or a manual check or code review recorded in `verification.md` with the reason it can't be automated. How to write them (names, places, data, helpers, what to do when one fails) is in `wiki/system/testing.md`.
+4. **Test.** Add as few and as fast browser tests as the requirements allow (see "Tests" below), and write the tests in the card's test plan: the browser tests (checks of the look go into `tests/design.spec.ts`, in the test for their page and state, never one test per CSS value), and a smoke test when the feature adds or changes a main page or flow. Every requirement has at least one test named after it, or a manual check or code review recorded in `verification.md` with the reason it can't be automated. How to write them (names, places, data, helpers, what to do when one fails) is in `wiki/system/testing.md`.
 5. **Verify.** Fill in `verification.md`: each requirement, how it was checked, where (local or live), the result and the date. Only record checks that were actually done; anything not checked is written as not checked. Run `npm run lint`, `npm run lint:docs`, `npm run typecheck`, `npm run build` and `npm run test:time` (which runs the unit tests and `npm run test:local` and gives the test numbers for `verification.md`), and after the deploy check that Live tests (the smoke tests) passed against the live site.
 6. **Document.** Update `wiki/system/` (how it works, in English) and `wiki/manual/` (how to use it, in Swedish), the `index.md` pages, `wiki/system/architecture.md` if the structure changed, and add a line to `wiki/log.md`.
 7. **Review.** Run the reviewer agent (`.claude/agents/code-reviewer.md`), which follows `wiki/system/code-review.md` (including its security points) and reads the requirements from the card. If the change touches sign-in, admin, API routes, server actions, database queries or personal data, also run Claude Code's `/security-review` and add its result to the report. Save the report as `review.md` in the feature's folder, from `specs/_template/review.md`. Fix every must-fix finding, run lint, the type check and the affected tests again, and run the review again until none are left; fix small should-fix findings now and add larger ones to the board. If the review stopped the feature, tell the user in a few lines what it found and how it was fixed; otherwise just say that it passed.
@@ -43,7 +43,7 @@ A feature or technical task is done when all of these hold. Record them in its `
 6. **Clean code:** reads like the surrounding code, reuses existing components and helpers instead of copying them, and `npm run lint`, `npm run lint:docs`, `npm run typecheck` and `npm run build` pass without errors or warnings.
 7. **Code review:** the review is done, `review.md` is saved, and no must-fix findings are left.
 8. **Improvements handled:** small cleanups related to the work are fixed in the same change; larger or unrelated ones are added to the board as technical tasks (see below).
-9. **Test suite:** the number of tests and the total time before and after the change are recorded, the suite is within the time budgets in `wiki/system/testing.md`, and the new tests follow its quality rules.
+9. **Test suite:** the number of tests and the total time before and after the change are recorded, with the seconds the feature's own tests added, the suite is within the time budgets in `wiki/system/testing.md`, and the new tests follow its quality rules.
 
 ## Design work
 
@@ -58,6 +58,15 @@ Design is decided by trying proposals in the running site, on a phone first, and
 ## Tests
 
 How the site is tested is in `wiki/system/testing.md`: the kinds of checks (unit tests, browser tests, smoke tests, accessibility, security, code review), which to choose for what, where each runs, the quality rules and the time budgets. Check it with every change, so that the suite doesn't grow slower and weaker as the site grows.
+
+**Be sparing with browser tests.** They are the slow ones (about 2 s each, and the suite has a time budget). A feature adds as few and as fast of them as its requirements allow:
+
+- A rule (a calculation, a limit, who may do what) is tested in a unit test, with as many cases as it needs, and shown in **one** browser test.
+- A new check joins an existing journey and page load (the test that already opens that page in that state) instead of loading a page of its own. A new test file or test is for a page, a state or data the others must not see.
+- Set-up is shared (`tests/helpers.ts`, `tests/santa.ts`, a fixture), not written again in every test.
+- The same behaviour is not checked in two places: not in a feature test and again in `tests/design.spec.ts`, not on two cards that share the code, and a test that a later change made redundant is removed.
+- The card's test plan and `verification.md` say how many seconds the feature's tests added.
+- A feature whose tests would put the suite over its budget merges or removes tests first (an earlier test of the same page is a good place to start). **No limit is raised in the same pull request**, and never to make one pass; a limit changes only on a card of its own, with the numbers.
 
 ## Technical tasks
 

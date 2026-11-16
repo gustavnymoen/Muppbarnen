@@ -17,6 +17,9 @@ async function withDb<T>(fn: (db: ReturnType<typeof createClient>) => Promise<T>
 export const addParent = (name: string, master = false) =>
   withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO parent (name, is_master_admin) VALUES (?, ?)", args: [name, master ? 1 : 0] })).lastInsertRowid));
 
+export const parentIdOf = (name: string) =>
+  withDb(async (db) => Number((await db.execute({ sql: "SELECT id FROM parent WHERE name = ?", args: [name] })).rows[0].id));
+
 export const addChild = (parentId: number, name: string, birthdate = "2020-05-17") =>
   withDb(async (db) =>
     Number((await db.execute({ sql: "INSERT INTO child (parent_id, name, birthdate) VALUES (?, ?, ?)", args: [parentId, name, birthdate] })).lastInsertRowid),
