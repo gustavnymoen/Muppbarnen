@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-16
+
+* **Update** [MUPP-079](../specs/MUPP-079-santa-several-groups/verification.md): merged; Live tests passed against the live site; the live accessibility checklist and a check on a real phone are not done.
+
 ## 2026-11-15
 
 * **Creation** [TECH-029 Test suite time](../specs/TECH-029-test-suite-time/solution.md): the browser tests went from 185 tests and 364.3 s to 179 and 322.9 s (axe runs in the page, the parent is chosen in the admin cookie, the Christmas card repeats less, five pairs of tests merged and one repeat removed), and `CLAUDE.md` and `testing.md` say that a feature adds as few and as fast browser tests as its requirements allow and merges or removes tests before it would go over the budget.
