@@ -2,6 +2,7 @@
 
 ## 2026-11-17
 
+* **Creation** [MUPP-084 Three kids: use the card's space](../specs/MUPP-084-three-kids-space/solution.md): the three rows of a card with three kids share the card's height, with larger pictures and names.
 * **Update** [MUPP-085](../specs/MUPP-085-admin-wishlist-flipping/verification.md): merged in pull request 296; Live tests passed against the live site (run 43946433890); the live accessibility checklist is not done.
 * **Creation** [MUPP-085 Admin wish lists: arrows, slide and button places](../specs/MUPP-085-admin-wishlist-flipping/solution.md): the kid's wish lists slide when flipping between the kids (arrows at the screen edges, or a swipe, no reload), Storlekar is on the row of the save button, and every back button is the arrow in the header.
 * **Update** [MUPP-083](../specs/MUPP-083-admin-wishlist-sizes/verification.md): merged in pull request 293; Live tests passed against the live site (run 43935647958); the live accessibility checklist is not done.

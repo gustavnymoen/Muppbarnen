@@ -710,7 +710,7 @@ test("MUPP-013-R1 R2 R3 R4 the card with several kids: spread out with a clear l
   }
 });
 
-test("MUPP-013-R3 MUPP-082-R2 R3 R4 a card by the number of kids: like the twin card, wide rows, and tiles with a long name on one line", async ({ page }) => {
+test("MUPP-013-R3 MUPP-082-R2 R3 R4 MUPP-084-R1 R2 R3 R4 a card by the number of kids: like the twin card, wide rows, and tiles with a long name on one line", async ({ page }) => {
   test.skip(!runsLocally, "needs its own kids in the local test database");
   await clearFamily();
   try {
@@ -741,11 +741,29 @@ test("MUPP-013-R3 MUPP-082-R2 R3 R4 a card by the number of kids: like the twin 
       expect(second.y).toBeGreaterThan(first.y + first.height - 1);
       expect(third.y).toBeGreaterThan(second.y + second.height - 1);
       expect(second.x).toBe(first.x);
-      expect(first.width).toBeGreaterThan(200);
+      expect(first.width).toBeGreaterThan(150);
       expect(second.width).toBe(first.width);
       expect(third.width).toBe(first.width);
       expect(Math.min(first.height, second.height, third.height)).toBeGreaterThanOrEqual(44);
       expect(await card.locator("ul").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+      // MUPP-084-R1: the rows are equally high and fill the list, 12 px apart
+      expect(Math.abs(first.height - third.height)).toBeLessThan(1.5);
+      expect(Math.abs(second.y - (first.y + first.height) - 12)).toBeLessThan(1.5);
+      const list = await card.locator("ul").evaluate((el) => el.getBoundingClientRect().toJSON());
+      expect(Math.abs(first.y - list.y)).toBeLessThan(1.5);
+      expect(Math.abs(third.y + third.height - (list.y + list.height))).toBeLessThan(1.5);
+      // MUPP-084-R2: the picture is round and 56 px or larger; MUPP-084-R3: a short name is larger than 18 px
+      const picture = await card.getByRole("button", { name: /^Öppna / }).first().locator("span, img").first().evaluate((el) => el.getBoundingClientRect().toJSON());
+      expect(picture.width).toBe(picture.height);
+      expect(picture.width).toBeGreaterThanOrEqual(56);
+      if (page.viewportSize()!.width === 375) expect(picture.width).toBeGreaterThan(70);
+      expect(Number.parseFloat(await css(card.getByText("Vera", { exact: true }), "font-size"))).toBeGreaterThan(18);
+      // MUPP-084-R3: the long name is on one line and smaller than the short one
+      const long = card.getByText(longName, { exact: true });
+      expect(Number.parseFloat(await css(long, "font-size"))).toBeLessThan(Number.parseFloat(await css(card.getByText("Vera", { exact: true }), "font-size")));
+      // It is cut only when it does not fit even at 12 px (this one does not)
+      expect(await long.evaluate((el) => el.scrollWidth <= el.clientWidth || getComputedStyle(el).fontSize === "12px")).toBe(true);
+      expect(await long.evaluate((el) => el.getBoundingClientRect().height < 1.6 * parseFloat(getComputedStyle(el).lineHeight))).toBe(true);
       await expectNoA11yViolations(page);
     };
     await expectRows();
@@ -755,6 +773,11 @@ test("MUPP-013-R3 MUPP-082-R2 R3 R4 a card by the number of kids: like the twin 
     await expect(card.getByRole("heading", { level: 2 })).not.toHaveText("Julafton");
     await settledBox(card.getByRole("button", { name: /^Öppna / }).first());
     await expectRows();
+    // MUPP-084-R2 R1: on a 320 px phone the picture is at least 56 px and nothing scrolls
+    await page.setViewportSize({ width: 320, height: 568 });
+    await settledBox(card.getByRole("button", { name: /^Öppna / }).first());
+    await expectRows();
+    await page.setViewportSize({ width: 375, height: 667 });
     // MUPP-082-R4: from four kids the kids are tiles
     await addChild(parent, "Vanja");
     await toChristmas();

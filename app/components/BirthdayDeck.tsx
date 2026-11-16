@@ -22,7 +22,9 @@ const SIDE_OFFSET = 94; // % av kortets bredd som korten på sidorna ligger vid 
 const SIDE_SCALE = 0.84;
 // Bilden på kort med flera barn växer med skärmens höjd: 72 px på en låg telefon (667 px), upp till 104 px
 const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
-const TILE_AVATAR = 56; // barnen i rader och rutor
+const TILE_AVATAR = 56; // barnen i rutor
+// Tre barn: bilden fyller radens höjd (minus ramen, 2 px, och 0,5 rem luft) men är högst 40 % av bredden och minst 56 px (MUPP-084-R2)
+const ROW_AVATAR = "max(56px, min(calc(100cqh - 1rem - 2px), 40cqw))";
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${dayAndMonth(card.day!, card.month!)}`);
 // Datumet står i kortets rubrik; på miniatyrerna (utan date) står bara "Beräknad". Under månaden efter "Fyllde", och "Född" om tillfället var födseln (MUPP-031-R1, R6)
@@ -259,20 +261,21 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
           onToggle={() => (openList?.kidId === single.id ? onClose() : onOpen(single))}
         />
       ) : (
-        <ul className={`min-h-0 overflow-y-auto ${tiles ? "my-auto max-h-full grid grid-cols-2 gap-3" : rows ? "my-auto flex flex-col gap-3" : "flex flex-1 flex-col gap-3"}`}>
+        <ul className={`min-h-0 overflow-y-auto ${tiles ? "my-auto max-h-full grid grid-cols-2 gap-3" : "flex flex-1 flex-col gap-3"}`}>
           {card.kids.map((kid) =>
             tiles || rows ? (
               // Tre barn: en rad var med bilden till vänster och namnet till höger; fler: rutor två och två med bilden över namnet
-              <li key={kid.id}>
+              // Raderna delar listans höjd lika (MUPP-084-R1); li är måttbehållaren som bilden räknar sin storlek från
+              <li key={kid.id} className={rows ? "min-h-0 flex-1 [container-type:size]" : undefined}>
                 <button
                   type="button"
                   id={`barn-${card.key}-${kid.id}`}
                   onClick={() => onOpen(kid)}
-                  className={`press flex h-full min-h-11 w-full items-center rounded-control border border-edge bg-page/50 hover:bg-edge ${rows ? "gap-3 p-2" : "flex-col gap-1 px-2 py-3"}`}
+                  className={`press flex h-full min-h-11 w-full items-center rounded-control border border-edge bg-page/50 hover:bg-edge ${rows ? "gap-3 px-2" : "flex-col gap-1 px-2 py-3"}`}
                 >
-                  <Avatar name={kid.name} color={kid.color} src={kid.picture} size={TILE_AVATAR} decorative />
+                  <Avatar name={kid.name} color={kid.color} src={kid.picture} size={rows ? ROW_AVATAR : TILE_AVATAR} decorative />
                   <span className="sr-only">Öppna&nbsp;</span>
-                  <FitName className={`font-heading text-lg font-semibold ${rows ? "min-w-0 flex-1 text-center" : ""}`}>{kid.name}</FitName>
+                  <FitName className={`font-heading font-semibold ${rows ? "min-w-0 flex-1 text-center text-3xl" : "text-lg"}`}>{kid.name}</FitName>
                 </button>
               </li>
             ) : (
