@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { IconLink } from "@/app/components/Button";
-import { ReturnIcon } from "@/app/components/icons";
+import { BackLink } from "@/app/components/BackLink";
 import { Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember, entranceHref } from "@/lib/santa-auth";
 import { peekChat, unreadSides } from "@/lib/santa-chat";
@@ -36,9 +35,7 @@ async function WishList({ searchParams }: { searchParams: PageProps<"/secret-san
   return (
     <Page
       back={
-        <IconLink label="Tillbaka" href={ownPage}>
-          <ReturnIcon />
-        </IconLink>
+        <BackLink href={ownPage} />
       }
     >
       <PageContent>

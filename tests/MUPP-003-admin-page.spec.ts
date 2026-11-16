@@ -4,7 +4,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { createAdminSession } from "../lib/admin-session";
 import { testPicturesDir } from "../lib/local-db.mjs";
-import { adminSignIn, animationsDone, backgroundOf, contrast, css, DANGER, expectNoA11yViolations, goto, openCard, pickOption, runsLocally, uniqueName } from "./helpers";
+import { adminSignIn, animationsDone, backgroundOf, contrast, css, DANGER, expectBackArrow, expectNoA11yViolations, goto, openCard, pickOption, runsLocally, uniqueName } from "./helpers";
 import { addChild, addParent, addWish, clearFamily, countRows, pictureOf, removeParentRow, setMasterFlag, setPicture } from "./family-db";
 import { testIp } from "./site-session";
 
@@ -206,6 +206,8 @@ test("MUPP-003-R2 R3 choose who you are, change, and see only your own kids; the
   await goto(page, "/admin/hantera");
   await expect(page.getByRole("heading", { level: 1, name: "Sidan finns inte" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Föräldrar" })).toHaveCount(0);
+  // MUPP-085-R5: the page that does not exist has the arrow back to the start page, not a text button
+  await expectBackArrow(page, "/");
 
   // The chosen parent is removed: the choice is dropped and the list shown
   await removeParentRow(chefId);

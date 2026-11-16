@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Avatar } from "@/app/components/Avatar";
-import { IconLink, LinkButton } from "@/app/components/Button";
+import { IconLink } from "@/app/components/Button";
+import { BackLink } from "@/app/components/BackLink";
 import { Card } from "@/app/components/Card";
 import { ConfirmAction } from "@/app/components/ConfirmAction";
 import { CheckGroup, Field, Form } from "@/app/components/Form";
@@ -36,10 +37,9 @@ async function ManageContent() {
   const [parents, children, families, parentFamilies] = await Promise.all([listParents(), listChildren(), listFamilies(), listParentFamilies()]);
 
   return (
-    <Page>
+    <Page back={<BackLink href="/admin" />}>
       <PageContent>
         <div className="max-w-2xl space-y-5">
-            <LinkButton href="/admin">Till barnen</LinkButton>
             <Heading level={1} small>
               Hantera
             </Heading>

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Card } from "@/app/components/Card";
-import { IconLink } from "@/app/components/Button";
-import { ReturnIcon } from "@/app/components/icons";
+import { BackLink } from "@/app/components/BackLink";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { WishRow } from "@/app/components/WishList";
 import { currentSantaMember, entranceHref } from "@/lib/santa-auth";
@@ -36,9 +35,7 @@ async function Match({ searchParams }: { searchParams: PageProps<"/secret-santa/
   return (
     <Page
       back={
-        <IconLink label="Tillbaka" href={ownPage}>
-          <ReturnIcon />
-        </IconLink>
+        <BackLink href={ownPage} />
       }
     >
       <PageContent>

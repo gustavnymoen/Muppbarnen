@@ -28,7 +28,7 @@ function kindOf(field: HTMLElement): FieldKind {
 // I ett kort (Dialog.tsx, MUPP-045) gäller också: Enter går till nästa fält och skickar från det sista (R5); ett sparat formulär stänger kortet och
 // säger det till skärmläsaren (R7), utom när again är satt (en ny önskning): då står kortet kvar med tomma fält, fokus i det första och en bekräftelse (R6);
 // och ett misslyckat försök behåller kortet, med fokus på första felet. says är det som sägs: en text, eller namnet som skrevs i ett fält.
-export function Form({ action, submit, says = "Sparat.", again, children, className = "space-y-4" }: { action: FormAction; submit: string; says?: Said; again?: boolean; children: ReactNode; className?: string }) {
+export function Form({ action, submit, aside, says = "Sparat.", again, children, className = "space-y-4" }: { action: FormAction; submit: string; aside?: ReactNode; says?: Said; again?: boolean; children: ReactNode; className?: string }) {
   const card = useCard();
   const form = useRef<HTMLFormElement>(null);
   const sent = useRef<FormData | null>(null);
@@ -90,6 +90,7 @@ export function Form({ action, submit, says = "Sparat.", again, children, classN
         <Button type="submit" busy={pending}>
           {submit}
         </Button>
+        {aside && <div className="ml-auto">{aside}</div>}
         {!card && (
           <p role="status" className="sr-only">
             {state?.saved ? "Sparat." : ""}

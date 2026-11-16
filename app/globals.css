@@ -147,3 +147,17 @@ body:has(dialog:modal) main { overflow: hidden; }
 
 /* Julkortet: grön kant; bakgrunden ritas av ChristmasBackdrop */
 .christmas-card { border-color: color-mix(in srgb, var(--color-christmas-green) 55%, var(--color-edge)); }
+
+/* Bläddringen mellan barnens önskelistor i adminen (MUPP-085): nästa barn glider in från sidan, det förra ut åt andra hållet.
+   --slide är ±100 % (riktningen); med minskad rörelse byter barnet utan rörelse */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(var(--slide)); }
+}
+@keyframes slide-out {
+  to { opacity: 0; transform: translateX(calc(var(--slide) * -1)); }
+}
+.slide-in { animation: slide-in 250ms var(--ease-out-soft) both; }
+.slide-out { animation: slide-out 250ms var(--ease-out-soft) both; }
+@media (prefers-reduced-motion: reduce) {
+  .slide-in, .slide-out { animation: none; }
+}

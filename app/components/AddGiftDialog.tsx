@@ -6,7 +6,7 @@ import { parseWish } from "@/lib/form-input";
 import { Button, IconButton } from "./Button";
 import { Dialog, type DialogHandle } from "./Dialog";
 import { Field, FormStateContext } from "./Form";
-import { ChevronLeftIcon } from "./icons";
+import { ReturnIcon } from "./icons";
 import { toast } from "./Toaster";
 import { WishFields } from "./WishParts";
 
@@ -72,7 +72,7 @@ export function AddGiftDialog({ ref, kidId, occasion, onDone }: { ref: Ref<Dialo
           </div>
           <div hidden={step !== 2} className="space-y-4">
             <IconButton frameless label="Tillbaka" onClick={() => setStep(1)} className="-ml-3">
-              <ChevronLeftIcon />
+              <ReturnIcon />
             </IconButton>
             <Field name="name" label="Ditt namn" maxLength={60} autoComplete="off" />
           </div>
