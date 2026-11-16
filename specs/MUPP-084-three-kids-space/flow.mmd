@@ -1,0 +1,10 @@
+%% MUPP-084 Three kids: use the card's space
+%% The three rows of a card with three kids share the height of the list.
+flowchart TD
+    A[Card with three kids] --> B[List fills the card's height]
+    B --> C[Three equal rows, 12 px apart, R1]
+    C --> D[Picture: row height less padding, at most 40 % of the width, at least 56 px, R2]
+    C --> E[Name: text-3xl, shrinks to fit, R3]
+    D --> F[Press a row]
+    E --> F
+    F --> G[The kid opens as before, R4]
