@@ -23,7 +23,7 @@ feature: MUPP-056
 | Browser tests | `tests/MUPP-056-santa-admin-groups.spec.ts` with axe on each state; the Secret Santa tests of MUPP-038, 045, 048, 051, 053 adapted (other parents' groups are closed) | local | Pass | 2026-11-10 |
 | Look on a phone | `tests/design.spec.ts` (closed card at 320 px: header 44 px, no sideways scroll, then open) | local | Pass | 2026-11-10 |
 | Smoke test | not applicable (none planned) | | | |
-| Accessibility | axe in the browser tests; checklist items on the live site | live | Not checked yet (after deploy) | |
+| Accessibility | axe in the browser tests; checklist items on the live site: marked done by the user (2026-11-16), not gone through item by item by Claude | live | Pass | 2026-11-16
 | Security | no new action, data or route; `/security-review` not needed | local | Pass | 2026-11-10 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-10 |
 
