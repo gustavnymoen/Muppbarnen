@@ -16,7 +16,7 @@ test.afterEach(async () => {
   await clearTestFamilies();
 });
 
-test("MUPP-080-R1 R2 R3 R4 R5 R6 a visitor is asked to choose, sees only the chosen families, keeps the choice, changes it and takes Alla", async ({ page }) => {
+test("MUPP-080-R1 R2 R3 R4 R5 R6 MUPP-081-R1 a visitor is asked to choose, sees only the chosen families, keeps the choice, changes it (the deck starts again) and takes Alla", async ({ page }) => {
   // Two families with a parent and a child each, and one Secret Santa each (a parent in both families is covered by the unit test)
   const [nameX, nameY] = [uniqueName("Ek"), uniqueName("Ask")];
   const [famX, famY] = [await addFamily(nameX, "Mormors sida"), await addFamily(nameY, "Morfars sida")];
@@ -79,6 +79,9 @@ test("MUPP-080-R1 R2 R3 R4 R5 R6 a visitor is asked to choose, sees only the cho
   await expect(body).not.toContainText(kidY);
 
   // R6: the choice stays (the page was loaded again above), and changing it at the top left changes both pages
+  // MUPP-081-R1: browse to the second card (Julafton), so a kept position would show in the other family
+  await page.getByRole("button", { name: "Nästa kort" }).click();
+  await expect(page.getByRole("heading", { name: "Julafton" })).toBeVisible();
   await page.getByRole("button", { name: /^Familj: / }).click();
   const change = page.getByRole("dialog", { name: "Vilken familj tillhör du?" });
   await expect(change.getByRole("checkbox", { name: new RegExp(`^${nameX}`) })).toBeChecked();
@@ -89,6 +92,8 @@ test("MUPP-080-R1 R2 R3 R4 R5 R6 a visitor is asked to choose, sees only the cho
   await expect(change).toBeHidden();
   await expect(body).toContainText(kidY);
   await expect(body).not.toContainText(kidX);
+  // MUPP-081-R1: the deck starts at the first upcoming card of the new choice
+  await expect(page.getByRole("heading", { name: "Julafton" })).toHaveCount(0);
   await goto(page, "/secret-santa");
   await expect(page.getByRole("link", { name: santaY })).toBeVisible();
   await expect(page.getByRole("link", { name: santaX })).toHaveCount(0);
