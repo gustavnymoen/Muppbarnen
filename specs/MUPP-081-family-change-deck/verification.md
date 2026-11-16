@@ -38,7 +38,7 @@ The step adds about 0.2 s; the rest of the difference is the machine's variation
 - [x] Tests: the test plan is done, R1 is tested; `npm run test:unit` and `npm run test:local` pass (`npm run test:time`)
 - [x] Test suite: within the budgets; no new test
 - [x] Deployed (pull request 286), and the smoke tests pass against production (Live tests, run 43908481547)
-- [ ] Accessibility: the existing axe checks pass; the checklist items on the live site are not done (no new markup or state)
+- [x] Accessibility: the existing axe checks pass; the live checklist is marked done by the user (no new markup or state)
 - [x] Requirements match what was built; no open questions; `solution.md` describes how
 - [x] Manual not affected (visitors see no new feature); system docs and `wiki/log.md` updated
 - [x] No leftovers

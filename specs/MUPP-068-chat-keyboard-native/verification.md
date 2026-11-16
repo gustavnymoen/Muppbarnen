@@ -24,7 +24,7 @@ Run locally 2026-11-12; merged and deployed (PR #231) the same day. Tried on an 
 | Browser tests | The new test, MUPP-043 chat tests, MUPP-045 form cards; the MUPP-065 test is removed with its code | local | Pass | 2026-11-12 |
 | Real device | Manual on an iPhone, by the user | phone | Pass, as reported | 2026-11-12 |
 | Smoke test, Security | Not applicable | – | – | – |
-| Accessibility | axe on the open chat | local | Pass; live not checked | 2026-11-12 |
+| Accessibility | axe on the open chat; the live checklist is marked done by the user (2026-11-16), not gone through item by item by Claude | local, live | Pass | 2026-11-16 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
 
 ## Test suite
@@ -36,7 +36,7 @@ Run locally 2026-11-12; merged and deployed (PR #231) the same day. Tried on an 
 - [x] Tests: the real-phone check is done by the user (not itemised)
 - [x] Test suite: 337.4 s, slightly over the 330 s budget (the cause is other tests); the overrun is accepted by the user in the chat on 2026-11-15
 - [x] Deployed, and Live tests pass: Live tests run 43233499311 on the merge commit of PR #231 (`d7f13c2`) passed on 2026-11-12 (the run 43239909110 after the verification pull request #233 passed too)
-- [ ] Accessibility: live checklist not done
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-16), not gone through item by item by Claude
 - [x] Requirements match what was built; `solution.md` describes it
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the script and test of MUPP-065 and MUPP-066 are removed
