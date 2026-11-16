@@ -5,6 +5,7 @@ import { CheckCircleIcon, PencilIcon } from "@/app/components/icons";
 import { SwitchButton } from "@/app/components/SwitchButton";
 import { Heading } from "@/app/components/Page";
 import { SlimCard } from "@/app/components/SlimCard";
+import type { Family } from "@/lib/families";
 import { arrangeEvents, type ArrangedEvent } from "@/lib/santa-groups";
 import { STATUS_CONFIRMATIONS } from "@/lib/santa-mail";
 import type { EventStatus, SantaEvent, SantaMember } from "@/lib/santa";
@@ -17,30 +18,30 @@ const STATUS_LABEL: Record<EventStatus, string> = { inactive: "Inaktiv", prepari
 
 // Fliken "Secret Santa" (MUPP-038, MUPP-048): varje förälder ser sina egna grupper, huvudadministratören alla.
 // Vad som får ändras kontrolleras på servern i lib/santa.ts.
-export function SantaTab({ events, adminId }: { events: SantaEvent[]; adminId: number }) {
+export function SantaTab({ events, adminId, families }: { events: SantaEvent[]; adminId: number; families: Family[] }) {
   return (
     <section className="max-w-2xl space-y-3">
       <Heading level={2} small>
-        Grupper
+        Secret Santa
       </Heading>
-      {events.length === 0 && <p className="text-muted">Inga grupper ännu.</p>}
+      {events.length === 0 && <p className="text-muted">Inga Secret Santa ännu.</p>}
       <EventFoldList>
         {arrangeEvents(events, adminId).map((arranged) => (
           <li key={arranged.event.id}>
-            <EventCard arranged={arranged} adminId={adminId} />
+            <EventCard arranged={arranged} adminId={adminId} families={families} />
           </li>
         ))}
       </EventFoldList>
       <AddRow>
-        <FormCard title="Ny grupp" label="Ny grupp" text="Ny grupp">
-          <EventForm submit="Lägg till" />
+        <FormCard title="Ny Secret Santa" label="Ny Secret Santa" text="Ny Secret Santa">
+          <EventForm submit="Lägg till" families={families} />
         </FormCard>
       </AddRow>
     </section>
   );
 }
 
-function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged: ArrangedEvent; adminId: number }) {
+function EventCard({ arranged: { event, foldable, open }, adminId, families }: { arranged: ArrangedEvent; adminId: number; families: Family[] }) {
   // Det stängda kortet visar status och antal (MUPP-056); huvudadministratören ser också andras grupper: då står det vems de är
   const counts = [...(foldable ? [STATUS_LABEL[event.status]] : []), `${event.members.length} deltagare`, ...(event.amount === null ? [] : [`${event.amount} kr`])].join(", ");
   return (
@@ -50,6 +51,7 @@ function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged:
         <>
           {counts}
           {event.ownerId !== adminId && <span className="block">Admin: {event.ownerName}</span>}
+          {families.length > 1 && <span className="block">Familj: {event.familyName}</span>}
         </>
       }
       foldable={foldable}
@@ -57,7 +59,7 @@ function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged:
       actions={
         <>
           <FormCard title={`Byt namn på ${event.name}`} label={`Byt namn på ${event.name}`} icon={<PencilIcon />}>
-            <EventForm event={event} submit="Spara" />
+            <EventForm event={event} submit="Spara" families={families} />
           </FormCard>
           <ConfirmAction
             action={removeEvent}
@@ -123,7 +125,7 @@ function ActiveToggle({ event }: { event: SantaEvent }) {
       <div className="flex flex-col items-center">
         <SwitchButton label="Aktiv" checked disabled aria-label={`Aktiv ${event.name}`} aria-describedby={`locked-${event.id}`} />
         <p id={`locked-${event.id}`} className="text-sm text-muted">
-          Stoppa gruppen först
+          Stoppa Secret Santa först
         </p>
       </div>
     );
@@ -235,12 +237,16 @@ function PartnerField({ event, member }: { event: SantaEvent; member?: SantaMemb
   );
 }
 
-function EventForm({ event, submit }: { event?: SantaEvent; submit: string }) {
+// Familjen väljs bland aktörens egna familjer och frågas bara när det finns fler än en att välja på (MUPP-073-R3)
+function EventForm({ event, submit, families }: { event?: SantaEvent; submit: string; families: Family[] }) {
+  const options = families.map((f) => ({ value: String(f.id), label: f.name }));
+  if (event && !families.some((f) => f.id === event.familyId)) options.push({ value: String(event.familyId), label: event.familyName });
   return (
     <Form action={saveEvent} submit={submit} says={{ field: "name", added: !event }}>
       {event && <input type="hidden" name="eventId" value={event.id} />}
-      <Field name="name" label="Gruppens namn" defaultValue={event?.name} maxLength={60} required />
+      <Field name="name" label="Namn på Secret Santa" defaultValue={event?.name} maxLength={60} required />
       <Field name="amount" type="number" label="Belopp (kr)" defaultValue={event?.amount?.toString()} hint="Valfritt. Hela kronor, till exempel 200." />
+      {options.length > 1 && <Field name="familyId" type="select" label="Familj" defaultValue={event ? String(event.familyId) : undefined} options={options} />}
     </Form>
   );
 }

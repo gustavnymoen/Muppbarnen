@@ -1,0 +1,13 @@
+%% MUPP-073 Families
+%% The master admin sets families up; admins choose among their own when they create a Secret Santa.
+flowchart TD
+    A[Master admin saves a family] --> B{Name unique, description at most 30?}
+    B -- no --> C[Message at the field, nothing saved]
+    C --> A
+    B -- yes --> D[family saved - R1]
+    D --> E[Master admin ticks the parent's families, at least one - R2]
+    F[Admin creates a Secret Santa] --> G{How many families does the admin have?}
+    G -- one --> H[It gets that family - R3]
+    G -- several --> I[Admin chooses one of them, checked on the server - R3]
+    G -- none --> J[Refused: ask the master admin]
+    K[Ordinary admin opens Hantera] --> L[Page not found - R4]

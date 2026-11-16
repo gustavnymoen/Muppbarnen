@@ -6,6 +6,7 @@ import { SwapIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { Tabs } from "@/app/components/Tabs";
 import { currentAdmin } from "@/lib/admin-auth";
+import { familiesFor } from "@/lib/families";
 import { listChildren, listParents, type Parent } from "@/lib/family";
 import { listEvents } from "@/lib/santa";
 import { requireSiteSession } from "@/lib/site-auth";
@@ -115,7 +116,7 @@ async function ParentHome({ parent }: { parent: Parent }) {
     </div>
   );
   // Fliken Secret Santa finns för varje förälder, med bara hens egna grupper (alla för huvudadministratören)
-  const events = await listEvents(parent);
+  const [events, families] = await Promise.all([listEvents(parent), familiesFor(parent)]);
   return (
     <>
       <div className="flex items-center justify-between gap-3">
@@ -132,7 +133,7 @@ async function ParentHome({ parent }: { parent: Parent }) {
         label="Admin"
         tabs={[
           { id: "barn", title: "Barn", content: kids },
-          { id: "secret-santa", title: "Secret Santa", content: <SantaTab events={events} adminId={parent.id} /> },
+          { id: "secret-santa", title: "Secret Santa", content: <SantaTab events={events} adminId={parent.id} families={families} /> },
         ]}
       />
     </>

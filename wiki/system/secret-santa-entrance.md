@@ -9,7 +9,7 @@ tags: [secret-santa, sign-in, cookie, security]
 
 # Secret Santa entrance
 
-Secret Santa knows who a visitor is, but only lightly: nobody is expected to cheat. The site password still gets you in; on top of that a visitor picks an event (a "grupp" in Swedish) and their own name and types the phone number or email saved for them. Events and members are made on the admin page ([MUPP-038](../../specs/MUPP-038-secret-santa-families/solution.md), [MUPP-048](../../specs/MUPP-048-santa-events/solution.md)); a member belongs to one event, so the same person in two events is two members.
+Secret Santa knows who a visitor is, but only lightly: nobody is expected to cheat. The site password still gets you in; on top of that a visitor picks an event (a "Secret Santa" in Swedish) and their own name and types the phone number or email saved for them. Events and members are made on the admin page ([MUPP-038](../../specs/MUPP-038-secret-santa-families/solution.md), [MUPP-048](../../specs/MUPP-048-santa-events/solution.md)); a member belongs to one event, so the same person in two events is two members.
 
 ## Parts
 

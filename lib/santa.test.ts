@@ -84,7 +84,7 @@ describe("MUPP-048-R2 events and their names", () => {
 
   test("MUPP-048-R2 a name is unique among all events, ignoring case and spaces at the ends, also when renaming", async () => {
     const julen = await event(emma, "Julen 2026");
-    const taken = { ok: false, fields: { name: "Det finns redan en grupp med det namnet." } };
+    const taken = { ok: false, fields: { name: "Det finns redan en Secret Santa med det namnet." } };
     expect(await santa.saveEvent(erik, { name: "julen 2026 " })).toEqual(taken);
     expect(await santa.saveEvent(emma, { name: "JULEN 2026" })).toEqual(taken);
     const other = await event(erik, "Åke och vänner");
@@ -109,7 +109,7 @@ describe("MUPP-048-R2 events and their names", () => {
 
   test("MUPP-048-R2 a parent who administers an event cannot be removed", async () => {
     await event(emma, "Emmas jul");
-    expect(await family.removeParent(master, String(emma.id))).toEqual({ ok: false, error: "Föräldern administrerar Secret Santa-grupper. Ta bort grupperna först." });
+    expect(await family.removeParent(master, String(emma.id))).toEqual({ ok: false, error: "Föräldern administrerar Secret Santa. Ta bort dem först." });
     expect(await get("SELECT 1 FROM parent WHERE id = ?", [emma.id])).toBeDefined();
     expect(await family.removeParent(master, String(erik.id))).toEqual({ ok: true });
   });
@@ -266,7 +266,7 @@ describe("MUPP-038-R5 partner", () => {
     const anna = await person(emma, a, "Anna");
     await person(emma, a, "Bo");
     const other = await person(emma, b, "Cia");
-    const bad = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } };
+    const bad = { ok: false, fields: { partnerId: "Välj en av de andra i Secret Santa." } };
     expect(await santa.saveMember(emma, edit(anna, { partnerId: String(anna) }))).toEqual(bad);
     expect(await santa.saveMember(emma, edit(anna, { partnerId: String(other) }))).toEqual(bad);
     expect(await santa.saveMember(emma, edit(anna, { partnerId: "99999" }))).toEqual(bad);
@@ -332,7 +332,7 @@ describe("MUPP-051-R2 activate and deactivate", () => {
 
   test("MUPP-051-R2 each change is allowed from one status only: a second activation or deactivation is refused and changes nothing", async () => {
     const id = await event(emma, "Emmas jul");
-    const stale = { ok: false, error: "Gruppens status har redan ändrats. Ladda om sidan." };
+    const stale = { ok: false, error: "Statusen har redan ändrats. Ladda om sidan." };
     expect(await santa.deactivateEvent(emma, String(id))).toEqual(stale);
     await santa.activateEvent(emma, String(id));
     expect(await santa.activateEvent(emma, String(id))).toEqual(stale);
@@ -342,7 +342,7 @@ describe("MUPP-051-R2 activate and deactivate", () => {
   test("MUPP-051-R2 a started event cannot be deactivated or activated: it must be stopped first", async () => {
     const id = await event(emma, "Emmas jul");
     await setStatus(id, "started");
-    const outcome = { ok: false, error: "Gruppen är startad. Dragningen måste stoppas först." };
+    const outcome = { ok: false, error: "Secret Santa är startad. Dragningen måste stoppas först." };
     expect(await santa.deactivateEvent(emma, String(id))).toEqual(outcome);
     expect(await santa.activateEvent(emma, String(id))).toEqual(outcome);
     expect(await statusOf(id)).toBe("started");
@@ -376,8 +376,8 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
     const anna = await person(emma, id, "Anna");
     const bo = await person(emma, id, "Bo");
     await setStatus(id, "started");
-    const closed = { ok: false, error: "Gruppen är startad. Deltagare kan inte läggas till eller tas bort nu." };
-    const partnerLocked = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." };
+    const closed = { ok: false, error: "Secret Santa är startad. Deltagare kan inte läggas till eller tas bort nu." };
+    const partnerLocked = { ok: false, error: "Secret Santa är startad. Partnern kan inte ändras nu." };
     for (const actor of [emma, master]) {
       expect(await santa.addMember(actor, { eventId: String(id), name: "Ny", phone: "0700099999", email: "ny@exempel.se" })).toEqual(closed);
       expect(await santa.saveMember(actor, edit(anna, { partnerId: String(bo) }))).toEqual(partnerLocked);
@@ -438,7 +438,7 @@ describe("MUPP-041-R2 R3 R4 start the draw", () => {
     const id = await event(emma, "Emmas jul");
     await person(emma, id, "Anna");
     await person(emma, id, "Bo");
-    expect(await santa.startDraw(emma, String(id))).toEqual({ ok: false, error: "Gruppens status har redan ändrats. Ladda om sidan." });
+    expect(await santa.startDraw(emma, String(id))).toEqual({ ok: false, error: "Statusen har redan ändrats. Ladda om sidan." });
     await santa.activateEvent(emma, String(id));
     expect(await santa.startDraw(erik, String(id))).toEqual(refused);
     expect(await santa.startDraw(null, String(id))).toEqual(refused);
@@ -592,7 +592,7 @@ describe("MUPP-060 change a participant in a started group", () => {
 
   test("MUPP-060-R2 a started group refuses any partner value, also an empty one, and nothing is changed; stopping the draw allows everything again", async () => {
     const { id, ids } = await started();
-    const locked = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." };
+    const locked = { ok: false, error: "Secret Santa är startad. Partnern kan inte ändras nu." };
     for (const partnerId of ["", String(ids[2]), "abc"]) expect(await santa.saveMember(emma, change(ids[0], { name: "Fel", partnerId }))).toEqual(locked);
     expect(await santa.addMember(emma, { eventId: String(id), name: "Ny", phone: "0700099999", email: "ny@exempel.se" })).toMatchObject({ ok: false });
     expect(await santa.removeMember(emma, String(ids[0]))).toMatchObject({ ok: false });
@@ -649,7 +649,7 @@ describe("MUPP-078-R1 partner when adding a person", () => {
     const g = await event(emma, "Grupp B");
     await person(emma, f, "Anna");
     const other = await person(emma, g, "Dan");
-    const bad = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } };
+    const bad = { ok: false, fields: { partnerId: "Välj en av de andra i Secret Santa." } };
     expect(await add(f, "Bo", String(other))).toEqual(bad);
     expect(await add(f, "Bo", "99999")).toEqual(bad);
     expect(await add(f, "Bo", "abc")).toEqual(bad);

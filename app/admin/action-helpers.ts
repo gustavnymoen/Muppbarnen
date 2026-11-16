@@ -23,3 +23,6 @@ export const text = (formData: FormData, name: string) => formData.get(name);
 export function logPictureError(e: unknown) {
   console.error("Bildlagret svarade med ett fel:", e instanceof Error ? e.message : "okänt fel");
 }
+
+// Familjerna som är ikryssade i ett formulär: ett fält "family-<id>" per familj (MUPP-073). Servern kontrollerar att de finns.
+export const familyIdsOf = (formData: FormData) => [...formData.entries()].flatMap(([key, value]) => (key.startsWith("family-") && value === "on" ? [key.slice("family-".length)] : []));

@@ -178,3 +178,23 @@ export function Field({ name, label, type = "text", defaultValue = "", defaultCh
     </div>
   );
 }
+
+// Flera kryssrutor som hör ihop (MUPP-073: familjerna): en rubrik och ett gemensamt felmeddelande, hämtat ur svaret under gruppens namn
+export function CheckGroup({ name, label, hint, children }: { name: string; label: string; hint?: string; children: ReactNode }) {
+  const id = useId();
+  const error = useContext(FormStateContext)?.fields?.[name];
+  return (
+    <fieldset aria-describedby={`${hint ? `${id}-tips ` : ""}${id}-fel`} className="space-y-1">
+      <legend className="font-heading font-medium">{label}</legend>
+      {hint && (
+        <p id={`${id}-tips`} className="text-sm text-muted">
+          {hint}
+        </p>
+      )}
+      {children}
+      <p id={`${id}-fel`} role="alert" className="text-danger">
+        {error}
+      </p>
+    </fieldset>
+  );
+}

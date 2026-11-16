@@ -1,6 +1,7 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
 import { isArchived, isoDate, occasionOf, parseDate, swedishToday, type DeckInput, type Sizes, type Today, type Wishes } from "./deck";
+import { NO_FAMILY, checkFamilyIds, setParentFamilies } from "./families";
 import { collect, parseBirthdate, parseId, parseOccasion, parseText, parseWish, type Occasion } from "./form-input";
 
 // Föräldrar, barn och önskelistor: frågorna och reglerna (MUPP-003). Allt som ändrar
@@ -229,23 +230,30 @@ export async function createFirstMaster(rawName: unknown): Promise<Outcome<{ id:
 
 // ---- Föräldrar (bara huvudadministratören)
 
-export async function saveParent(actor: Parent | null, input: { id?: unknown; name: unknown; isMasterAdmin: boolean }): Promise<Outcome> {
+export async function saveParent(actor: Parent | null, input: { id?: unknown; name: unknown; isMasterAdmin: boolean; familyIds?: unknown[] }): Promise<Outcome> {
   if (!actor?.isMasterAdmin) return NOT_ALLOWED;
   const checked = collect({ name: parseText(input.name, 60, true) });
   if (!checked.ok) return { ok: false, fields: checked.errors };
   const { name } = checked.values;
   const flag = input.isMasterAdmin ? 1 : 0;
+  const creating = input.id === undefined || input.id === "";
+  const id = creating ? null : parseId(input.id);
 
-  if (input.id === undefined || input.id === "") {
-    await run("INSERT INTO parent (name, is_master_admin) VALUES (?, ?)", [name, flag]);
-    return { ok: true };
-  }
-  const id = parseId(input.id);
   return withTransaction(async (tx) => {
+    // Minst en familj, och bara sådana som finns (MUPP-073-R2). Utan familjer i anropet: en ny förälder får den första familjen
+    // (triggern i databasen) och en befintlig behåller sina.
+    const familyIds = input.familyIds === undefined ? undefined : await checkFamilyIds(input.familyIds, tx);
+    if (familyIds === null || familyIds?.length === 0) return NO_FAMILY;
+    if (creating) {
+      const { lastId } = await run("INSERT INTO parent (name, is_master_admin) VALUES (?, ?)", [name, flag], tx);
+      if (familyIds) await setParentFamilies(lastId, familyIds, tx);
+      return { ok: true };
+    }
     const current = id === null ? undefined : await get<ParentRow>("SELECT id, name, is_master_admin FROM parent WHERE id = ?", [id], tx);
     if (!current) return NO_SUCH_PARENT;
     if (current.is_master_admin === 1 && flag === 0 && (await otherMasters(current.id, tx)) === 0) return LAST_MASTER;
     await run("UPDATE parent SET name = ?, is_master_admin = ? WHERE id = ?", [name, flag, current.id], tx);
+    if (familyIds) await setParentFamilies(current.id, familyIds, tx);
     return { ok: true };
   });
 }
@@ -267,9 +275,10 @@ export async function removeParent(actor: Parent | null, rawId: unknown): Promis
       return { ok: false, error: "Föräldern har barn. Flytta eller ta bort barnen först." };
     }
     if (await get("SELECT 1 FROM ss_event WHERE owner_id = ? LIMIT 1", [current.id], tx)) {
-      return { ok: false, error: "Föräldern administrerar Secret Santa-grupper. Ta bort grupperna först." };
+      return { ok: false, error: "Föräldern administrerar Secret Santa. Ta bort dem först." };
     }
     if (current.is_master_admin === 1 && (await otherMasters(current.id, tx)) === 0) return LAST_MASTER;
+    await run("DELETE FROM parent_family WHERE parent_id = ?", [current.id], tx);
     await run("DELETE FROM parent WHERE id = ?", [current.id], tx);
     return { ok: true };
   });

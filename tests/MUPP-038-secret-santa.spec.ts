@@ -42,7 +42,7 @@ test("MUPP-038-R1 the master admin sees two tabs with the kids tab selected; the
   await expect(santa).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("tabpanel", { name: "Secret Santa" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Hantera barn och föräldrar" })).toBeHidden();
-  await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
+  await expect(page.getByText("Inga Secret Santa ännu.")).toBeVisible();
   await expectNoA11yViolations(page);
   await page.keyboard.press("Home");
   await expect(kids).toHaveAttribute("aria-selected", "true");
@@ -56,7 +56,7 @@ test("MUPP-038-R6 MUPP-048-R3 no phone, email or member name is on the visitor p
   // Mia has the tab (MUPP-048-R1) but no group of her own, so there is nothing of Anna's in it
   await adminSignIn(page, mia);
   await page.getByRole("tab", { name: "Secret Santa" }).click();
-  await expect(page.getByText("Inga grupper ännu.")).toBeVisible();
+  await expect(page.getByText("Inga Secret Santa ännu.")).toBeVisible();
 
   // The admin page of a parent who does not administer the group and the visitor pages carry nothing from the group's members
   // (the group's own name is public on the entrance, but not on these pages)
@@ -74,16 +74,16 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await page.getByRole("tab", { name: "Secret Santa" }).click();
 
   // R2: create a family; an empty name is refused
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Fyll i det här fältet." })).toBeVisible();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ek");
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Familjen Ek");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   await expect(eventCard(page, "Familjen Ek")).toContainText("0 deltagare");
 
   // R2: rename it
   await page.getByRole("button", { name: "Byt namn på Familjen Ek" }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Björk");
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Familjen Björk");
   await page.getByRole("button", { name: "Spara", exact: true }).click();
   const birch = eventCard(page, "Familjen Björk");
   await expect(birch).toBeVisible();
@@ -140,8 +140,8 @@ test("MUPP-038-R2 R3 R5 groups and members: create, rename, add with errors, cho
   await expect(cia).not.toContainText("Partner");
 
   // The same phone number can be used for a person in another group (MUPP-048-R5): Anna is a separate member there
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
-  await page.getByLabel("Gruppens namn", { exact: true }).fill("Familjen Ask");
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
+  await page.getByLabel("Namn på Secret Santa", { exact: true }).fill("Familjen Ask");
   await page.getByRole("button", { name: "Lägg till", exact: true }).click();
   const ash = eventCard(page, "Familjen Ask");
   await ash.getByRole("button", { name: "Ny person i Familjen Ask" }).click();

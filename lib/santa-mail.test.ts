@@ -13,16 +13,16 @@ const mails = [
     mail: activatedMail(G),
     subject: "Secret Santa: Familjen Test – Nu kan du skriva din önskelista",
     text:
-      "Ho-Ho! Nu har gruppen Familjen Test öppnat. Gå in på sajten, välj Secret Santa och din grupp, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt.\n" +
+      "Ho-Ho! Nu har Secret Santa Familjen Test öppnat. Gå in på sajten, välj Secret Santa och sedan Familjen Test, logga in med ditt telefonnummer eller din e-post och skriv din önskelista. Senare dras lottningen, och du ser vem du ska handla åt.\n" +
       "Du kan inte matchas med dig själv eller den du hade förra året! Har admin även satt partners på deltagarna får du inte din partner.\n" +
       "Du kan fylla i din önskelista från och med nu och ändra fram till julafton, men var snäll mot din matchning och bestäm dig i tid!\n" +
-      "Allt är hemligt: ingen får veta vem som drar vem. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen.",
+      "Allt är hemligt: ingen får veta vem som drar vem. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade Secret Santa.",
   },
   {
     n: 2,
     mail: deactivatedMail(G),
     subject: "Secret Santa: Familjen Test – är avaktiverad!",
-    text: "Gruppen Familjen Test är avaktiverad. Det går inte att skriva önskelistor just nu. Du får ett nytt mail om den öppnas igen. Något kan ha gått fel i admin-joxandet!",
+    text: "Secret Santa Familjen Test är avaktiverad. Det går inte att skriva önskelistor just nu. Du får ett nytt mail om den öppnas igen. Något kan ha gått fel i admin-joxandet!",
   },
   {
     n: 3,
@@ -61,7 +61,7 @@ const mails = [
     n: 8,
     mail: addedMail(G),
     subject: "Secret Santa: Familjen Test – välkommen",
-    text: "Du har lagts till i Secret Santa-gruppen Familjen Test. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade gruppen. När gruppen öppnar får du ett nytt mail som berättar hur det går till!",
+    text: "Du har lagts till i Secret Santa Familjen Test. Är det här inte du, eller vill du inte vara med, hör av dig till den som skapade Secret Santa. När den öppnar får du ett nytt mail som berättar hur det går till!",
   },
   {
     n: 9,

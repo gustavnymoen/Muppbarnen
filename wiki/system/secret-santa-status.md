@@ -15,11 +15,11 @@ An event ([MUPP-048](../../specs/MUPP-048-santa-events/solution.md)) has a statu
 
 | | Inactive | Preparing | Started |
 |---|---|---|---|
-| Members added and removed, partner changed (`lib/santa.ts`) | yes | yes | no ("Gruppen är startad. Deltagare kan inte läggas till eller tas bort nu.", "Gruppen är startad. Partnern kan inte ändras nu.") |
+| Members added and removed, partner changed (`lib/santa.ts`) | yes | yes | no ("Secret Santa är startad. Deltagare kan inte läggas till eller tas bort nu.", "Secret Santa är startad. Partnern kan inte ändras nu.") |
 | A member's name, phone and email changed ([MUPP-060](../../specs/MUPP-060-santa-change-participants/solution.md)) | yes | yes | yes |
 | Wishes added, changed, removed (`lib/santa-wishes.ts`) | no ("Önskelistan är stängd just nu.") | yes | yes |
 | What a member sees on `/secret-santa/min-sida` | "Vi har inte kört igång än" | the card "Min önskelista" and the greyed "Min matchnings önskelista" ("Inte tilldelad än") | the card "Min önskelista" and the link card "Min matchning: <name>" ([Secret Santa match](secret-santa-match.md)) |
-| The toggle "Aktiv" | off; switch on to activate | on; switch off to deactivate | on and locked, "Stoppa gruppen först" |
+| The toggle "Aktiv" | off; switch on to activate | on; switch off to deactivate | on and locked, "Stoppa Secret Santa först" |
 
 The two cards are equal in size, with their symbols aligned, the text centred in height and the divider of the multi-kid birthday card in the gap between them; with one card there is no divider ([MUPP-057](../../specs/MUPP-057-santa-own-page-cards/solution.md), [Design](../../DESIGN.md)).
 
@@ -33,7 +33,7 @@ Under the group's plus button, `ActiveToggle` in `app/admin/SantaTab.tsx` shows 
 
 ## Rules
 
-- **The server decides.** `activateEvent` and `deactivateEvent` (`lib/santa.ts`) look the event up, check ownership with `canManage` (the owner or the master admin, as for every change), then the status, all in one transaction. A status that is not the expected one answers "Gruppens status har redan ändrats. Ladda om sidan."; a started group answers "Dragningen måste stoppas först.". The two server actions take no status from the form, only the event id.
+- **The server decides.** `activateEvent` and `deactivateEvent` (`lib/santa.ts`) look the event up, check ownership with `canManage` (the owner or the master admin, as for every change), then the status, all in one transaction. A status that is not the expected one answers "Statusen har redan ändrats. Ladda om sidan."; a started group answers "Dragningen måste stoppas först.". The two server actions take no status from the form, only the event id.
 - **Every place that changes members or wishes checks the status:** `addMember` (which also takes a partner, [MUPP-078](../../specs/MUPP-078-secret-santa-members/solution.md)), `removeMember` and `saveMember` (a partner) in `lib/santa.ts` (`saveMember` still changes name, phone and e-mail in a started group, [MUPP-060](../../specs/MUPP-060-santa-change-participants/solution.md)), and `saveWish` and `removeWish` through `listIsOpen` in `lib/santa-wishes.ts`. The rights are checked before the status, so a stranger is told "Du kan inte göra det här.".
 - **Deactivating keeps the wishes.** Nothing is deleted; they are there when the event is activated again.
 - **The member's page follows the status** and is read on every request: `findMember` (`lib/santa-auth.ts`) returns the status with the member. `/secret-santa/min-sida/onskelista` sends a member of an inactive event back to `min-sida`.

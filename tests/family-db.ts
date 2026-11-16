@@ -90,8 +90,28 @@ export const clearFamily = () =>
     await db.execute("DELETE FROM wishlist_item");
     await db.execute("DELETE FROM wishlist");
     await db.execute("DELETE FROM child");
+    await db.execute("DELETE FROM parent_family");
     await db.execute("DELETE FROM parent");
   });
+
+// Families (MUPP-073): the migration's default family stays; a test makes its own and removes it again
+export const addFamily = (name: string, description = "") =>
+  withDb(async (db) => Number((await db.execute({ sql: "INSERT INTO family (name, description) VALUES (?, ?)", args: [name, description] })).lastInsertRowid));
+
+export const setParentFamilies = (parentId: number, ...familyIds: number[]) =>
+  withDb(async (db) => {
+    await db.execute({ sql: "DELETE FROM parent_family WHERE parent_id = ?", args: [parentId] });
+    for (const familyId of familyIds) await db.execute({ sql: "INSERT INTO parent_family (parent_id, family_id) VALUES (?, ?)", args: [parentId, familyId] });
+  });
+
+export const familyOfEvent = (name: string) =>
+  withDb(async (db) => (await db.execute({ sql: "SELECT f.name FROM ss_event e JOIN family f ON f.id = e.family_id WHERE e.name = ?", args: [name] })).rows[0]?.name as string | undefined);
+
+export const familiesOfParent = (name: string) =>
+  withDb(async (db) => (await db.execute({ sql: "SELECT f.name FROM parent_family pf JOIN parent p ON p.id = pf.parent_id JOIN family f ON f.id = pf.family_id WHERE p.name = ? ORDER BY f.name", args: [name] })).rows.map((r) => r.name as string));
+
+// Removes the families a test made ("E2E ..."), after its parents and events are gone
+export const clearTestFamilies = () => withDb((db) => db.execute("DELETE FROM family WHERE name LIKE 'E2E %'"));
 
 export const childIdOf = (name: string) =>
   withDb(async (db) => Number((await db.execute({ sql: "SELECT id FROM child WHERE name = ?", args: [name] })).rows[0].id));

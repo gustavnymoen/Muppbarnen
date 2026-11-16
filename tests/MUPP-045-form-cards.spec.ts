@@ -287,9 +287,9 @@ test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new group, a new person throu
   for (const name of ["Familjen Ek", "Familjen Ask"]) await openEventCard(eventCard(page, name));
 
   // R2 R5: a group has two fields (name, amount; MUPP-074): Enter goes from the name to the amount, which sends
-  await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
-  await expect(dialog.getByRole("heading", { level: 2, name: "Ny grupp" })).toBeVisible();
-  await expect(dialog.getByLabel("Gruppens namn")).toBeFocused();
+  await page.getByRole("button", { name: "Ny Secret Santa", exact: true }).click();
+  await expect(dialog.getByRole("heading", { level: 2, name: "Ny Secret Santa" })).toBeVisible();
+  await expect(dialog.getByLabel("Namn på Secret Santa")).toBeFocused();
   await page.keyboard.type("Familjen Alm");
   await page.keyboard.press("Enter");
   await expect(dialog.getByLabel("Belopp (kr)")).toBeFocused();
