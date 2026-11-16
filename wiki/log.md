@@ -3,7 +3,7 @@
 ## 2026-11-17
 
 * **Creation** [MUPP-083 Admin wish lists: sizes and flipping between kids](../specs/MUPP-083-admin-wishlist-sizes/solution.md): the kid's wish list page in admin has a read-only sizes button at the top right and in the wish cards, and arrows that flip between the parent's kids.
-
+* **Update** [MUPP-073](../specs/MUPP-073-families/verification.md), MUPP-080, MUPP-081 and MUPP-082: the live accessibility checklist is marked done by the user (MUPP-073 checked on the live site; the others marked done on their instruction, without a per-item record).
 * **Update** [MUPP-082](../specs/MUPP-082-christmas-card-by-kids/verification.md): merged in pull request 288; Live tests passed against the live site (run 43922083284); the live accessibility checklist (items 1-4, 6, 7 for the cards) is not done.
 * **Creation** [MUPP-082 Cards by number of kids](../specs/MUPP-082-christmas-card-by-kids/solution.md): every card, Christmas Eve and birthdays, shows one kid as the single card, two like the twin card, three as wide rows and four or more as tiles, so a family's card is not left half empty.
 * **Update** [MUPP-081](../specs/MUPP-081-family-change-deck/verification.md): merged in pull request 286; Live tests passed against the live site (run 43908481547); the live accessibility checklist is not done.

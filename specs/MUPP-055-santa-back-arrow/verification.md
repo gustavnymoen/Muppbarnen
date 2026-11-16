@@ -21,7 +21,7 @@ How each requirement was checked. Browser tests ran locally (a production build,
 | Unit tests | Not applicable: no new logic; the 262 existing ones pass | local | Pass | 2026-11-09 |
 | Browser tests | One new test (R1, R2), a check added to the design test, and the MUPP-039 tests changed to press the arrow | local | Pass (131) | 2026-11-09 |
 | Smoke test | Not applicable: no main page or flow is added | – | – | – |
-| Accessibility | axe on the own page with one group and with several; the live checklist (the arrow's name, size and focus) not done yet | local | Pass (axe); live not checked | 2026-11-09 |
+| Accessibility | axe on the own page with one group and with several; the live checklist (the arrow's name, size and focus) marked done by the user (2026-11-16), not gone through item by item by Claude | local, live | Pass | 2026-11-16 |
 | Security | Security points in the review; `/security-review` not needed: the action is the existing `leave` with its checks | local | Pass | 2026-11-09 |
 | Code review | [review.md](review.md) | local | See review | 2026-11-09 |
 

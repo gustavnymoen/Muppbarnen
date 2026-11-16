@@ -25,7 +25,7 @@ Run locally (production build, local test database), 2026-11-12. Not deployed ye
 | Browser tests | The new test above and the MUPP-043 chat tests | local | Pass | 2026-11-12 |
 | Smoke test | Not applicable: no main page or flow changed | – | – | – |
 | Real device | Manual on an iPhone, Safari and pinned app | phone | Not checked | – |
-| Accessibility | axe on the open chat with the keyboard state; live checklist not done | local | Pass locally; live not checked | 2026-11-12 |
+| Accessibility | axe on the open chat with the keyboard state; live checklist marked done by the user (2026-11-16), not gone through item by item by Claude | local, live | Pass | 2026-11-16 |
 | Security | Not applicable, see [review.md](review.md) | – | – | – |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
 
@@ -43,7 +43,7 @@ The suite was already over budget with eight slow tests that are not part of thi
 - [ ] Tests: the real-phone checks are not done
 - [ ] Test suite: over budget before this change too; the new test is 1.5 s
 - [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: live checklist not done
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-16), not gone through item by item by Claude
 - [x] Requirements in the card match what was built; no open questions; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

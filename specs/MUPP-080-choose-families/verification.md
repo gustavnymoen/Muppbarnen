@@ -24,7 +24,7 @@ feature: MUPP-080
 | Unit tests | `npm run test:unit` | local | Pass (438 tests, 8 new in `lib/family-choice.test.ts`) | 2026-11-17 |
 | Browser tests | `tests/MUPP-080-choose-families.spec.ts` (1 test, axe on the card with its error and on the dialog) and one line added to `tests/MUPP-035-onboarding-card.spec.ts` | local | Pass | 2026-11-17 |
 | Smoke test | Unchanged: with one family nothing changes on the main pages. Live tests (the smoke tests) ran after the merge | live | Pass (Live tests run 43886892076 on the merge commit `9b9b3a5`) | 2026-11-16 |
-| Accessibility | axe in the browser test; the live checklist (`wiki/system/accessibility.md`, items 1-7, 9 and 11 apply; 8 and 10 are not affected) is not done | local | Partly: live checklist not done | 2026-11-17 |
+| Accessibility | axe in the browser test; the live checklist (`wiki/system/accessibility.md`, items 1-7, 9 and 11 apply; 8 and 10 are not affected) is marked done by the user, not gone through item by item by Claude | local, live | Pass | 2026-11-17 |
 | Security | The security points of the review passed (site session and `guardWrite()` first, ids checked as numbers that exist, strict cookie parsing, parameterized SQL). `/security-review` not run: the card says it is probably not needed, as nothing is written to the database | local | Pass | 2026-11-17 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-17 |
 | Look | Screenshots on phone widths (390 × 844 and 375 × 667) and on a wide screen of the card, the dialog and the icon button, on the start page and on Secret Santa, were looked at and approved by the user in the conversation. `/impeccable critique` was run on a demo database with made-up data (390 × 844, start page, Secret Santa, the card and the dialog): the detector found nothing and the review found nothing clearly wrong, so nothing was changed. The look is checked in `MUPP-080-R1 R2 …` in `tests/MUPP-080-choose-families.spec.ts` (the card is at most 28 rem wide, fits the screen and has 44 px rows; the button is a 44 px icon in the top left, clear of the menu, no sideways scroll), not in `tests/design.spec.ts` as the card's plan says: the state (two families) exists only in that test, and a test of its own would have put the suite over its budget (350.7 s with a separate test) | local | Pass | 2026-11-16 |
@@ -45,7 +45,7 @@ The change added 1 browser test (3.0 s alone) and one line to an existing one, a
 - [x] Tests: every requirement has a test; unit and browser tests pass
 - [x] Test suite: 340.9 s, within the 350 s budget
 - [x] Deployed, and the smoke tests pass against production (Live tests, run 43886892076, 2026-11-16)
-- [ ] Accessibility: axe passes; the live checklist is not done
+- [x] Accessibility: axe passes; the live checklist is marked done by the user
 - [x] Requirements in the card match what was built; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
