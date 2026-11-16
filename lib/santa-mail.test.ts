@@ -26,7 +26,7 @@ const mails = [
   },
   {
     n: 3,
-    mail: startedMail(G),
+    mail: startedMail(G, null),
     subject: "Secret Santa: Familjen Test – nu har du fått en secret santa!",
     text:
       "Ho ho ho! Dragningen i Familjen Test är gjord. Gå in och se vem du ska handla åt. Du kan fortfarande ändra din önskelista, och du kan skicka och ta emot frågor utan att någon får veta vem du är. I din önskelista kan du få frågor från din matchning om din önskelista. Du kan också meddela om det är något dom vill framföra!\n" +
@@ -93,6 +93,13 @@ describe("MUPP-052-R1 the mails", () => {
       const all = `${mail.subject}\n${mail.text}`;
       for (const secret of SECRETS) expect(all, `mail ${n}`).not.toContain(secret);
     }
+  });
+});
+
+describe("MUPP-074-R3 the amount in the draw mail", () => {
+  test("MUPP-074-R3 mail 3 states the amount when the group has one, and is as before when it has none", () => {
+    expect(startedMail(G, 200).text).toBe(`${startedMail(G, null).text}\nBeloppet är 200 kr.`);
+    expect(startedMail(G, null).text).not.toContain("Beloppet");
   });
 });
 

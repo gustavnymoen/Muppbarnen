@@ -12,7 +12,7 @@ tags: [secret-santa, inloggning, önskelista]
 2. Finns det flera grupper väljer du din. Finns det bara en visas namnen direkt.
 3. Tryck på ditt namn. Tryckte du på fel grupp eller fel namn går du tillbaka med pilen uppe till vänster (**Tillbaka**) eller med Esc. Från namnen går pilen till listan med grupper, eller till startsidan när det bara finns en grupp.
 4. Skriv ditt telefonnummer, eller välj **E-post** och skriv din e-postadress. Det ska vara det som föräldrarna har sparat åt dig. Mellanslag och bindestreck gör inget, och `+46` går bra i stället för 0. I e-postadressen spelar stora och små bokstäver ingen roll.
-5. Tryck **Fortsätt**. Du kommer till din egen sida, och nästa gång du öppnar Secret Santa går du direkt dit.
+5. Tryck **Fortsätt**. Du kommer till din egen sida, och nästa gång du öppnar Secret Santa går du direkt dit. Har den som skapade gruppen bestämt ett belopp för presenterna står det som en liten ruta, till exempel **200 kr**, bredvid "Hej …" högst upp.
 
 Står det "Det stämde inte" har du valt fel namn eller skrivit något annat än det som är sparat. Efter flera felsvar i rad får du vänta en stund.
 

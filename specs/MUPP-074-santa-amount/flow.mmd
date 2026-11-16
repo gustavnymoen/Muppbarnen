@@ -1,0 +1,10 @@
+%% MUPP-074 Amount on Secret Santa groups
+%% The administrator sets the amount; members and the draw mail show it.
+flowchart TD
+    A[Administrator saves the group form] --> B{Amount empty or a whole number above 0?}
+    B -- no --> C[Message at the field, nothing saved]
+    C --> A
+    B -- yes --> D[ss_event.amount saved, or NULL when empty]
+    D --> E[Group card in admin shows N kr - R4]
+    D --> F[Member's own page shows N kr beside Hej - R2]
+    D --> G[Draw mail 3 says Beloppet är N kr - R3]

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { IconLink } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
+import { Chip } from "@/app/components/Chip";
 import { ChatIcon, ChecklistIcon, CrossIcon, ReturnIcon, SantaHatIcon } from "@/app/components/icons";
 import { Heading, Page, PageContent } from "@/app/components/Page";
 import { currentSantaMember, entranceEvents, entranceHref } from "@/lib/santa-auth";
@@ -51,7 +52,11 @@ async function Own({ searchParams }: { searchParams: PageProps<"/secret-santa/mi
     >
       <PageContent>
         <div className="mx-auto max-w-md space-y-4">
-          <Heading level={1}>Hej {member.name}!</Heading>
+          {/* Beloppet (MUPP-074-R2) ligger bredvid rubriken, inte i den, så rubrikens namn är fortfarande bara "Hej <namn>!"; på en smal skärm och med ett långt namn bryts det till raden under */}
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <Heading level={1}>Hej {member.name}!</Heading>
+            {member.amount !== null && <Chip>{member.amount} kr</Chip>}
+          </div>
           {member.status === "inactive" ? (
             <p>Vi har inte kört igång än</p>
           ) : (

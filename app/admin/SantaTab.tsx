@@ -42,7 +42,7 @@ export function SantaTab({ events, adminId }: { events: SantaEvent[]; adminId: n
 
 function EventCard({ arranged: { event, foldable, open }, adminId }: { arranged: ArrangedEvent; adminId: number }) {
   // Det stängda kortet visar status och antal (MUPP-056); huvudadministratören ser också andras grupper: då står det vems de är
-  const counts = [...(foldable ? [STATUS_LABEL[event.status]] : []), `${event.members.length} deltagare`].join(", ");
+  const counts = [...(foldable ? [STATUS_LABEL[event.status]] : []), `${event.members.length} deltagare`, ...(event.amount === null ? [] : [`${event.amount} kr`])].join(", ");
   return (
     <EventFold
       title={event.name}
@@ -240,6 +240,7 @@ function EventForm({ event, submit }: { event?: SantaEvent; submit: string }) {
     <Form action={saveEvent} submit={submit} says={{ field: "name", added: !event }}>
       {event && <input type="hidden" name="eventId" value={event.id} />}
       <Field name="name" label="Gruppens namn" defaultValue={event?.name} maxLength={60} required />
+      <Field name="amount" type="number" label="Belopp (kr)" defaultValue={event?.amount?.toString()} hint="Valfritt. Hela kronor, till exempel 200." />
     </Form>
   );
 }

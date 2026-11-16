@@ -106,7 +106,7 @@ export function Form({ action, submit, says = "Sparat.", again, children, classN
 type FieldProps = {
   name: string;
   label: string;
-  type?: "text" | "password" | "tel" | "email" | "date" | "textarea" | "checkbox" | "select" | "file";
+  type?: "text" | "number" | "password" | "tel" | "email" | "date" | "textarea" | "checkbox" | "select" | "file";
   defaultValue?: string;
   defaultChecked?: boolean;
   options?: { value: string; label: string }[];

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { SantaEvent } from "./santa";
 import { arrangeEvents } from "./santa-groups";
 
-const event = (id: number, name: string, ownerId: number, ownerName: string): SantaEvent => ({ id, name, status: "inactive", ownerId, ownerName, members: [] });
+const event = (id: number, name: string, ownerId: number, ownerName: string): SantaEvent => ({ id, name, status: "inactive", ownerId, ownerName, amount: null, members: [] });
 const summary = (events: SantaEvent[], adminId: number) => arrangeEvents(events, adminId).map((a) => `${a.event.name}:${a.foldable ? (a.open ? "open" : "closed") : "fixed"}`);
 
 describe("arrangeEvents", () => {

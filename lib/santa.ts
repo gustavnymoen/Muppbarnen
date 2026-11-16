@@ -1,6 +1,6 @@
 import "server-only";
 import { all, get, run, withTransaction, type Executor } from "./db";
-import { collect, parseEmail, parseId, parsePhone, parseText } from "./form-input";
+import { collect, parseAmount, parseEmail, parseId, parsePhone, parseText } from "./form-input";
 import type { Outcome, Parent } from "./family";
 import { swedishToday } from "./deck";
 import { clearListChanges } from "./santa-changes";
@@ -17,7 +17,7 @@ export type SantaMember = { id: number; name: string; phone: string; email: stri
 // Gruppens status (MUPP-051): inaktiv tills administratören aktiverar den, förbereder medan medlemmar läggs till och
 // önskelistor skrivs, startad när dragningen är gjord (MUPP-041)
 export type EventStatus = "inactive" | "preparing" | "started";
-export type SantaEvent = { id: number; name: string; status: EventStatus; ownerId: number; ownerName: string; members: SantaMember[] };
+export type SantaEvent = { id: number; name: string; status: EventStatus; ownerId: number; ownerName: string; amount: number | null; members: SantaMember[] };
 // Den som ska få ett mejl om gruppen; namnet är bara för administratörens lista över dem som inte fick något
 export type Recipient = { name: string; email: string };
 
@@ -31,7 +31,7 @@ const WRONG_STATUS = { ok: false, error: "Gruppens status har redan ändrats. La
 const PARTNER_LOCKED = { ok: false, error: "Gruppen är startad. Partnern kan inte ändras nu." } as const;
 const PARTNER_IN_GROUP = { ok: false, fields: { partnerId: "Välj en av de andra i gruppen." } } as const;
 
-type EventRow = { id: number; owner_id: number; name: string; status: EventStatus };
+type EventRow = { id: number; owner_id: number; name: string; status: EventStatus; amount: number | null };
 
 // Gruppens ägare och huvudadministratören får ändra den (MUPP-048-R3)
 const canManage = (actor: Parent | null, event: Pick<EventRow, "owner_id">): actor is Parent => actor !== null && (actor.isMasterAdmin || event.owner_id === actor.id);
@@ -48,7 +48,7 @@ async function nameTaken(name: string, exceptId: number | null, tx: Executor) {
 // Gruppen, om förfrågan avser en som aktören får ändra
 async function manageableEvent(actor: Parent | null, rawId: unknown, tx: Executor): Promise<EventRow | Failure> {
   const id = parseId(rawId);
-  const event = id === null ? undefined : await get<EventRow>("SELECT id, owner_id, name, status FROM ss_event WHERE id = ?", [id], tx);
+  const event = id === null ? undefined : await get<EventRow>("SELECT id, owner_id, name, status, amount FROM ss_event WHERE id = ?", [id], tx);
   if (!event) return GONE;
   return canManage(actor, event) ? event : NOT_ALLOWED;
 }
@@ -65,7 +65,7 @@ export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
   // Samma urval för grupperna och medlemmarna (fast SQL-text): kontaktuppgifter för andras grupper läses aldrig ens in
   const args = [actor.isMasterAdmin ? 1 : 0, actor.id];
   const events = await all<EventRow & { owner_name: string }>(
-    "SELECT e.id, e.owner_id, e.name, e.status, p.name AS owner_name FROM ss_event e JOIN parent p ON p.id = e.owner_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY e.name, e.id",
+    "SELECT e.id, e.owner_id, e.name, e.status, e.amount, p.name AS owner_name FROM ss_event e JOIN parent p ON p.id = e.owner_id WHERE (? = 1 OR e.owner_id = ?) ORDER BY e.name, e.id",
     args,
   );
   const rows = await all<{ id: number; event_id: number; name: string; phone: string; email: string; partner_member_id: number | null; wishes: number }>(
@@ -78,25 +78,26 @@ export async function listEvents(actor: Parent | null): Promise<SantaEvent[]> {
     status: e.status,
     ownerId: e.owner_id,
     ownerName: e.owner_name,
+    amount: e.amount,
     members: rows.filter((r) => r.event_id === e.id).map((r) => ({ id: r.id, name: r.name, phone: r.phone, email: r.email, partnerId: r.partner_member_id, hasWishes: r.wishes > 0 })),
   }));
 }
 
 // ---- Grupper
 
-export async function saveEvent(actor: Parent | null, input: { id?: unknown; name: unknown }): Promise<Outcome> {
+export async function saveEvent(actor: Parent | null, input: { id?: unknown; name: unknown; amount?: unknown }): Promise<Outcome> {
   if (!actor) return NOT_ALLOWED;
-  const checked = collect({ name: parseText(input.name, 60, true) });
+  const checked = collect({ name: parseText(input.name, 60, true), amount: parseAmount(input.amount) });
   if (!checked.ok) return { ok: false, fields: checked.errors };
-  const { name } = checked.values;
+  const { name, amount } = checked.values;
   const creating = input.id === undefined || input.id === "";
   return withTransaction(async (tx) => {
     const event = creating ? null : await manageableEvent(actor, input.id, tx);
     if (event && isOutcome(event)) return event;
     if (await nameTaken(name, event?.id ?? null, tx)) return NAME_TAKEN;
     try {
-      if (event) await run("UPDATE ss_event SET name = ? WHERE id = ?", [name, event.id], tx);
-      else await run("INSERT INTO ss_event (owner_id, name) VALUES (?, ?)", [actor.id, name], tx);
+      if (event) await run("UPDATE ss_event SET name = ?, amount = ? WHERE id = ?", [name, amount, event.id], tx);
+      else await run("INSERT INTO ss_event (owner_id, name, amount) VALUES (?, ?, ?)", [actor.id, name, amount], tx);
     } catch (error) {
       // Två föräldrar som sparar samma namn samtidigt: indexet i databasen stoppar den andra
       if (/constraint/i.test(String(error))) return NAME_TAKEN;
@@ -124,7 +125,7 @@ export async function removeEvent(actor: Parent | null, rawId: unknown): Promise
 
 // ---- Status
 
-type StatusChange = { eventName: string; recipients: Recipient[] };
+type StatusChange = { eventName: string; amount: number | null; recipients: Recipient[] };
 
 // Aktivera (inaktiv → förbereder) eller avaktivera (förbereder → inaktiv), MUPP-051-R2. En startad grupp lämnas bara av
 // dragningen (MUPP-041). Svaret säger vem som ska få mejlet; att skicka det gör anroparen när statusen är sparad.
@@ -136,7 +137,7 @@ async function changeStatus(actor: Parent | null, rawId: unknown, from: EventSta
     if (event.status !== from) return WRONG_STATUS;
     await run("UPDATE ss_event SET status = ? WHERE id = ? AND status = ?", [to, event.id, from], tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
-    return { ok: true, eventName: event.name, recipients };
+    return { ok: true, eventName: event.name, amount: event.amount, recipients };
   });
 }
 
@@ -181,7 +182,7 @@ export async function startDraw(actor: Parent | null, rawId: unknown, today = sw
     await run("UPDATE ss_event SET status = 'started' WHERE id = ? AND status = 'preparing'", [event.id], tx);
     await clearListChanges(event.id, tx);
     await clearMessages(event.id, tx);
-    return { ok: true, eventName: event.name, recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
+    return { ok: true, eventName: event.name, amount: event.amount, recipients: members.map((m) => ({ name: m.name, email: m.email })), setAside: result.setAside };
   });
 }
 
@@ -198,20 +199,20 @@ export async function stopDraw(actor: Parent | null, rawId: unknown): Promise<Ou
     await clearListChanges(event.id, tx);
     await clearMessages(event.id, tx);
     const recipients = await all<Recipient>("SELECT name, email FROM ss_member WHERE event_id = ? ORDER BY name, id", [event.id], tx);
-    return { ok: true, eventName: event.name, recipients };
+    return { ok: true, eventName: event.name, amount: event.amount, recipients };
   });
 }
 
 // ---- Medlemmar
 
 type MemberRow = { id: number; event_id: number };
-type ManageableMember = MemberRow & { owner_id: number; status: EventStatus; name: string; email: string; event_name: string };
+type ManageableMember = MemberRow & { owner_id: number; status: EventStatus; name: string; email: string; event_name: string; amount: number | null };
 
 // Medlemmen, om aktören får ändra gruppen den ligger i. Också i en startad grupp: namn, telefon och e-post får rättas hela tiden (MUPP-060-R1);
 // vad som annars är låst i en startad grupp (MUPP-051-R3) avgör den som anropar.
 async function manageableMember(actor: Parent | null, rawId: unknown, tx: Executor): Promise<ManageableMember | Failure> {
   const id = parseId(rawId);
-  const member = id === null ? undefined : await get<ManageableMember>("SELECT m.id, m.event_id, m.name, m.email, e.owner_id, e.status, e.name AS event_name FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
+  const member = id === null ? undefined : await get<ManageableMember>("SELECT m.id, m.event_id, m.name, m.email, e.owner_id, e.status, e.amount, e.name AS event_name FROM ss_member m JOIN ss_event e ON e.id = m.event_id WHERE m.id = ?", [id], tx);
   if (!member) return GONE;
   return canManage(actor, member) ? member : NOT_ALLOWED;
 }
@@ -225,7 +226,7 @@ async function contactTaken(eventId: number, phone: string, email: string, excep
 }
 
 // Det som behövs för att skicka mejlet till en ny adress; status avgör vilket: inaktiv välkomstmejlet, förbereder också aktiveringsmejlet, startad startmejlet
-export type NewMember = { name: string; email: string; eventName: string; status: EventStatus };
+export type NewMember = { name: string; email: string; eventName: string; amount: number | null; status: EventStatus };
 
 // En ny medlem i gruppen (inte i en startad)
 // Partnern kan väljas redan här (MUPP-078-R1): en annan medlem i gruppen, eller ingen
@@ -244,7 +245,7 @@ export async function addMember(actor: Parent | null, input: { eventId: unknown;
     if (problem) return problem;
     const { lastId } = await run("INSERT INTO ss_member (event_id, name, phone, email) VALUES (?, ?, ?, ?)", [event.id, name, phone, email], tx);
     await setPartner(lastId, partnerId, tx);
-    return { ok: true, name, email, eventName: event.name, status: event.status };
+    return { ok: true, name, email, eventName: event.name, amount: event.amount, status: event.status };
   });
 }
 
@@ -288,7 +289,7 @@ export async function memberToMail(actor: Parent | null, rawId: unknown): Promis
   return withTransaction(async (tx) => {
     const member = await manageableMember(actor, rawId, tx);
     if (isOutcome(member)) return member;
-    return { ok: true, name: member.name, email: member.email, eventName: member.event_name, status: member.status };
+    return { ok: true, name: member.name, email: member.email, eventName: member.event_name, amount: member.amount, status: member.status };
   });
 }
 

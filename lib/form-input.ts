@@ -31,6 +31,15 @@ export function parseText(raw: unknown, max: number, required = false): Parsed<s
   return { ok: true, value };
 }
 
+// Ett belopp i hela kronor: ett positivt heltal skrivet med siffror, eller inget alls (MUPP-074)
+export function parseAmount(raw: unknown): Parsed<number | null> {
+  // Fältet saknas eller är tomt: inget belopp
+  if (raw === null || raw === undefined) return { ok: true, value: null };
+  const value = typeof raw === "string" ? raw.trim() : null;
+  if (value === "") return { ok: true, value: null };
+  return value !== null && /^\d{1,6}$/.test(value) && Number(value) > 0 ? { ok: true, value: Number(value) } : fail("Skriv ett helt antal kronor, till exempel 200.");
+}
+
 // Ett id är ett positivt heltal skrivet med siffror, inget annat
 export function parseId(raw: unknown): number | null {
   if (typeof raw !== "string" || !/^\d{1,15}$/.test(raw)) return null;

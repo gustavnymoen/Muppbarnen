@@ -272,7 +272,7 @@ test("MUPP-045-R2 R4 R5 R6 R7 a kid's wish lists: Enter through the wish form, a
   await expect(birthday.getByRole("button", { name: "Ändra basket" })).toBeFocused();
 });
 
-test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new group with one field, a new person through Enter, and a member's partner list", async ({ page }) => {
+test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new group, a new person through Enter, and a member's partner list", async ({ page }) => {
   const chef = uniqueName("Chef");
   await addParent(chef, true);
   const ek = await addSantaEvent("Familjen Ek");
@@ -286,11 +286,13 @@ test("MUPP-045-R2 R5 R7 R8 the Secret Santa tab: a new group with one field, a n
   // The groups are someone else's, so they are closed (MUPP-056)
   for (const name of ["Familjen Ek", "Familjen Ask"]) await openEventCard(eventCard(page, name));
 
-  // R2 R5: a family has one field, so Enter sends it
+  // R2 R5: a group has two fields (name, amount; MUPP-074): Enter goes from the name to the amount, which sends
   await page.getByRole("button", { name: "Ny grupp", exact: true }).click();
   await expect(dialog.getByRole("heading", { level: 2, name: "Ny grupp" })).toBeVisible();
   await expect(dialog.getByLabel("Gruppens namn")).toBeFocused();
   await page.keyboard.type("Familjen Alm");
+  await page.keyboard.press("Enter");
+  await expect(dialog.getByLabel("Belopp (kr)")).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(dialog).toHaveCount(0);
   await expect(said(page, "Familjen Alm lades till")).toBeAttached();

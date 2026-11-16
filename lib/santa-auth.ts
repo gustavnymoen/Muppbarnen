@@ -14,7 +14,7 @@ import { siteSecrets } from "./site-session";
 // för kontrollen, och lämnar aldrig funktionen. Designen: wiki/system/secret-santa-entrance.md.
 
 type EntranceMember = { memberId: number; name: string };
-export type SantaMember = { id: number; name: string; eventId: number; eventName: string; status: EventStatus };
+export type SantaMember = { id: number; name: string; eventId: number; eventName: string; amount: number | null; status: EventStatus };
 type SantaContact = "phone" | "email";
 
 // ---- Läsa (bara namn)
@@ -26,9 +26,9 @@ export async function entranceMembers(eventId: number): Promise<EntranceMember[]
   return rows.map((r) => ({ memberId: r.id, name: r.name }));
 }
 
-type MemberRow = { id: number; name: string; event_id: number; event_name: string; status: EventStatus };
-const MEMBER_SQL = "SELECT m.id, m.name, m.event_id, e.name AS event_name, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id";
-const toMember = (row: MemberRow): SantaMember => ({ id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name, status: row.status });
+type MemberRow = { id: number; name: string; event_id: number; event_name: string; amount: number | null; status: EventStatus };
+const MEMBER_SQL = "SELECT m.id, m.name, m.event_id, e.name AS event_name, e.amount, e.status FROM ss_member m JOIN ss_event e ON e.id = m.event_id";
+const toMember = (row: MemberRow): SantaMember => ({ id: row.id, name: row.name, eventId: row.event_id, eventName: row.event_name, amount: row.amount, status: row.status });
 
 export async function findMember(id: number): Promise<SantaMember | undefined> {
   const row = await get<MemberRow>(`${MEMBER_SQL} WHERE m.id = ?`, [id]);

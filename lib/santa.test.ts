@@ -115,6 +115,45 @@ describe("MUPP-048-R2 events and their names", () => {
   });
 });
 
+describe("MUPP-074-R1 the amount of an event", () => {
+  const amountOf = async (id: number) => (await santa.listEvents(master)).find((e) => e.id === id)!.amount;
+
+  test("MUPP-074-R1 an amount is stored when creating and editing, empty means none, and clearing removes it", async () => {
+    expect(await santa.saveEvent(emma, { name: "Med belopp", amount: "200" })).toEqual({ ok: true });
+    expect(await santa.saveEvent(emma, { name: "Utan belopp", amount: "" })).toEqual({ ok: true });
+    const withId = (await get<{ id: number }>("SELECT id FROM ss_event WHERE name = 'Med belopp'"))!.id;
+    const withoutId = (await get<{ id: number }>("SELECT id FROM ss_event WHERE name = 'Utan belopp'"))!.id;
+    expect([await amountOf(withId), await amountOf(withoutId)]).toEqual([200, null]);
+    expect(await santa.saveEvent(emma, { id: String(withId), name: "Med belopp", amount: " 350 " })).toEqual({ ok: true });
+    expect(await amountOf(withId)).toBe(350);
+    expect(await santa.saveEvent(emma, { id: String(withId), name: "Med belopp", amount: "" })).toEqual({ ok: true });
+    expect(await amountOf(withId)).toBeNull();
+    // Utan fältet alls (en äldre sida) blir det också inget belopp
+    expect(await santa.saveEvent(emma, { id: String(withoutId), name: "Utan belopp" })).toEqual({ ok: true });
+    expect(await amountOf(withoutId)).toBeNull();
+  });
+
+  test("MUPP-074-R1 anything but a whole number above 0 is refused, and nothing is saved", async () => {
+    const id = await event(emma, "Julen");
+    for (const amount of ["abc", "2.5", "2,5", "-5", "0", "00", "100-200", "1000000", "1e3", 200, {}]) {
+      expect(await santa.saveEvent(emma, { id: String(id), name: "Julen", amount }), String(amount)).toMatchObject({ ok: false, fields: { amount: expect.any(String) } });
+      expect(await santa.saveEvent(emma, { name: "Ny grupp", amount }), String(amount)).toMatchObject({ ok: false, fields: { amount: expect.any(String) } });
+    }
+    expect(await amountOf(id)).toBeNull();
+    expect(await count("ss_event")).toBe(1);
+  });
+
+  test("MUPP-074-R3 the amount follows the group into the draw and the status answers", async () => {
+    await santa.saveEvent(emma, { name: "Julen", amount: "150" });
+    const id = (await get<{ id: number }>("SELECT id FROM ss_event WHERE name = 'Julen'"))!.id;
+    await person(emma, id, "Anna");
+    await person(emma, id, "Bo");
+    expect(await santa.activateEvent(emma, String(id))).toMatchObject({ ok: true, amount: 150 });
+    expect(await santa.startDraw(emma, String(id))).toMatchObject({ ok: true, amount: 150 });
+    expect(await santa.stopDraw(emma, String(id))).toMatchObject({ ok: true, amount: 150 });
+  });
+});
+
 describe("MUPP-048-R3 own events only", () => {
   test("MUPP-048-R3 a parent sees only their own events, the master admin sees all", async () => {
     await event(emma, "Emmas jul");
@@ -280,6 +319,7 @@ describe("MUPP-051-R2 activate and deactivate", () => {
     expect(await santa.activateEvent(emma, String(id))).toEqual({
       ok: true,
       eventName: "Emmas jul",
+      amount: null,
       recipients: [
         { name: "Anna", email: "anna@exempel.se" },
         { name: "Bo", email: "bo@exempel.se" },
@@ -356,7 +396,7 @@ describe("MUPP-051-R3 members only while the event is inactive or preparing", ()
   test("MUPP-051-R3 an added member answers with what the welcome mail needs: the address, the event, the administrator and the status", async () => {
     const id = await event(emma, "Emmas jul");
     const input = (n: number) => ({ eventId: String(id), name: `Ny ${n}`, phone: `070009999${n}`, email: `ny${n}@exempel.se` });
-    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", status: "inactive" });
+    expect(await santa.addMember(master, input(1))).toEqual({ ok: true, name: "Ny 1", email: "ny1@exempel.se", eventName: "Emmas jul", amount: null, status: "inactive" });
     await santa.activateEvent(emma, String(id));
     expect(await santa.addMember(emma, input(2))).toMatchObject({ ok: true, status: "preparing" });
   });
@@ -386,7 +426,7 @@ describe("MUPP-041-R2 R3 R4 start the draw", () => {
   test("MUPP-041-R2 R4 a preparing event is drawn once: one row per giver for this year, the event is started, and the answer has the mail data but no pair", async () => {
     const { id, ids } = await preparing(emma, ["Anna", "Bo", "Cia"]);
     const outcome = await santa.startDraw(emma, String(id));
-    expect(outcome).toEqual({ ok: true, eventName: "Emmas jul", setAside: [], recipients: [{ name: "Anna", email: "anna@exempel.se" }, { name: "Bo", email: "bo@exempel.se" }, { name: "Cia", email: "cia@exempel.se" }] });
+    expect(outcome).toEqual({ ok: true, eventName: "Emmas jul", amount: null, setAside: [], recipients: [{ name: "Anna", email: "anna@exempel.se" }, { name: "Bo", email: "bo@exempel.se" }, { name: "Cia", email: "cia@exempel.se" }] });
     expect(await statusOf(id)).toBe("started");
     const rows = await drawRows(id);
     expect(rows.map((r) => r.giver_id)).toEqual(ids);
@@ -573,7 +613,7 @@ describe("MUPP-060 change a participant in a started group", () => {
   test("MUPP-060-R4 the mail data is read from the saved address, per status, and only for someone who may manage the group", async () => {
     const { id, ids } = await started();
     await santa.saveMember(emma, change(ids[0], { email: "ny@exempel.se" }));
-    expect(await santa.memberToMail(emma, String(ids[0]))).toEqual({ ok: true, name: "Anna", email: "ny@exempel.se", eventName: "Emmas jul", status: "started" });
+    expect(await santa.memberToMail(emma, String(ids[0]))).toEqual({ ok: true, name: "Anna", email: "ny@exempel.se", eventName: "Emmas jul", amount: null, status: "started" });
     expect(await santa.memberToMail(master, String(ids[0]))).toMatchObject({ ok: true });
     expect(await santa.memberToMail(erik, String(ids[0]))).toEqual(refused);
     expect(await santa.memberToMail(null, String(ids[0]))).toEqual(refused);

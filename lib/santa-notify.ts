@@ -17,7 +17,7 @@ export async function mailEveryone(recipients: Recipient[], mail: Mail): Promise
 // En ny adress får mejlet en ny deltagare skulle fått i gruppens status: välkomstmejlet, och i en grupp som förbereder direkt efter det
 // aktiveringsmejlet (MUPP-051-R3); i en startad grupp startmejlet (MUPP-060-R4). Sant om allt gick iväg.
 export async function mailNewMember(member: NewMember): Promise<boolean> {
-  if (member.status === "started") return (await sendMail(member.email, startedMail(member.eventName))).ok;
+  if (member.status === "started") return (await sendMail(member.email, startedMail(member.eventName, member.amount))).ok;
   if (!(await sendMail(member.email, addedMail(member.eventName))).ok) return false;
   return member.status !== "preparing" || (await sendMail(member.email, activatedMail(member.eventName))).ok;
 }

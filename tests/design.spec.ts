@@ -1830,3 +1830,33 @@ test("MUPP-072-R4 the busy button's spinner turns, and with reduced motion it pu
   await expect(busy).toContainText("Sparar");
   await expectNoA11yViolations(page);
 });
+
+test("MUPP-074-R2 R4 the amount on the narrowest phone: the pill sits beside a short greeting and under a long name, and the group card with a long name and the Admin line has no sideways scroll", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  const owner = uniqueName("Emma");
+  const chef = uniqueName("Chef");
+  await addParent(chef, true);
+  const long = "Familjen Svensson-Andersson-Lindqvist";
+  const group = await addSantaEvent(long, await addParent(owner), "preparing", 2500);
+  const anna = await addSantaMember(group, "Anna", "0700001111", "anna@exempel.invalid");
+  const bo = await addSantaMember(group, "Bo-Christoffer Alexandersson-Bergström", "0700002222", "bo@exempel.invalid");
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+
+  await santaSignIn(page, anna);
+  await goto(page, "/secret-santa/min-sida");
+  const pill = page.getByText("2500 kr", { exact: true });
+  const heading = page.getByRole("heading", { level: 1 });
+  expect((await settledBox(pill)).y).toBeLessThan((await settledBox(heading)).y + (await settledBox(heading)).height);
+  expect(await overflow()).toBe(false);
+
+  await santaSignIn(page, bo);
+  await goto(page, "/secret-santa/min-sida");
+  expect(await overflow()).toBe(false);
+  await expect(pill).toBeVisible();
+
+  await adminSignIn(page, chef);
+  await page.getByRole("tab", { name: "Secret Santa" }).click();
+  await expect(eventCard(page, long)).toContainText("2500 kr");
+  await expect(eventCard(page, long)).toContainText(`Admin: ${owner}`);
+  expect(await overflow()).toBe(false);
+});
