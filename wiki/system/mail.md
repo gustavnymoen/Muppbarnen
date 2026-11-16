@@ -27,7 +27,7 @@ A mail with `installTip: true` also gets the home-screen tip ([MUPP-058](../../s
 |---|---|---|---|
 | 1 Group opened, with how it works | `activatedMail` | every member; also a member added while preparing, right after mail 8 | MUPP-051 |
 | 2 Group deactivated | `deactivatedMail` | every member | MUPP-051 |
-| 3 Draw done, group started | `startedMail` | every member | MUPP-041 |
+| 3 Draw done, group started | `startedMail(group, amount)`; ends with "Beloppet är N kr." when the group has an amount ([MUPP-074](../../specs/MUPP-074-santa-amount/solution.md)) | every member; also an address changed in a started group | MUPP-041 |
 | 4 Draw stopped | `stoppedMail` | every member | MUPP-041 |
 | 5 The receiver's list changed (one mail an hour) | `listChangedMail` | the giver | MUPP-042 (`lib/santa-changes.ts`, by a scheduled job) |
 | 6 A message from the giver (collected over ten minutes) | `messageFromGiverMail` | the receiver | MUPP-043 (`lib/santa-chat.ts`, by the same scheduled job) |

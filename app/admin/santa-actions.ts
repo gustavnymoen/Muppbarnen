@@ -13,7 +13,7 @@ import { answer, text } from "./action-helpers";
 export async function saveEvent(_previous: FormState, formData: FormData): Promise<FormState> {
   const { parent, refusal } = await openAdminAction();
   if (refusal) return failed(formData, { error: refusal });
-  return answer(formData, await santa.saveEvent(parent, { id: text(formData, "eventId") ?? undefined, name: text(formData, "name") }));
+  return answer(formData, await santa.saveEvent(parent, { id: text(formData, "eventId") ?? undefined, name: text(formData, "name"), amount: text(formData, "amount") }));
 }
 
 export async function removeEvent(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -43,7 +43,7 @@ export async function startDraw(_previous: FormState, formData: FormData): Promi
   if (refusal) return failed(formData, { error: refusal });
   const outcome = await santa.startDraw(parent, text(formData, "eventId"));
   return outcome.ok
-    ? answer(formData, outcome, await mailEveryone(outcome.recipients, startedMail(outcome.eventName)), setAsideNotice(outcome.setAside))
+    ? answer(formData, outcome, await mailEveryone(outcome.recipients, startedMail(outcome.eventName, outcome.amount)), setAsideNotice(outcome.setAside))
     : answer(formData, outcome);
 }
 

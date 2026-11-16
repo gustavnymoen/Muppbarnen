@@ -33,7 +33,7 @@ describe("MUPP-051-R2 the mail to everyone", () => {
 });
 
 describe("MUPP-051-R3 the mails to a new member", () => {
-  const member = { name: "Anna", email: "anna@exempel.se", eventName: "Emmas jul" };
+  const member = { name: "Anna", email: "anna@exempel.se", eventName: "Emmas jul", amount: null };
 
   test("MUPP-051-R3 an inactive group gives the welcome mail only", async () => {
     expect(await mailNewMember({ ...member, status: "inactive" as const })).toBe(true);
@@ -47,7 +47,12 @@ describe("MUPP-051-R3 the mails to a new member", () => {
 
   test("MUPP-060-R4 a started group gives the started mail and nothing else", async () => {
     expect(await mailNewMember({ ...member, status: "started" as const })).toBe(true);
-    expect(sent).toEqual([{ to: "anna@exempel.se", subject: startedMail("Emmas jul").subject }]);
+    expect(sent).toEqual([{ to: "anna@exempel.se", subject: startedMail("Emmas jul", null).subject }]);
+  });
+
+  test("MUPP-074-R3 a started group's mail to a new address states the amount", async () => {
+    expect(await mailNewMember({ ...member, amount: 200, status: "started" as const })).toBe(true);
+    expect(sent).toEqual([{ to: "anna@exempel.se", subject: startedMail("Emmas jul", 200).subject }]);
   });
 
   test("MUPP-051-R3 a failing address gives false and no second mail", async () => {
