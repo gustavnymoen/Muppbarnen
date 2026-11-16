@@ -22,7 +22,7 @@ const SIDE_OFFSET = 94; // % av kortets bredd som korten på sidorna ligger vid 
 const SIDE_SCALE = 0.84;
 // Bilden på kort med flera barn växer med skärmens höjd: 72 px på en låg telefon (667 px), upp till 104 px
 const TWIN_AVATAR = "clamp(72px, calc(72px + (100dvh - 667px) * 0.2), 104px)";
-const TILE_AVATAR = 56; // barnen på julkortet
+const TILE_AVATAR = 56; // barnen i rader och rutor
 
 const cardLabel = (card: DeckCard) => (card.kind === "christmas" ? "Julafton" : `${card.kids.map((k) => k.name).join(" och ")}, ${dayAndMonth(card.day!, card.month!)}`);
 // Datumet står i kortets rubrik; på miniatyrerna (utan date) står bara "Beräknad". Under månaden efter "Fyllde", och "Född" om tillfället var födseln (MUPP-031-R1, R6)
@@ -211,6 +211,9 @@ function NextMark({ children }: { children: string }) {
 
 function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCard; first: boolean; openList: OpenList; onOpen: (kid: DeckKid) => void; onClose: () => void }) {
   const christmas = card.kind === "christmas";
+  // Efter antal barn (MUPP-082): två ligger över varandra som på tvillingkortet, tre är breda rader med bilden till vänster, fler är rutor två och två
+  const tiles = card.kids.length > 3;
+  const rows = card.kids.length === 3;
   const date = christmas ? "" : dayAndMonth(card.day!, card.month!);
   // Ett barn visas som hela kort; flera visas som miniatyrer tills ett öppnas
   const single = card.kids.length === 1 ? card.kids[0] : card.kids.find((k) => k.id === openList?.kidId);
@@ -256,20 +259,20 @@ function DeckCardView({ card, first, openList, onOpen, onClose }: { card: DeckCa
           onToggle={() => (openList?.kidId === single.id ? onClose() : onOpen(single))}
         />
       ) : (
-        <ul className={`min-h-0 overflow-y-auto ${christmas ? "my-auto max-h-full grid grid-cols-2 gap-3" : "flex flex-1 flex-col gap-3"}`}>
+        <ul className={`min-h-0 overflow-y-auto ${tiles ? "my-auto max-h-full grid grid-cols-2 gap-3" : rows ? "my-auto flex flex-col gap-3" : "flex flex-1 flex-col gap-3"}`}>
           {card.kids.map((kid) =>
-            christmas ? (
-              // Julkortet har alla barnen: rutor två och två med bilden över namnet
+            tiles || rows ? (
+              // Tre barn: en rad var med bilden till vänster och namnet till höger; fler: rutor två och två med bilden över namnet
               <li key={kid.id}>
                 <button
                   type="button"
                   id={`barn-${card.key}-${kid.id}`}
                   onClick={() => onOpen(kid)}
-                  className="press flex h-full min-h-11 w-full flex-col items-center gap-1 rounded-control border border-edge bg-page/50 px-2 py-3 hover:bg-edge"
+                  className={`press flex h-full min-h-11 w-full items-center rounded-control border border-edge bg-page/50 hover:bg-edge ${rows ? "gap-3 p-2" : "flex-col gap-1 px-2 py-3"}`}
                 >
                   <Avatar name={kid.name} color={kid.color} src={kid.picture} size={TILE_AVATAR} decorative />
                   <span className="sr-only">Öppna&nbsp;</span>
-                  <FitName className="font-heading text-lg font-semibold">{kid.name}</FitName>
+                  <FitName className={`font-heading text-lg font-semibold ${rows ? "min-w-0 flex-1 text-center" : ""}`}>{kid.name}</FitName>
                 </button>
               </li>
             ) : (

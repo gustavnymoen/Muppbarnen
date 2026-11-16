@@ -1,0 +1,14 @@
+%% MUPP-082 Christmas Eve card by number of kids
+%% The layout of the Christmas Eve card follows the number of kids on it.
+flowchart TD
+    A[Visitor reaches the Christmas Eve card] --> B{How many kids?}
+    B -- 1 --> C[Single card, R1]
+    B -- 2 --> D[Like the twin card, no age, R2]
+    B -- 3 --> E[Three wide rows, R3]
+    B -- 4 or more --> F[Small tiles, two by two, R4]
+    E --> G[Press a row or tile]
+    F --> G
+    D --> H[Press the wish button]
+    G --> I[The kid opens with the list unfolded]
+    H --> I
+    C --> I

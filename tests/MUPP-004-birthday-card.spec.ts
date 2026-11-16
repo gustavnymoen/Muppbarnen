@@ -188,16 +188,16 @@ test("MUPP-004-R2 R4 R5 R7 R9 MUPP-020-R1 several kids on one card, then Christm
   await expect(card(page).getByRole("button", { name: "Önskelista för Vera" })).toBeFocused();
   await expect(next(page)).toBeEnabled();
 
-  // R5: julkortet visar alla barn utan ålder, och julönskningarna öppnas via barnet
+  // R5: julkortet visar alla barn utan ålder (med två barn som tvillingkortet, MUPP-082-R2), och julönskningarna öppnas via barnet
   await showCard(page, "Julafton");
-  await expect(card(page).getByRole("button", { name: /^Öppna / })).toHaveCount(2);
+  await expect(card(page).getByRole("button", { name: /^Önskelista för / })).toHaveCount(2);
   await expect(card(page).getByText(/Fyller/)).toHaveCount(0);
   await expectNoA11yViolations(page);
-  await card(page).getByRole("button", { name: "Öppna Vera" }).click();
+  await card(page).getByRole("button", { name: "Önskelista för Vera" }).click();
   await expect(card(page).getByRole("button", { name: "Stäng önskelistan" })).toBeVisible();
   await expect(card(page).getByRole("listitem")).toHaveText(["Julpussel"]);
   await expectNoA11yViolations(page);
   // R4 R9: Escape på julkortet för fokus tillbaka till barnets knapp på just det kortet (samma barn finns också på födelsedagskortet)
   await page.keyboard.press("Escape");
-  await expect(card(page).getByRole("button", { name: "Öppna Vera" })).toBeFocused();
+  await expect(card(page).getByRole("button", { name: "Önskelista för Vera" })).toBeFocused();
 });

@@ -93,7 +93,7 @@ test("MUPP-014-R5 a kid with no sizes still has the button, and the dialog says 
   await expectNoA11yViolations(page);
 });
 
-test("MUPP-014-R3 R4 R5 the card with several kids: an icon button per kid, and the corner icon on the open kid view; on Christmas Eve the tiles have none and the open kid view has the corner icon", async ({ page }) => {
+test("MUPP-014-R3 R4 R5 the card with several kids: an icon button per kid, and the corner icon on the open kid view; on Christmas Eve the card for two kids has the icons too and the open kid view has the corner icon", async ({ page }) => {
   await twoKids(page);
 
   const veraIcon = card(page).getByRole("button", { name: "Storlekar för Vera" });
@@ -123,13 +123,13 @@ test("MUPP-014-R3 R4 R5 the card with several kids: an icon button per kid, and 
   await expect(dialog(page).getByRole("heading", { name: "Storlekar för Vera" })).toBeVisible();
   await expectNoA11yViolations(page);
 
-  // Christmas Eve, on the same page: the tiles have no sizes button, and the open kid view has the corner icon
+  // Christmas Eve, on the same page: with two kids it is like the card for twins (an icon per kid, MUPP-082-R2), and the open kid view has the corner icon
   await page.keyboard.press("Escape");
   await card(page).getByRole("button", { name: "Tillbaka till alla barn" }).click();
   await pageAnimationsDone(page);
   await toCard(page, "Julafton");
-  await expect(card(page).getByRole("button", { name: /^Storlekar/ })).toHaveCount(0);
-  await card(page).getByRole("button", { name: /^Öppna Vera/ }).click();
+  await expect(card(page).getByRole("button", { name: /^Storlekar för / })).toHaveCount(2);
+  await card(page).getByRole("button", { name: "Önskelista för Vera" }).click();
   await expect(region(page)).toBeVisible();
   const icon = card(page).getByRole("button", { name: "Storlekar" });
   await expect(icon).toBeVisible();

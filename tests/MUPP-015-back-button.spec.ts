@@ -87,7 +87,7 @@ test("MUPP-015-R1 R2 R3 the birthday card with several kids and the Christmas ca
   await backJourney(page, card(page).getByRole("button", { name: "Önskelista för Vera" }), "Tillbaka till alla barn");
   await pageAnimationsDone(page);
   await toChristmas(page);
-  await backJourney(page, card(page).getByRole("button", { name: /^Öppna Vera/ }), "Tillbaka till Julafton");
+  await backJourney(page, card(page).getByRole("button", { name: "Önskelista för Vera" }), "Tillbaka till Julafton");
 });
 
 test("MUPP-015-R1 the single kid card has no Tillbaka button, open or folded", async ({ page }) => {
