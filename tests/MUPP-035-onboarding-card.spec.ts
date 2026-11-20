@@ -27,8 +27,8 @@ test("MUPP-035-R1 R2 R3 R4 R5 R6 R7 MUPP-036-R1 R2 MUPP-049-R1 R2 R3 the dialog 
   await expect(panel).toContainText("Paxad");
   await expect(panel).toContainText("Kan köpas flera gånger");
   await expect(panel).toContainText("orangea pilen");
-  // MUPP-080-R7: the choice of families is explained, and that it only sorts
-  await expect(panel).toContainText("Valet filtrerar bara det som visas");
+  // MUPP-080-R7 (text replaced by MUPP-086-R2): the choice of families is explained
+  await expect(panel).toContainText("Välj de familjer du tillhör");
   await expectNoA11yViolations(page);
 
   // R5 R6: the arrow keys move between the tabs, the panel follows, Tab moves on into the panel

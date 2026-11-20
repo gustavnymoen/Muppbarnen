@@ -9,7 +9,7 @@ import { TabBar } from "./Tabs";
 
 // Rutan "Så funkar det" (MUPP-035, MUPP-050): två guider, var och en med två flikar med korta texter. Texterna är fasta och godkända på korten.
 type Part = [string, ReactNode];
-type GuideTab = { id: string; label: string; intro?: string; parts?: Part[]; bullets?: ReactNode[] };
+type GuideTab = { id: string; label: string; intro?: string; parts?: Part[]; sections?: string[] };
 
 const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
   {
@@ -21,6 +21,7 @@ const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
         label: "Besökare",
         intro: "Här samlar vi barnens önskelistor och storlekar i ett försök att underlätta födelsedagar och jul!",
         parts: [
+          ["Välj familj", <>Välj de familjer du tillhör, så får du bara upp relevanta barn och Secret Santa-grupper. Du hittar filtret uppe i vänstra hörnet.</>],
           ["Önskelistor", <>Hitta barnet och öppna önskelistan. Varje rad kan innehålla mer information, till exempel specifika storlekar och länkar. Du hittar barnets storlekar på kortet.</>],
           [
             "Paxa en present",
@@ -29,12 +30,7 @@ const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
             </>,
           ],
           ["Ångrat dig eller klickat fel?", <>Tryck på den orangea pilen vid en paxad present, så blir den ledig igen. Ta bara bort din egen paxning.</>],
-          [
-            "Välj familj",
-            <>
-              Finns det flera familjer väljer du vilka du hör till med knappen med en familj och en tratt uppe till vänster. Du ser bara barnen och Secret Santa i dem. Valet filtrerar bara det som visas, och du kan ändra det när som helst.
-            </>,
-          ],
+          ["Lägg till egna presenter", <>Du kan i barnens önskelista lägga till egna presenter om du kommer på något som inte finns i önskelistan. Du kan sedan ta bort den om du ångrat dig.</>],
         ],
       },
       {
@@ -66,26 +62,19 @@ const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
       {
         id: "deltagare",
         label: "Deltagare",
-        bullets: [
-          "Hitta din Secret Santa och ditt namn, logga in med hjälp av ditt telefonnummer eller e-post.",
-          "Du kan fylla på din önskelista från och med att Secret Santa aktiveras till julafton. Fyll gärna i storlek, beskrivning och eventuell länk.",
-          "När den startas lottas du ihop med en person att ge present till! Du får ett mejl om detta.",
-          "När du loggat in ser du din egen och din matchnings lista.",
-          "I din önskelista kan du skriva med personen som ska handla till dig. I din matchnings önskelista kan du ställa frågor och få svar om hens önskelista.",
+        sections: [
+          "Hitta din Secret Santa och ditt namn, logga in med hjälp av ditt telefonnummer eller e-post. Du kan fylla på din önskelista från och med att Secret Santa aktiveras till julafton. Fyll gärna i storlek, beskrivning och eventuell länk.",
+          "När den startas lottas du ihop med en person att ge present till! Du får ett mejl om detta. När du loggat in ser du din egen och din matchnings lista. I din önskelista kan du skriva med personen som ska handla till dig. I din matchnings önskelista kan du ställa frågor och få svar om hens önskelista.",
           "Du får mejl från tomten@kusinportalen.com vid förändring i eventet, i din matchnings önskelista eller vid nya meddelanden. Se till att det inte hamnar i skräpposten.",
         ],
       },
       {
         id: "admin",
         label: "Admin",
-        bullets: [
-          "Du som admin kan skapa Secret Santa samt lägga till och ändra personer (telefon och e-post).",
-          "Vill du att par inte ska få varandra, ange då partner på personerna.",
-          "Du aktiverar eventet när ni känner er redo. Då får deltagarna mejl och kan fylla på sina önskelistor.",
-          "När du startar eventet matchas personerna. Du kan välja att aktivera och starta på samma gång. Deltagare kan fortsätta redigera sina listor efter att eventet startat, men du kan inte lägga till eller ta bort personer när det startat.",
-          "Du kan se om alla fyllt i minst en sak i sin lista, så du vet vem du ska tjata på (men aldrig VAD de fyllt i).",
-          "Du kan stoppa och avaktivera Secret Santa om du missat något. Matchningar görs dock om vid ny start.",
-          "En månad efter julafton rensas eventet. Du behöver inte göra något.",
+        sections: [
+          "Du som admin kan skapa Secret Santa samt lägga till och ändra personer (telefon och e-post). Vill du att par inte ska få varandra, ange då partner på personerna.",
+          "Du aktiverar eventet när ni känner er redo. Då får deltagarna mejl och kan fylla på sina önskelistor. När du startar eventet matchas personerna. Du kan välja att aktivera och starta på samma gång. Deltagare kan fortsätta redigera sina listor efter att eventet startat, men du kan inte lägga till eller ta bort personer när det startat.",
+          "Du kan se om alla fyllt i minst en sak i sin lista, så du vet vem du ska tjata på (men aldrig VAD de fyllt i). Du kan stoppa och avaktivera Secret Santa om du missat något. Matchningar görs dock om vid ny start. En månad efter julafton rensas eventet. Du behöver inte göra något.",
         ],
       },
     ],
@@ -194,13 +183,11 @@ function OnboardingGuides({ first }: { first: number }) {
                     <p className="text-muted">{text}</p>
                   </section>
                 ))}
-                {t.bullets && (
-                  <ul className="list-disc space-y-2 pl-5 text-muted marker:text-text">
-                    {t.bullets.map((b, i) => (
-                      <li key={i}>{b}</li>
-                    ))}
-                  </ul>
-                )}
+                {t.sections?.map((text) => (
+                  <p key={text} className="text-muted">
+                    {text}
+                  </p>
+                ))}
               </div>
             );
           })}
