@@ -34,12 +34,12 @@ test("MUPP-050-R1 R2 R3 R7 the dialog Så funkar det has the tabs Barnens listor
   await expect(kinds.getByRole("tab")).toHaveText(["Deltagare", "Admin"]);
   await expect(kinds.getByRole("tab", { name: "Deltagare" })).toHaveAttribute("aria-selected", "true");
   const participant = dialog.getByRole("tabpanel", { name: "Deltagare" });
-  await expect(participant.getByRole("listitem")).toHaveCount(6);
+  await expect(participant.getByRole("paragraph")).toHaveCount(3); // MUPP-086-R3
   await expect(participant).toContainText("tomten@kusinportalen.com");
   await expectNoA11yViolations(page);
   await kinds.getByRole("tab", { name: "Admin" }).click();
   const admin = dialog.getByRole("tabpanel", { name: "Admin" });
-  await expect(admin.getByRole("listitem")).toHaveCount(7);
+  await expect(admin.getByRole("paragraph")).toHaveCount(3);
   await expect(admin).toContainText("En månad efter julafton rensas eventet");
   await expectNoA11yViolations(page);
 

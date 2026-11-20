@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-20
+
+* **Creation** [MUPP-086 Help dialog texts and Secret Santa sections](../specs/MUPP-086-help-texts/solution.md): "Så funkar det" tells about adding own gifts, has "Välj familj" first, and the Secret Santa guides are three paragraphs per tab instead of bullet lists.
+
 ## 2026-11-17
 
 * **Update** [MUPP-084](../specs/MUPP-084-three-kids-space/verification.md): merged in pull request 298; Live tests passed against the live site (run 43950359324); the live accessibility checklist is not done.
