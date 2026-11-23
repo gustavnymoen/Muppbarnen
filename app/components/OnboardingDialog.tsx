@@ -9,7 +9,7 @@ import { TabBar } from "./Tabs";
 
 // Rutan "Så funkar det" (MUPP-035, MUPP-050): två guider, var och en med två flikar med korta texter. Texterna är fasta och godkända på korten.
 type Part = [string, ReactNode];
-type GuideTab = { id: string; label: string; intro?: string; parts?: Part[]; sections?: string[] };
+type GuideTab = { id: string; label: string; intro?: string; parts: Part[] };
 
 const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
   {
@@ -62,19 +62,43 @@ const GUIDES: { id: string; label: string; tabs: GuideTab[] }[] = [
       {
         id: "deltagare",
         label: "Deltagare",
-        sections: [
-          "Hitta din Secret Santa och ditt namn, logga in med hjälp av ditt telefonnummer eller e-post. Du kan fylla på din önskelista från och med att Secret Santa aktiveras till julafton. Fyll gärna i storlek, beskrivning och eventuell länk.",
-          "När den startas lottas du ihop med en person att ge present till! Du får ett mejl om detta. När du loggat in ser du din egen och din matchnings lista. I din önskelista kan du skriva med personen som ska handla till dig. I din matchnings önskelista kan du ställa frågor och få svar om hens önskelista.",
-          "Du får mejl från tomten@kusinportalen.com vid förändring i eventet, i din matchnings önskelista eller vid nya meddelanden. Se till att det inte hamnar i skräpposten.",
+        parts: [
+          ["Logga in", <>Hitta din grupp och logga in med hjälp av ditt namn + telefonnummer eller e-post.</>],
+          ["Skriv din önskelista", <>Du kan fylla på din önskelista från och med att Secret Santa aktiveras till julafton. Fyll gärna i storlek, beskrivning och eventuell länk.</>],
+          ["Lottningen", <>När Secret Santa startas lottas du ihop med en person att ge present till! Du får ett mejl om detta.</>],
+          [
+            "Din och din matchnings lista",
+            <>
+              När du loggat in ser du din egen och din matchnings lista. I din önskelista kan du skriva med personen som ska handla till dig. I din matchnings önskelista kan du ställa frågor och få svar om hens önskelista. Tar det tid för din matchning att fylla på sin lista kan du klicka på tjat-knappen!
+            </>,
+          ],
+          [
+            "Mejl från tomten",
+            <>Du får mejl från tomten@kusinportalen.com vid förändring i eventet, i din matchnings önskelista eller vid nya meddelanden. Se till att det inte hamnar i skräpposten.</>,
+          ],
         ],
       },
       {
         id: "admin",
         label: "Admin",
-        sections: [
-          "Du som admin kan skapa Secret Santa samt lägga till och ändra personer (telefon och e-post). Vill du att par inte ska få varandra, ange då partner på personerna.",
-          "Du aktiverar eventet när ni känner er redo. Då får deltagarna mejl och kan fylla på sina önskelistor. När du startar eventet matchas personerna. Du kan välja att aktivera och starta på samma gång. Deltagare kan fortsätta redigera sina listor efter att eventet startat, men du kan inte lägga till eller ta bort personer när det startat.",
-          "Du kan se om alla fyllt i minst en sak i sin lista, så du vet vem du ska tjata på (men aldrig VAD de fyllt i). Du kan stoppa och avaktivera Secret Santa om du missat något. Matchningar görs dock om vid ny start. En månad efter julafton rensas eventet. Du behöver inte göra något.",
+        parts: [
+          [
+            "Skapa gruppen",
+            <>Du som admin kan skapa en Secret Santa-grupp samt lägga till och ändra personer. Vill du att par inte ska få varandra, ange då partner på personerna.</>,
+          ],
+          [
+            "Aktivera och Starta",
+            <>
+              När du aktiverar gruppen får deltagarna mejl och kan fylla på sina önskelistor! I denna status kan du lägga till och ta bort personer. När du startar eventet matchas personerna. Deltagare kan fortsätta redigera sina listor efter att eventet startat. Du kan välja att aktivera och starta på samma gång, men tänk på att personer inte kan läggas till eller tas bort efter att eventet startat.
+            </>,
+          ],
+          ["Följ upp", <>Du kan se om alla fyllt i minst en sak i sin lista, så du vet vem du ska tjata på (men aldrig VAD de fyllt i).</>],
+          [
+            "Stoppa och rensa",
+            <>
+              Du kan stoppa och avaktivera Secret Santa om du missat något. Matchningar görs dock om vid ny start. En månad efter julafton rensas chattar och önskelistor och gruppen avaktiveras, men personerna är kvar tills nästa år. Du behöver inte göra något.
+            </>,
+          ],
         ],
       },
     ],
@@ -177,16 +201,11 @@ function OnboardingGuides({ first }: { first: number }) {
                 className={`col-start-1 row-start-1 space-y-3 ${shown ? "" : "invisible"}`}
               >
                 {t.intro && <p>{t.intro}</p>}
-                {t.parts?.map(([title, text]) => (
+                {t.parts.map(([title, text]) => (
                   <section key={title}>
                     <h3 className="font-heading font-semibold">{title}</h3>
                     <p className="text-muted">{text}</p>
                   </section>
-                ))}
-                {t.sections?.map((text) => (
-                  <p key={text} className="text-muted">
-                    {text}
-                  </p>
                 ))}
               </div>
             );

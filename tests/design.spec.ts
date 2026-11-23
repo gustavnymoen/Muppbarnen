@@ -1455,12 +1455,6 @@ test("MUPP-035-R6 MUPP-036-R2 MUPP-050-R4 the dialog Så funkar det on the narro
     const now = await settledBox(dialog);
     expect([guide, tab, now.width, now.height]).toEqual([guide, tab, box.width, box.height]);
     expect((await bottom.boundingBox())!.y).toBe(buttonY);
-    if (guide === "Secret Santa") {
-      // MUPP-086-R3: the three sections are told apart by space alone (no bullets, no headings)
-      const [a, b] = await dialog.getByRole("tabpanel", { name: tab }).getByRole("paragraph").all();
-      const gap = (await b.boundingBox())!.y - (await a.boundingBox())!.y - (await a.boundingBox())!.height;
-      expect(gap).toBeGreaterThanOrEqual(8);
-    }
   }
   }
 });
