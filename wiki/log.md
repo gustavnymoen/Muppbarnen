@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-23
+
+* **Creation** [TECH-031 Next.js security upgrade](../specs/TECH-031-nextjs-security-upgrade/solution.md): Next.js and `eslint-config-next` 16.4.3 to 16.4.6, so `npm audit` has no advisory for `next` and the build no longer stops with a security notice; no code change.
+
 ## 2026-11-20
 
 * **Update** [MUPP-086](../specs/MUPP-086-help-texts/verification.md): merged in pull request 303; Live tests passed against the live site (run 44751363861); the live accessibility checklist is not done.
