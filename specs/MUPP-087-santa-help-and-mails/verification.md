@@ -41,9 +41,9 @@ No test was added, so the feature's own tests added 0 s. The suite was already o
 
 - [x] Tests: every requirement is tested or has a recorded manual check; unit tests and the affected browser tests pass
 - [ ] Test suite: 6.4 s over the time budget, handled by TECH-030 (see above)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed (pull request 306), and the smoke tests pass against production (Live tests, run 45149368955, 2026-11-23)
 - [ ] Accessibility: axe passes; the live checklist is not checked
-- [ ] Requirements in the card match what was built, no open questions left; copied below
+- [x] Requirements in the card match what was built, no open questions left; copied below
 - [x] Manual, system docs and `wiki/log.md` updated (the manual describes no part of these texts)
 - [x] No leftovers: the `sections` field and its markup, and the old spacing check, are deleted
 - [x] Clean code: `npm run lint`, `npm run lint:docs`, `npm run typecheck` and `npm run build` pass
