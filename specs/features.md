@@ -120,6 +120,7 @@ tags: [product, features]
 | [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |
 | [MUPP-085](MUPP-085-admin-wishlist-flipping/solution.md) | Admin wish lists: arrows, slide and button places | Administration | Done |
 | [MUPP-086](MUPP-086-help-texts/solution.md) | Help dialog texts and Secret Santa sections | Shared | Done |
+| [TECH-031](TECH-031-nextjs-security-upgrade/solution.md) | Next.js security upgrade | Shared | Review |
 | [MUPP-087](MUPP-087-santa-help-and-mails/solution.md) | Secret Santa help sections and mail texts | Shared | Review |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
