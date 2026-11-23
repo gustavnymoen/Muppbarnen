@@ -3,6 +3,7 @@
 ## 2026-11-23
 
 * **Creation** [TECH-031 Next.js security upgrade](../specs/TECH-031-nextjs-security-upgrade/solution.md): Next.js and `eslint-config-next` 16.4.3 to 16.4.6, so `npm audit` has no advisory for `next` and the build no longer stops with a security notice; no code change.
+* **Update** [TECH-031](../specs/TECH-031-nextjs-security-upgrade/verification.md): merged in pull request 307; Live tests passed against the live site (run 45158329627).
 * **Update** [MUPP-087](../specs/MUPP-087-santa-help-and-mails/verification.md): merged in pull request 306; Live tests passed against the live site (run 45149368955); the live accessibility checklist is not done.
 * **Creation** [MUPP-087 Secret Santa help sections and mail texts](../specs/MUPP-087-santa-help-and-mails/solution.md): the Secret Santa guides in "Så funkar det" have bold headings and shorter parts (five on Deltagare, four on Admin), and mail 3 has one line about messages to both matches.
 
