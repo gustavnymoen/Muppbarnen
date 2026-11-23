@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-23
+
+* **Creation** [MUPP-087 Secret Santa help sections and mail texts](../specs/MUPP-087-santa-help-and-mails/solution.md): the Secret Santa guides in "Så funkar det" have bold headings and shorter parts (five on Deltagare, four on Admin), and mail 3 has one line about messages to both matches.
+
 ## 2026-11-20
 
 * **Update** [MUPP-086](../specs/MUPP-086-help-texts/verification.md): merged in pull request 303; Live tests passed against the live site (run 44751363861); the live accessibility checklist is not done.

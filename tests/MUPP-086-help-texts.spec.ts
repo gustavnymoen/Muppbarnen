@@ -42,21 +42,32 @@ test("MUPP-086-R1 R2 Besökare has Välj familj first and Lägg till egna presen
   await expectNoA11yViolations(page);
 });
 
-// first and last words of each section: together they show that the groups follow the old bullet order
-const starts: Record<string, RegExp[]> = {
+const parts: Record<string, [string, string][]> = {
   Deltagare: [
-    /^Hitta din Secret Santa[\s\S]*eventuell länk\.$/,
-    /^När den startas lottas du[\s\S]*hens önskelista\.$/,
-    /^Du får mejl från tomten[\s\S]*skräpposten\.$/,
+    ["Logga in", "Hitta din grupp och logga in med hjälp av ditt namn + telefonnummer eller e-post."],
+    ["Skriv din önskelista", "Du kan fylla på din önskelista från och med att Secret Santa aktiveras till julafton. Fyll gärna i storlek, beskrivning och eventuell länk."],
+    ["Lottningen", "När Secret Santa startas lottas du ihop med en person att ge present till! Du får ett mejl om detta."],
+    [
+      "Din och din matchnings lista",
+      "När du loggat in ser du din egen och din matchnings lista. I din önskelista kan du skriva med personen som ska handla till dig. I din matchnings önskelista kan du ställa frågor och få svar om hens önskelista. Tar det tid för din matchning att fylla på sin lista kan du klicka på tjat-knappen!",
+    ],
+    ["Mejl från tomten", "Du får mejl från tomten@kusinportalen.com vid förändring i eventet, i din matchnings önskelista eller vid nya meddelanden. Se till att det inte hamnar i skräpposten."],
   ],
   Admin: [
-    /^Du som admin kan skapa[\s\S]*personerna\.$/,
-    /^Du aktiverar eventet[\s\S]*när det startat\.$/,
-    /^Du kan se om alla fyllt i[\s\S]*Du behöver inte göra något\.$/,
+    ["Skapa gruppen", "Du som admin kan skapa en Secret Santa-grupp samt lägga till och ändra personer. Vill du att par inte ska få varandra, ange då partner på personerna."],
+    [
+      "Aktivera och Starta",
+      "När du aktiverar gruppen får deltagarna mejl och kan fylla på sina önskelistor! I denna status kan du lägga till och ta bort personer. När du startar eventet matchas personerna. Deltagare kan fortsätta redigera sina listor efter att eventet startat. Du kan välja att aktivera och starta på samma gång, men tänk på att personer inte kan läggas till eller tas bort efter att eventet startat.",
+    ],
+    ["Följ upp", "Du kan se om alla fyllt i minst en sak i sin lista, så du vet vem du ska tjata på (men aldrig VAD de fyllt i)."],
+    [
+      "Stoppa och rensa",
+      "Du kan stoppa och avaktivera Secret Santa om du missat något. Matchningar görs dock om vid ny start. En månad efter julafton rensas chattar och önskelistor och gruppen avaktiveras, men personerna är kvar tills nästa år. Du behöver inte göra något.",
+    ],
   ],
 };
 
-test("MUPP-086-R3 the Secret Santa guides are sections without list items or headings, and the dialog is as tall on every tab", async ({
+test("MUPP-087-R1 R2 R3 the Secret Santa guides are parts with the approved headings and texts and no list items, and the dialog is as tall on every tab", async ({
   page,
 }) => {
   const dialog = await openDialog(page);
@@ -71,10 +82,8 @@ test("MUPP-086-R3 the Secret Santa guides are sections without list items or hea
     await dialog.getByRole("tab", { name, exact: true }).click();
     const panel = dialog.getByRole("tabpanel", { name });
     await expect(panel.getByRole("listitem")).toHaveCount(0);
-    await expect(panel.getByRole("heading")).toHaveCount(0);
-    await expect(panel.getByRole("paragraph")).toHaveCount(3);
-    // every sentence of the old bullets is there, in the old order: the paragraphs start with the first bullet of their group
-    await expect(panel.getByRole("paragraph")).toHaveText(starts[name]);
+    await expect(panel.getByRole("heading")).toHaveText(parts[name].map(([title]) => title));
+    await expect(panel.getByRole("paragraph")).toHaveText(parts[name].map(([, text]) => text));
     await height();
     await expectNoA11yViolations(page);
   }

@@ -29,8 +29,7 @@ export const startedMail = (group: string, amount: number | null): Mail => ({
   subject: subject(group, "nu har du fått en secret santa!"),
   text:
     `Ho ho ho! Dragningen i ${group} är gjord. Gå in och se vem du ska handla åt. Du kan fortfarande ändra din önskelista, och du kan skicka och ta emot frågor utan att någon får veta vem du är. I din önskelista kan du få frågor från din matchning om din önskelista. Du kan också meddela om det är något dom vill framföra!\n` +
-    `I din secret santas önskelista kan du skicka frågor och få svar om hens lista!\n` +
-    `Det är alltså två chattar, en i din lista om DIN önskelista, samt en i din matchnings lista!` +
+    `Det finns möjlighet att skriva meddelande till både den som ska köpa till dig och den du ska köpa till` +
     (amount === null ? "" : `\nBeloppet är ${amount} kr.`),
   installTip: true,
 });
