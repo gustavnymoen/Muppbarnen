@@ -119,7 +119,7 @@ tags: [product, features]
 | [TECH-028](TECH-028-date-proof-tests/solution.md) | Date-proof browser tests | Shared | Review |
 | [TECH-029](TECH-029-test-suite-time/solution.md) | Test suite time | Shared | Done |
 | [MUPP-085](MUPP-085-admin-wishlist-flipping/solution.md) | Admin wish lists: arrows, slide and button places | Administration | Done |
-| [MUPP-086](MUPP-086-help-texts/solution.md) | Help dialog texts and Secret Santa sections | Shared | Ongoing |
+| [MUPP-086](MUPP-086-help-texts/solution.md) | Help dialog texts and Secret Santa sections | Shared | Done |
 
 The backlog is the board <https://github.com/users/gustavnymoen/projects/3> ([Backlog](../wiki/system/backlog.md)).
 
