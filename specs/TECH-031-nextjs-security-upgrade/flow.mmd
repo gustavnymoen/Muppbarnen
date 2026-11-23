@@ -1,0 +1,13 @@
+%% TECH-031 Next.js security upgrade
+%% How the upgrade is checked: the audit, a first-try build and test run, then the whole suite.
+flowchart TD
+    A[npm install next 16.4.6 and eslint-config-next 16.4.6] --> B{npm audit: advisory for next?}
+    B -- yes --> A
+    B -- no --> C[R1: no advisory]
+    C --> D{First build and test run without the security stop?}
+    D -- no --> A
+    D -- yes --> E[R2: no stop]
+    E --> F{Lint, type check, build, unit and browser tests pass?}
+    F -- no --> G[Read the release notes and fix the cause]
+    G --> F
+    F -- yes --> H[R3: unchanged behaviour, then smoke tests on preview and live]

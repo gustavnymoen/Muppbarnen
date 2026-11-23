@@ -30,7 +30,7 @@
   "dependencies": {
     "@libsql/client": "^0.18.0",
     "@vercel/blob": "^2.8.2",
-    "next": "16.4.3",
+    "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
@@ -44,7 +44,7 @@
     "@types/react-dom": "^19",
     "axe-core": "^4.14.0",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.5"
