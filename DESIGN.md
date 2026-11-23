@@ -99,9 +99,9 @@ The two cards on a participant's own Secret Santa page ("Min önskelista", and "
 - **Flipping between the kids:** the chevron arrows "Föregående barn" and "Nästa barn" are fixed at the screen edges, centred on the screen's height (the lists are long and the page scrolls), as on the start page's deck; the content sits in a frame as wide as the page, with the arrows half over its edge and the content 20 px in from it, so only the edges of the cards go under an arrow and no row, title or button does. Tried and dropped: arrows on the kid's name row. The next kid slides in from the side (250 ms, `translateX` and opacity) and the old one out the other way; with reduced motion the kid changes without movement.
 - **One back control:** the return arrow (`ReturnIcon`, "Tillbaka", `BackLink`, 44 px) in the header's `back` place, level with the menu button, on every page that goes back, and as the step back inside the dialog "Lägg till present". The chevrons mean "previous" and "next", never "back".
 
-## Help dialog sections (MUPP-086)
+## Help dialog sections (MUPP-086, MUPP-087)
 
-- The Secret Santa guides in "Så funkar det" are three muted paragraphs per tab, separated by the dialog's usual `space-y-3`, with no bullets and no bold headings (the guide "Barnens listor" keeps its headings). Tried on a 375 px phone and approved by the user.
+- The Secret Santa guides in "Så funkar det" are parts like the guide "Barnens listor": a bold heading in Fredoka (`<h3 class="font-heading font-semibold">`) and a muted paragraph each, five parts on "Deltagare" and four on "Admin", with the dialog's usual `space-y-3` between them. No bullets. Tried on a 375 px phone (MUPP-087-R4).
 
 ## Concept (TECH-006, step 1)
 
