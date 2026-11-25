@@ -2,6 +2,7 @@
 
 ## 2026-11-25
 
+* **Update** [Admin](system/admin.md): the dialog for editing a gift (admin and the Secret Santa own list) no longer repeats size, description and link as text above the fields; they are only in the fields.
 * **Update** [Start page](system/start-page.md): the details of a wish row are indented to line up under the headline, and a claimed row says "av {name} {dd/mm}" instead of "Paxad av {name} {yyyy-mm-dd}".
 
 ## 2026-11-23

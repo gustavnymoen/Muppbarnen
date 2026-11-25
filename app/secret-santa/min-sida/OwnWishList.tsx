@@ -4,7 +4,7 @@ import { Form } from "@/app/components/Form";
 import { AddRow, FormCard } from "@/app/components/FormCard";
 import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
-import { WishDetails, WishFields } from "@/app/components/WishParts";
+import { WishFields } from "@/app/components/WishParts";
 import { WishRow } from "@/app/components/WishList";
 import type { SantaWish } from "@/lib/santa-wishes";
 import { removeWish, saveWish } from "../wish-actions";
@@ -45,10 +45,7 @@ function WishCard({ eventId, eventName, wish }: { eventId: number; eventName: st
       actions={
         <>
           <FormCard big title={`Ändra ${wish.title}`} label={`Ändra ${wish.title}`} icon={<PencilIcon />}>
-            <div className="space-y-4">
-              <WishDetails item={wish} />
-              <WishForm eventId={eventId} wish={wish} submit="Spara" />
-            </div>
+            <WishForm eventId={eventId} wish={wish} submit="Spara" />
           </FormCard>
           <ConfirmAction
             big

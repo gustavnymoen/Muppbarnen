@@ -6,7 +6,7 @@ import { PencilIcon } from "@/app/components/icons";
 import { Heading } from "@/app/components/Page";
 import { SizesButton } from "@/app/components/SizesButton";
 import { SlimCard } from "@/app/components/SlimCard";
-import { WishDetails, WishFields } from "@/app/components/WishParts";
+import { WishFields } from "@/app/components/WishParts";
 import { dayAndMonth, parseDate } from "@/lib/deck";
 import type { AdminItem, ArchiveGroup, Child, WishlistItem } from "@/lib/family";
 import { OCCASION_NAMES, type Occasion } from "@/lib/form-input";
@@ -57,10 +57,7 @@ function ItemCard({ child, occasion, item }: { child: Child; occasion: Occasion;
       actions={
         <>
           <FormCard title={`Ändra ${item.title}`} label={`Ändra ${item.title}`} icon={<PencilIcon />}>
-            <div className="space-y-4">
-              <WishDetails item={item} />
-              <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
-            </div>
+            <ItemForm child={child} occasion={occasion} item={item} submit="Spara" />
           </FormCard>
           <ConfirmAction
             action={removeItem}

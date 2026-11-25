@@ -313,12 +313,13 @@ test("MUPP-003-R4 R8 wish lists: add, edit, remove an item and clear a list, wit
   await expect(item).toBeVisible();
   const unlimited = item.locator("span").filter({ hasText: /^Obegränsad$/ });
   await expect(unlimited).toBeVisible();
-  // The details are behind the row's pencil
+  // The details are in the fields behind the row's pencil, as text and not once more above them
   await expect(item.getByText("Storlek: Stor")).toHaveCount(0);
-  await openCard(item, "Ändra");
-  await expect(item.getByText("Storlek: Stor")).toBeVisible();
-  await expect(item.getByRole("link", { name: "https://exempel.se/lego" })).toHaveAttribute("href", "https://exempel.se/lego");
-  await expect(item.locator("p").filter({ hasText: "<script>alert(1)</script> En stor ask" })).toBeVisible();
+  const details = await openCard(item, "Ändra");
+  await expect(details.getByLabel("Storlek", { exact: true })).toHaveValue("Stor");
+  await expect(details.getByLabel("Länk")).toHaveValue("https://exempel.se/lego");
+  await expect(details.getByLabel("Beskrivning")).toHaveValue("<script>alert(1)</script> En stor ask");
+  await expect(item.getByRole("link")).toHaveCount(0);
   // Never rendered as HTML: no element was made of the text
   expect(await birthday.locator("article b, article script").count()).toBe(0);
   // The new card is empty when opened again, and the other list is unchanged
