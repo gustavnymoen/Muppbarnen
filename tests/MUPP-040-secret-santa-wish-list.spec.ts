@@ -63,9 +63,11 @@ test("MUPP-040-R1 R2 a wish is added with a title, a link must be http(s) and th
   await foldOut(page, "Bok");
   await page.getByRole("button", { name: "Ändra Bok" }).click();
   const card = page.locator("dialog[open]");
-  await expect(card.getByText("Storlek: M")).toBeVisible();
-  await expect(card.locator("p", { hasText: "En <b>spännande</b> bok" })).toBeVisible();
-  await expect(card.getByRole("link", { name: "https://exempel.invalid/bok" })).toHaveAttribute("href", "https://exempel.invalid/bok");
+  // The dialog has the wish only in its fields, not once more as text above them
+  await expect(card.getByLabel("Storlek")).toHaveValue("M");
+  await expect(card.getByLabel("Beskrivning")).toHaveValue("En <b>spännande</b> bok");
+  await expect(card.getByLabel("Länk")).toHaveValue("https://exempel.invalid/bok");
+  await expect(card.getByRole("link")).toHaveCount(0);
   await expectNoA11yViolations(page);
 
   // R2: the open form is the wish's own, changed and saved
