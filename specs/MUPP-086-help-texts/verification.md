@@ -21,7 +21,7 @@ feature: MUPP-086
 | Unit tests | Not applicable: texts and markup only (441 existing pass) | local | Pass | 2026-11-20 |
 | Browser tests | `MUPP-086-help-texts.spec.ts` (2 tests, axe on each panel); spacing check in `design.spec.ts`; `MUPP-050` and `MUPP-035` tests updated | local | Pass | 2026-11-20 |
 | Smoke test | Not applicable for new tests (no new page or flow); the existing smoke tests ran as Live tests after the merge (run 44751363861) | preview, live | Pass | 2026-11-20 |
-| Accessibility | axe in the new tests; the live checklist is not done | local | Not checked live | 2026-11-20 |
+| Accessibility | axe in the new tests; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude | local, live | Pass (axe); live checklist marked done by the user | 2026-11-25 |
 | Security | Not applicable: static texts, no input, route or data | - | - | - |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-20 |
 
@@ -41,7 +41,7 @@ The two new tests take about 1.3 s together; the rest of the rise is run-to-run 
 - [x] Tests: every requirement is tested or has a recorded manual check; unit tests and the affected browser tests pass
 - [ ] Test suite: 7 s over the time budget, handled by TECH-030 (see above)
 - [x] Deployed (pull request 303), and the smoke tests pass against production (Live tests, run 44751363861, 2026-11-20)
-- [ ] Accessibility: axe passes; the live checklist is not checked
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude
 - [x] Requirements in the card match what was built, no open questions left; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers: the `bullets` field and its list markup are deleted

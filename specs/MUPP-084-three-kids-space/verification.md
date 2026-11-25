@@ -21,7 +21,7 @@ feature: MUPP-084
 | Unit tests | None planned (a layout); `npm run test:unit` passes (441 tests) | local | Pass | 2026-11-17 |
 | Browser tests | No new test and no new page load: the checks are in `expectRows` and a 320 px resize in the existing test | local | Pass | 2026-11-17 |
 | Smoke test | Not needed for the change (no main page or flow is added); Live tests (the smoke tests) ran after the merge, run 43950359324 on merge commit `284e3a9` | live | Pass | 2026-11-17 |
-| Accessibility | axe in `expectRows`, on both cards, at 375 and 320 px; rows at least 44 px. The live checklist (size and contrast of the larger name) is not gone through | local | Pass (live checklist not done) | 2026-11-17 |
+| Accessibility | axe in `expectRows`, on both cards, at 375 and 320 px; rows at least 44 px; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude | local, live | Pass (axe); live checklist marked done by the user | 2026-11-25 |
 | Security | Not needed (no sign-in, API, action or data) | n/a | Not applicable | 2026-11-17 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-17 |
 
@@ -41,7 +41,7 @@ The before figure is from the card, not measured again on `origin/main`; the cou
 - [x] Tests: every requirement has a test; unit and browser tests pass
 - [x] Test suite: 346.2 s, within the 350 s budget
 - [x] Deployed (pull request 298, merge commit `284e3a9`), and the smoke tests pass against production (Live tests, run 43950359324)
-- [ ] Accessibility: axe passes; the live checklist is not done
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude
 - [x] Requirements in the card match what was built; copied below
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers

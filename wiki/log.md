@@ -2,6 +2,7 @@
 
 ## 2026-11-25
 
+* **Update** [Verification records](../specs/MUPP-087-santa-help-and-mails/verification.md): the live accessibility checklist of MUPP-083, 084, 085, 086 and 087 is marked done by the user, who tested the live site (not gone through item by item by Claude); the open boxes of MUPP-065 are closed, since MUPP-068 replaced it.
 * **Update** [Admin](system/admin.md): the dialog for editing a gift (admin and the Secret Santa own list) no longer repeats size, description and link as text above the fields; they are only in the fields.
 * **Update** [Start page](system/start-page.md): the details of a wish row are indented to line up under the headline, and a claimed row says "av {name} {dd/mm}" instead of "Paxad av {name} {yyyy-mm-dd}".
 

@@ -22,7 +22,7 @@ feature: MUPP-087
 | Unit tests | `lib/santa-mail.test.ts` updated for mail 3 (441 pass) | local | Pass | 2026-11-23 |
 | Browser tests | The R3 test of `MUPP-086-help-texts.spec.ts` rewritten as the MUPP-087 test; `MUPP-050-santa-help` counts updated; the spacing check of the old sections removed from `design.spec.ts`; no new test | local | Pass | 2026-11-23 |
 | Smoke test | Not applicable: no new page or flow | - | - | - |
-| Accessibility | axe in the test above; the live checklist is not done | local | Not checked live | 2026-11-23 |
+| Accessibility | axe in the test above; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude | local, live | Pass (axe); live checklist marked done by the user | 2026-11-25 |
 | Security | Not applicable: static texts; mail 3 still holds no member name, wish or message | - | - | - |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-23 |
 
@@ -42,7 +42,7 @@ No test was added, so the feature's own tests added 0 s. The suite was already o
 - [x] Tests: every requirement is tested or has a recorded manual check; unit tests and the affected browser tests pass
 - [ ] Test suite: 6.4 s over the time budget, handled by TECH-030 (see above)
 - [x] Deployed (pull request 306), and the smoke tests pass against production (Live tests, run 45149368955, 2026-11-23)
-- [ ] Accessibility: axe passes; the live checklist is not checked
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude
 - [x] Requirements in the card match what was built, no open questions left; copied below
 - [x] Manual, system docs and `wiki/log.md` updated (the manual describes no part of these texts)
 - [x] No leftovers: the `sections` field and its markup, and the old spacing check, are deleted

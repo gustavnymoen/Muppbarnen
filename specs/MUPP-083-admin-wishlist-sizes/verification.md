@@ -21,7 +21,7 @@ feature: MUPP-083
 | Unit tests | `lib/kid-neighbours.test.ts`, 3 tests | local | Pass | 2026-11-17 |
 | Browser tests | The checks joined the existing wish list page test (no new file); `{ exact: true }` on the "Storlek" label in the MUPP-003 and MUPP-045 tests, since "Storlekar" now also matches it | local | Pass | 2026-11-17 |
 | Smoke test | Not needed for the change (no main page or flow is added); Live tests (the smoke tests) ran after the merge, run 43935647958 on merge commit `d221afe` | live | Pass | 2026-11-16 |
-| Accessibility | axe on the page and on the open sizes dialog. The checklist items on the live site: not checked | local | Pass (axe) | 2026-11-17 |
+| Accessibility | axe on the page and on the open sizes dialog; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude | local, live | Pass (axe); live checklist marked done by the user | 2026-11-25 |
 | Security | Security points in the review; `/security-review` not needed (no new route, action or query) | local | Pass | 2026-11-17 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-17 |
 
@@ -41,7 +41,7 @@ The feature's own checks added about 2.5 s (the wish list page test went from ab
 - [x] Tests: every check in the card's test plan is done; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets (347.3 s of 350 s), and the new tests follow the quality rules
 - [x] Deployed (pull request 293, merge commit `d221afe`), and the smoke tests pass against production (Live tests, run 43935647958)
-- [ ] Accessibility: axe passes; the live checklist is not done
+- [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-25), who tested it on the live site, not gone through item by item by Claude
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
 - [x] No leftovers
