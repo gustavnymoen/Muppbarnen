@@ -40,9 +40,9 @@ The suite was already over budget with eight slow tests that are not part of thi
 
 ## Definition of Done
 
-- [ ] Tests: the real-phone checks are not done
-- [ ] Test suite: over budget before this change too; the new test is 1.5 s
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Tests: the real-phone check failed (see the top of this file) and the approach was replaced by MUPP-068, which the user confirmed on an iPhone; nothing is left to check here
+- [x] Test suite: closed, not met: the test of this approach was removed with it (MUPP-068); the suite budget is handled by TECH-030
+- [x] Deployed (pull request 222); the approach was replaced by MUPP-068 (pull request 231), whose Live tests passed
 - [x] Accessibility: axe passes; the live checklist is marked done by the user (2026-11-16), not gone through item by item by Claude
 - [x] Requirements in the card match what was built; no open questions; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
