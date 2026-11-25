@@ -104,7 +104,7 @@ test("MUPP-077-R1 R2 R3 R4 R5 the add button ends a long list, step 1 checks the
   // Sorterad bland de paxade: sist, efter de lediga
   await expect(region(page).getByRole("listitem").last()).toContainText("Pussel");
   await row(page, "Pussel").getByRole("button", { name: /^Pussel/ }).click();
-  await expect(row(page, "Pussel")).toContainText(/Tillagd av Moster Lisa \d{4}-\d{2}-\d{2}/);
+  await expect(row(page, "Pussel")).toContainText(/Tillagd av Moster Lisa \d{2}\/\d{2}/);
   await expectNoA11yViolations(page);
 
   // R5: en förälders paxade rad har kvar dagens dialog, om paxningen

@@ -11,6 +11,9 @@ export const sortWishes = (wishes: Wish[]) => [...wishes].sort((a, b) => group(a
 export const canClaim = (wish: Wish) => wish.claimedBy === null && !wish.unlimited;
 export const canUnclaim = (wish: Wish) => wish.claimedBy !== null && !wish.unlimited;
 
+// "2026-11-24" blir "24/11": årtalet behövs inte, raden gäller den pågående listan
+export const shortDate = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+
 // Bara http: och https: blir länkar; allt annat (javascript:, data:, trasiga adresser) visas inte som länk
 export function webLink(url: string) {
   try {

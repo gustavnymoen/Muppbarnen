@@ -92,7 +92,7 @@ test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 MUPP-064-R1 R2 R3 R4 the rows and mark
 
   // R2: the claimed row says by whom and when, the unlimited row has an info button (MUPP-019)
   await rowButton(page, "Hoppborg").click();
-  await expect(row(page, "Hoppborg")).toContainText("Paxad av Moster Lisa 2026-01-15");
+  await expect(row(page, "Hoppborg")).toContainText("av Moster Lisa 15/01");
   await rowButton(page, "Strumpor").click();
   await expect(row(page, "Strumpor").getByRole("button", { name: "Kan köpas flera gånger", exact: true })).toBeVisible();
 
@@ -184,7 +184,7 @@ test("MUPP-005-R1 R2 R3 R4 R5 MUPP-062-R1 MUPP-064-R1 R2 R3 R4 the rows and mark
   await expect(region(page).getByRole("status")).toHaveText("Det gick inte att paxa Lego: någon annan hann före. Listan är uppdaterad.");
   await expect(row(page, "Bil")).toContainText("Paxad");
   await rowButton(page, "Lego").click();
-  await expect(row(page, "Lego")).toContainText("Paxad av Anna");
+  await expect(row(page, "Lego")).toContainText("av Anna");
   expect(await claimedByOf("Lego")).toBe("Anna");
   expect(await claimedByOf("Bil")).toBe("Pappa");
   await expectNoA11yViolations(page);
