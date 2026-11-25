@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-25
+
+* **Update** [Start page](system/start-page.md): the details of a wish row are indented to line up under the headline, and a claimed row says "av {name} {dd/mm}" instead of "Paxad av {name} {yyyy-mm-dd}".
+
 ## 2026-11-23
 
 * **Creation** [TECH-031 Next.js security upgrade](../specs/TECH-031-nextjs-security-upgrade/solution.md): Next.js and `eslint-config-next` 16.4.3 to 16.4.6, so `npm audit` has no advisory for `next` and the build no longer stops with a security notice; no code change.

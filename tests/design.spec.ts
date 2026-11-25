@@ -922,7 +922,7 @@ test("MUPP-005-R1 R3 R4 R5 MUPP-027-R1 R2 R3 MUPP-028-R3 MUPP-006-R1 R2 the wish
     // MUPP-019: the "Paxad" mark and the "Paxad av" line are orange-like (red above green and blue), and the info button is a 44 px target in the checkbox column
     expect(await css(claimedMark, "color")).toBe("rgb(227, 161, 95)");
     await region.getByRole("button", { name: /^Hoppborg/ }).click();
-    const claimedBy = region.getByText("Paxad av Moster Lisa");
+    const claimedBy = region.getByText("av Moster Lisa");
     expect(await css(claimedBy, "color")).toBe("rgb(227, 161, 95)");
     expect(contrast(await css(claimedBy, "color"), await backgroundOf(region))).toBeGreaterThanOrEqual(4.5);
     const info = await settledBox(region.getByRole("button", { name: "Kan köpas flera gånger", exact: true }));

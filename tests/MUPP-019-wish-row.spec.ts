@@ -80,6 +80,6 @@ test("MUPP-019-R1 R2 R3 R4 the order, the info button shows and hides the explan
   await expect(row(page, "Pussel")).toContainText("Beskrivning: –");
 
   await row(page, "Hoppborg").getByRole("button", { name: /^Hoppborg/ }).click();
-  await expect(row(page, "Hoppborg")).toContainText("Paxad av Moster Lisa");
+  await expect(row(page, "Hoppborg")).toContainText("av Moster Lisa");
   await expectNoA11yViolations(page);
 });

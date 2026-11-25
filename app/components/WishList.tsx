@@ -5,7 +5,7 @@ import { claimWishes, removeAddedGift, unclaimWish } from "@/app/actions";
 import type { ChildColor } from "@/lib/child-colors";
 import type { Wish } from "@/lib/deck";
 import type { Occasion } from "@/lib/form-input";
-import { canClaim, canUnclaim, isLongTitle, webLink } from "@/lib/wishes";
+import { canClaim, canUnclaim, isLongTitle, shortDate, webLink } from "@/lib/wishes";
 import { Button, IconButton } from "./Button";
 import { AddGiftDialog } from "./AddGiftDialog";
 import { Dialog, type DialogHandle } from "./Dialog";
@@ -208,6 +208,8 @@ export function WishRow({ wish, claiming, roomy, actions }: { wish: Wish; claimi
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const link = webLink(wish.url);
+  // Knappen eller kryssrutan före titeln är 44 px bred plus mellanrummet: detaljerna får samma indrag så att de står under titeln
+  const lead = (claiming && (canClaim(wish) || canUnclaim(wish))) || (wish.unlimited && wish.claimedBy === null);
 
   return (
     <li className="relative py-1">
@@ -235,16 +237,16 @@ export function WishRow({ wish, claiming, roomy, actions }: { wish: Wish; claimi
         </button>
       </div>
       {open && (
-        <div id={detailsId} className="space-y-1 pb-2 text-sm">
+        <div id={detailsId} className={`space-y-1 pb-2 text-sm ${lead ? "pl-12" : ""}`}>
           {/* En present som en besökare lagt till (MUPP-077-R4): "Tillagd av" i stället för "Paxad av" när samma namn står på båda */}
           {wish.addedBy !== null && (
             <p className="text-claimed">
-              Tillagd av {wish.addedBy} {wish.claimedAt}
+              Tillagd av {wish.addedBy} {wish.claimedAt && shortDate(wish.claimedAt)}
             </p>
           )}
           {wish.claimedBy !== null && wish.addedBy === null && (
             <p className="text-claimed">
-              Paxad av {wish.claimedBy} {wish.claimedAt}
+              av {wish.claimedBy} {wish.claimedAt && shortDate(wish.claimedAt)}
             </p>
           )}
           {/* Rubrikerna visas alltid, med ett streck när värdet saknas, så att varje rad fäller ut till något (MUPP-064-R1, -R2) */}

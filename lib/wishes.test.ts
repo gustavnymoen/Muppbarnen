@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { Wish } from "./deck";
-import { canClaim, canUnclaim, isLongTitle, sortWishes, webLink } from "./wishes";
+import { canClaim, canUnclaim, isLongTitle, shortDate, sortWishes, webLink } from "./wishes";
 
 // Påhittade önskningar
 const wish = (id: number, extra: Partial<Wish> = {}): Wish => ({ id, title: `Önskan ${id}`, description: "", size: "", url: "", unlimited: false, claimedBy: null, claimedAt: null, addedBy: null, ...extra });
@@ -44,6 +44,13 @@ describe("MUPP-005-R2 the link", () => {
     expect(webLink("https://example.com/cykel")).toBe("https://example.com/cykel");
     expect(webLink("http://example.com")).toBe("http://example.com");
     for (const bad of ["javascript:alert(1)", "data:text/html,hej", "ftp://example.com", "example.com", "", "//example.com"]) expect(webLink(bad), bad).toBeNull();
+  });
+});
+
+describe("the date on a claimed row", () => {
+  test("a day is shown as day/month without the year", () => {
+    expect(shortDate("2026-11-24")).toBe("24/11");
+    expect(shortDate("2026-01-05")).toBe("05/01");
   });
 });
 
